@@ -1,0 +1,223 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+
+import '../theme/app_dimens.dart';
+import '../theme/app_theme_ext.dart';
+import '../../l10n/gen/app_localizations.dart';
+
+/// Default map centre — central Tashkent.
+const kDefaultMapCenter = LatLng(41.3111, 69.2797);
+
+/// Interactive OSM map for picking a single geographic point — tap the map,
+/// or type exact latitude/longitude coordinates directly.
+class MapLocationPicker extends StatefulWidget {
+  const MapLocationPicker({
+    super.key,
+    required this.location,
+    required this.onLocationChanged,
+    this.height = 220,
+    this.interactive = true,
+  });
+
+  final LatLng location;
+  final ValueChanged<LatLng> onLocationChanged;
+  final double height;
+  final bool interactive;
+
+  @override
+  State<MapLocationPicker> createState() => _MapLocationPickerState();
+}
+
+class _MapLocationPickerState extends State<MapLocationPicker> {
+  final _mapController = MapController();
+  late final TextEditingController _latController;
+  late final TextEditingController _lngController;
+  String? _coordsError;
+
+  @override
+  void initState() {
+    super.initState();
+    _latController = TextEditingController(
+      text: widget.location.latitude.toStringAsFixed(6),
+    );
+    _lngController = TextEditingController(
+      text: widget.location.longitude.toStringAsFixed(6),
+    );
+  }
+
+  @override
+  void didUpdateWidget(MapLocationPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.location != oldWidget.location) {
+      _syncFieldsFromLocation();
+    }
+  }
+
+  @override
+  void dispose() {
+    _latController.dispose();
+    _lngController.dispose();
+    super.dispose();
+  }
+
+  void _syncFieldsFromLocation() {
+    _latController.text = widget.location.latitude.toStringAsFixed(6);
+    _lngController.text = widget.location.longitude.toStringAsFixed(6);
+  }
+
+  void _onMapTap(LatLng point) {
+    widget.onLocationChanged(point);
+    setState(() {
+      _coordsError = null;
+      _syncFieldsFromLocation();
+    });
+  }
+
+  void _applyTypedCoordinates() {
+    final l10n = AppLocalizations.of(context);
+    final lat = double.tryParse(_latController.text.trim());
+    final lng = double.tryParse(_lngController.text.trim());
+    if (lat == null ||
+        lng == null ||
+        lat < -90 ||
+        lat > 90 ||
+        lng < -180 ||
+        lng > 180) {
+      setState(() => _coordsError = l10n.mapLocationInvalidCoordinates);
+      return;
+    }
+    final point = LatLng(lat, lng);
+    setState(() => _coordsError = null);
+    widget.onLocationChanged(point);
+    _mapController.move(point, _mapController.camera.zoom);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.mapLocationTapHint,
+          style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadii.md),
+          child: SizedBox(
+            height: widget.height,
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: widget.location,
+                initialZoom: 13,
+                onTap: widget.interactive
+                    ? (_, point) => _onMapTap(point)
+                    : null,
+                interactionOptions: InteractionOptions(
+                  flags: widget.interactive
+                      ? InteractiveFlag.all
+                      : InteractiveFlag.none,
+                ),
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'uz.ibuild.b2b',
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: widget.location,
+                      width: 40,
+                      height: 40,
+                      child: Icon(
+                        Icons.location_on,
+                        color: colors.accentSecondary,
+                        size: 40,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          l10n.mapLocationManualHint,
+          style: textTheme.labelMedium?.copyWith(color: colors.inkMuted),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _latController,
+                enabled: widget.interactive,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                  signed: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[-\d.]')),
+                ],
+                decoration: InputDecoration(
+                  labelText: l10n.mapLocationLatitudeLabel,
+                  isDense: true,
+                ),
+                onSubmitted: (_) => _applyTypedCoordinates(),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: TextField(
+                controller: _lngController,
+                enabled: widget.interactive,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                  signed: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[-\d.]')),
+                ],
+                decoration: InputDecoration(
+                  labelText: l10n.mapLocationLongitudeLabel,
+                  isDense: true,
+                ),
+                onSubmitted: (_) => _applyTypedCoordinates(),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            FilledButton.tonal(
+              onPressed: widget.interactive ? _applyTypedCoordinates : null,
+              child: Text(l10n.mapLocationApplyCoordinates),
+            ),
+          ],
+        ),
+        if (_coordsError != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            _coordsError!,
+            style: textTheme.labelSmall?.copyWith(color: colors.danger),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          l10n.mapLocationCoordinates(
+            widget.location.latitude.toStringAsFixed(5),
+            widget.location.longitude.toStringAsFixed(5),
+          ),
+          style: textTheme.labelMedium?.copyWith(color: colors.inkMuted),
+        ),
+      ],
+    );
+  }
+}

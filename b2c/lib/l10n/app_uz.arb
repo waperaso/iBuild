@@ -1,0 +1,423 @@
+{
+  "@@locale": "uz",
+
+  "navHome": "Bosh sahifa",
+  "navSearch": "Qidiruv",
+  "navFavorites": "Sevimlilar",
+  "navInquiries": "Murojaatlar",
+  "navSettings": "Sozlamalar",
+
+  "onboardingEyebrow": "Soting. Sarmoya kiriting. Bir ilovada.",
+  "onboardingHeadline": "Orzuingizdagi\nUyni Bugun\nToping",
+  "onboardingDescription": "Tayyor kvartiralar, muddatli toʻlov bilan yangi qurilishlar va biznes-markazlardagi ofislar — barchasi bir joyda, real vaqtdagi mavjudlik va bir bosishda soʻrov bilan.",
+  "onboardingTrustBadge": "4.9★ · 500+ mamnun oila",
+  "start": "Boshlash",
+  "signIn": "Kirish",
+
+  "welcomeTitle": "iBuildga xush kelibsiz",
+  "welcomeSubtitle": "Telefon raqamingiz orqali kiring",
+  "phoneHint": "+998 90 123 45 67",
+  "sendCode": "Kodni yuborish",
+  "phoneRequiredError": "Telefon raqamingizni kiriting",
+  "otpTitle": "Kodni kiriting",
+  "otpSubtitle": "{phone} raqamiga 6 xonali kod yubordik",
+  "otpCodeHint": "6 xonali kod",
+  "otpDevHint": "Test rejimi: 123456 kodidan foydalaning",
+  "stepOneOfTwo": "1-qadam, 2 tadan",
+  "stepTwoOfTwo": "2-qadam, 2 tadan",
+  "verifyCode": "Tasdiqlash",
+  "resendCode": "Kodni qayta yuborish",
+  "invalidCodeError": "Kod xato yoki muddati oʻtgan. Qayta urinib koʻring.",
+  "signedInLabel": "Tizimga kirilgan",
+  "accountTypeOrdinaryUser": "Oddiy foydalanuvchi",
+  "signInPromptMessage": "Sevimlilarni saqlash, murojaatlarni kuzatish va yangiliklarni olish uchun tizimga kiring.",
+
+  "madeForYou": "Siz uchun tanlandi",
+  "exploreProperties": "Obyektlarni koʻrish",
+  "recommendForYou": "Sizga tavsiya etiladi",
+  "statsListingsLabel": "Eʼlonlar",
+  "statsAvailableLabel": "Boʻsh xonadonlar",
+  "statsDistrictsLabel": "Tumanlar",
+  "statsRatingLabel": "Oʻrtacha reyting",
+  "featuredForYouTitle": "Siz uchun tanlangan",
+  "popularDistrictsTitle": "Mashhur tumanlar",
+  "developersTitle": "Quruvchilar",
+  "developerProjectsCount": "{count, plural, =1{1 loyiha} other{{count} loyiha}}",
+  "@developerProjectsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "developerContactsTitle": "Kontaktlar",
+  "developerResidencesTitle": "Turar-joy majmualari",
+  "developerOfficesTitle": "Ofislar",
+  "developerNotFoundTitle": "Quruvchi topilmadi",
+  "developerNotFoundSubtitle": "Bu quruvchi katalogda yo'q.",
+  "districtListingsCount": "{count} ta eʼlon",
+  "@districtListingsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "promoBannerTitle": "Yangi loyihalar boshlandi",
+  "promoBannerSubtitle": "Tanlangan yangi qurilishlarda moslashuvchan muddatli toʻlov bilan oldindan band qiling.",
+  "promoBannerAction": "Yangi qurilishlarni koʻrish",
+  "browseListingsAction": "Eʼlonlarni koʻrish",
+  "modeBuy": "Sotib olish",
+  "modeRent": "Ijaraga olish",
+  "modeNewBuilds": "Yangi qurilishlar",
+  "categoryAll": "Barchasi",
+  "categoryApartments": "Kvartiralar",
+  "categoryOffices": "Ofislar",
+
+  "bestDeal": "Eng yaxshi taklif",
+  "discountBadge": "Chegirma",
+  "installmentBadge": "Muddatli toʻlov",
+  "unitsAvailableCount": "{count} ta boʻsh",
+
+  "searchByLocations": "Manzil boʻyicha qidirish",
+  "liveLocationDistrict": "Joylashuv · {district}",
+
+  "tabUnits": "Xonadonlar",
+  "tabFloorPlans": "Planlar",
+  "tabAbout": "Loyiha haqida",
+  "tabReviews": "Sharhlar",
+  "tabProgress": "Qurilish jarayoni",
+  "overallProgressTitle": "Umumiy qurilish jarayoni",
+  "progressEmptyTitle": "Hozircha fotohisobotlar yoʻq",
+  "progressEmptySubtitle": "Quruvchi yuklagan sanali qurilish fotolari shu yerda paydo boʻladi.",
+  "noReviewsYet": "Hozircha sharhlar yoʻq",
+  "reviewsEmptySubtitle": "Birinchi boʻlib fikr bildiring — yoki avval savol bering.",
+  "writeReviewAction": "Sharh yozish",
+  "submitReviewAction": "Sharhni yuborish",
+  "reviewBodyHint": "Ushbu loyiha haqidagi fikringizni yozing...",
+  "reviewsCount": "{count} sharh",
+  "@reviewsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "flagReviewAction": "Shikoyat qilish",
+  "reviewFlaggedSnackbar": "Rahmat — tekshirib chiqamiz",
+  "viewUnitGrid": "Mavjudlik jadvalini koʻrish",
+  "requestCallback": "Qayta qoʻngʻiroq soʻrash",
+  "fromPrice": "{price} dan boshlab",
+  "rentFromPrice": "Ijaraga {price} dan",
+  "noDescription": "Tavsif mavjud emas.",
+  "amenitiesTitle": "Qulayliklar",
+
+  "projectDetailsMenu": "Loyiha haqida",
+  "offersInstallmentsMenu": "Aksiya va muddatli toʻlov",
+  "supportMenu": "Yordam",
+  "noneLabel": "Yoʻq",
+  "activeOffersCount": "{count} ta faol",
+  "requestCallbackTrailing": "Qoʻngʻiroq soʻrash",
+  "builtPercent": "{percent}% qurilgan",
+  "completionDate": "Topshirish sanasi: {date}",
+  "readyToMoveIn": "Koʻchib oʻtishga tayyor",
+  "handedOverToResidents": "Foydalanuvchilarga topshirilgan",
+  "offersSheetTitle": "Aksiyalar",
+  "noActiveOffers": "Bu loyiha uchun hozircha faol aksiyalar yoʻq.",
+  "iBuildPartner": "iBuild hamkori",
+
+  "verifiedBadgeLabel": "Tasdiqlangan",
+  "verificationPendingBadgeLabel": "Tekshirilmoqda",
+  "verificationDisclaimer": "\"Tasdiqlangan\" holati iBuild quruvchi taqdim etgan hujjatlarni koʻrsatilgan sanaga oid ochiq davlat reyestrlari bilan solishtirganini bildiradi. Bu qurilishning yakunlanishiga kafolat, yuridik yoki moliyaviy tavsiya emas — qaror qabul qilishdan oldin dolzarb maʼlumotlarni mustaqil tekshiring.",
+  "documentTypeLicense": "Quruvchi litsenziyasi",
+  "documentTypeConstructionPermit": "Qurilish ruxsatnomasi",
+  "documentTypeLandRights": "Yer huquqlari",
+  "documentTypeProjectDeclaration": "Loyiha deklaratsiyasi",
+  "documentTypeCadastre": "Kadastr",
+  "documentStatusAccepted": "Qabul qilingan",
+  "documentStatusPending": "Tekshirilmoqda",
+  "documentStatusRejected": "Rad etilgan",
+  "documentStatusMissing": "Taqdim etilmagan",
+
+  "availabilityTitle": "Mavjudlik",
+  "legendSoldRented": "Sotilgan / Ijaraga berilgan",
+  "chessboardFilterAll": "Barcha turlar",
+  "chessboardRoomsLegendTitle": "Xonalar:",
+  "chessboardRooms4Plus": "4+",
+
+  "unitFallbackTitle": "Xonadon",
+  "unitNumberTitle": "Xonadon {number}",
+  "unitNotFound": "Xonadon topilmadi",
+  "roomsCount": "{count} xona",
+  "floorLabel": "{floor}-qavat",
+  "viewLabel": "Manzara: {view}",
+  "offplanInstallmentBadge": "Yangi qurilish · muddatli toʻlov mavjud",
+  "minimumLeaseMonths": "Minimal ijara muddati: {months} oy",
+  "bookViewing": "Koʻrikka yozilish",
+  "rentEnquiry": "Ijaraga olish uchun soʻrov",
+  "reserve": "Band qilish",
+
+  "newInquiryTitle": "Yangi murojaat",
+  "whatDoYouNeed": "Sizga nima kerak?",
+  "contactPhoneLabel": "Aloqa telefoni",
+  "commentOptionalLabel": "Izoh (ixtiyoriy)",
+  "commentHint": "Qulay vaqt, savollar...",
+  "piiConsentLabel": "Men shaxsiy maʼlumotlarim (ism va telefon raqami) qayta ishlanishiga roziman, shunda iBuild va shu quruvchi murojaatim boʻyicha men bilan bogʻlanishi mumkin.",
+  "piiConsentRequiredError": "Davom etish uchun shaxsiy maʼlumotlarni qayta ishlashga roziligingizni tasdiqlang.",
+  "submitInquiry": "Murojaatni yuborish",
+  "leadSubmittedSnackbar": "{number} raqamli murojaat yuborildi",
+
+  "myInquiriesTitle": "Mening murojaatlarim",
+  "tabActive": "Faol",
+  "tabCompleted": "Yakunlangan",
+  "tabCancelled": "Bekor qilingan",
+  "nothingHereYet": "Hozircha boʻsh",
+  "inquiriesEmptySubtitle": "Qayta qoʻngʻiroq va koʻrik soʻrovlaringiz shu yerda koʻrinadi.",
+
+  "savedTitle": "Saqlanganlar",
+  "tabSavedSearches": "Saqlangan qidiruvlar",
+  "noFavoritesYet": "Hozircha sevimlilar yoʻq",
+  "favoritesEmptySubtitle": "Saqlash uchun eʼlondagi yurak belgisini bosing.",
+  "savedSearchesEmptySubtitle": "Filtrlar oynasida qidiruvni saqlab, keyin tezda qaytishingiz mumkin.",
+
+  "settingsTitle": "Sozlamalar",
+  "guestUser": "Mehmon",
+  "appearanceTitle": "Koʻrinish",
+  "darkModeLabel": "Tungi rejim",
+  "paletteLabel": "Rang sxemasi",
+  "languageLabel": "Til",
+  "currencyLabel": "Valyuta",
+  "exchangeRateTooltip": "1 USD = {rate} UZS",
+  "@exchangeRateTooltip": {
+    "placeholders": { "rate": { "type": "String" } }
+  },
+  "timeJustNow": "hozir",
+  "timeMinutesAgo": "{count} daqiqa oldin",
+  "@timeMinutesAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "timeHoursAgo": "{count} soat oldin",
+  "@timeHoursAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "timeDaysAgo": "{count} kun oldin",
+  "@timeDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "accountTitle": "Hisob",
+  "preferencesLabel": "Afzalliklar",
+  "notificationsLabel": "Bildirishnomalar",
+  "helpSupportLabel": "Yordam va qoʻllab-quvvatlash",
+  "signOutLabel": "Chiqish",
+  "accountBannedTitle": "Hisobingiz bloklangan",
+  "accountBannedReasonLabel": "Sabab",
+  "accountBannedByLabel": "Bloklagan: {name}",
+  "@accountBannedByLabel": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "projectTypeResidentialComplex": "Turar-joy majmuasi",
+  "projectTypeBusinessCentre": "Biznes-markaz",
+  "projectTypeStreetRetail": "Strit-riteyl",
+  "projectTypeOffice": "Ofis",
+  "projectTypeCottage": "Kottej",
+
+  "unitKindApartment": "Kvartira",
+  "unitKindOffice": "Ofis",
+  "unitKindRetail": "Savdo maydoni",
+
+  "projectStatusPlanned": "Rejalashtirilgan",
+  "projectStatusUnderConstruction": "Qurilmoqda",
+  "projectStatusReady": "Tayyor",
+  "projectStatusHandedOver": "Topshirilgan",
+
+  "statusAvailable": "Boʻsh",
+  "statusReserved": "Band qilingan",
+  "statusSold": "Sotilgan",
+  "statusRented": "Ijaraga berilgan",
+  "statusBlocked": "Bloklangan",
+
+  "leadIntentBuy": "Sotib olish",
+  "leadIntentBuyOffplan": "Yangi qurilishni band qilish",
+  "leadIntentRent": "Ijaraga olish soʻrovi",
+  "leadIntentViewing": "Koʻrik",
+  "leadIntentCallback": "Qayta qoʻngʻiroq",
+
+  "leadStatusNew": "Yangi",
+  "leadStatusContacted": "Bogʻlanildi",
+  "leadStatusScheduled": "Rejalashtirildi",
+  "leadStatusVisited": "Koʻrik boʻldi",
+  "leadStatusWon": "Muvaffaqiyatli",
+  "leadStatusLost": "Bekor qilindi",
+
+  "somethingWentWrong": "Nimadir xato ketdi.",
+  "retry": "Qayta urinish",
+  "viewGalleryCount": "Galereya · {count} surat",
+  "@viewGalleryCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "galleryPhotoOfTotal": "{index} / {total}",
+  "@galleryPhotoOfTotal": {
+    "placeholders": {
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "floorPlansEmptyMessage": "Qavat rejalari tayyor boʻlganda shu yerda koʻrinadi.",
+  "layoutsTitle": "Xonadon planirovkalari",
+  "layoutRoomsLabel": "{count} xonali",
+  "@layoutRoomsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "layoutAvailability": "{total} tadan {available} tasi boʻsh",
+  "@layoutAvailability": {
+    "placeholders": {
+      "available": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "viewAvailableUnits": "Boʻsh xonadonlarni koʻrish",
+  "callAgentLabel": "Agentga qoʻngʻiroq",
+  "agentPhoneUnavailable": "Telefon raqami mavjud emas",
+  "callFailedSnackbar": "Qoʻngʻiroqni boshlab boʻlmadi",
+  "contactAgentTitle": "Sotuv agenti",
+  "viewInsideLabel": "Ichkarini koʻrish",
+
+  "searchHint": "Loyihalar, tumanlarni qidirish...",
+  "filtersTitle": "Filtrlar",
+  "districtLabel": "Tuman",
+  "statusLabel": "Holat",
+  "priceRangeLabel": "Narx: {min} – {max}",
+  "roomsLabel": "Xonalar",
+  "roomsStudio": "Studiya",
+  "roomsPlus": "{count}+",
+  "@roomsPlus": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "areaMinLabel": "Maydon, m² dan",
+  "offplanOnlyLabel": "Faqat qurilayotgan",
+  "applyFilters": "Qoʻllash",
+  "clearFilters": "Tozalash",
+
+  "saveThisSearch": "Qidiruvni saqlash",
+  "savedSearchSavedSnackbar": "Qidiruv saqlandi",
+  "savedSearchUnderPrice": "{price} gacha",
+  "@savedSearchUnderPrice": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "savedSearchFromPrice": "{price} dan",
+  "@savedSearchFromPrice": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "noSavedSearchesYet": "Saqlangan qidiruvlar yoʻq",
+
+  "notificationsTitle": "Bildirishnomalar",
+  "notificationsEmpty": "Hozircha bildirishnomalar yoʻq",
+  "notificationsEmptySubtitle": "Narx tushishi, yangi taklif va yangiliklar haqida sizga xabar beramiz.",
+  "markAllRead": "Barchasini oʻqilgan deb belgilash",
+
+  "compareModeAction": "Xonadonlarni solishtirish",
+  "compareCountLabel": "Solishtirish ({count})",
+  "@compareCountLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "addToCompareAction": "Solishtirishga qoʻshish",
+  "compareTitle": "Xonadonlarni solishtirish",
+  "compareEmpty": "Solishtirish uchun xonadonlarni tanlang",
+  "compareAreaLabel": "Maydon",
+  "comparePriceLabel": "Narx",
+  "compareFloorLabel": "Qavat",
+  "compareRoomsLabel": "Xonalar",
+  "compareStatusLabel": "Holat",
+  "compareViewLabel": "Manzara",
+
+  "installmentCalculatorTitle": "Muddatli toʻlov kalkulyatori",
+  "downPaymentLabel": "Boshlangʻich toʻlov: {percent}% ({amount})",
+  "@downPaymentLabel": {
+    "placeholders": {
+      "percent": { "type": "int" },
+      "amount": { "type": "String" }
+    }
+  },
+  "termMonthsLabel": "Muddat: {months} oy",
+  "@termMonthsLabel": {
+    "placeholders": { "months": { "type": "int" } }
+  },
+  "monthlyPaymentLabel": "Oylik toʻlov",
+  "calculateInstallmentAction": "Hisoblash",
+
+  "rentalRentLabel": "Oylik ijara",
+  "ownerListingsSectionTitle": "Yaqin atrofdagi egalar e'lonlari",
+  "secondaryTag": "Ikkilamchi",
+  "perMonthSuffix": "/oy",
+  "forBusinessTitle": "Ko'chmas mulk yoki biznesga egamisiz?",
+  "forBusinessSubtitle": "Sotish va ijara obyektlarini joylashtiring, murojaatlar va tahlillarni iBuild for Business orqali boshqaring.",
+  "forBusinessAction": "iBuild for Business'ni ochish",
+
+  "mortgageCalculatorAction": "Ipoteka kalkulyatori",
+  "mortgageCalculatorTitle": "Bank ipoteka kalkulyatori",
+  "mortgagePropertyPriceLabel": "Uy-joy narxi",
+  "toolsSectionTitle": "Vositalar",
+  "interestRateLabel": "Bank stavkasi: yiliga {percent}%",
+  "@interestRateLabel": {
+    "placeholders": { "percent": { "type": "String" } }
+  },
+  "termYearsLabel": "Muddat: {years} yil",
+  "@termYearsLabel": {
+    "placeholders": { "years": { "type": "int" } }
+  },
+  "totalInterestLabel": "Jami foiz",
+  "totalPaymentLabel": "Jami toʻlov",
+  "downPaymentAmountLabel": "Boshlangʻich toʻlov",
+  "bankReferralConsentLabel": "iBuild bank hamkori ushbu ipoteka boʻyicha men bilan bogʻlanishiga roziman",
+  "requestBankConsultationAction": "Bank konsultatsiyasini soʻrash",
+  "bankReferralSubmittedSnackbar": "Bank hamkori tez orada siz bilan bogʻlanadi",
+  "rentalYieldCalculatorAction": "Ijara daromadi kalkulyatori",
+  "rentalYieldCalculatorTitle": "Ijara daromadi kalkulyatori",
+  "grossYieldLabel": "Yalpi daromad",
+  "paybackYearsLabel": "Qaytarilish muddati",
+  "paybackYearsValue": "{years} yil",
+  "@paybackYearsValue": {
+    "placeholders": { "years": { "type": "String" } }
+  },
+  "annualRentLabel": "Yillik ijara",
+  "calculatingLabel": "Hisoblanmoqda...",
+
+  "quizTitle": "Mos variantni topamiz",
+  "quizIntroTitle": "Qidiruvni moslashtiramiz",
+  "quizIntroBody": "4 ta tezkor savolga javob bering — biz tasmangizni sozlaymiz va qurilmangizda AI ko‘rinishini shakllantiramiz, faqat siz uchun.",
+  "quizStartAction": "Viktorinani boshlash",
+  "quizStepCounter": "{total} dan {current}",
+  "@quizStepCounter": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "quizSavedSnackbar": "Afzalliklar saqlandi",
+  "quizGoalQuestion": "Keyingi uyingizda eng muhimi nima?",
+  "quizGoalBudget": "Qulay narx",
+  "quizGoalFamily": "Oila uchun keng joy",
+  "quizGoalInvestment": "Aqlli investitsiya",
+  "quizGoalLuxury": "Premium hayot",
+  "quizLocationQuestion": "O‘zingizni qayerda tasavvur qilasiz?",
+  "quizLocationCityCenter": "Shahar markazida",
+  "quizLocationQuietSuburb": "Tinch, ko‘kalamzor hudud",
+  "quizLocationBusinessDistrict": "Biznes markazga yaqin",
+  "quizLocationUpAndComing": "Rivojlanayotgan hudud",
+  "quizTimelineQuestion": "Qachon ko‘chib o‘tmoqchisiz?",
+  "quizTimelineReadyNow": "Imkon qadar tezroq",
+  "quizTimelineOffplanOk": "Yangi qurilishni kutishga tayyorman",
+  "quizTimelineFlexible": "Muddat moslashuvchan",
+  "quizPriorityQuestion": "Asosiy ustuvorlikni tanlang",
+  "quizPriorityPrice": "Narx",
+  "quizPrioritySpace": "Keng joy va tartib",
+  "quizPriorityAmenities": "Qulayliklar",
+  "quizPriorityLocation": "Joylashuv",
+  "quizResultEyebrow": "Sizning xaridor profilingiz",
+  "quizPersonaFirstTimeBuyer": "Birinchi xarid",
+  "quizPersonaFamilyNester": "Oilaviy uy",
+  "quizPersonaInvestor": "Zukko investor",
+  "quizPersonaLuxurySeeker": "Premium ixlosmandi",
+  "quizPersonaFirstTimeBuyerDesc": "Sizga byudjetingizga mos eng yaxshi uy kerak. Biz qulay narxli variantlar va moslashuvchan bo‘lib to‘lashni ko‘rsatamiz.",
+  "quizPersonaFamilyNesterDesc": "Keng joy va qulaylik birinchi o‘rinda. Biz tinch, qulayliklari bor hududlardagi katta tartiblarni ajratib ko‘rsatamiz.",
+  "quizPersonaInvestorDesc": "Siz daromadga qiziqasiz. Biz yuqori daromadli variantlar va istiqbolli yangi qurilishlarni ta’kidlaymiz.",
+  "quizPersonaLuxurySeekerDesc": "Faqat eng a’losi. Biz alohida qulayliklar va joylashuvga ega premium turar joylarni tanlaymiz.",
+  "quizPreviewTitle": "Sizning AI ko‘rinishingiz",
+  "quizPreviewPromptLabel": "So‘rov (lokal mok)",
+  "quizPreviewBody": "{persona} sifatida siz eng mos uylarni birinchi bo‘lib ko‘rasiz. Biz siz uchun muhim bo‘lgan narsalarni ustuvor qilamiz va yangi e’lonlar bilan yangilab boramiz. Bu ko‘rinish lokal tarzda yaratiladi — ma’lumotlar qurilmangizdan chiqmaydi.",
+  "@quizPreviewBody": {
+    "placeholders": { "persona": { "type": "String" } }
+  },
+  "quizDoneAction": "Variantlarimni ko‘rish",
+  "quizRetakeAction": "Qayta o‘tish",
+  "quizEntryAction": "Viktorinadan o‘tish"
+}

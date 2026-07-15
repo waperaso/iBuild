@@ -1,0 +1,144 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'app_colors.dart';
+import 'color_schemes/amethyst_scheme.dart';
+import 'color_schemes/aurora_scheme.dart';
+import 'color_schemes/crimson_scheme.dart';
+import 'color_schemes/emerald_scheme.dart';
+import 'color_schemes/graphite_scheme.dart';
+import 'color_schemes/lime_scheme.dart';
+import 'color_schemes/meridian_scheme.dart';
+import 'color_schemes/midnight_scheme.dart';
+import 'color_schemes/mint_scheme.dart';
+import 'color_schemes/ocean_scheme.dart';
+import 'color_schemes/plum_scheme.dart';
+import 'color_schemes/rose_scheme.dart';
+import 'color_schemes/sand_scheme.dart';
+import 'color_schemes/sapphire_scheme.dart';
+import 'color_schemes/sunset_scheme.dart';
+
+/// A named palette the app can switch to at runtime. Add new entries here (and
+/// a matching light/dark [AppColors] pair under `color_schemes/`) to expand the
+/// theme catalog. The first entry is the default palette (see
+/// [ThemeState.palette]).
+///
+/// [meridian] is the default as of the competitor-informed refresh: a warm
+/// ivory/graphite neutral base with a deep teal primary and a reserved
+/// brass/gold secondary for premium moments. The remaining 14 palettes give
+/// the user a broad catalog of light + dark schemes to choose from, each built
+/// on the same semantic-token architecture.
+enum AppPalette {
+  meridian('Meridian', meridianScheme, meridianSchemeDark),
+  aurora('Aurora', auroraScheme, auroraSchemeDark),
+  lime('Lime', limeScheme, limeSchemeDark),
+  sapphire('Sapphire', sapphireScheme, sapphireSchemeDark),
+  emerald('Emerald', emeraldScheme, emeraldSchemeDark),
+  sunset('Sunset', sunsetScheme, sunsetSchemeDark),
+  rose('Rose', roseScheme, roseSchemeDark),
+  graphite('Graphite', graphiteScheme, graphiteSchemeDark),
+  plum('Plum', plumScheme, plumSchemeDark),
+  ocean('Ocean', oceanScheme, oceanSchemeDark),
+  sand('Sand', sandScheme, sandSchemeDark),
+  crimson('Crimson', crimsonScheme, crimsonSchemeDark),
+  midnight('Midnight', midnightScheme, midnightSchemeDark),
+  mint('Mint', mintScheme, mintSchemeDark),
+  amethyst('Amethyst', amethystScheme, amethystSchemeDark);
+
+  const AppPalette(this.label, this.light, this.dark);
+
+  final String label;
+  final AppColors light;
+  final AppColors dark;
+}
+
+/// Current palette + brightness selection. UI reads this to build the theme,
+/// and the Profile screen mutates it to switch schemes live.
+class ThemeState {
+  const ThemeState({
+    this.palette = AppPalette.meridian,
+    this.themeMode = ThemeMode.light,
+  });
+
+  final AppPalette palette;
+  final ThemeMode themeMode;
+
+  AppColors get light => palette.light;
+  AppColors get dark => palette.dark;
+
+  ThemeState copyWith({AppPalette? palette, ThemeMode? themeMode}) =>
+      ThemeState(
+        palette: palette ?? this.palette,
+        themeMode: themeMode ?? this.themeMode,
+      );
+}
+
+/// Holds the active palette + theme mode, persisted to local storage (via
+/// [SharedPreferences]) so the choice survives an app restart — mirroring
+/// [LocaleController]. The stored value is restored asynchronously on build;
+/// until it resolves the app renders the default [ThemeState].
+class ThemeController extends Notifier<ThemeState> {
+  static const _paletteKey = 'ibuild.theme.palette';
+  static const _modeKey = 'ibuild.theme.mode';
+
+  @override
+  ThemeState build() {
+    _restore();
+    return const ThemeState();
+  }
+
+  Future<void> _restore() async {
+    final prefs = await SharedPreferences.getInstance();
+    final paletteName = prefs.getString(_paletteKey);
+    final modeName = prefs.getString(_modeKey);
+    var next = state;
+    if (paletteName != null) {
+      for (final p in AppPalette.values) {
+        if (p.name == paletteName) {
+          next = next.copyWith(palette: p);
+          break;
+        }
+      }
+    }
+    if (modeName != null) {
+      for (final m in ThemeMode.values) {
+        if (m.name == modeName) {
+          next = next.copyWith(themeMode: m);
+          break;
+        }
+      }
+    }
+    // Only publish (and rebuild the theme) if something was actually restored.
+    if (!identical(next, state)) state = next;
+  }
+
+  void setPalette(AppPalette palette) {
+    state = state.copyWith(palette: palette);
+    _persist();
+  }
+
+  void setThemeMode(ThemeMode mode) {
+    state = state.copyWith(themeMode: mode);
+    _persist();
+  }
+
+  void toggleBrightness() {
+    state = state.copyWith(
+      themeMode: state.themeMode == ThemeMode.dark
+          ? ThemeMode.light
+          : ThemeMode.dark,
+    );
+    _persist();
+  }
+
+  Future<void> _persist() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_paletteKey, state.palette.name);
+    await prefs.setString(_modeKey, state.themeMode.name);
+  }
+}
+
+final themeControllerProvider = NotifierProvider<ThemeController, ThemeState>(
+  ThemeController.new,
+);

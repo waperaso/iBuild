@@ -1,0 +1,44 @@
+name: ibuild_b2b
+description: iBuild B2B admin — platform admins and residence (ЖК) admins.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  ibuild_core:
+    path: ../packages/ibuild_core
+  flutter_riverpod: ^3.3.2
+  go_router: ^17.3.0
+  dio: ^5.10.0
+  flutter_secure_storage: ^10.3.1
+  shared_preferences: ^2.5.5
+  intl: ^0.20.2
+  fl_chart: ^1.2.0
+  file_picker: 11.0.0
+  flutter_map: ^8.3.1
+  latlong2: ^0.9.1
+  web_socket_channel: ^3.0.3
+  url_launcher: ^6.3.1
+  web: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Generates AppLocalizations from lib/l10n/*.arb (see l10n.yaml).
+  generate: true
+
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf

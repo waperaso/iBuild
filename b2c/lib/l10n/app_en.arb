@@ -1,0 +1,471 @@
+{
+  "@@locale": "en",
+
+  "navHome": "Home",
+  "navSearch": "Search",
+  "navFavorites": "Favorites",
+  "navInquiries": "Inquiries",
+  "navSettings": "Settings",
+
+  "onboardingEyebrow": "Sell. Invest. All in One App.",
+  "onboardingHeadline": "Find Your\nDream Home\nToday",
+  "onboardingDescription": "Browse ready apartments, off-plan new builds and business-centre offices — all in one place, with live availability and one-tap enquiries.",
+  "onboardingTrustBadge": "4.9★ · 500+ happy families",
+  "start": "Start",
+  "signIn": "Sign in",
+
+  "welcomeTitle": "Welcome to iBuild",
+  "welcomeSubtitle": "Sign in with your phone number",
+  "phoneHint": "+998 90 123 45 67",
+  "sendCode": "Send code",
+  "phoneRequiredError": "Enter your phone number",
+  "otpTitle": "Enter the code",
+  "otpSubtitle": "We sent a 6-digit code to {phone}",
+  "@otpSubtitle": {
+    "placeholders": { "phone": { "type": "String" } }
+  },
+  "otpCodeHint": "6-digit code",
+  "otpDevHint": "Dev mode: use code 123456",
+  "stepOneOfTwo": "Step 1 of 2",
+  "stepTwoOfTwo": "Step 2 of 2",
+  "verifyCode": "Verify",
+  "resendCode": "Resend code",
+  "invalidCodeError": "Invalid or expired code. Please try again.",
+  "signedInLabel": "Signed in",
+  "accountTypeOrdinaryUser": "Ordinary user",
+  "signInPromptMessage": "Sign in to save favorites, track inquiries and get updates.",
+
+  "madeForYou": "Made for You",
+  "exploreProperties": "Explore Properties",
+  "recommendForYou": "Recommend for You",
+  "statsListingsLabel": "Listings",
+  "statsAvailableLabel": "Available units",
+  "statsDistrictsLabel": "Districts",
+  "statsRatingLabel": "Avg. rating",
+  "featuredForYouTitle": "Featured for you",
+  "popularDistrictsTitle": "Popular districts",
+  "developersTitle": "Developers",
+  "developerProjectsCount": "{count, plural, =1{1 project} other{{count} projects}}",
+  "@developerProjectsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "developerContactsTitle": "Contacts",
+  "developerResidencesTitle": "Residences",
+  "developerOfficesTitle": "Offices",
+  "developerNotFoundTitle": "Developer not found",
+  "developerNotFoundSubtitle": "This developer is no longer in our catalogue.",
+  "districtListingsCount": "{count} listings",
+  "@districtListingsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "promoBannerTitle": "New off-plan launches",
+  "promoBannerSubtitle": "Reserve early with flexible installments on select new builds.",
+  "promoBannerAction": "Explore new builds",
+  "browseListingsAction": "Browse listings",
+  "modeBuy": "Buy",
+  "modeRent": "Rent",
+  "modeNewBuilds": "New builds",
+  "categoryAll": "All",
+  "categoryApartments": "Apartments",
+  "categoryOffices": "Offices",
+
+  "bestDeal": "Best Deal",
+  "discountBadge": "Discount",
+  "installmentBadge": "Installments",
+  "unitsAvailableCount": "{count} available",
+  "@unitsAvailableCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "searchByLocations": "Search by locations",
+  "liveLocationDistrict": "Live location · {district}",
+  "@liveLocationDistrict": {
+    "placeholders": { "district": { "type": "String" } }
+  },
+
+  "tabUnits": "Units",
+  "tabFloorPlans": "Floor plans",
+  "tabAbout": "About",
+  "tabReviews": "Reviews",
+  "tabProgress": "Progress",
+  "overallProgressTitle": "Overall construction progress",
+  "progressEmptyTitle": "No photo reports yet",
+  "progressEmptySubtitle": "Dated construction photos will appear here as the developer uploads them.",
+  "noReviewsYet": "No reviews yet",
+  "reviewsEmptySubtitle": "Be the first to share how it went — or ask us anything first.",
+  "writeReviewAction": "Write a review",
+  "submitReviewAction": "Submit review",
+  "reviewBodyHint": "Share your experience with this project...",
+  "reviewsCount": "{count} reviews",
+  "@reviewsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "flagReviewAction": "Report review",
+  "reviewFlaggedSnackbar": "Thanks — we'll take a look",
+  "viewUnitGrid": "View unit grid",
+  "requestCallback": "Request a callback",
+  "fromPrice": "From {price}",
+  "@fromPrice": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "rentFromPrice": "Rent from {price}",
+  "@rentFromPrice": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "noDescription": "No description.",
+  "amenitiesTitle": "Amenities",
+
+  "projectDetailsMenu": "Project details",
+  "offersInstallmentsMenu": "Offers & installments",
+  "supportMenu": "Support",
+  "noneLabel": "None",
+  "activeOffersCount": "{count} active",
+  "@activeOffersCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "requestCallbackTrailing": "Request callback",
+  "builtPercent": "{percent}% built",
+  "@builtPercent": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "completionDate": "Completion: {date}",
+  "@completionDate": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "readyToMoveIn": "Ready to move in",
+  "handedOverToResidents": "Handed over to residents",
+  "offersSheetTitle": "Offers",
+  "noActiveOffers": "No active offers for this project yet.",
+  "iBuildPartner": "iBuild partner",
+
+  "verifiedBadgeLabel": "Verified",
+  "verificationPendingBadgeLabel": "Verification in progress",
+  "verificationDisclaimer": "\"Verified\" means iBuild has checked the developer's submitted documents against public government registries as of the date shown. It is not a guarantee of construction completion, nor legal or financial advice — please verify current details yourself before making a decision.",
+  "documentTypeLicense": "Business license",
+  "documentTypeConstructionPermit": "Construction permit",
+  "documentTypeLandRights": "Land rights",
+  "documentTypeProjectDeclaration": "Project declaration",
+  "documentTypeCadastre": "Cadastre",
+  "documentStatusAccepted": "Accepted",
+  "documentStatusPending": "Pending",
+  "documentStatusRejected": "Rejected",
+  "documentStatusMissing": "Not submitted",
+
+  "availabilityTitle": "Availability",
+  "legendSoldRented": "Sold / Rented",
+  "chessboardFilterAll": "All types",
+  "chessboardRoomsLegendTitle": "Rooms:",
+  "chessboardRooms4Plus": "4+",
+
+  "unitFallbackTitle": "Unit",
+  "unitNumberTitle": "Unit {number}",
+  "@unitNumberTitle": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "unitNotFound": "Unit not found",
+  "roomsCount": "{count} rooms",
+  "@roomsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "floorLabel": "Floor {floor}",
+  "@floorLabel": {
+    "placeholders": { "floor": { "type": "int" } }
+  },
+  "viewLabel": "{view} view",
+  "@viewLabel": {
+    "placeholders": { "view": { "type": "String" } }
+  },
+  "offplanInstallmentBadge": "Off-plan · installment available",
+  "minimumLeaseMonths": "Minimum lease: {months} months",
+  "@minimumLeaseMonths": {
+    "placeholders": { "months": { "type": "int" } }
+  },
+  "bookViewing": "Book a viewing",
+  "rentEnquiry": "Rent enquiry",
+  "reserve": "Reserve",
+
+  "newInquiryTitle": "New inquiry",
+  "whatDoYouNeed": "What do you need?",
+  "contactPhoneLabel": "Contact phone",
+  "commentOptionalLabel": "Comment (optional)",
+  "commentHint": "Preferred time, questions...",
+  "piiConsentLabel": "I agree to the processing of my personal data (name and phone number) so iBuild and this developer can contact me about my enquiry.",
+  "piiConsentRequiredError": "Please agree to the processing of your personal data to continue.",
+  "submitInquiry": "Submit inquiry",
+  "leadSubmittedSnackbar": "Lead {number} submitted",
+  "@leadSubmittedSnackbar": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+
+  "myInquiriesTitle": "My inquiries",
+  "tabActive": "Active",
+  "tabCompleted": "Completed",
+  "tabCancelled": "Cancelled",
+  "nothingHereYet": "Nothing here yet",
+  "inquiriesEmptySubtitle": "Your callback and viewing requests will show up here.",
+
+  "savedTitle": "Saved",
+  "tabSavedSearches": "Saved searches",
+  "noFavoritesYet": "No favorites yet",
+  "favoritesEmptySubtitle": "Tap the heart on any listing to save it here.",
+  "savedSearchesEmptySubtitle": "Save a search from the filters sheet to get back to it quickly.",
+
+  "settingsTitle": "Settings",
+  "guestUser": "Guest user",
+  "appearanceTitle": "Appearance",
+  "darkModeLabel": "Dark mode",
+  "paletteLabel": "Palette",
+  "languageLabel": "Language",
+  "currencyLabel": "Currency",
+  "exchangeRateTooltip": "1 USD = {rate} UZS",
+  "@exchangeRateTooltip": {
+    "placeholders": { "rate": { "type": "String" } }
+  },
+  "timeJustNow": "now",
+  "timeMinutesAgo": "{count}m ago",
+  "@timeMinutesAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "timeHoursAgo": "{count}h ago",
+  "@timeHoursAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "timeDaysAgo": "{count}d ago",
+  "@timeDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "accountTitle": "Account",
+  "preferencesLabel": "Preferences",
+  "notificationsLabel": "Notifications",
+  "helpSupportLabel": "Help & support",
+  "signOutLabel": "Sign out",
+  "accountBannedTitle": "Your account has been banned",
+  "accountBannedReasonLabel": "Reason",
+  "accountBannedByLabel": "Banned by {name}",
+  "@accountBannedByLabel": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "projectTypeResidentialComplex": "Residential complex",
+  "projectTypeBusinessCentre": "Business centre",
+  "projectTypeStreetRetail": "Street retail",
+  "projectTypeOffice": "Office",
+  "projectTypeCottage": "Cottage",
+
+  "unitKindApartment": "Apartment",
+  "unitKindOffice": "Office",
+  "unitKindRetail": "Retail",
+
+  "projectStatusPlanned": "Planned",
+  "projectStatusUnderConstruction": "Under construction",
+  "projectStatusReady": "Ready",
+  "projectStatusHandedOver": "Handed over",
+
+  "statusAvailable": "Available",
+  "statusReserved": "Reserved",
+  "statusSold": "Sold",
+  "statusRented": "Rented",
+  "statusBlocked": "Blocked",
+
+  "leadIntentBuy": "Buy",
+  "leadIntentBuyOffplan": "Off-plan reservation",
+  "leadIntentRent": "Rent enquiry",
+  "leadIntentViewing": "Viewing",
+  "leadIntentCallback": "Callback",
+
+  "leadStatusNew": "New",
+  "leadStatusContacted": "Contacted",
+  "leadStatusScheduled": "Scheduled",
+  "leadStatusVisited": "Visited",
+  "leadStatusWon": "Won",
+  "leadStatusLost": "Lost",
+
+  "somethingWentWrong": "Something went wrong.",
+  "retry": "Retry",
+  "viewGalleryCount": "Gallery · {count} photos",
+  "@viewGalleryCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "galleryPhotoOfTotal": "{index} / {total}",
+  "@galleryPhotoOfTotal": {
+    "placeholders": {
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "floorPlansEmptyMessage": "Floor plans will appear here once available.",
+  "layoutsTitle": "Apartment layouts",
+  "layoutRoomsLabel": "{count}-room",
+  "@layoutRoomsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "layoutAvailability": "{available} of {total} available",
+  "@layoutAvailability": {
+    "placeholders": {
+      "available": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "viewAvailableUnits": "View available units",
+  "callAgentLabel": "Call agent",
+  "agentPhoneUnavailable": "Phone number unavailable",
+  "callFailedSnackbar": "Couldn't start the call",
+  "contactAgentTitle": "Sales agent",
+  "viewInsideLabel": "Look inside",
+
+  "searchHint": "Search projects, districts...",
+  "filtersTitle": "Filters",
+  "districtLabel": "District",
+  "statusLabel": "Status",
+  "priceRangeLabel": "Price: {min} – {max}",
+  "@priceRangeLabel": {
+    "placeholders": {
+      "min": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "roomsLabel": "Rooms",
+  "roomsStudio": "Studio",
+  "roomsPlus": "{count}+",
+  "@roomsPlus": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "areaMinLabel": "Area from, m²",
+  "offplanOnlyLabel": "Off-plan only",
+  "applyFilters": "Apply filters",
+  "clearFilters": "Clear filters",
+
+  "saveThisSearch": "Save this search",
+  "savedSearchSavedSnackbar": "Search saved",
+  "savedSearchUnderPrice": "under {price}",
+  "@savedSearchUnderPrice": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "savedSearchFromPrice": "from {price}",
+  "@savedSearchFromPrice": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "noSavedSearchesYet": "No saved searches yet",
+
+  "notificationsTitle": "Notifications",
+  "notificationsEmpty": "No notifications yet",
+  "notificationsEmptySubtitle": "We'll let you know about price drops, new offers and updates.",
+  "markAllRead": "Mark all read",
+
+  "compareModeAction": "Compare units",
+  "compareCountLabel": "Compare ({count})",
+  "@compareCountLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "addToCompareAction": "Add to compare",
+  "compareTitle": "Compare units",
+  "compareEmpty": "Select units to compare them side by side",
+  "compareAreaLabel": "Area",
+  "comparePriceLabel": "Price",
+  "compareFloorLabel": "Floor",
+  "compareRoomsLabel": "Rooms",
+  "compareStatusLabel": "Status",
+  "compareViewLabel": "View",
+
+  "installmentCalculatorTitle": "Installment calculator",
+  "downPaymentLabel": "Down payment: {percent}% ({amount})",
+  "@downPaymentLabel": {
+    "placeholders": {
+      "percent": { "type": "int" },
+      "amount": { "type": "String" }
+    }
+  },
+  "termMonthsLabel": "Term: {months} months",
+  "@termMonthsLabel": {
+    "placeholders": { "months": { "type": "int" } }
+  },
+  "monthlyPaymentLabel": "Monthly payment",
+  "calculateInstallmentAction": "Calculate",
+
+  "rentalRentLabel": "Monthly rent",
+  "ownerListingsSectionTitle": "Owner listings nearby",
+  "secondaryTag": "Secondary",
+  "perMonthSuffix": "/mo",
+  "forBusinessTitle": "Own a property or a business?",
+  "forBusinessSubtitle": "List sale or rental inventory, manage leads and track analytics in iBuild for Business.",
+  "forBusinessAction": "Open iBuild for Business",
+
+  "mortgageCalculatorAction": "Mortgage calculator",
+  "mortgageCalculatorTitle": "Bank mortgage calculator",
+  "mortgagePropertyPriceLabel": "Property price",
+  "toolsSectionTitle": "Tools",
+  "interestRateLabel": "Bank rate: {percent}% / year",
+  "@interestRateLabel": {
+    "placeholders": { "percent": { "type": "String" } }
+  },
+  "termYearsLabel": "Term: {years} years",
+  "@termYearsLabel": {
+    "placeholders": { "years": { "type": "int" } }
+  },
+  "totalInterestLabel": "Total interest",
+  "totalPaymentLabel": "Total payment",
+  "downPaymentAmountLabel": "Down payment",
+  "bankReferralConsentLabel": "I agree to be contacted by an iBuild bank partner about this mortgage",
+  "requestBankConsultationAction": "Request bank consultation",
+  "bankReferralSubmittedSnackbar": "A bank partner will contact you shortly",
+  "rentalYieldCalculatorAction": "Rental yield calculator",
+  "rentalYieldCalculatorTitle": "Rental yield calculator",
+  "grossYieldLabel": "Gross yield",
+  "paybackYearsLabel": "Payback period",
+  "paybackYearsValue": "{years} years",
+  "@paybackYearsValue": {
+    "placeholders": { "years": { "type": "String" } }
+  },
+  "annualRentLabel": "Annual rent",
+  "calculatingLabel": "Calculating...",
+
+  "quizTitle": "Find your match",
+  "quizIntroTitle": "Let's personalize your search",
+  "quizIntroBody": "Answer 4 quick questions and we'll tune your feed and shape an on-device AI preview — just for you.",
+  "quizStartAction": "Start the quiz",
+  "quizStepCounter": "{current} of {total}",
+  "@quizStepCounter": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "quizSavedSnackbar": "Preferences saved",
+  "quizGoalQuestion": "What matters most in your next home?",
+  "quizGoalBudget": "Great value",
+  "quizGoalFamily": "Room for the family",
+  "quizGoalInvestment": "A smart investment",
+  "quizGoalLuxury": "Premium living",
+  "quizLocationQuestion": "Where do you picture yourself?",
+  "quizLocationCityCenter": "In the heart of the city",
+  "quizLocationQuietSuburb": "A calm, green neighbourhood",
+  "quizLocationBusinessDistrict": "Close to the business district",
+  "quizLocationUpAndComing": "An up-and-coming area",
+  "quizTimelineQuestion": "When would you like to move in?",
+  "quizTimelineReadyNow": "As soon as possible",
+  "quizTimelineOffplanOk": "Happy to wait for a new build",
+  "quizTimelineFlexible": "I'm flexible",
+  "quizPriorityQuestion": "Pick your number-one priority",
+  "quizPriorityPrice": "Price",
+  "quizPrioritySpace": "Space & layout",
+  "quizPriorityAmenities": "Amenities",
+  "quizPriorityLocation": "Location",
+  "quizResultEyebrow": "Your buyer persona",
+  "quizPersonaFirstTimeBuyer": "First-time buyer",
+  "quizPersonaFamilyNester": "Family nester",
+  "quizPersonaInvestor": "Savvy investor",
+  "quizPersonaLuxurySeeker": "Luxury seeker",
+  "quizPersonaFirstTimeBuyerDesc": "You want the best possible home for your budget. We'll surface strong-value units and flexible installment plans.",
+  "quizPersonaFamilyNesterDesc": "Space and comfort come first. We'll highlight larger layouts in calm, well-served neighbourhoods.",
+  "quizPersonaInvestorDesc": "You're after returns. We'll spotlight high-yield units and off-plan opportunities with upside.",
+  "quizPersonaLuxurySeekerDesc": "Only the finest will do. We'll curate premium residences with standout amenities and locations.",
+  "quizPreviewTitle": "Your AI preview",
+  "quizPreviewPromptLabel": "Prompt (on-device mock)",
+  "quizPreviewBody": "As a {persona}, you'll see the best-matching homes first. We'll lead with what you care about and refresh it as new listings arrive. This preview is generated locally — no data leaves your device.",
+  "@quizPreviewBody": {
+    "placeholders": { "persona": { "type": "String" } }
+  },
+  "quizDoneAction": "Browse my matches",
+  "quizRetakeAction": "Retake quiz",
+  "quizEntryAction": "Take the quiz"
+}

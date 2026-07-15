@@ -1,0 +1,73 @@
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_Unit _$UnitFromJson(Map<String, dynamic> json) => _Unit(
+  id: json['id'] as String,
+  buildingId: json['buildingId'] as String,
+  number: json['number'] as String,
+  kind: $enumDecode(_$UnitKindEnumMap, json['kind']),
+  dealType: $enumDecode(_$DealTypeEnumMap, json['dealType']),
+  status: $enumDecode(_$UnitStatusEnumMap, json['status']),
+  floor: (json['floor'] as num).toInt(),
+  isOffplan: json['isOffplan'] as bool? ?? false,
+  areaTotal: (json['areaTotal'] as num?)?.toDouble(),
+  areaLiving: (json['areaLiving'] as num?)?.toDouble(),
+  rooms: (json['rooms'] as num?)?.toInt(),
+  layout: json['layout'] as String?,
+  price: (json['price'] as num?)?.toDouble(),
+  priceM2: (json['priceM2'] as num?)?.toDouble(),
+  rentMonthly: (json['rentMonthly'] as num?)?.toDouble(),
+  rentM2: (json['rentM2'] as num?)?.toDouble(),
+  minLeaseMonths: (json['minLeaseMonths'] as num?)?.toInt(),
+  finishing: json['finishing'] as String?,
+  view: json['view'] as String?,
+  planColumn: (json['planColumn'] as num?)?.toInt(),
+  planRow: (json['planRow'] as num?)?.toInt(),
+  media:
+      (json['media'] as List<dynamic>?)
+          ?.map((e) => MediaItem.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <MediaItem>[],
+);
+
+Map<String, dynamic> _$UnitToJson(_Unit instance) => <String, dynamic>{
+  'id': instance.id,
+  'buildingId': instance.buildingId,
+  'number': instance.number,
+  'kind': _$UnitKindEnumMap[instance.kind]!,
+  'dealType': _$DealTypeEnumMap[instance.dealType]!,
+  'status': _$UnitStatusEnumMap[instance.status]!,
+  'floor': instance.floor,
+  'isOffplan': instance.isOffplan,
+  'areaTotal': instance.areaTotal,
+  'areaLiving': instance.areaLiving,
+  'rooms': instance.rooms,
+  'layout': instance.layout,
+  'price': instance.price,
+  'priceM2': instance.priceM2,
+  'rentMonthly': instance.rentMonthly,
+  'rentM2': instance.rentM2,
+  'minLeaseMonths': instance.minLeaseMonths,
+  'finishing': instance.finishing,
+  'view': instance.view,
+  'planColumn': instance.planColumn,
+  'planRow': instance.planRow,
+  'media': instance.media,
+};
+
+const _$UnitKindEnumMap = {
+  UnitKind.apartment: 'apartment',
+  UnitKind.office: 'office',
+  UnitKind.retail: 'retail',
+};
+
+const _$DealTypeEnumMap = {DealType.sale: 'sale', DealType.rent: 'rent'};
+
+const _$UnitStatusEnumMap = {
+  UnitStatus.available: 'available',
+  UnitStatus.reserved: 'reserved',
+  UnitStatus.sold: 'sold',
+  UnitStatus.rented: 'rented',
+  UnitStatus.blocked: 'blocked',
+};

@@ -1,0 +1,423 @@
+{
+  "@@locale": "ru",
+
+  "navHome": "Главная",
+  "navSearch": "Поиск",
+  "navFavorites": "Избранное",
+  "navInquiries": "Заявки",
+  "navSettings": "Настройки",
+
+  "onboardingEyebrow": "Продавайте. Инвестируйте. Всё в одном приложении.",
+  "onboardingHeadline": "Найдите Дом\nСвоей Мечты\nУже Сегодня",
+  "onboardingDescription": "Готовые квартиры, новостройки в рассрочку и офисы в бизнес-центрах — всё в одном месте, с актуальной доступностью и заявкой в один клик.",
+  "onboardingTrustBadge": "4.9★ · 500+ довольных семей",
+  "start": "Начать",
+  "signIn": "Войти",
+
+  "welcomeTitle": "Добро пожаловать в iBuild",
+  "welcomeSubtitle": "Войдите по номеру телефона",
+  "phoneHint": "+998 90 123 45 67",
+  "sendCode": "Отправить код",
+  "phoneRequiredError": "Введите номер телефона",
+  "otpTitle": "Введите код",
+  "otpSubtitle": "Мы отправили 6-значный код на {phone}",
+  "otpCodeHint": "6-значный код",
+  "otpDevHint": "Тестовый режим: используйте код 123456",
+  "stepOneOfTwo": "Шаг 1 из 2",
+  "stepTwoOfTwo": "Шаг 2 из 2",
+  "verifyCode": "Подтвердить",
+  "resendCode": "Отправить код повторно",
+  "invalidCodeError": "Неверный или просроченный код. Попробуйте снова.",
+  "signedInLabel": "Вы вошли",
+  "accountTypeOrdinaryUser": "Обычный пользователь",
+  "signInPromptMessage": "Войдите, чтобы сохранять избранное, следить за заявками и получать обновления.",
+
+  "madeForYou": "Специально для вас",
+  "exploreProperties": "Изучите объекты",
+  "recommendForYou": "Рекомендуем для вас",
+  "statsListingsLabel": "Объекты",
+  "statsAvailableLabel": "Свободно юнитов",
+  "statsDistrictsLabel": "Районы",
+  "statsRatingLabel": "Средний рейтинг",
+  "featuredForYouTitle": "Специально отобрано",
+  "popularDistrictsTitle": "Популярные районы",
+  "developersTitle": "Застройщики",
+  "developerProjectsCount": "{count, plural, one{{count} проект} few{{count} проекта} many{{count} проектов} other{{count} проектов}}",
+  "@developerProjectsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "developerContactsTitle": "Контакты",
+  "developerResidencesTitle": "Жилые комплексы",
+  "developerOfficesTitle": "Офисы",
+  "developerNotFoundTitle": "Застройщик не найден",
+  "developerNotFoundSubtitle": "Этого застройщика больше нет в каталоге.",
+  "districtListingsCount": "{count} объектов",
+  "@districtListingsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "promoBannerTitle": "Новые старты продаж",
+  "promoBannerSubtitle": "Бронируйте заранее с гибкой рассрочкой на новостройки.",
+  "promoBannerAction": "Смотреть новостройки",
+  "browseListingsAction": "Смотреть объекты",
+  "modeBuy": "Купить",
+  "modeRent": "Снять",
+  "modeNewBuilds": "Новостройки",
+  "categoryAll": "Все",
+  "categoryApartments": "Квартиры",
+  "categoryOffices": "Офисы",
+
+  "bestDeal": "Лучшее предложение",
+  "discountBadge": "Скидка",
+  "installmentBadge": "Рассрочка",
+  "unitsAvailableCount": "{count} доступно",
+
+  "searchByLocations": "Поиск по локациям",
+  "liveLocationDistrict": "Местоположение · {district}",
+
+  "tabUnits": "Юниты",
+  "tabFloorPlans": "Планировки",
+  "tabAbout": "О проекте",
+  "tabReviews": "Отзывы",
+  "tabProgress": "Ход строительства",
+  "overallProgressTitle": "Общий ход строительства",
+  "progressEmptyTitle": "Пока нет фотоотчётов",
+  "progressEmptySubtitle": "Датированные фото со стройки появятся здесь по мере загрузки застройщиком.",
+  "noReviewsYet": "Пока нет отзывов",
+  "reviewsEmptySubtitle": "Станьте первым, кто оставит отзыв — или сначала задайте нам вопрос.",
+  "writeReviewAction": "Написать отзыв",
+  "submitReviewAction": "Отправить отзыв",
+  "reviewBodyHint": "Поделитесь впечатлениями об этом проекте...",
+  "reviewsCount": "{count} отзывов",
+  "@reviewsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "flagReviewAction": "Пожаловаться",
+  "reviewFlaggedSnackbar": "Спасибо — мы проверим",
+  "viewUnitGrid": "Смотреть шахматку",
+  "requestCallback": "Запросить звонок",
+  "fromPrice": "От {price}",
+  "rentFromPrice": "Аренда от {price}",
+  "noDescription": "Нет описания.",
+  "amenitiesTitle": "Удобства",
+
+  "projectDetailsMenu": "О проекте",
+  "offersInstallmentsMenu": "Акции и рассрочка",
+  "supportMenu": "Поддержка",
+  "noneLabel": "Нет",
+  "activeOffersCount": "{count} активно",
+  "requestCallbackTrailing": "Запросить звонок",
+  "builtPercent": "Готовность {percent}%",
+  "completionDate": "Срок сдачи: {date}",
+  "readyToMoveIn": "Готово к заселению",
+  "handedOverToResidents": "Сдано жильцам",
+  "offersSheetTitle": "Акции",
+  "noActiveOffers": "Пока нет активных акций по этому проекту.",
+  "iBuildPartner": "Партнёр iBuild",
+
+  "verifiedBadgeLabel": "Проверен",
+  "verificationPendingBadgeLabel": "Проверка идёт",
+  "verificationDisclaimer": "Статус «Проверен» означает, что iBuild сверил предоставленные застройщиком документы с открытыми государственными реестрами на указанную дату. Это не является гарантией завершения строительства, юридической или финансовой рекомендацией. Принимая решение, проверяйте актуальные данные самостоятельно.",
+  "documentTypeLicense": "Лицензия застройщика",
+  "documentTypeConstructionPermit": "Разрешение на строительство",
+  "documentTypeLandRights": "Права на земельный участок",
+  "documentTypeProjectDeclaration": "Проектная декларация",
+  "documentTypeCadastre": "Кадастр",
+  "documentStatusAccepted": "Принят",
+  "documentStatusPending": "На проверке",
+  "documentStatusRejected": "Отклонён",
+  "documentStatusMissing": "Не предоставлен",
+
+  "availabilityTitle": "Доступность",
+  "legendSoldRented": "Продано / Сдано",
+  "chessboardFilterAll": "Все типы",
+  "chessboardRoomsLegendTitle": "Комнаты:",
+  "chessboardRooms4Plus": "4+",
+
+  "unitFallbackTitle": "Юнит",
+  "unitNumberTitle": "Юнит {number}",
+  "unitNotFound": "Юнит не найден",
+  "roomsCount": "{count} комн.",
+  "floorLabel": "Этаж {floor}",
+  "viewLabel": "Вид: {view}",
+  "offplanInstallmentBadge": "Новостройка · доступна рассрочка",
+  "minimumLeaseMonths": "Минимальный срок аренды: {months} мес.",
+  "bookViewing": "Записаться на просмотр",
+  "rentEnquiry": "Заявка на аренду",
+  "reserve": "Забронировать",
+
+  "newInquiryTitle": "Новая заявка",
+  "whatDoYouNeed": "Что вам нужно?",
+  "contactPhoneLabel": "Контактный телефон",
+  "commentOptionalLabel": "Комментарий (необязательно)",
+  "commentHint": "Удобное время, вопросы...",
+  "piiConsentLabel": "Я согласен на обработку моих персональных данных (имя и номер телефона), чтобы iBuild и этот застройщик могли связаться со мной по моей заявке.",
+  "piiConsentRequiredError": "Чтобы продолжить, подтвердите согласие на обработку персональных данных.",
+  "submitInquiry": "Отправить заявку",
+  "leadSubmittedSnackbar": "Заявка {number} отправлена",
+
+  "myInquiriesTitle": "Мои заявки",
+  "tabActive": "Активные",
+  "tabCompleted": "Завершённые",
+  "tabCancelled": "Отменённые",
+  "nothingHereYet": "Здесь пока пусто",
+  "inquiriesEmptySubtitle": "Ваши заявки на звонок и просмотр появятся здесь.",
+
+  "savedTitle": "Сохранённое",
+  "tabSavedSearches": "Сохранённые поиски",
+  "noFavoritesYet": "Пока нет избранного",
+  "favoritesEmptySubtitle": "Нажмите на сердечко у объекта, чтобы сохранить его здесь.",
+  "savedSearchesEmptySubtitle": "Сохраните поиск в фильтрах, чтобы быстро вернуться к нему.",
+
+  "settingsTitle": "Настройки",
+  "guestUser": "Гость",
+  "appearanceTitle": "Оформление",
+  "darkModeLabel": "Тёмная тема",
+  "paletteLabel": "Палитра",
+  "languageLabel": "Язык",
+  "currencyLabel": "Валюта",
+  "exchangeRateTooltip": "1 USD = {rate} UZS",
+  "@exchangeRateTooltip": {
+    "placeholders": { "rate": { "type": "String" } }
+  },
+  "timeJustNow": "сейчас",
+  "timeMinutesAgo": "{count} мин назад",
+  "@timeMinutesAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "timeHoursAgo": "{count} ч назад",
+  "@timeHoursAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "timeDaysAgo": "{count} дн назад",
+  "@timeDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "accountTitle": "Аккаунт",
+  "preferencesLabel": "Предпочтения",
+  "notificationsLabel": "Уведомления",
+  "helpSupportLabel": "Помощь и поддержка",
+  "signOutLabel": "Выйти",
+  "accountBannedTitle": "Ваш аккаунт заблокирован",
+  "accountBannedReasonLabel": "Причина",
+  "accountBannedByLabel": "Заблокировал: {name}",
+  "@accountBannedByLabel": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "projectTypeResidentialComplex": "Жилой комплекс",
+  "projectTypeBusinessCentre": "Бизнес-центр",
+  "projectTypeStreetRetail": "Стрит-ритейл",
+  "projectTypeOffice": "Офис",
+  "projectTypeCottage": "Коттедж",
+
+  "unitKindApartment": "Квартира",
+  "unitKindOffice": "Офис",
+  "unitKindRetail": "Торговое помещение",
+
+  "projectStatusPlanned": "Запланировано",
+  "projectStatusUnderConstruction": "Строится",
+  "projectStatusReady": "Готово",
+  "projectStatusHandedOver": "Сдано",
+
+  "statusAvailable": "Свободно",
+  "statusReserved": "Забронировано",
+  "statusSold": "Продано",
+  "statusRented": "Сдано",
+  "statusBlocked": "Заблокировано",
+
+  "leadIntentBuy": "Покупка",
+  "leadIntentBuyOffplan": "Бронирование новостройки",
+  "leadIntentRent": "Заявка на аренду",
+  "leadIntentViewing": "Просмотр",
+  "leadIntentCallback": "Обратный звонок",
+
+  "leadStatusNew": "Новая",
+  "leadStatusContacted": "Связались",
+  "leadStatusScheduled": "Запланирована",
+  "leadStatusVisited": "Состоялся просмотр",
+  "leadStatusWon": "Успешно",
+  "leadStatusLost": "Отклонена",
+
+  "somethingWentWrong": "Что-то пошло не так.",
+  "retry": "Повторить",
+  "viewGalleryCount": "Галерея · {count} фото",
+  "@viewGalleryCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "galleryPhotoOfTotal": "{index} / {total}",
+  "@galleryPhotoOfTotal": {
+    "placeholders": {
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "floorPlansEmptyMessage": "Планы этажей появятся здесь, когда будут готовы.",
+  "layoutsTitle": "Планировки квартир",
+  "layoutRoomsLabel": "{count}-комнатная",
+  "@layoutRoomsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "layoutAvailability": "{available} из {total} доступно",
+  "@layoutAvailability": {
+    "placeholders": {
+      "available": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "viewAvailableUnits": "Смотреть доступные квартиры",
+  "callAgentLabel": "Позвонить агенту",
+  "agentPhoneUnavailable": "Номер телефона недоступен",
+  "callFailedSnackbar": "Не удалось начать звонок",
+  "contactAgentTitle": "Менеджер по продажам",
+  "viewInsideLabel": "Посмотреть внутри",
+
+  "searchHint": "Поиск проектов, районов...",
+  "filtersTitle": "Фильтры",
+  "districtLabel": "Район",
+  "statusLabel": "Статус",
+  "priceRangeLabel": "Цена: {min} – {max}",
+  "roomsLabel": "Комнаты",
+  "roomsStudio": "Студия",
+  "roomsPlus": "{count}+",
+  "@roomsPlus": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "areaMinLabel": "Площадь от, м²",
+  "offplanOnlyLabel": "Только новостройки",
+  "applyFilters": "Применить",
+  "clearFilters": "Сбросить",
+
+  "saveThisSearch": "Сохранить поиск",
+  "savedSearchSavedSnackbar": "Поиск сохранён",
+  "savedSearchUnderPrice": "до {price}",
+  "@savedSearchUnderPrice": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "savedSearchFromPrice": "от {price}",
+  "@savedSearchFromPrice": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "noSavedSearchesYet": "Пока нет сохранённых поисков",
+
+  "notificationsTitle": "Уведомления",
+  "notificationsEmpty": "Пока нет уведомлений",
+  "notificationsEmptySubtitle": "Мы сообщим о снижении цен, новых предложениях и обновлениях.",
+  "markAllRead": "Прочитать все",
+
+  "compareModeAction": "Сравнить квартиры",
+  "compareCountLabel": "Сравнить ({count})",
+  "@compareCountLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "addToCompareAction": "Добавить к сравнению",
+  "compareTitle": "Сравнение квартир",
+  "compareEmpty": "Выберите квартиры, чтобы сравнить их",
+  "compareAreaLabel": "Площадь",
+  "comparePriceLabel": "Цена",
+  "compareFloorLabel": "Этаж",
+  "compareRoomsLabel": "Комнаты",
+  "compareStatusLabel": "Статус",
+  "compareViewLabel": "Вид",
+
+  "installmentCalculatorTitle": "Калькулятор рассрочки",
+  "downPaymentLabel": "Первый взнос: {percent}% ({amount})",
+  "@downPaymentLabel": {
+    "placeholders": {
+      "percent": { "type": "int" },
+      "amount": { "type": "String" }
+    }
+  },
+  "termMonthsLabel": "Срок: {months} мес.",
+  "@termMonthsLabel": {
+    "placeholders": { "months": { "type": "int" } }
+  },
+  "monthlyPaymentLabel": "Ежемесячный платёж",
+  "calculateInstallmentAction": "Рассчитать",
+
+  "rentalRentLabel": "Аренда в месяц",
+  "ownerListingsSectionTitle": "Объявления от собственников рядом",
+  "secondaryTag": "Вторичка",
+  "perMonthSuffix": "/мес",
+  "forBusinessTitle": "Вы владеете недвижимостью или бизнесом?",
+  "forBusinessSubtitle": "Размещайте объекты на продажу и в аренду, управляйте заявками и аналитикой в iBuild для бизнеса.",
+  "forBusinessAction": "Открыть iBuild для бизнеса",
+
+  "mortgageCalculatorAction": "Ипотечный калькулятор",
+  "mortgageCalculatorTitle": "Ипотечный калькулятор",
+  "mortgagePropertyPriceLabel": "Стоимость объекта",
+  "toolsSectionTitle": "Инструменты",
+  "interestRateLabel": "Ставка банка: {percent}% годовых",
+  "@interestRateLabel": {
+    "placeholders": { "percent": { "type": "String" } }
+  },
+  "termYearsLabel": "Срок: {years} лет",
+  "@termYearsLabel": {
+    "placeholders": { "years": { "type": "int" } }
+  },
+  "totalInterestLabel": "Итого проценты",
+  "totalPaymentLabel": "Итого выплата",
+  "downPaymentAmountLabel": "Первоначальный взнос",
+  "bankReferralConsentLabel": "Согласен на связь с партнёром-банком iBuild по этой ипотеке",
+  "requestBankConsultationAction": "Заявка на консультацию банка",
+  "bankReferralSubmittedSnackbar": "Партнёр-банк свяжется с вами в ближайшее время",
+  "rentalYieldCalculatorAction": "Калькулятор доходности",
+  "rentalYieldCalculatorTitle": "Калькулятор доходности аренды",
+  "grossYieldLabel": "Валовая доходность",
+  "paybackYearsLabel": "Срок окупаемости",
+  "paybackYearsValue": "{years} лет",
+  "@paybackYearsValue": {
+    "placeholders": { "years": { "type": "String" } }
+  },
+  "annualRentLabel": "Годовая аренда",
+  "calculatingLabel": "Расчёт...",
+
+  "quizTitle": "Подберём ваш вариант",
+  "quizIntroTitle": "Персонализируем поиск",
+  "quizIntroBody": "Ответьте на 4 быстрых вопроса — мы настроим ленту и сформируем AI-превью прямо на устройстве, только для вас.",
+  "quizStartAction": "Начать викторину",
+  "quizStepCounter": "{current} из {total}",
+  "@quizStepCounter": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "quizSavedSnackbar": "Предпочтения сохранены",
+  "quizGoalQuestion": "Что для вас важнее всего в новом жилье?",
+  "quizGoalBudget": "Выгодная цена",
+  "quizGoalFamily": "Простор для семьи",
+  "quizGoalInvestment": "Умная инвестиция",
+  "quizGoalLuxury": "Премиальная жизнь",
+  "quizLocationQuestion": "Где вы себя представляете?",
+  "quizLocationCityCenter": "В центре города",
+  "quizLocationQuietSuburb": "Тихий зелёный район",
+  "quizLocationBusinessDistrict": "Рядом с деловым районом",
+  "quizLocationUpAndComing": "Перспективный район",
+  "quizTimelineQuestion": "Когда хотите заселиться?",
+  "quizTimelineReadyNow": "Как можно скорее",
+  "quizTimelineOffplanOk": "Готов(а) подождать новостройку",
+  "quizTimelineFlexible": "Гибкие сроки",
+  "quizPriorityQuestion": "Выберите главный приоритет",
+  "quizPriorityPrice": "Цена",
+  "quizPrioritySpace": "Простор и планировка",
+  "quizPriorityAmenities": "Инфраструктура",
+  "quizPriorityLocation": "Расположение",
+  "quizResultEyebrow": "Ваш профиль покупателя",
+  "quizPersonaFirstTimeBuyer": "Первая покупка",
+  "quizPersonaFamilyNester": "Семейный дом",
+  "quizPersonaInvestor": "Инвестор",
+  "quizPersonaLuxurySeeker": "Ценитель премиума",
+  "quizPersonaFirstTimeBuyerDesc": "Вам нужно лучшее жильё в рамках бюджета. Мы покажем выгодные варианты и гибкие рассрочки.",
+  "quizPersonaFamilyNesterDesc": "На первом месте простор и комфорт. Мы выделим большие планировки в спокойных районах с инфраструктурой.",
+  "quizPersonaInvestorDesc": "Вы ориентированы на доходность. Мы подсветим варианты с высокой доходностью и перспективные новостройки.",
+  "quizPersonaLuxurySeekerDesc": "Только лучшее. Мы подберём премиальные резиденции с особыми удобствами и локациями.",
+  "quizPreviewTitle": "Ваше AI-превью",
+  "quizPreviewPromptLabel": "Запрос (локальный мок)",
+  "quizPreviewBody": "Как {persona}, вы первыми увидите наиболее подходящее жильё. Мы будем показывать то, что важно именно вам, и обновлять подборку с новыми объявлениями. Это превью формируется локально — данные не покидают устройство.",
+  "@quizPreviewBody": {
+    "placeholders": { "persona": { "type": "String" } }
+  },
+  "quizDoneAction": "К моим вариантам",
+  "quizRetakeAction": "Пройти заново",
+  "quizEntryAction": "Пройти викторину"
+}

@@ -1,0 +1,33 @@
+# Local-dev convenience only — NOT used in production. aHOST.uz provides a
+# managed PostgreSQL 13 instance on both shared hosting and VDS plans; point
+# the env vars in `.env.example` at that instead when deploying there, no
+# code or compose file needed.
+#
+# Usage: `docker-compose up -d`, then run the server with the env vars from
+# `.env.example` (defaults below already match `.env.example`).
+services:
+  postgres:
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ibuild
+      POSTGRES_USER: ibuild
+      # SECURITY: placeholder only. Override via a local `.env`/shell export
+      # (docker-compose substitutes ${DB_PASSWORD}) with a strong, unique
+      # password before any non-local use — never ship this placeholder.
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-CHANGE_ME_STRONG_PASSWORD}
+    ports:
+      # Bound to localhost only: the database must not be reachable from
+      # other hosts. Put the app (and any TLS-terminating proxy) in front of
+      # it rather than exposing 5432 publicly.
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - ibuild_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ibuild -d ibuild']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ibuild_postgres_data:

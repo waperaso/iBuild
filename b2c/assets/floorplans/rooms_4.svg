@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180">
+  <!-- 4-room apartment: 3 bedrooms + living/kitchen, bath -->
+  <rect x="20" y="20" width="200" height="140" fill="#F4F2E8" stroke="#2B2E33" stroke-width="4"/>
+  <line x1="96" y1="20" x2="96" y2="160" stroke="#2B2E33" stroke-width="3"/>
+  <line x1="20" y1="66" x2="96" y2="66" stroke="#2B2E33" stroke-width="3"/>
+  <line x1="20" y1="112" x2="96" y2="112" stroke="#2B2E33" stroke-width="3"/>
+  <line x1="96" y1="126" x2="132" y2="126" stroke="#2B2E33" stroke-width="3"/>
+  <line x1="132" y1="126" x2="132" y2="160" stroke="#2B2E33" stroke-width="3"/>
+  <!-- bed icons x3 -->
+  <rect x="30" y="30" width="46" height="30" fill="none" stroke="#2B2E33" stroke-width="1.5"/>
+  <line x1="30" y1="40" x2="76" y2="40" stroke="#2B2E33" stroke-width="1.5"/>
+  <rect x="30" y="76" width="46" height="30" fill="none" stroke="#2B2E33" stroke-width="1.5"/>
+  <line x1="30" y1="86" x2="76" y2="86" stroke="#2B2E33" stroke-width="1.5"/>
+  <rect x="30" y="122" width="46" height="30" fill="none" stroke="#2B2E33" stroke-width="1.5"/>
+  <line x1="30" y1="132" x2="76" y2="132" stroke="#2B2E33" stroke-width="1.5"/>
+  <!-- sofa + kitchen counter -->
+  <rect x="146" y="34" width="60" height="16" fill="none" stroke="#2B2E33" stroke-width="1.5"/>
+  <rect x="190" y="60" width="14" height="80" fill="none" stroke="#2B2E33" stroke-width="1.5"/>
+  <!-- entrance door + swing -->
+  <line x1="150" y1="160" x2="174" y2="160" stroke="#F4F2E8" stroke-width="4"/>
+  <path d="M150,160 A24,24 0 0 1 174,136" fill="none" stroke="#DCEE5B" stroke-width="2"/>
+  <line x1="150" y1="160" x2="174" y2="136" stroke="#DCEE5B" stroke-width="2"/>
+  <text x="28" y="26" font-family="Arial, sans-serif" font-size="7" fill="#2B2E33">Bed 1</text>
+  <text x="28" y="72" font-family="Arial, sans-serif" font-size="7" fill="#2B2E33">Bed 2</text>
+  <text x="28" y="118" font-family="Arial, sans-serif" font-size="7" fill="#2B2E33">Bed 3</text>
+  <text x="148" y="30" font-family="Arial, sans-serif" font-size="9" fill="#2B2E33">Living</text>
+  <text x="98" y="156" font-family="Arial, sans-serif" font-size="8" fill="#2B2E33">Bath</text>
+</svg>

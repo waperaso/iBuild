@@ -1,0 +1,18 @@
+# Local-only dev tooling (portable PostgreSQL binaries/data used for testing
+# the Phase 4 persistence layer) — never commit this, it's machine-local.
+.tools/
+
+# Runtime media uploads from the Dart API
+server/uploads/
+
+# Machine-local server configuration (auto-loaded; copy from server/.env.example)
+server/.env
+
+# Flutter compile-time defines (copy from *.json.example) — may point at local/prod hosts
+b2b/dart_defines.dev.json
+b2b/dart_defines.prod.json
+b2c/dart_defines.dev.json
+b2c/dart_defines.prod.json
+
+# pgAdmin connection export (local monitoring; passwords live in %APPDATA%\postgresql\pgpass.conf)
+server/pgadmin-servers.json

@@ -1,0 +1,52 @@
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_Lead _$LeadFromJson(Map<String, dynamic> json) => _Lead(
+  id: json['id'] as String,
+  number: json['number'] as String,
+  projectId: json['projectId'] as String,
+  projectName: json['projectName'] as String,
+  unitId: json['unitId'] as String?,
+  unitLabel: json['unitLabel'] as String?,
+  intent: $enumDecode(_$LeadIntentEnumMap, json['intent']),
+  status: $enumDecode(_$LeadStatusEnumMap, json['status']),
+  contactPhone: json['contactPhone'] as String,
+  message: json['message'] as String?,
+  preferredAt: json['preferredAt'] == null
+      ? null
+      : DateTime.parse(json['preferredAt'] as String),
+  createdAt: DateTime.parse(json['createdAt'] as String),
+);
+
+Map<String, dynamic> _$LeadToJson(_Lead instance) => <String, dynamic>{
+  'id': instance.id,
+  'number': instance.number,
+  'projectId': instance.projectId,
+  'projectName': instance.projectName,
+  'unitId': instance.unitId,
+  'unitLabel': instance.unitLabel,
+  'intent': _$LeadIntentEnumMap[instance.intent]!,
+  'status': _$LeadStatusEnumMap[instance.status]!,
+  'contactPhone': instance.contactPhone,
+  'message': instance.message,
+  'preferredAt': instance.preferredAt?.toIso8601String(),
+  'createdAt': instance.createdAt.toIso8601String(),
+};
+
+const _$LeadIntentEnumMap = {
+  LeadIntent.buy: 'buy',
+  LeadIntent.buyOffplan: 'buy_offplan',
+  LeadIntent.rent: 'rent',
+  LeadIntent.viewing: 'viewing',
+  LeadIntent.callback: 'callback',
+};
+
+const _$LeadStatusEnumMap = {
+  LeadStatus.newLead: 'new',
+  LeadStatus.contacted: 'contacted',
+  LeadStatus.scheduled: 'scheduled',
+  LeadStatus.visited: 'visited',
+  LeadStatus.won: 'won',
+  LeadStatus.lost: 'lost',
+};

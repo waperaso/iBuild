@@ -1,0 +1,49 @@
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_Document _$DocumentFromJson(Map<String, dynamic> json) => _Document(
+  id: json['id'] as String,
+  developerId: json['developerId'] as String,
+  projectId: json['projectId'] as String?,
+  type: $enumDecode(_$DocumentTypeEnumMap, json['type']),
+  fileUrl: json['fileUrl'] as String,
+  status: $enumDecode(_$DocumentStatusEnumMap, json['status']),
+  rejectReason: json['rejectReason'] as String?,
+  uploadedBy: json['uploadedBy'] as String?,
+  createdAt: json['createdAt'] == null
+      ? null
+      : DateTime.parse(json['createdAt'] as String),
+  reviewedBy: json['reviewedBy'] as String?,
+  reviewedAt: json['reviewedAt'] == null
+      ? null
+      : DateTime.parse(json['reviewedAt'] as String),
+);
+
+Map<String, dynamic> _$DocumentToJson(_Document instance) => <String, dynamic>{
+  'id': instance.id,
+  'developerId': instance.developerId,
+  'projectId': instance.projectId,
+  'type': _$DocumentTypeEnumMap[instance.type]!,
+  'fileUrl': instance.fileUrl,
+  'status': _$DocumentStatusEnumMap[instance.status]!,
+  'rejectReason': instance.rejectReason,
+  'uploadedBy': instance.uploadedBy,
+  'createdAt': instance.createdAt?.toIso8601String(),
+  'reviewedBy': instance.reviewedBy,
+  'reviewedAt': instance.reviewedAt?.toIso8601String(),
+};
+
+const _$DocumentTypeEnumMap = {
+  DocumentType.license: 'license',
+  DocumentType.constructionPermit: 'construction_permit',
+  DocumentType.landRights: 'land_rights',
+  DocumentType.projectDeclaration: 'project_declaration',
+  DocumentType.cadastre: 'cadastre',
+};
+
+const _$DocumentStatusEnumMap = {
+  DocumentStatus.pending: 'pending',
+  DocumentStatus.accepted: 'accepted',
+  DocumentStatus.rejected: 'rejected',
+};
