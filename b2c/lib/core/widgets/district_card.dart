@@ -36,6 +36,7 @@ class DistrictCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadii.lg),
           child: Container(
             width: 152,
             height: 108,

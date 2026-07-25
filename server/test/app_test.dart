@@ -40,6 +40,12 @@ Request _patch(String path, Map<String, dynamic> body, {String? token}) =>
       },
     );
 
+Request _delete(String path, {String? token}) => Request(
+  'DELETE',
+  Uri.parse('http://localhost$path'),
+  headers: {if (token != null) 'authorization': 'Bearer $token'},
+);
+
 Request _put(String path, Map<String, dynamic> body, {String? token}) =>
     Request(
       'PUT',
@@ -566,6 +572,60 @@ void main() {
     );
 
     test(
+      'PATCH /v1/platform/developers/:id/status refuses to approve a '
+      'developer whose required documents are not all accepted '
+      '(the /status shortcut must not bypass the /approve document gate)',
+      () async {
+        final developer = store.registerDeveloper(
+          ownerUserId: 'usr-status-nodocs',
+          name: 'NoDocs Devco',
+          legalName: 'OOO NoDocs Devco',
+          inn: '301234573',
+          phone: '+998907001188',
+          accountKind: 'property_developer',
+          legalForm: 'ooo',
+          legalAddress: 'Tashkent',
+          directorFullName: 'NoDocs Director',
+          directorPinfl: '30101123456795',
+          uboDeclared: true,
+        );
+        final id = developer['id'] as String;
+        final response = await handler(
+          _patch('/v1/platform/developers/$id/status', {
+            'status': 'approved',
+          }, token: adminToken),
+        );
+        expect(response.statusCode, 422);
+        expect(
+          store.developerById(id)!['verificationStatus'],
+          isNot('approved'),
+        );
+
+        for (final type in kRequiredDocumentTypes) {
+          final doc = store.addDocument(
+            developerId: id,
+            type: type,
+            fileUrl: '/v1/static/uploads/$type.pdf',
+            uploadedBy: 'usr-status-nodocs',
+          );
+          store.reviewDocument(
+            doc['id'] as String,
+            status: 'accepted',
+            reviewedBy: 'usr-admin',
+          );
+        }
+        final approve = await handler(
+          _patch('/v1/platform/developers/$id/status', {
+            'status': 'approved',
+          }, token: adminToken),
+        );
+        expect(approve.statusCode, 200);
+        final approveJson = await _decode(approve);
+        expect(approveJson['data']['verificationStatus'], 'approved');
+      },
+    );
+
+    test(
       'PATCH /v1/platform/developers/:id/status rejects an unknown status',
       () async {
         final developer = store.registerDeveloper(
@@ -748,6 +808,100 @@ void main() {
       );
       expect(favorites.statusCode, 200);
     });
+  });
+
+  group('platform admin account deletion', () {
+    late Store store;
+    late Handler handler;
+    late String adminToken;
+    late String secondAdminId;
+    late String secondAdminToken;
+
+    setUp(() async {
+      store = Store();
+      handler = createHandler(store);
+      store.ensureUser(phone: '+998901234567', role: 'system_admin');
+      adminToken = await _signIn(handler);
+      final second = store.ensureUser(
+        phone: '+998907654321',
+        role: 'system_admin',
+      );
+      secondAdminId = second['id'] as String;
+      secondAdminToken = await _signIn(handler, phone: '+998907654321');
+    });
+
+    tearDown(() => store.dispose());
+
+    test('DELETE requires system admin', () async {
+      final ordinaryToken = await _signIn(handler, phone: '+998909998877');
+      final response = await handler(
+        _delete('/v1/platform/users/$secondAdminId', token: ordinaryToken),
+      );
+      expect(response.statusCode, 403);
+    });
+
+    test('DELETE refuses to remove a non-admin account', () async {
+      final ordinaryToken = await _signIn(handler, phone: '+998909998877');
+      final me = await _decode(
+        await handler(_get('/v1/users/me', token: ordinaryToken)),
+      );
+      final ordinaryId = me['data']['id'] as String;
+      final response = await handler(
+        _delete('/v1/platform/users/$ordinaryId', token: adminToken),
+      );
+      expect(response.statusCode, 422);
+    });
+
+    test('DELETE refuses to remove your own account', () async {
+      final me = await _decode(
+        await handler(_get('/v1/users/me', token: adminToken)),
+      );
+      final selfId = me['data']['id'] as String;
+      final response = await handler(
+        _delete('/v1/platform/users/$selfId', token: adminToken),
+      );
+      expect(response.statusCode, 422);
+    });
+
+    test('DELETE 404s for an unknown user id', () async {
+      final response = await handler(
+        _delete('/v1/platform/users/does-not-exist', token: adminToken),
+      );
+      expect(response.statusCode, 404);
+    });
+
+    test(
+      'deleting another platform admin removes the account, revokes their '
+      'session, and is logged',
+      () async {
+        final countBefore = store.systemAdminCount();
+
+        final response = await handler(
+          _delete('/v1/platform/users/$secondAdminId', token: adminToken),
+        );
+        expect(response.statusCode, 200);
+        final json = await _decode(response);
+        expect(json['data']['deleted'], isTrue);
+
+        // The deleted admin's own (still-live) token no longer resolves.
+        final me = await handler(_get('/v1/users/me', token: secondAdminToken));
+        expect(me.statusCode, 401);
+
+        final users = await _decode(
+          await handler(_get('/v1/platform/users', token: adminToken)),
+        );
+        final ids = (users['data'] as List).map((u) => u['id']).toList();
+        expect(ids, isNot(contains(secondAdminId)));
+        expect(store.systemAdminCount(), countBefore - 1);
+
+        final auditLog = await _decode(
+          await handler(_get('/v1/platform/audit-log', token: adminToken)),
+        );
+        final items = (auditLog['data'] as List)
+            .cast<Map<String, dynamic>>();
+        expect(items.any((e) => e['action'] == 'user.delete'), isTrue);
+      },
+    );
   });
 
   group('rate limiting', () {

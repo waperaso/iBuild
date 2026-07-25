@@ -254,7 +254,7 @@ class _CrmLeadEditorDialogState extends ConsumerState<CrmLeadEditorDialog> {
               const SizedBox(height: AppSpacing.sm),
               assignees.when(
                 data: (people) => DropdownButtonFormField<String?>(
-                  value: _ownerUserId,
+                  initialValue: _ownerUserId,
                   decoration: InputDecoration(
                     hintText: l10n.crmOwnerUnassigned,
                   ),
@@ -289,7 +289,7 @@ class _CrmLeadEditorDialogState extends ConsumerState<CrmLeadEditorDialog> {
               const SizedBox(height: AppSpacing.sm),
               assignees.when(
                 data: (people) => DropdownButtonFormField<String?>(
-                  value: _transferToUserId,
+                  initialValue: _transferToUserId,
                   decoration: InputDecoration(
                     hintText: l10n.crmTransferHint,
                   ),

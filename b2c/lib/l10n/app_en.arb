@@ -7,8 +7,8 @@
   "navInquiries": "Inquiries",
   "navSettings": "Settings",
 
+  "onboardingSlogan": "iBuild the dream",
   "onboardingEyebrow": "Sell. Invest. All in One App.",
-  "onboardingHeadline": "Find Your\nDream Home\nToday",
   "onboardingDescription": "Browse ready apartments, off-plan new builds and business-centre offices — all in one place, with live availability and one-tap enquiries.",
   "onboardingTrustBadge": "4.9★ · 500+ happy families",
   "start": "Start",
@@ -79,6 +79,8 @@
 
   "searchByLocations": "Search by locations",
   "liveLocationDistrict": "Live location · {district}",
+  "mapZoomIn": "Zoom in",
+  "mapZoomOut": "Zoom out",
   "@liveLocationDistrict": {
     "placeholders": { "district": { "type": "String" } }
   },
@@ -193,6 +195,10 @@
   "piiConsentRequiredError": "Please agree to the processing of your personal data to continue.",
   "submitInquiry": "Submit inquiry",
   "leadSubmittedSnackbar": "Lead {number} submitted",
+  "leadSignInRequiredTitle": "Sign in to send this inquiry",
+  "leadSignInRequiredBody": "Create or sign in to your iBuild account so the developer can reach you about this request.",
+  "leadSignInCta": "Sign in to continue",
+  "leadSignInRequiredError": "Please sign in to submit this inquiry.",
   "@leadSubmittedSnackbar": {
     "placeholders": { "number": { "type": "String" } }
   },

@@ -74,6 +74,25 @@ class AppLocalizationsUz extends AppLocalizations {
   String get otpInvalidError => 'Kod xato yoki muddati oʻtgan';
 
   @override
+  String get otpResendPrompt => 'Kod kelmadimi?';
+
+  @override
+  String get otpResendAction => 'Kodni qayta yuborish';
+
+  @override
+  String otpResendCountdown(int seconds) {
+    return '$seconds soniyadan keyin qayta yuborish';
+  }
+
+  @override
+  String get otpResendSuccess => 'Yangi kod yuborildi';
+
+  @override
+  String otpResendError(String error) {
+    return 'Kodni qayta yuborib bo\'lmadi: $error';
+  }
+
+  @override
   String get applyStepWelcome => 'Xush kelibsiz';
 
   @override
@@ -102,6 +121,21 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get applyHaveAccount => 'Mening hisobim bor';
+
+  @override
+  String get authHeroTitle => 'Quruvchilar uchun platforma';
+
+  @override
+  String get authHeroSubtitle =>
+      'Turar-joy majmualarini, xonadonlarni va xaridor arizalarini yagona iBuild ish maydonida boshqaring — nafaqat administratorlar, balki butun jamoa uchun.';
+
+  @override
+  String get authHeroPointVerified =>
+      'Tekshirilgan quruvchilar va loyihalar xaridorlar ishonchini qozonadi';
+
+  @override
+  String get authHeroPointLeads =>
+      'Xaridor va ijarachi arizalari to\'g\'ridan-to\'g\'ri CRM\'ga tushadi';
 
   @override
   String get applyRoleTitle => 'Quruvchini roʻyxatdan oʻtkazish';
@@ -170,10 +204,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get applyRegionTashkent => 'Toshkent';
 
   @override
-  String get applyRegionTashkentRegion => 'Toshkent viloyati';
-
-  @override
-  String get applyRegionOther => 'Boshqa hududlar';
+  String get applyRegionNewTashkent => 'Yangi Toshkent';
 
   @override
   String get applyEmail => 'Kompaniya emaili';
@@ -238,6 +269,11 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get applyDocumentsRequiredHint =>
       'Arizani ko\'rib chiqishga yuborishdan oldin yuqoridagi barcha 4 ta tasdiqlash hujjatini yuklang.';
+
+  @override
+  String applyDocumentsMissingHint(String names) {
+    return 'Siz qo\'shmadingiz: $names. Arizani ko\'rib chiqishga yuborishdan oldin ularni yuqorida yuklang.';
+  }
 
   @override
   String get applyReviewDecisionLabel => 'Qaror';
@@ -423,6 +459,49 @@ class AppLocalizationsUz extends AppLocalizations {
   String get platformPublish => 'Nashr etish';
 
   @override
+  String get platformProjectDetails => 'Batafsil';
+
+  @override
+  String get platformProjectDescriptionLabel => 'Tavsif';
+
+  @override
+  String get platformProjectPricingLabel => 'Narxlar';
+
+  @override
+  String platformProjectPriceRange(String min, String max) {
+    return '$min – $max soʻm';
+  }
+
+  @override
+  String platformProjectRentRange(String min, String max) {
+    return 'Ijara: $min – $max soʻm/oy';
+  }
+
+  @override
+  String platformProjectCompletionLabel(String date) {
+    return 'Topshirish muddati: $date';
+  }
+
+  @override
+  String get platformProjectGalleryLabel => 'Galereya';
+
+  @override
+  String get platformProjectUnitsLabel => 'Yunitlar';
+
+  @override
+  String platformProjectUnitsSummary(int buildings, int total) {
+    return '$buildings bino · $total yunit';
+  }
+
+  @override
+  String get platformProjectUnitsEmpty => 'Hali yunitlar qoʻshilmagan';
+
+  @override
+  String platformProjectLoadError(String error) {
+    return 'Loyiha maʼlumotlarini yuklab boʻlmadi: $error';
+  }
+
+  @override
   String get platformPublishedProjectsSectionTitle => 'Nashr etilgan loyihalar';
 
   @override
@@ -460,6 +539,20 @@ class AppLocalizationsUz extends AppLocalizations {
   String get platformNoPendingReviews => 'Moderatsiya kutayotgan sharhlar yoʻq';
 
   @override
+  String get platformReviewRatingLocation => 'Joylashuv';
+
+  @override
+  String get platformReviewRatingQuality => 'Sifat';
+
+  @override
+  String get platformReviewRatingValue => 'Narx/sifat';
+
+  @override
+  String platformReviewProjectLabel(String name) {
+    return 'Loyiha: $name';
+  }
+
+  @override
   String get platformAnonymous => 'Anonim';
 
   @override
@@ -481,6 +574,16 @@ class AppLocalizationsUz extends AppLocalizations {
       'Eʼlon talablariga javob bermaydi';
 
   @override
+  String platformRentalMonthlyRent(String amount) {
+    return '$amount soʻm/oy';
+  }
+
+  @override
+  String platformRentalContactLabel(String phone) {
+    return 'Aloqa: $phone';
+  }
+
+  @override
   String get platformAuditLogSectionTitle => 'Amallar jurnali';
 
   @override
@@ -490,6 +593,23 @@ class AppLocalizationsUz extends AppLocalizations {
   String platformAuditError(String error) {
     return 'Jurnal xatosi: $error';
   }
+
+  @override
+  String get platformAuditLogActorPrefix => 'O\'zgartirdi';
+
+  @override
+  String get platformAuditLogActorUnknown => 'Nomaʼlum foydalanuvchi';
+
+  @override
+  String platformAuditLogPageInfo(int page, int total) {
+    return '$page/$total sahifa';
+  }
+
+  @override
+  String get platformAuditLogPrevPage => 'Oldingi sahifa';
+
+  @override
+  String get platformAuditLogNextPage => 'Keyingi sahifa';
 
   @override
   String get notificationsTitle => 'Bildirishnomalar';
@@ -573,6 +693,26 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get platformBan => 'Bloklash';
+
+  @override
+  String get platformDeleteAdminTooltip =>
+      'Platforma administratori hisobini o\'chirish';
+
+  @override
+  String platformDeleteAdminConfirmTitle(String phone) {
+    return '$phone o\'chirilsinmi?';
+  }
+
+  @override
+  String get platformDeleteAdminConfirmBody =>
+      'Platforma administratori hisobi butunlay o\'chiriladi va barcha joylarda kirish huquqi bekor qilinadi. Bu amalni ortga qaytarib bo\'lmaydi.';
+
+  @override
+  String get platformDeleteAdminConfirm => 'Hisobni o\'chirish';
+
+  @override
+  String get platformDeleteAdminSelfHint =>
+      'Bu sizning hisobingiz — uni o\'chirish uchun boshqa administrator sifatida tizimga kiring.';
 
   @override
   String platformBanDialogTitle(String phone) {
@@ -772,6 +912,12 @@ class AppLocalizationsUz extends AppLocalizations {
   String mapLocationCoordinates(String lat, String lng) {
     return 'Koordinatalar: $lat, $lng';
   }
+
+  @override
+  String get mapLocationZoomIn => 'Kattalashtirish';
+
+  @override
+  String get mapLocationZoomOut => 'Kichiklashtirish';
 
   @override
   String get residenceCreate => 'Yaratish';
@@ -998,11 +1144,11 @@ class AppLocalizationsUz extends AppLocalizations {
   String get orgPlanDecayCoefficientAxis => 'Kuchaytirish';
 
   @override
-  String get orgAiSectionTitle => 'AI profil generatori';
+  String get orgAiSectionTitle => 'Qoralama tavsif shabloni';
 
   @override
   String get orgAiSectionSubtitle =>
-      'Havolalaringiz va ixtiyoriy kompaniya taqdimotini qoʻshing, soʻng tavsif qoralamasini yarating. Hammasi qurilmada ishlaydi — saqlashdan oldin koʻrib chiqing va tahrirlang.';
+      'Havolalaringiz va ixtiyoriy kompaniya taqdimotini qoʻshing — shablon asosida qoralama tuziladi (bu AI tomonidan yozilmagan), saqlashdan oldin tahrirlang.';
 
   @override
   String get orgAiWebsiteHint => 'Veb-sayt URL';
@@ -1019,22 +1165,22 @@ class AppLocalizationsUz extends AppLocalizations {
   }
 
   @override
-  String get orgAiGenerate => 'Tavsif yaratish';
+  String get orgAiGenerate => 'Shablon boʻyicha qoralama tuzish';
 
   @override
-  String get orgAiGenerating => 'Yaratilmoqda…';
+  String get orgAiGenerating => 'Tuzilmoqda…';
 
   @override
-  String get orgAiApply => 'Ushbu tavsifdan foydalanish';
+  String get orgAiApply => 'Ushbu qoralamadan foydalanish';
 
   @override
-  String get orgAiResultHint => 'Yaratilgan tavsif (tahrirlanadi)';
+  String get orgAiResultHint => 'Shablon qoralamasi (tahrirlanadi)';
 
   @override
   String get orgAiNoInputs => 'Avval veb-sayt, Instagram yoki PDF qoʻshing.';
 
   @override
-  String get orgAiApplied => 'Tavsif qoʻllandi — koʻrib chiqing va saqlang.';
+  String get orgAiApplied => 'Qoralama qoʻllandi — koʻrib chiqing va saqlang.';
 
   @override
   String get projectLoadError => 'Loyihani yuklab boʻlmadi';
@@ -1300,15 +1446,6 @@ class AppLocalizationsUz extends AppLocalizations {
   String get projectInterestRateLabel => 'Foiz stavkasi %';
 
   @override
-  String get projectLeadEditorTitle => 'Teglar va baho';
-
-  @override
-  String get projectTagsLabel => 'Teglar (vergul bilan)';
-
-  @override
-  String get projectTagsHint => 'vip, shoshilinch, ipoteka';
-
-  @override
   String get projectBulkUnitsDialogTitle => 'Yunitlarni ommaviy qoʻshish';
 
   @override
@@ -1506,16 +1643,36 @@ class AppLocalizationsUz extends AppLocalizations {
   String get documentTypeLicense => 'Litsenziya';
 
   @override
+  String get documentTypeLicenseHint =>
+      'Kompaniyaning quruvchi sifatida faoliyat yuritishga qonuniy huquqini tasdiqlaydigan qurilish litsenziyasi.';
+
+  @override
   String get documentTypeConstructionPermit => 'Qurilish ruxsatnomasi';
+
+  @override
+  String get documentTypeConstructionPermitHint =>
+      'Aynan shu loyihani qurish uchun mahalliy hokimiyatning rasmiy ruxsatnomasi.';
 
   @override
   String get documentTypeLandRights => 'Yer huquqlari';
 
   @override
+  String get documentTypeLandRightsHint =>
+      'Qurilish olib borilayotgan yer uchastkasiga egalik yoki uzoq muddatli ijara huquqini tasdiqlovchi hujjat.';
+
+  @override
   String get documentTypeProjectDeclaration => 'Loyiha deklaratsiyasi';
 
   @override
+  String get documentTypeProjectDeclarationHint =>
+      'Loyihani tasvirlovchi deklaratsiya: muddatlar, obyekt va quruvchi xususiyatlari — odatda ulushli qurilish uchun talab qilinadi.';
+
+  @override
   String get documentTypeCadastre => 'Kadastr';
+
+  @override
+  String get documentTypeCadastreHint =>
+      'Uchastkaning aniq chegaralari va roʻyxat maʼlumotlari boʻlgan kadastr pasporti.';
 
   @override
   String get documentStatusPending => 'Tekshirilmoqda';
@@ -1540,7 +1697,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get moderationSubtitle =>
-      'Yangi ЖК arizalari, sharhlar shikoyatlari va ijara e\'lonlari.';
+      'Koʻrib chiqilishini kutayotgan yangi ЖК arizalari va sharhlar shikoyatlari.';
 
   @override
   String get adminProjectsTitle => 'ЖК boshqaruvi';

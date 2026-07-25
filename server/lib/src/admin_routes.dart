@@ -1634,6 +1634,18 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
         status: 422,
       );
     }
+    // Same document-completeness contract as the dedicated /approve
+    // endpoint above — this generalized transition must not become a way
+    // to grant `residence_admin` while skipping the KYC document check.
+    if (status == 'approved' && !store.hasAllRequiredDocumentsAccepted(id)) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'All required documents '
+            '(${kRequiredDocumentTypes.join(', ')}) must be accepted '
+            'before approval',
+        status: 422,
+      );
+    }
     final developer = store.setDeveloperVerification(
       id,
       status,
@@ -1846,6 +1858,67 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       targetId: id,
     );
     return jsonOk(user);
+  });
+
+  // Scoped to `system_admin` accounts only (see the concept doc's
+  // "platform admins" team management) — ordinary/residence-admin accounts
+  // own real business data (developer orgs, leads, listings) where an
+  // outright delete has much bigger data-integrity implications than
+  // removing a teammate's platform-admin seat, so [banUser] remains the
+  // only way to freeze those.
+  router.delete('/v1/platform/users/<id>', (Request req, String id) async {
+    final denied = _requireSystemAdmin(req);
+    if (denied != null) return denied;
+    final auth = req.auth!;
+    final target = store.allUsers().where((u) => u['id'] == id).firstOrNull;
+    if (target == null) {
+      return jsonError('NOT_FOUND', 'User $id not found', status: 404);
+    }
+    if (target['role'] != UserRole.systemAdmin) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'Only platform admin accounts can be deleted here',
+        status: 422,
+      );
+    }
+    if (id == auth.userId) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'You cannot delete your own account',
+        status: 422,
+      );
+    }
+    if (store.systemAdminCount() <= 1) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'At least one platform admin must remain',
+        status: 422,
+      );
+    }
+    try {
+      final deleted = await store.deleteUser(id);
+      if (deleted == null) {
+        return jsonError('NOT_FOUND', 'User $id not found', status: 404);
+      }
+      store.audit(
+        actorUserId: auth.userId,
+        action: 'user.delete',
+        targetType: 'user',
+        targetId: id,
+        detail: deleted['phone']?.toString(),
+      );
+      return jsonOk({'id': id, 'deleted': true});
+    } catch (e) {
+      final hint = store.persistenceRequired && !store.hasPersistence
+          ? 'PostgreSQL is configured but the API is in-memory only — '
+                'restart the API after the database is ready.'
+          : null;
+      return jsonError(
+        'INTERNAL_ERROR',
+        hint ?? 'Failed to delete user: $e',
+        status: 500,
+      );
+    }
   });
 
   router.get('/v1/platform/analytics', (Request req) {

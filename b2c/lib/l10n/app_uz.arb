@@ -7,8 +7,8 @@
   "navInquiries": "Murojaatlar",
   "navSettings": "Sozlamalar",
 
+  "onboardingSlogan": "iBuild the dream",
   "onboardingEyebrow": "Soting. Sarmoya kiriting. Bir ilovada.",
-  "onboardingHeadline": "Orzuingizdagi\nUyni Bugun\nToping",
   "onboardingDescription": "Tayyor kvartiralar, muddatli toʻlov bilan yangi qurilishlar va biznes-markazlardagi ofislar — barchasi bir joyda, real vaqtdagi mavjudlik va bir bosishda soʻrov bilan.",
   "onboardingTrustBadge": "4.9★ · 500+ mamnun oila",
   "start": "Boshlash",
@@ -73,6 +73,8 @@
 
   "searchByLocations": "Manzil boʻyicha qidirish",
   "liveLocationDistrict": "Joylashuv · {district}",
+  "mapZoomIn": "Kattalashtirish",
+  "mapZoomOut": "Kichiklashtirish",
 
   "tabUnits": "Xonadonlar",
   "tabFloorPlans": "Planlar",
@@ -154,6 +156,10 @@
   "piiConsentRequiredError": "Davom etish uchun shaxsiy maʼlumotlarni qayta ishlashga roziligingizni tasdiqlang.",
   "submitInquiry": "Murojaatni yuborish",
   "leadSubmittedSnackbar": "{number} raqamli murojaat yuborildi",
+  "leadSignInRequiredTitle": "Murojaatni yuborish uchun tizimga kiring",
+  "leadSignInRequiredBody": "Quruvchi sizning murojaatingiz boʻyicha bogʻlanishi uchun iBuild hisobingizga kiring yoki roʻyxatdan oʻting.",
+  "leadSignInCta": "Davom etish uchun kiring",
+  "leadSignInRequiredError": "Murojaatni yuborish uchun tizimga kiring.",
 
   "myInquiriesTitle": "Mening murojaatlarim",
   "tabActive": "Faol",

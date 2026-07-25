@@ -72,6 +72,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get otpInvalidError => 'Invalid or expired code';
 
   @override
+  String get otpResendPrompt => 'Didn\'t get the code?';
+
+  @override
+  String get otpResendAction => 'Resend code';
+
+  @override
+  String otpResendCountdown(int seconds) {
+    return 'Resend in ${seconds}s';
+  }
+
+  @override
+  String get otpResendSuccess => 'New code sent';
+
+  @override
+  String otpResendError(String error) {
+    return 'Couldn\'t resend the code: $error';
+  }
+
+  @override
   String get applyStepWelcome => 'Welcome';
 
   @override
@@ -100,6 +119,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get applyHaveAccount => 'I have an account';
+
+  @override
+  String get authHeroTitle => 'Built for property developers';
+
+  @override
+  String get authHeroSubtitle =>
+      'Manage residential complexes, units, and buyer leads in one iBuild workspace — built for teams, not just admins.';
+
+  @override
+  String get authHeroPointVerified =>
+      'Verified developers and projects earn buyer trust';
+
+  @override
+  String get authHeroPointLeads =>
+      'Buyer and tenant leads land straight in your CRM';
 
   @override
   String get applyRoleTitle => 'Developer registration';
@@ -168,10 +202,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get applyRegionTashkent => 'Tashkent';
 
   @override
-  String get applyRegionTashkentRegion => 'Tashkent Region';
-
-  @override
-  String get applyRegionOther => 'Other Regions';
+  String get applyRegionNewTashkent => 'New Tashkent';
 
   @override
   String get applyEmail => 'Company email';
@@ -236,6 +267,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get applyDocumentsRequiredHint =>
       'Upload all 4 verification documents above before submitting your application for review.';
+
+  @override
+  String applyDocumentsMissingHint(String names) {
+    return 'You haven\'t added: $names. Upload them above before submitting your application for review.';
+  }
 
   @override
   String get applyReviewDecisionLabel => 'Decision';
@@ -421,6 +457,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get platformPublish => 'Publish';
 
   @override
+  String get platformProjectDetails => 'Details';
+
+  @override
+  String get platformProjectDescriptionLabel => 'Description';
+
+  @override
+  String get platformProjectPricingLabel => 'Pricing';
+
+  @override
+  String platformProjectPriceRange(String min, String max) {
+    return '$min – $max UZS';
+  }
+
+  @override
+  String platformProjectRentRange(String min, String max) {
+    return 'Rent: $min – $max UZS / mo';
+  }
+
+  @override
+  String platformProjectCompletionLabel(String date) {
+    return 'Completion: $date';
+  }
+
+  @override
+  String get platformProjectGalleryLabel => 'Gallery';
+
+  @override
+  String get platformProjectUnitsLabel => 'Units';
+
+  @override
+  String platformProjectUnitsSummary(int buildings, int total) {
+    return '$buildings buildings · $total units';
+  }
+
+  @override
+  String get platformProjectUnitsEmpty => 'No units added yet';
+
+  @override
+  String platformProjectLoadError(String error) {
+    return 'Failed to load project details: $error';
+  }
+
+  @override
   String get platformPublishedProjectsSectionTitle => 'Published projects';
 
   @override
@@ -458,6 +537,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get platformNoPendingReviews => 'No reviews awaiting moderation';
 
   @override
+  String get platformReviewRatingLocation => 'Location';
+
+  @override
+  String get platformReviewRatingQuality => 'Quality';
+
+  @override
+  String get platformReviewRatingValue => 'Value';
+
+  @override
+  String platformReviewProjectLabel(String name) {
+    return 'Project: $name';
+  }
+
+  @override
   String get platformAnonymous => 'Anonymous';
 
   @override
@@ -479,6 +572,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Does not meet listing requirements';
 
   @override
+  String platformRentalMonthlyRent(String amount) {
+    return '$amount UZS / mo';
+  }
+
+  @override
+  String platformRentalContactLabel(String phone) {
+    return 'Contact: $phone';
+  }
+
+  @override
   String get platformAuditLogSectionTitle => 'Audit log';
 
   @override
@@ -488,6 +591,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String platformAuditError(String error) {
     return 'Audit log error: $error';
   }
+
+  @override
+  String get platformAuditLogActorPrefix => 'Changed by';
+
+  @override
+  String get platformAuditLogActorUnknown => 'Unknown user';
+
+  @override
+  String platformAuditLogPageInfo(int page, int total) {
+    return 'Page $page of $total';
+  }
+
+  @override
+  String get platformAuditLogPrevPage => 'Previous page';
+
+  @override
+  String get platformAuditLogNextPage => 'Next page';
 
   @override
   String get notificationsTitle => 'Notifications';
@@ -571,6 +691,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get platformBan => 'Ban';
+
+  @override
+  String get platformDeleteAdminTooltip => 'Delete platform admin account';
+
+  @override
+  String platformDeleteAdminConfirmTitle(String phone) {
+    return 'Delete $phone?';
+  }
+
+  @override
+  String get platformDeleteAdminConfirmBody =>
+      'This permanently removes their platform-admin account and signs them out everywhere. This can\'t be undone.';
+
+  @override
+  String get platformDeleteAdminConfirm => 'Delete account';
+
+  @override
+  String get platformDeleteAdminSelfHint =>
+      'This is your own account — sign in as another admin to remove it.';
 
   @override
   String platformBanDialogTitle(String phone) {
@@ -769,6 +908,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String mapLocationCoordinates(String lat, String lng) {
     return 'Coordinates: $lat, $lng';
   }
+
+  @override
+  String get mapLocationZoomIn => 'Zoom in';
+
+  @override
+  String get mapLocationZoomOut => 'Zoom out';
 
   @override
   String get residenceCreate => 'Create';
@@ -995,11 +1140,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orgPlanDecayCoefficientAxis => 'Boost';
 
   @override
-  String get orgAiSectionTitle => 'AI profile generator';
+  String get orgAiSectionTitle => 'Draft description template';
 
   @override
   String get orgAiSectionSubtitle =>
-      'Add your links and an optional company deck, then generate a draft description. Everything runs on-device — review and edit before saving.';
+      'Add your links and an optional company deck to compose a starter draft from a template — this is not AI-written — then edit it to fit your business before saving.';
 
   @override
   String get orgAiWebsiteHint => 'Website URL';
@@ -1016,22 +1161,22 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get orgAiGenerate => 'Generate description';
+  String get orgAiGenerate => 'Compose draft template';
 
   @override
-  String get orgAiGenerating => 'Generating…';
+  String get orgAiGenerating => 'Composing…';
 
   @override
-  String get orgAiApply => 'Use this description';
+  String get orgAiApply => 'Use this draft';
 
   @override
-  String get orgAiResultHint => 'Generated description (editable)';
+  String get orgAiResultHint => 'Draft template (editable)';
 
   @override
   String get orgAiNoInputs => 'Add a website, Instagram, or PDF first.';
 
   @override
-  String get orgAiApplied => 'Description applied — review and save.';
+  String get orgAiApplied => 'Draft applied — review and save.';
 
   @override
   String get projectLoadError => 'Could not load project';
@@ -1299,15 +1444,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get projectInterestRateLabel => 'Interest rate %';
 
   @override
-  String get projectLeadEditorTitle => 'Tags & score';
-
-  @override
-  String get projectTagsLabel => 'Tags (comma separated)';
-
-  @override
-  String get projectTagsHint => 'vip, urgent, mortgage';
-
-  @override
   String get projectBulkUnitsDialogTitle => 'Bulk add units';
 
   @override
@@ -1505,16 +1641,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get documentTypeLicense => 'License';
 
   @override
+  String get documentTypeLicenseHint =>
+      'Construction business license proving the company is legally allowed to act as a developer.';
+
+  @override
   String get documentTypeConstructionPermit => 'Construction permit';
+
+  @override
+  String get documentTypeConstructionPermitHint =>
+      'Official local-authority permit to build this specific project.';
 
   @override
   String get documentTypeLandRights => 'Land rights';
 
   @override
+  String get documentTypeLandRightsHint =>
+      'Document proving ownership or long-term lease rights to the land the project is built on.';
+
+  @override
   String get documentTypeProjectDeclaration => 'Project declaration';
 
   @override
+  String get documentTypeProjectDeclarationHint =>
+      'Declaration describing the project — timeline, specifications and the developer — typically required for off-plan sales.';
+
+  @override
   String get documentTypeCadastre => 'Cadastre';
+
+  @override
+  String get documentTypeCadastreHint =>
+      'Cadastral passport for the plot, with its exact boundaries and registry data.';
 
   @override
   String get documentStatusPending => 'Pending review';
@@ -1539,7 +1695,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moderationSubtitle =>
-      'New residence submissions, flagged reviews, and pending rental listings.';
+      'New residence submissions awaiting review, and flagged reviews.';
 
   @override
   String get adminProjectsTitle => 'ЖК administration';

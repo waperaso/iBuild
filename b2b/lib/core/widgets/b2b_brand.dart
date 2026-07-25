@@ -6,9 +6,14 @@ import 'brand_mark.dart';
 
 /// Sidebar / auth header mark with the **iBuild B2B** product label.
 class B2bBrand extends StatelessWidget {
-  const B2bBrand({super.key, this.compact = false});
+  const B2bBrand({super.key, this.compact = false, this.onDark = false});
 
   final bool compact;
+
+  /// Set on a dark hero panel (e.g. the desktop auth split-screen) so the
+  /// "iBuild" wordmark switches to a light color instead of near-invisible
+  /// dark-ink-on-dark-surface.
+  final bool onDark;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,10 @@ class B2bBrand extends StatelessWidget {
             Text(
               'iBuild',
               style: (compact ? textTheme.titleMedium : textTheme.titleLarge)
-                  ?.copyWith(fontWeight: FontWeight.w700),
+                  ?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: onDark ? colors.onHeroSurface : null,
+                  ),
             ),
             Text(
               'B2B',

@@ -7,8 +7,8 @@
   "navInquiries": "Заявки",
   "navSettings": "Настройки",
 
+  "onboardingSlogan": "iBuild the dream",
   "onboardingEyebrow": "Продавайте. Инвестируйте. Всё в одном приложении.",
-  "onboardingHeadline": "Найдите Дом\nСвоей Мечты\nУже Сегодня",
   "onboardingDescription": "Готовые квартиры, новостройки в рассрочку и офисы в бизнес-центрах — всё в одном месте, с актуальной доступностью и заявкой в один клик.",
   "onboardingTrustBadge": "4.9★ · 500+ довольных семей",
   "start": "Начать",
@@ -73,6 +73,8 @@
 
   "searchByLocations": "Поиск по локациям",
   "liveLocationDistrict": "Местоположение · {district}",
+  "mapZoomIn": "Увеличить",
+  "mapZoomOut": "Уменьшить",
 
   "tabUnits": "Юниты",
   "tabFloorPlans": "Планировки",
@@ -154,6 +156,10 @@
   "piiConsentRequiredError": "Чтобы продолжить, подтвердите согласие на обработку персональных данных.",
   "submitInquiry": "Отправить заявку",
   "leadSubmittedSnackbar": "Заявка {number} отправлена",
+  "leadSignInRequiredTitle": "Войдите, чтобы отправить заявку",
+  "leadSignInRequiredBody": "Создайте аккаунт или войдите в iBuild, чтобы застройщик мог связаться с вами по этой заявке.",
+  "leadSignInCta": "Войти, чтобы продолжить",
+  "leadSignInRequiredError": "Войдите в аккаунт, чтобы отправить заявку.",
 
   "myInquiriesTitle": "Мои заявки",
   "tabActive": "Активные",

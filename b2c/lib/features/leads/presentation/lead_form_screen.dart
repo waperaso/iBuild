@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -96,11 +97,23 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
         SnackBar(content: Text(l10n.leadSubmittedSnackbar(lead.number))),
       );
       context.go('/inquiries');
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.somethingWentWrong)));
+      // The sign-in gate above should catch this before submit is even
+      // reachable, but a session can expire mid-fill — surface *why* it
+      // failed instead of a generic error so the user knows to sign back in
+      // rather than assuming the app is just broken.
+      final isAuthError =
+          error is DioException && error.response?.statusCode == 401;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isAuthError
+                ? l10n.leadSignInRequiredError
+                : l10n.somethingWentWrong,
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -111,6 +124,7 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context);
+    final authState = ref.watch(authControllerProvider);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -122,73 +136,150 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
         ),
         title: Text(l10n.newInquiryTitle),
       ),
-      body: ConstrainedBody(
-        maxWidth: 560,
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            Text(l10n.whatDoYouNeed, style: textTheme.titleMedium),
-            const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [
-                for (final intent in LeadIntent.values)
-                  AppChip(
-                    label: intent.label(context),
-                    selected: _intent == intent,
-                    onTap: () => setState(() => _intent = intent),
+      // `POST /leads` is authenticated server-side — a guest who filled this
+      // in and hit submit used to just get a generic "something went wrong"
+      // from the resulting 401, with the request silently never landing.
+      // Gating on sign-in *before* they fill the form (instead of failing
+      // after) is what actually gets the inquiry to the server: the CTA
+      // below round-trips through `/login` → `/otp` with this screen's own
+      // location as `redirect`, so verifying OTP drops them right back here
+      // signed in, ready to submit for real.
+      body: authState.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : authState.value == null
+          ? _SignInRequiredBody(
+              redirectTo: GoRouterState.of(context).uri.toString(),
+            )
+          : ConstrainedBody(
+              maxWidth: 560,
+              child: ListView(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                children: [
+                  Text(l10n.whatDoYouNeed, style: textTheme.titleMedium),
+                  const SizedBox(height: AppSpacing.md),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      for (final intent in LeadIntent.values)
+                        AppChip(
+                          label: intent.label(context),
+                          selected: _intent == intent,
+                          onTap: () => setState(() => _intent = intent),
+                        ),
+                    ],
                   ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            Text(l10n.contactPhoneLabel, style: textTheme.titleMedium),
-            const SizedBox(height: AppSpacing.sm),
-            TextField(
-              controller: _phone,
-              keyboardType: TextInputType.phone,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[\d+\s()-]')),
-                LengthLimitingTextInputFormatter(20),
-              ],
-              decoration: InputDecoration(hintText: l10n.phoneHint),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(l10n.commentOptionalLabel, style: textTheme.titleMedium),
-            const SizedBox(height: AppSpacing.sm),
-            TextField(
-              controller: _message,
-              maxLines: 4,
-              maxLength: 500,
-              inputFormatters: [LengthLimitingTextInputFormatter(500)],
-              decoration: InputDecoration(
-                hintText: l10n.commentHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.md),
-                  borderSide: BorderSide(color: colors.outline),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.md),
-                  borderSide: BorderSide(color: colors.outline),
-                ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Text(l10n.contactPhoneLabel, style: textTheme.titleMedium),
+                  const SizedBox(height: AppSpacing.sm),
+                  TextField(
+                    controller: _phone,
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[\d+\s()-]')),
+                      LengthLimitingTextInputFormatter(20),
+                    ],
+                    decoration: InputDecoration(hintText: l10n.phoneHint),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    l10n.commentOptionalLabel,
+                    style: textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  TextField(
+                    controller: _message,
+                    maxLines: 4,
+                    maxLength: 500,
+                    inputFormatters: [LengthLimitingTextInputFormatter(500)],
+                    decoration: InputDecoration(hintText: l10n.commentHint),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  _ConsentCheckbox(
+                    value: _consent,
+                    onChanged: (v) => setState(() => _consent = v),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Tooltip(
+                    message: _consent ? '' : l10n.piiConsentRequiredError,
+                    child: PillButton(
+                      label: l10n.submitInquiry,
+                      expand: true,
+                      onPressed: (_submitting || !_consent) ? null : _submit,
+                      loading: _submitting,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: AppSpacing.xl),
-            _ConsentCheckbox(
-              value: _consent,
-              onChanged: (v) => setState(() => _consent = v),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Tooltip(
-              message: _consent ? '' : l10n.piiConsentRequiredError,
-              child: PillButton(
-                label: l10n.submitInquiry,
+    );
+  }
+}
+
+/// Shown instead of the form when the visitor is browsing as a guest —
+/// `POST /leads` requires a signed-in session, so this is the actual fix for
+/// inquiries "not sending": previously a guest could fill in the whole form
+/// and only discover it never reached the server after tapping submit.
+class _SignInRequiredBody extends StatelessWidget {
+  const _SignInRequiredBody({required this.redirectTo});
+
+  /// This screen's own location (path + query), so `/otp` can send the user
+  /// right back here — with the same project/unit/intent — once verified.
+  final String redirectTo;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context);
+
+    return ConstrainedBody(
+      maxWidth: 560,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: colors.surfaceAlt,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.lock_outline,
+                  color: colors.inkMuted,
+                  size: 26,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                l10n.leadSignInRequiredTitle,
+                textAlign: TextAlign.center,
+                style: textTheme.titleLarge,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                l10n.leadSignInRequiredBody,
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              PillButton(
+                label: l10n.leadSignInCta,
                 expand: true,
-                onPressed: (_submitting || !_consent) ? null : _submit,
-                loading: _submitting,
+                onPressed: () => context.push(
+                  Uri(
+                    path: '/login',
+                    queryParameters: {'redirect': redirectTo},
+                  ).toString(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

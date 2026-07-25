@@ -39,6 +39,7 @@ class RentalListingCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadii.card),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

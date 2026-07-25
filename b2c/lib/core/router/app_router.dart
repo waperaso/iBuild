@@ -115,8 +115,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       // browsing to `/home` never gets gated behind it.
       GoRoute(
         path: '/login',
-        pageBuilder: (context, state) =>
-            _fadeSlidePage(state: state, child: const LoginScreen()),
+        pageBuilder: (context, state) => _fadeSlidePage(
+          state: state,
+          child: LoginScreen(redirect: state.uri.queryParameters['redirect']),
+        ),
       ),
       GoRoute(
         path: '/otp',
@@ -125,6 +127,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: OtpScreen(
             requestId: state.uri.queryParameters['requestId'] ?? '',
             phone: state.uri.queryParameters['phone'] ?? '',
+            redirect: state.uri.queryParameters['redirect'],
           ),
         ),
       ),

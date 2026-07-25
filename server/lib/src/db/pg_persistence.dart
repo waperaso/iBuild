@@ -1687,6 +1687,18 @@ class PgPersistence {
     );
   }
 
+  /// Hard-deletes a user row. Runs as `service` so an admin can always
+  /// remove another admin's account regardless of the caller's own
+  /// per-request RLS context. `sessions`/`leads`/`favorites`/etc. reference
+  /// `users.id` with `ON DELETE CASCADE` or `ON DELETE SET NULL` (see
+  /// migrations 0001–0015), so this one statement is enough.
+  Future<void> deleteUser(String id) => _asService(
+    (s) => s.execute(
+      Sql.named('DELETE FROM users WHERE id = @id'),
+      parameters: {'id': TypedValue(Type.text, id)},
+    ),
+  );
+
   /// Loads every persisted session (with expiry) into the in-memory auth
   /// caches on startup so Bearer tokens survive server restarts — while
   /// still honoring their TTL.

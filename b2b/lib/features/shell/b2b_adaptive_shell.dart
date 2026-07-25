@@ -70,6 +70,11 @@ class B2bAdaptiveShell extends ConsumerWidget {
           icon: Icons.support_agent_outlined,
           path: '/platform/tickets',
         ),
+        _B2bNavItem(
+          label: l10n.notificationsTitle,
+          icon: Icons.notifications_outlined,
+          path: '/platform/notifications',
+        ),
       ];
     }
     return [
@@ -109,6 +114,7 @@ class B2bAdaptiveShell extends ConsumerWidget {
       '/platform/projects',
       '/platform/crm',
       '/platform/tickets',
+      '/platform/notifications',
       '/support',
       '/platform',
     ]) {
@@ -146,8 +152,8 @@ class B2bAdaptiveShell extends ConsumerWidget {
             items: items,
             currentIndex: index,
             user: user,
-            child: child,
             onSignOut: handleSignOut,
+            child: child,
           )
         : _DesktopShell(
             items: items,

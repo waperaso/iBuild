@@ -29,6 +29,10 @@ class _HorizontalScrollBehavior extends MaterialScrollBehavior {
     Widget child,
     ScrollableDetails details,
   ) => child;
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const ClampingScrollPhysics();
 }
 
 /// Horizontal list rail with mouse-drag scrolling and subtle edge fades on
@@ -103,9 +107,7 @@ class _HorizontalScrollRailState extends State<HorizontalScrollRail> {
       controller: _controller,
       scrollDirection: Axis.horizontal,
       padding: widget.padding,
-      physics: const BouncingScrollPhysics(
-        parent: AlwaysScrollableScrollPhysics(),
-      ),
+      physics: const ClampingScrollPhysics(),
       itemCount: widget.itemCount,
       separatorBuilder: (_, _) => SizedBox(width: widget.separatorWidth),
       itemBuilder: widget.itemBuilder,
@@ -193,9 +195,7 @@ class _HorizontalScrollRowState extends State<HorizontalScrollRow> {
       controller: _controller,
       scrollDirection: Axis.horizontal,
       padding: widget.padding,
-      physics: const BouncingScrollPhysics(
-        parent: AlwaysScrollableScrollPhysics(),
-      ),
+      physics: const ClampingScrollPhysics(),
       children: widget.children,
     );
 

@@ -15,10 +15,19 @@ import '../providers/auth_providers.dart';
 /// success, establishes the session via [AuthController.signIn] and
 /// navigates to `/home`.
 class OtpScreen extends ConsumerStatefulWidget {
-  const OtpScreen({super.key, required this.requestId, required this.phone});
+  const OtpScreen({
+    super.key,
+    required this.requestId,
+    required this.phone,
+    this.redirect,
+  });
 
   final String requestId;
   final String phone;
+
+  /// Where to land after verification succeeds — carried over from
+  /// [LoginScreen.redirect]. Defaults to `/home` when absent.
+  final String? redirect;
 
   @override
   ConsumerState<OtpScreen> createState() => _OtpScreenState();
@@ -52,7 +61,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             phone: widget.phone,
           );
       if (!mounted) return;
-      context.go('/home');
+      final redirect = widget.redirect;
+      context.go(redirect != null && redirect.startsWith('/') ? redirect : '/home');
     } catch (error, stack) {
       // The banner stays generic (matches the real backend's opaque
       // INVALID_CODE error), but log the real cause — a storage or network

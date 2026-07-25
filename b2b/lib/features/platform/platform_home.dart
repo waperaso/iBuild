@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/env.dart';
 import '../../core/localization/status_labels.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/app_card.dart';
+import '../../core/widgets/document_review_row.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/horizontal_scroll_rail.dart';
 import '../../core/widgets/pill_button.dart';
@@ -36,6 +35,22 @@ final _businessesProvider = FutureProvider((ref) {
 final _auditLogProvider = FutureProvider((ref) {
   return ref.watch(adminApiProvider).auditLog();
 });
+
+/// Current page (0-indexed) of the audit log list — the admin flips through
+/// pages themselves instead of one long, ever-growing feed being dumped on
+/// screen at once.
+class _AuditLogPageController extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void setPage(int page) => state = page;
+}
+
+final _auditLogPageProvider = NotifierProvider<_AuditLogPageController, int>(
+  _AuditLogPageController.new,
+);
+
+const _auditLogPageSize = 10;
 
 /// Platform dashboard: KPIs, owned businesses, developer application
 /// review, users & roles, and the audit trail. Project/review/rental
@@ -148,7 +163,7 @@ class PlatformHome extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: AppSpacing.xs),
                                 Text(
-                                  'ИНН ${d['inn'] ?? '—'} · '
+                                  '${l10n.kycInn} ${d['inn'] ?? '—'} · '
                                   '${d['verificationStatus'] ?? ''} · '
                                   '${d['directorFullName'] ?? ''}',
                                   style: textTheme.bodySmall?.copyWith(
@@ -228,7 +243,7 @@ class PlatformHome extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: AppSpacing.xs),
                                 Text(
-                                  'ИНН: ${d['inn'] ?? '—'} · '
+                                  '${l10n.kycInn}: ${d['inn'] ?? '—'} · '
                                   '${d['directorFullName'] ?? ''} · '
                                   '${d['phone'] ?? ''}',
                                   style: textTheme.bodySmall?.copyWith(
@@ -289,28 +304,50 @@ class PlatformHome extends ConsumerWidget {
                 title: l10n.platformNoAuditEvents,
               );
             }
-            return AppCard(
-              padding: EdgeInsets.zero,
-              child: Column(
-                children: [
-                  for (final entry in items)
-                    ListTile(
-                      dense: true,
-                      leading: const Icon(Icons.fact_check_outlined),
-                      title: Text(entry['action']?.toString() ?? ''),
-                      subtitle: Text(
-                        '${entry['targetType'] ?? ''} ${entry['targetId'] ?? ''}'
-                        '${entry['detail'] != null ? ' · ${entry['detail']}' : ''}',
-                      ),
-                      trailing: Text(
-                        (entry['createdAt']?.toString() ?? '').split('T').first,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colors.inkMuted,
+            final usersById = <String, Map<String, dynamic>>{
+              for (final u in users.value ?? const <Map<String, dynamic>>[])
+                if (u['id'] != null) u['id'].toString(): u,
+            };
+            final pageCount =
+                ((items.length - 1) ~/ _auditLogPageSize) + 1;
+            final page = ref
+                .watch(_auditLogPageProvider)
+                .clamp(0, pageCount - 1);
+            final pageItems = items.skip(page * _auditLogPageSize).take(
+              _auditLogPageSize,
+            );
+            return Column(
+              children: [
+                AppCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      for (final entry in pageItems)
+                        _AuditLogTile(
+                          entry: entry,
+                          actor: usersById[entry['actorUserId']?.toString()],
                         ),
-                      ),
-                    ),
+                    ],
+                  ),
+                ),
+                if (pageCount > 1) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  _AuditLogPager(
+                    page: page,
+                    pageCount: pageCount,
+                    onPrevious: page > 0
+                        ? () => ref
+                              .read(_auditLogPageProvider.notifier)
+                              .setPage(page - 1)
+                        : null,
+                    onNext: page < pageCount - 1
+                        ? () => ref
+                              .read(_auditLogPageProvider.notifier)
+                              .setPage(page + 1)
+                        : null,
+                  ),
                 ],
-              ),
+              ],
             );
           },
           loading: () => const LinearProgressIndicator(),
@@ -367,6 +404,107 @@ class PlatformHome extends ConsumerWidget {
           ),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Text('$e'),
+        ),
+      ],
+    );
+  }
+}
+
+/// One row in the audit trail: what happened, on which target, and — the
+/// part that used to be missing — exactly who did it (role, name and
+/// phone), so a platform admin can trace any change back to a person.
+class _AuditLogTile extends StatelessWidget {
+  const _AuditLogTile({required this.entry, required this.actor});
+
+  final Map<String, dynamic> entry;
+  final Map<String, dynamic>? actor;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context);
+
+    final targetLine =
+        '${entry['targetType'] ?? ''} ${entry['targetId'] ?? ''}'
+        '${entry['detail'] != null ? ' · ${entry['detail']}' : ''}';
+
+    final actorName = actor?['name']?.toString().trim();
+    final actorPhone = actor?['phone']?.toString().trim();
+    final actorRole = actor?['role']?.toString();
+    final actorLine = actor == null
+        ? l10n.platformAuditLogActorUnknown
+        : [
+            actorRole != null ? roleLabel(l10n, actorRole) : null,
+            (actorName?.isNotEmpty ?? false) ? actorName : null,
+            (actorPhone?.isNotEmpty ?? false) ? actorPhone : null,
+          ].whereType<String>().join(' · ');
+
+    return ListTile(
+      dense: true,
+      leading: const Icon(Icons.fact_check_outlined),
+      title: Text(entry['action']?.toString() ?? ''),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(targetLine),
+          const SizedBox(height: 2),
+          Text(
+            '${l10n.platformAuditLogActorPrefix}: $actorLine',
+            style: textTheme.bodySmall?.copyWith(
+              color: colors.inkMuted,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+      trailing: Text(
+        (entry['createdAt']?.toString() ?? '').split('T').first,
+        style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+      ),
+    );
+  }
+}
+
+/// Prev/next pager for the audit log — the admin steps through pages of at
+/// most [_auditLogPageSize] entries instead of one long feed being dumped
+/// on screen at once.
+class _AuditLogPager extends StatelessWidget {
+  const _AuditLogPager({
+    required this.page,
+    required this.pageCount,
+    required this.onPrevious,
+    required this.onNext,
+  });
+
+  final int page;
+  final int pageCount;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = context.colors;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          tooltip: l10n.platformAuditLogPrevPage,
+          onPressed: onPrevious,
+          icon: const Icon(Icons.chevron_left),
+        ),
+        Text(
+          l10n.platformAuditLogPageInfo(page + 1, pageCount),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+        ),
+        IconButton(
+          tooltip: l10n.platformAuditLogNextPage,
+          onPressed: onNext,
+          icon: const Icon(Icons.chevron_right),
         ),
       ],
     );
@@ -430,24 +568,22 @@ class _DeveloperStatusMenu extends ConsumerWidget {
     WidgetRef ref,
     String next,
   ) async {
-    final l10n = AppLocalizations.of(context);
     String? reason;
     if (next == 'rejected') {
       reason = await showDialog<String>(
         context: context,
         builder: (_) => const _DeclineDialog(),
       );
-      if (reason == null) return;
+      if (reason == null || !context.mounted) return;
     }
-    await ref
-        .read(adminApiProvider)
-        .setDeveloperStatus(developerId, next, reason: reason);
-    onChanged();
-    if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.platformStatusUpdated)));
-    }
+    await runPlatformAction(
+      context,
+      ref,
+      action: () => ref
+          .read(adminApiProvider)
+          .setDeveloperStatus(developerId, next, reason: reason),
+      onSuccess: onChanged,
+    );
   }
 
   @override
@@ -608,7 +744,10 @@ class _UserActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final colors = context.colors;
     final isBanned = user['banned'] == true;
+    final isSystemAdmin = user['role'] == 'system_admin';
+    final isSelf = user['id'] == ref.watch(authControllerProvider).value?.id;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -673,6 +812,52 @@ class _UserActions extends ConsumerWidget {
             );
           },
         ),
+        if (isSystemAdmin) ...[
+          const SizedBox(width: AppSpacing.sm),
+          IconButton(
+            icon: Icon(Icons.person_remove_outlined, color: colors.danger),
+            tooltip: isSelf
+                ? l10n.platformDeleteAdminSelfHint
+                : l10n.platformDeleteAdminTooltip,
+            onPressed: isSelf
+                ? null
+                : () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: Text(
+                          l10n.platformDeleteAdminConfirmTitle(
+                            user['phone']?.toString() ?? '',
+                          ),
+                        ),
+                        content: Text(l10n.platformDeleteAdminConfirmBody),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: Text(l10n.commonCancel),
+                          ),
+                          FilledButton(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: colors.danger,
+                            ),
+                            onPressed: () => Navigator.pop(ctx, true),
+                            child: Text(l10n.platformDeleteAdminConfirm),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed != true || !context.mounted) return;
+                    await runPlatformAction(
+                      context,
+                      ref,
+                      action: () => ref
+                          .read(adminApiProvider)
+                          .deleteUser(user['id'] as String),
+                      onSuccess: () => ref.invalidate(_usersProvider),
+                    );
+                  },
+          ),
+        ],
       ],
     );
   }
@@ -985,7 +1170,7 @@ class _KycDetailDialogState extends ConsumerState<_KycDetailDialog> {
                 for (final doc in _documents!)
                   Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: _KycDocumentRow(
+                    child: DocumentReviewRow(
                       document: doc,
                       onAccept: () => _accept(doc['id'] as String),
                       onReject: () => _reject(doc['id'] as String),
@@ -1005,85 +1190,3 @@ class _KycDetailDialogState extends ConsumerState<_KycDetailDialog> {
   }
 }
 
-/// One document row in the KYC review dialog: type, status, a "View" link
-/// (opens the uploaded file), and accept/reject actions when still pending.
-class _KycDocumentRow extends StatelessWidget {
-  const _KycDocumentRow({
-    required this.document,
-    required this.onAccept,
-    required this.onReject,
-  });
-
-  final Map<String, dynamic> document;
-  final VoidCallback onAccept;
-  final VoidCallback onReject;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = Theme.of(context).textTheme;
-    final l10n = AppLocalizations.of(context);
-    final type = document['type']?.toString() ?? '';
-    final status = document['status']?.toString() ?? 'pending';
-    final fileUrl = Env.resolveUrl(document['fileUrl']?.toString());
-    final statusColor = switch (status) {
-      'accepted' => colors.success,
-      'rejected' => colors.danger,
-      _ => colors.warning,
-    };
-
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: colors.surfaceAlt.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(AppRadii.sm),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.description_outlined, size: 18, color: colors.inkMuted),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(documentTypeLabel(l10n, type), style: textTheme.labelLarge),
-                Text(
-                  documentStatusLabel(l10n, status),
-                  style: textTheme.labelSmall?.copyWith(
-                    color: statusColor,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (fileUrl != null)
-            IconButton(
-              tooltip: l10n.platformKycDocumentView,
-              iconSize: 18,
-              onPressed: () =>
-                  launchUrl(Uri.parse(fileUrl), mode: LaunchMode.externalApplication),
-              icon: const Icon(Icons.open_in_new),
-            ),
-          if (status == 'pending') ...[
-            IconButton(
-              tooltip: l10n.platformKycDocumentAccept,
-              iconSize: 18,
-              color: colors.success,
-              onPressed: onAccept,
-              icon: const Icon(Icons.check_circle_outline),
-            ),
-            IconButton(
-              tooltip: l10n.platformKycDocumentReject,
-              iconSize: 18,
-              color: colors.danger,
-              onPressed: onReject,
-              icon: const Icon(Icons.cancel_outlined),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}

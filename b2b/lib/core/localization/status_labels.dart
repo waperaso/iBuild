@@ -63,23 +63,27 @@ String accountKindLabel(AppLocalizations l10n, String value) => switch (value) {
   _ => value,
 };
 
-String leadScoreLabel(AppLocalizations l10n, String value) => switch (value) {
-  'hot' => l10n.leadScoreHot,
-  'warm' => l10n.leadScoreWarm,
-  'cold' => l10n.leadScoreCold,
-  _ => value,
-};
+String leadScoreLabel(AppLocalizations l10n, String value) => _capitalize(
+  switch (value) {
+    'hot' => l10n.leadScoreHot,
+    'warm' => l10n.leadScoreWarm,
+    'cold' => l10n.leadScoreCold,
+    _ => value,
+  },
+);
 
-String leadStatusLabel(AppLocalizations l10n, String value) => switch (value) {
-  'new' => l10n.leadStatusNew,
-  'contacted' => l10n.leadStatusContacted,
-  'scheduled' => l10n.leadStatusScheduled,
-  'visited' => l10n.leadStatusVisited,
-  'qualified' => l10n.leadStatusQualified,
-  'won' => l10n.leadStatusWon,
-  'lost' => l10n.leadStatusLost,
-  _ => value,
-};
+String leadStatusLabel(AppLocalizations l10n, String value) => _capitalize(
+  switch (value) {
+    'new' => l10n.leadStatusNew,
+    'contacted' => l10n.leadStatusContacted,
+    'scheduled' => l10n.leadStatusScheduled,
+    'visited' => l10n.leadStatusVisited,
+    'qualified' => l10n.leadStatusQualified,
+    'won' => l10n.leadStatusWon,
+    'lost' => l10n.leadStatusLost,
+    _ => value,
+  },
+);
 
 String roleLabel(AppLocalizations l10n, String value) => switch (value) {
   'ordinary_user' => l10n.roleOrdinaryUser,
@@ -115,6 +119,19 @@ String documentTypeLabel(AppLocalizations l10n, String value) =>
       'project_declaration' => l10n.documentTypeProjectDeclaration,
       'cadastre' => l10n.documentTypeCadastre,
       _ => value,
+    };
+
+/// Plain-language explanation of what a verification document type is —
+/// shown in the (i) tooltip next to each upload row so an applicant doesn't
+/// have to guess what e.g. "Project declaration" actually means.
+String documentTypeHint(AppLocalizations l10n, String value) =>
+    switch (value) {
+      'license' => l10n.documentTypeLicenseHint,
+      'construction_permit' => l10n.documentTypeConstructionPermitHint,
+      'land_rights' => l10n.documentTypeLandRightsHint,
+      'project_declaration' => l10n.documentTypeProjectDeclarationHint,
+      'cadastre' => l10n.documentTypeCadastreHint,
+      _ => '',
     };
 
 /// Verification document review status (pending/accepted/rejected).

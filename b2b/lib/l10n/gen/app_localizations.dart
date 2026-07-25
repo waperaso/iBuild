@@ -220,6 +220,36 @@ abstract class AppLocalizations {
   /// **'Invalid or expired code'**
   String get otpInvalidError;
 
+  /// No description provided for @otpResendPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t get the code?'**
+  String get otpResendPrompt;
+
+  /// No description provided for @otpResendAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get otpResendAction;
+
+  /// No description provided for @otpResendCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in {seconds}s'**
+  String otpResendCountdown(int seconds);
+
+  /// No description provided for @otpResendSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'New code sent'**
+  String get otpResendSuccess;
+
+  /// No description provided for @otpResendError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t resend the code: {error}'**
+  String otpResendError(String error);
+
   /// No description provided for @applyStepWelcome.
   ///
   /// In en, this message translates to:
@@ -273,6 +303,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I have an account'**
   String get applyHaveAccount;
+
+  /// No description provided for @authHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Built for property developers'**
+  String get authHeroTitle;
+
+  /// No description provided for @authHeroSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage residential complexes, units, and buyer leads in one iBuild workspace — built for teams, not just admins.'**
+  String get authHeroSubtitle;
+
+  /// No description provided for @authHeroPointVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified developers and projects earn buyer trust'**
+  String get authHeroPointVerified;
+
+  /// No description provided for @authHeroPointLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer and tenant leads land straight in your CRM'**
+  String get authHeroPointLeads;
 
   /// No description provided for @applyRoleTitle.
   ///
@@ -394,17 +448,11 @@ abstract class AppLocalizations {
   /// **'Tashkent'**
   String get applyRegionTashkent;
 
-  /// No description provided for @applyRegionTashkentRegion.
+  /// No description provided for @applyRegionNewTashkent.
   ///
   /// In en, this message translates to:
-  /// **'Tashkent Region'**
-  String get applyRegionTashkentRegion;
-
-  /// No description provided for @applyRegionOther.
-  ///
-  /// In en, this message translates to:
-  /// **'Other Regions'**
-  String get applyRegionOther;
+  /// **'New Tashkent'**
+  String get applyRegionNewTashkent;
 
   /// No description provided for @applyEmail.
   ///
@@ -519,6 +567,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upload all 4 verification documents above before submitting your application for review.'**
   String get applyDocumentsRequiredHint;
+
+  /// No description provided for @applyDocumentsMissingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t added: {names}. Upload them above before submitting your application for review.'**
+  String applyDocumentsMissingHint(String names);
 
   /// No description provided for @applyReviewDecisionLabel.
   ///
@@ -862,6 +916,72 @@ abstract class AppLocalizations {
   /// **'Publish'**
   String get platformPublish;
 
+  /// No description provided for @platformProjectDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get platformProjectDetails;
+
+  /// No description provided for @platformProjectDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get platformProjectDescriptionLabel;
+
+  /// No description provided for @platformProjectPricingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing'**
+  String get platformProjectPricingLabel;
+
+  /// No description provided for @platformProjectPriceRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{min} – {max} UZS'**
+  String platformProjectPriceRange(String min, String max);
+
+  /// No description provided for @platformProjectRentRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent: {min} – {max} UZS / mo'**
+  String platformProjectRentRange(String min, String max);
+
+  /// No description provided for @platformProjectCompletionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion: {date}'**
+  String platformProjectCompletionLabel(String date);
+
+  /// No description provided for @platformProjectGalleryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get platformProjectGalleryLabel;
+
+  /// No description provided for @platformProjectUnitsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get platformProjectUnitsLabel;
+
+  /// No description provided for @platformProjectUnitsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{buildings} buildings · {total} units'**
+  String platformProjectUnitsSummary(int buildings, int total);
+
+  /// No description provided for @platformProjectUnitsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No units added yet'**
+  String get platformProjectUnitsEmpty;
+
+  /// No description provided for @platformProjectLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load project details: {error}'**
+  String platformProjectLoadError(String error);
+
   /// No description provided for @platformPublishedProjectsSectionTitle.
   ///
   /// In en, this message translates to:
@@ -928,6 +1048,30 @@ abstract class AppLocalizations {
   /// **'No reviews awaiting moderation'**
   String get platformNoPendingReviews;
 
+  /// No description provided for @platformReviewRatingLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get platformReviewRatingLocation;
+
+  /// No description provided for @platformReviewRatingQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality'**
+  String get platformReviewRatingQuality;
+
+  /// No description provided for @platformReviewRatingValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get platformReviewRatingValue;
+
+  /// No description provided for @platformReviewProjectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Project: {name}'**
+  String platformReviewProjectLabel(String name);
+
   /// No description provided for @platformAnonymous.
   ///
   /// In en, this message translates to:
@@ -964,6 +1108,18 @@ abstract class AppLocalizations {
   /// **'Does not meet listing requirements'**
   String get platformRentalRejectNoteDefault;
 
+  /// No description provided for @platformRentalMonthlyRent.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} UZS / mo'**
+  String platformRentalMonthlyRent(String amount);
+
+  /// No description provided for @platformRentalContactLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact: {phone}'**
+  String platformRentalContactLabel(String phone);
+
   /// No description provided for @platformAuditLogSectionTitle.
   ///
   /// In en, this message translates to:
@@ -981,6 +1137,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Audit log error: {error}'**
   String platformAuditError(String error);
+
+  /// No description provided for @platformAuditLogActorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed by'**
+  String get platformAuditLogActorPrefix;
+
+  /// No description provided for @platformAuditLogActorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get platformAuditLogActorUnknown;
+
+  /// No description provided for @platformAuditLogPageInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String platformAuditLogPageInfo(int page, int total);
+
+  /// No description provided for @platformAuditLogPrevPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get platformAuditLogPrevPage;
+
+  /// No description provided for @platformAuditLogNextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get platformAuditLogNextPage;
 
   /// No description provided for @notificationsTitle.
   ///
@@ -1119,6 +1305,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ban'**
   String get platformBan;
+
+  /// No description provided for @platformDeleteAdminTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete platform admin account'**
+  String get platformDeleteAdminTooltip;
+
+  /// No description provided for @platformDeleteAdminConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {phone}?'**
+  String platformDeleteAdminConfirmTitle(String phone);
+
+  /// No description provided for @platformDeleteAdminConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently removes their platform-admin account and signs them out everywhere. This can\'t be undone.'**
+  String get platformDeleteAdminConfirmBody;
+
+  /// No description provided for @platformDeleteAdminConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get platformDeleteAdminConfirm;
+
+  /// No description provided for @platformDeleteAdminSelfHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your own account — sign in as another admin to remove it.'**
+  String get platformDeleteAdminSelfHint;
 
   /// No description provided for @platformBanDialogTitle.
   ///
@@ -1485,6 +1701,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coordinates: {lat}, {lng}'**
   String mapLocationCoordinates(String lat, String lng);
+
+  /// No description provided for @mapLocationZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get mapLocationZoomIn;
+
+  /// No description provided for @mapLocationZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get mapLocationZoomOut;
 
   /// No description provided for @residenceCreate.
   ///
@@ -1859,13 +2087,13 @@ abstract class AppLocalizations {
   /// No description provided for @orgAiSectionTitle.
   ///
   /// In en, this message translates to:
-  /// **'AI profile generator'**
+  /// **'Draft description template'**
   String get orgAiSectionTitle;
 
   /// No description provided for @orgAiSectionSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Add your links and an optional company deck, then generate a draft description. Everything runs on-device — review and edit before saving.'**
+  /// **'Add your links and an optional company deck to compose a starter draft from a template — this is not AI-written — then edit it to fit your business before saving.'**
   String get orgAiSectionSubtitle;
 
   /// No description provided for @orgAiWebsiteHint.
@@ -1895,25 +2123,25 @@ abstract class AppLocalizations {
   /// No description provided for @orgAiGenerate.
   ///
   /// In en, this message translates to:
-  /// **'Generate description'**
+  /// **'Compose draft template'**
   String get orgAiGenerate;
 
   /// No description provided for @orgAiGenerating.
   ///
   /// In en, this message translates to:
-  /// **'Generating…'**
+  /// **'Composing…'**
   String get orgAiGenerating;
 
   /// No description provided for @orgAiApply.
   ///
   /// In en, this message translates to:
-  /// **'Use this description'**
+  /// **'Use this draft'**
   String get orgAiApply;
 
   /// No description provided for @orgAiResultHint.
   ///
   /// In en, this message translates to:
-  /// **'Generated description (editable)'**
+  /// **'Draft template (editable)'**
   String get orgAiResultHint;
 
   /// No description provided for @orgAiNoInputs.
@@ -1925,7 +2153,7 @@ abstract class AppLocalizations {
   /// No description provided for @orgAiApplied.
   ///
   /// In en, this message translates to:
-  /// **'Description applied — review and save.'**
+  /// **'Draft applied — review and save.'**
   String get orgAiApplied;
 
   /// No description provided for @projectLoadError.
@@ -2381,24 +2609,6 @@ abstract class AppLocalizations {
   /// **'Interest rate %'**
   String get projectInterestRateLabel;
 
-  /// No description provided for @projectLeadEditorTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Tags & score'**
-  String get projectLeadEditorTitle;
-
-  /// No description provided for @projectTagsLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Tags (comma separated)'**
-  String get projectTagsLabel;
-
-  /// No description provided for @projectTagsHint.
-  ///
-  /// In en, this message translates to:
-  /// **'vip, urgent, mortgage'**
-  String get projectTagsHint;
-
   /// No description provided for @projectBulkUnitsDialogTitle.
   ///
   /// In en, this message translates to:
@@ -2777,11 +2987,23 @@ abstract class AppLocalizations {
   /// **'License'**
   String get documentTypeLicense;
 
+  /// No description provided for @documentTypeLicenseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Construction business license proving the company is legally allowed to act as a developer.'**
+  String get documentTypeLicenseHint;
+
   /// No description provided for @documentTypeConstructionPermit.
   ///
   /// In en, this message translates to:
   /// **'Construction permit'**
   String get documentTypeConstructionPermit;
+
+  /// No description provided for @documentTypeConstructionPermitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Official local-authority permit to build this specific project.'**
+  String get documentTypeConstructionPermitHint;
 
   /// No description provided for @documentTypeLandRights.
   ///
@@ -2789,17 +3011,35 @@ abstract class AppLocalizations {
   /// **'Land rights'**
   String get documentTypeLandRights;
 
+  /// No description provided for @documentTypeLandRightsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Document proving ownership or long-term lease rights to the land the project is built on.'**
+  String get documentTypeLandRightsHint;
+
   /// No description provided for @documentTypeProjectDeclaration.
   ///
   /// In en, this message translates to:
   /// **'Project declaration'**
   String get documentTypeProjectDeclaration;
 
+  /// No description provided for @documentTypeProjectDeclarationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Declaration describing the project — timeline, specifications and the developer — typically required for off-plan sales.'**
+  String get documentTypeProjectDeclarationHint;
+
   /// No description provided for @documentTypeCadastre.
   ///
   /// In en, this message translates to:
   /// **'Cadastre'**
   String get documentTypeCadastre;
+
+  /// No description provided for @documentTypeCadastreHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Cadastral passport for the plot, with its exact boundaries and registry data.'**
+  String get documentTypeCadastreHint;
 
   /// No description provided for @documentStatusPending.
   ///
@@ -2846,7 +3086,7 @@ abstract class AppLocalizations {
   /// No description provided for @moderationSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'New residence submissions, flagged reviews, and pending rental listings.'**
+  /// **'New residence submissions awaiting review, and flagged reviews.'**
   String get moderationSubtitle;
 
   /// No description provided for @adminProjectsTitle.

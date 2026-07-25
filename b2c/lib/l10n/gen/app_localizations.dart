@@ -130,17 +130,17 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get navSettings;
 
+  /// No description provided for @onboardingSlogan.
+  ///
+  /// In en, this message translates to:
+  /// **'iBuild the dream'**
+  String get onboardingSlogan;
+
   /// No description provided for @onboardingEyebrow.
   ///
   /// In en, this message translates to:
   /// **'Sell. Invest. All in One App.'**
   String get onboardingEyebrow;
-
-  /// No description provided for @onboardingHeadline.
-  ///
-  /// In en, this message translates to:
-  /// **'Find Your\nDream Home\nToday'**
-  String get onboardingHeadline;
 
   /// No description provided for @onboardingDescription.
   ///
@@ -465,6 +465,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Live location · {district}'**
   String liveLocationDistrict(String district);
+
+  /// No description provided for @mapZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get mapZoomIn;
+
+  /// No description provided for @mapZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get mapZoomOut;
 
   /// No description provided for @tabUnits.
   ///
@@ -897,6 +909,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lead {number} submitted'**
   String leadSubmittedSnackbar(String number);
+
+  /// No description provided for @leadSignInRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to send this inquiry'**
+  String get leadSignInRequiredTitle;
+
+  /// No description provided for @leadSignInRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create or sign in to your iBuild account so the developer can reach you about this request.'**
+  String get leadSignInRequiredBody;
+
+  /// No description provided for @leadSignInCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue'**
+  String get leadSignInCta;
+
+  /// No description provided for @leadSignInRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to submit this inquiry.'**
+  String get leadSignInRequiredError;
 
   /// No description provided for @myInquiriesTitle.
   ///

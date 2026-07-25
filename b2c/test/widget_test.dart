@@ -61,7 +61,7 @@ void main() {
     await tester.pump();
     await _pumpSteps(tester);
 
-    expect(find.text('Find Your\nDream Home\nToday'), findsOneWidget);
+    expect(find.text('iBuild the dream'), findsOneWidget);
     expect(find.text('Start'), findsOneWidget);
   });
 

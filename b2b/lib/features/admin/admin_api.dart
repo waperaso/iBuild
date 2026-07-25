@@ -17,12 +17,6 @@ class AdminApi {
     return (res.data ?? []).cast<Map<String, dynamic>>();
   }
 
-  Future<void> approveDeveloper(String id) =>
-      _dio.patch('/platform/developers/$id/approve');
-
-  Future<void> rejectDeveloper(String id, String reason) =>
-      _dio.patch('/platform/developers/$id/reject', data: {'reason': reason});
-
   /// Moves a developer application across the review pipeline: `pending`
   /// ("waiting for review") -> `in_review` ("on review") ->
   /// `approved`/`rejected` (the latter requires [reason]). Freely movable in
@@ -132,6 +126,11 @@ class AdminApi {
     );
     return res.data!;
   }
+
+  /// Permanently removes a platform-admin (`system_admin`) account — the
+  /// server rejects this for any other role, for the caller's own account,
+  /// and for the platform's last remaining admin.
+  Future<void> deleteUser(String id) => _dio.delete('/platform/users/$id');
 
   Future<List<Map<String, dynamic>>> myProjects() async {
     final res = await _dio.get<List<dynamic>>('/developers/me/projects');
@@ -572,13 +571,6 @@ class AdminApi {
       },
     );
     return (res.data ?? []).cast<Map<String, dynamic>>();
-  }
-
-  Future<int> unreadNotificationCount() async {
-    final res = await _dio.get<Map<String, dynamic>>(
-      '/platform/notifications/unread-count',
-    );
-    return (res.data?['count'] as num?)?.toInt() ?? 0;
   }
 
   Future<void> markNotificationRead(String id) =>

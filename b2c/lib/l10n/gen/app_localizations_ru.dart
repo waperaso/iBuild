@@ -24,11 +24,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navSettings => 'Настройки';
 
   @override
-  String get onboardingEyebrow =>
-      'Продавайте. Инвестируйте. Всё в одном приложении.';
+  String get onboardingSlogan => 'iBuild the dream';
 
   @override
-  String get onboardingHeadline => 'Найдите Дом\nСвоей Мечты\nУже Сегодня';
+  String get onboardingEyebrow =>
+      'Продавайте. Инвестируйте. Всё в одном приложении.';
 
   @override
   String get onboardingDescription =>
@@ -214,6 +214,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String liveLocationDistrict(String district) {
     return 'Местоположение · $district';
   }
+
+  @override
+  String get mapZoomIn => 'Увеличить';
+
+  @override
+  String get mapZoomOut => 'Уменьшить';
 
   @override
   String get tabUnits => 'Юниты';
@@ -459,6 +465,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String leadSubmittedSnackbar(String number) {
     return 'Заявка $number отправлена';
   }
+
+  @override
+  String get leadSignInRequiredTitle => 'Войдите, чтобы отправить заявку';
+
+  @override
+  String get leadSignInRequiredBody =>
+      'Создайте аккаунт или войдите в iBuild, чтобы застройщик мог связаться с вами по этой заявке.';
+
+  @override
+  String get leadSignInCta => 'Войти, чтобы продолжить';
+
+  @override
+  String get leadSignInRequiredError =>
+      'Войдите в аккаунт, чтобы отправить заявку.';
 
   @override
   String get myInquiriesTitle => 'Мои заявки';

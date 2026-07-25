@@ -34,6 +34,7 @@ class AppCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
+        borderRadius: borderRadius,
         child: Container(
           padding: padding,
           decoration: BoxDecoration(

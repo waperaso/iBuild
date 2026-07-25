@@ -114,6 +114,17 @@ bool hasAllRequiredDocuments(List<Map<String, dynamic>> docs) {
   return kRequiredDocumentTypes.every(uploadedTypes.contains);
 }
 
+/// Which of [kRequiredDocumentTypes] have no upload on file yet, in display
+/// order — used to tell the user exactly what's missing (rather than just
+/// disabling the submit button) before they try to send the application for
+/// moderation.
+List<String> missingRequiredDocumentTypes(List<Map<String, dynamic>> docs) {
+  final uploadedTypes = docs.map((d) => d['type']?.toString()).toSet();
+  return kRequiredDocumentTypes
+      .where((type) => !uploadedTypes.contains(type))
+      .toList();
+}
+
 /// Verification-documents card (Track B.3, later reused for pre-approval
 /// registration): one row per required document type with its current
 /// review status and an upload/replace action.
@@ -252,9 +263,27 @@ class _DocumentRow extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  documentTypeLabel(l10n, type),
-                  style: textTheme.titleSmall,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        documentTypeLabel(l10n, type),
+                        style: textTheme.titleSmall,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Tooltip(
+                      message: documentTypeHint(l10n, type),
+                      triggerMode: TooltipTriggerMode.tap,
+                      child: Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: colors.inkMuted,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Container(

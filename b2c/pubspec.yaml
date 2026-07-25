@@ -84,6 +84,7 @@ flutter:
 
   assets:
     - assets/images/isometric_map_hero.png
+    - assets/images/onboarding_hero.png
     - assets/floorplans/
 
   fonts:

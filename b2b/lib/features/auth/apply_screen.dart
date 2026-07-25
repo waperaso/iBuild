@@ -12,9 +12,12 @@ import '../../core/localization/status_labels.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/app_card.dart';
+import '../../core/widgets/app_dropdown_field.dart';
+import '../../core/widgets/auth_hero_panel.dart';
 import '../../core/widgets/b2b_brand.dart';
 import '../../core/widgets/confirm_dialogs.dart';
 import '../../core/widgets/documents_upload_card.dart';
+import '../../core/widgets/language_switcher.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../admin/admin_api.dart';
@@ -47,16 +50,15 @@ const String _kContractorAccountKind = 'construction_company';
 /// Fixed region choices for the registration form. Stored as stable,
 /// human-readable values so the KYC review dialog reads sensibly regardless of
 /// the applicant's UI language.
-const List<String> kRegionOptions = <String>[
-  'Tashkent',
-  'Tashkent Region',
-  'Other Regions',
-];
+///
+/// Deliberately narrowed to the two areas iBuild currently onboards
+/// developers in — the rest of the country is filtered out for now rather
+/// than offered as a choice that can't actually be acted on yet.
+const List<String> kRegionOptions = <String>['Tashkent', 'New Tashkent'];
 
 String _regionLabel(AppLocalizations l10n, String value) => switch (value) {
   'Tashkent' => l10n.applyRegionTashkent,
-  'Tashkent Region' => l10n.applyRegionTashkentRegion,
-  'Other Regions' => l10n.applyRegionOther,
+  'New Tashkent' => l10n.applyRegionNewTashkent,
   _ => value,
 };
 
@@ -444,10 +446,11 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
         );
       case _AppPhase.draft:
         final draftDocs = ref.watch(_applyDocumentsProvider);
-        final docsReady = draftDocs.maybeWhen(
-          data: hasAllRequiredDocuments,
-          orElse: () => false,
+        final missingDocs = draftDocs.maybeWhen(
+          data: missingRequiredDocumentTypes,
+          orElse: () => kRequiredDocumentTypes,
         );
+        final docsReady = missingDocs.isEmpty;
         return _statusScaffold(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -464,6 +467,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
                 loading: _loading,
                 message: _message,
                 canSubmit: docsReady,
+                missingDocumentTypes: missingDocs,
                 onEdit: _startResubmit,
                 onSubmitForReview: (_loading || !docsReady)
                     ? null
@@ -519,6 +523,10 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: AppSpacing.sm),
+            child: LanguageSwitcher(),
+          ),
           TextButton(
             onPressed: () async {
               final confirmed = await confirmSignOut(context);
@@ -529,15 +537,44 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: child,
-          ),
-        ),
-      ),
+      body: _responsiveBody(child),
+    );
+  }
+
+  /// Centers [child] in a phone-width column on narrow windows; once there's
+  /// room for both a real form column and [AuthHeroPanel], switches to a
+  /// two-pane desktop layout instead of stranding a mobile-width card in an
+  /// otherwise empty desktop canvas.
+  Widget _responsiveBody(Widget child, {double wideMaxWidth = 560}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scrollable = SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: child,
+        );
+        if (constraints.maxWidth < AppBreakpoints.tablet) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: scrollable,
+            ),
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const AuthHeroPanel(),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: wideMaxWidth),
+                  child: scrollable,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -563,6 +600,10 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
                 }),
               ),
         actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: AppSpacing.sm),
+            child: LanguageSwitcher(),
+          ),
           TextButton(
             onPressed: () async {
               final confirmed = await confirmSignOut(context);
@@ -573,69 +614,61 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _StepDots(step: _step),
-                const SizedBox(height: AppSpacing.xl),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 280),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  child: switch (_step) {
-                    _ApplyStep.onboarding => _OnboardingStep(
-                      key: const ValueKey('onboarding'),
-                      onContinue: () => setState(() => _step = _ApplyStep.role),
-                      onHaveAccount: () async {
-                        final confirmed = await confirmSignOut(context);
-                        if (!confirmed || !mounted) return;
-                        ref.read(authControllerProvider.notifier).signOut();
-                      },
-                    ),
-                    _ApplyStep.role => _RoleStep(
-                      key: const ValueKey('role'),
-                      alsoContractor: _alsoContractor,
-                      onAlsoContractorChanged: (v) =>
-                          setState(() => _alsoContractor = v),
-                      onContinue: () =>
-                          setState(() => _step = _ApplyStep.details),
-                    ),
-                    _ApplyStep.details => _DetailsStep(
-                      key: const ValueKey('details'),
-                      alsoContractor: _alsoContractor,
-                      name: _name,
-                      legalName: _legalName,
-                      inn: _inn,
-                      legalForm: _legalForm,
-                      legalAddress: _legalAddress,
-                      officeAddress: _officeAddress,
-                      region: _region,
-                      onRegionChanged: (v) => setState(() => _region = v),
-                      registrationNumber: _registrationNumber,
-                      email: _email,
-                      directorName: _directorName,
-                      directorPinfl: _directorPinfl,
-                      directorPassport: _directorPassport,
-                      directorPhone: _directorPhone,
-                      uboName: _uboName,
-                      license: _license,
-                      uboDeclared: _uboDeclared,
-                      onUboChanged: (v) =>
-                          setState(() => _uboDeclared = v ?? false),
-                      loading: _loading,
-                      message: _message,
-                      onSubmit: _loading ? null : _submit,
-                    ),
+      body: _responsiveBody(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _StepDots(step: _step),
+            const SizedBox(height: AppSpacing.xl),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 280),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              child: switch (_step) {
+                _ApplyStep.onboarding => _OnboardingStep(
+                  key: const ValueKey('onboarding'),
+                  onContinue: () => setState(() => _step = _ApplyStep.role),
+                  onHaveAccount: () async {
+                    final confirmed = await confirmSignOut(context);
+                    if (!confirmed || !mounted) return;
+                    ref.read(authControllerProvider.notifier).signOut();
                   },
                 ),
-              ],
+                _ApplyStep.role => _RoleStep(
+                  key: const ValueKey('role'),
+                  alsoContractor: _alsoContractor,
+                  onAlsoContractorChanged: (v) =>
+                      setState(() => _alsoContractor = v),
+                  onContinue: () => setState(() => _step = _ApplyStep.details),
+                ),
+                _ApplyStep.details => _DetailsStep(
+                  key: const ValueKey('details'),
+                  alsoContractor: _alsoContractor,
+                  name: _name,
+                  legalName: _legalName,
+                  inn: _inn,
+                  legalForm: _legalForm,
+                  legalAddress: _legalAddress,
+                  officeAddress: _officeAddress,
+                  region: _region,
+                  onRegionChanged: (v) => setState(() => _region = v),
+                  registrationNumber: _registrationNumber,
+                  email: _email,
+                  directorName: _directorName,
+                  directorPinfl: _directorPinfl,
+                  directorPassport: _directorPassport,
+                  directorPhone: _directorPhone,
+                  uboName: _uboName,
+                  license: _license,
+                  uboDeclared: _uboDeclared,
+                  onUboChanged: (v) => setState(() => _uboDeclared = v ?? false),
+                  loading: _loading,
+                  message: _message,
+                  onSubmit: _loading ? null : _submit,
+                ),
+              },
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -734,6 +767,7 @@ class _DraftApplicationCard extends StatelessWidget {
     required this.loading,
     required this.message,
     required this.canSubmit,
+    required this.missingDocumentTypes,
     required this.onEdit,
     required this.onSubmitForReview,
   });
@@ -742,6 +776,11 @@ class _DraftApplicationCard extends StatelessWidget {
   final bool loading;
   final String? message;
   final bool canSubmit;
+
+  /// Raw document `type` values (e.g. `license`) still missing an upload —
+  /// named individually in the hint below instead of a generic "some
+  /// documents are missing" so the applicant knows exactly what to add.
+  final List<String> missingDocumentTypes;
   final VoidCallback onEdit;
   final VoidCallback? onSubmitForReview;
 
@@ -789,7 +828,7 @@ class _DraftApplicationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'ИНН: ${developer['inn'] ?? '—'}',
+                  '${l10n.kycInn}: ${developer['inn'] ?? '—'}',
                   style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
                 ),
               ],
@@ -805,8 +844,14 @@ class _DraftApplicationCard extends StatelessWidget {
           if (!canSubmit && !loading) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(
-              l10n.applyDocumentsRequiredHint,
-              style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+              missingDocumentTypes.isEmpty
+                  ? l10n.applyDocumentsRequiredHint
+                  : l10n.applyDocumentsMissingHint(
+                      missingDocumentTypes
+                          .map((type) => documentTypeLabel(l10n, type))
+                          .join(', '),
+                    ),
+              style: textTheme.bodySmall?.copyWith(color: colors.danger),
             ),
           ],
           const SizedBox(height: AppSpacing.md),
@@ -894,7 +939,7 @@ class _PendingReviewCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'ИНН: ${developer['inn'] ?? '—'}',
+                  '${l10n.kycInn}: ${developer['inn'] ?? '—'}',
                   style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
                 ),
               ],
@@ -1450,20 +1495,12 @@ class _DetailsStep extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          DropdownButtonFormField<String>(
-            initialValue: region,
-            isExpanded: true,
-            decoration: InputDecoration(
-              labelText: l10n.applyRegion,
-              prefixIcon: const Icon(Icons.map_outlined),
-            ),
-            items: [
-              for (final option in kRegionOptions)
-                DropdownMenuItem(
-                  value: option,
-                  child: Text(_regionLabel(l10n, option)),
-                ),
-            ],
+          AppDropdownField<String>(
+            value: region,
+            options: kRegionOptions,
+            labelBuilder: (option) => _regionLabel(l10n, option),
+            label: l10n.applyRegion,
+            icon: Icons.map_outlined,
             onChanged: onRegionChanged,
           ),
           const SizedBox(height: AppSpacing.md),

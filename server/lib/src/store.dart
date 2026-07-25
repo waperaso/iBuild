@@ -2180,6 +2180,30 @@ class Store {
     return user;
   }
 
+  /// How many accounts currently hold [UserRole.systemAdmin] — used to block
+  /// [deleteUser] from removing the platform's last admin and locking
+  /// everyone out.
+  int systemAdminCount() =>
+      _usersByPhone.values.where((u) => u['role'] == UserRole.systemAdmin).length;
+
+  /// Permanently removes a platform-admin account. Unlike [banUser] (which
+  /// just freezes access), this awaits the DB DELETE first — like
+  /// [deleteProject] — so a restart cannot resurrect the row from a
+  /// fire-and-forget write that lost the race with process shutdown.
+  Future<Map<String, dynamic>?> deleteUser(String id) async {
+    _assertPersistenceForWrite('user delete');
+    final user = _userById(id);
+    if (user == null) return null;
+
+    final persistence = _persistence;
+    if (persistence != null) {
+      await persistence.deleteUser(id);
+    }
+
+    _usersByPhone.remove(user['phone']);
+    return user;
+  }
+
   bool ownsProject(String ownerUserId, Map project) {
     final developer = project['developer'] as Map?;
     if (developer == null) return false;

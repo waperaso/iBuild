@@ -240,6 +240,7 @@ class _PhotoReportTile extends StatelessWidget {
                 child: Material(
                   color: colors.surface.withValues(alpha: 0.85),
                   shape: const CircleBorder(),
+                  clipBehavior: Clip.antiAlias,
                   child: IconButton(
                     tooltip: l10n.projectPhotoReportDeleteTooltip,
                     iconSize: 16,

@@ -71,6 +71,14 @@ ThemeData buildAppTheme(AppColors colors) {
       shape: const StadiumBorder(),
       showCheckmark: false,
     ),
+    // Without this, each Tab's hover/press overlay defaults to a flat
+    // rectangle the size of the tab — same "stock Android" look we already
+    // stripped from buttons/cards below. Splashes are already disabled
+    // globally, so keep tabs consistent instead of leaving a rare rectangle.
+    tabBarTheme: const TabBarThemeData(
+      splashFactory: NoSplash.splashFactory,
+      overlayColor: WidgetStatePropertyAll(Colors.transparent),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: colors.surface,
@@ -79,17 +87,32 @@ ThemeData buildAppTheme(AppColors colors) {
         horizontal: AppSpacing.lg,
         vertical: AppSpacing.md,
       ),
+      // A full [AppRadii.pill] radius here used to make every text field —
+      // including multi-line ones like the lead form's comment box — a
+      // stadium shape. On a tall multi-line box the corner radius exceeds
+      // half the field's own height/width, so `OutlineInputBorder` can't
+      // draw a clean stadium and the border visibly kinks/breaks at the
+      // corners instead. [AppRadii.input] stays a small, fixed radius that
+      // never approaches half the field's height, so it can't break.
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadii.pill),
+        borderRadius: BorderRadius.circular(AppRadii.input),
         borderSide: BorderSide(color: colors.outline),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadii.pill),
+        borderRadius: BorderRadius.circular(AppRadii.input),
         borderSide: BorderSide(color: colors.outline),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadii.pill),
+        borderRadius: BorderRadius.circular(AppRadii.input),
         borderSide: BorderSide(color: colors.ink, width: 1.4),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadii.input),
+        borderSide: BorderSide(color: colors.danger),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadii.input),
+        borderSide: BorderSide(color: colors.danger, width: 1.4),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(

@@ -3,14 +3,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_theme_ext.dart';
-import '../../../core/widgets/app_network_image.dart';
 import '../../../core/widgets/brand_mark.dart';
 import '../../../core/widgets/fade_slide_in.dart';
 import '../../../core/widgets/pill_button.dart';
 import '../../../l10n/gen/app_localizations.dart';
 
-const _heroImageUrl =
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Modern_Tashkent._Skyline.jpg/1280px-Modern_Tashkent._Skyline.jpg';
+/// Brand-drawn isometric skyline (line art in the palette's teal/brass
+/// accents) instead of a stock photo — reads as "iBuild" at a glance rather
+/// than a generic city-photo hero any competitor could use.
+const _heroImageAsset = 'assets/images/onboarding_hero.png';
 
 const _brandName = 'iBuild';
 
@@ -63,6 +64,38 @@ class _BrandLockup extends StatelessWidget {
               ),
         ),
       ],
+    );
+  }
+}
+
+/// Small tagline sitting right underneath the wordmark — "iBuild the dream"
+/// reads as part of the brand lockup itself rather than repeating "iBuild"
+/// a second time as a stand-alone headline further down the page.
+class _Slogan extends StatelessWidget {
+  const _Slogan({required this.onDark, this.compact = false});
+
+  final bool onDark;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final l10n = AppLocalizations.of(context);
+    final fg = onDark
+        ? colors.onHeroSurface.withValues(alpha: 0.82)
+        : colors.inkMuted;
+
+    return Text(
+      l10n.onboardingSlogan,
+      style:
+          (compact
+                  ? Theme.of(context).textTheme.titleSmall
+                  : Theme.of(context).textTheme.titleMedium)
+              ?.copyWith(
+                color: fg,
+                fontWeight: FontWeight.w600,
+                fontStyle: FontStyle.italic,
+              ),
     );
   }
 }
@@ -168,15 +201,17 @@ class _QuizLink extends StatelessWidget {
   }
 }
 
-/// Hero photo. On Flutter web the continuous scale animation burned frames
-/// for little gain, so the image is static there.
+/// Hero artwork — a static local asset now (see [_heroImageAsset]), so there
+/// is no placeholder/shimmer flash and no network dependency on this, the
+/// very first screen a cold start renders.
 class _BreathingHeroPhoto extends StatelessWidget {
   const _BreathingHeroPhoto();
 
   @override
   Widget build(BuildContext context) {
-    return const AppNetworkImage(
-      url: _heroImageUrl,
+    return Image.asset(
+      _heroImageAsset,
+      fit: BoxFit.cover,
       width: double.infinity,
       height: double.infinity,
     );
@@ -251,29 +286,23 @@ class _DesktopHero extends StatelessWidget {
                         delayStep: Duration(milliseconds: 70),
                         child: _BrandLockup(onDark: true),
                       ),
-                      const SizedBox(height: AppSpacing.xxxl),
-                      FadeSlideIn(
+                      const SizedBox(height: AppSpacing.sm),
+                      const FadeSlideIn(
                         index: 1,
-                        delayStep: const Duration(milliseconds: 70),
-                        child: Text(
-                          l10n.onboardingEyebrow,
-                          style: textTheme.labelLarge?.copyWith(
-                            color: colors.onHeroSurface.withValues(alpha: 0.7),
-                            letterSpacing: 0.2,
-                          ),
-                        ),
+                        delayStep: Duration(milliseconds: 70),
+                        child: _Slogan(onDark: true),
                       ),
-                      const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: AppSpacing.xl),
                       FadeSlideIn(
                         index: 2,
                         delayStep: const Duration(milliseconds: 70),
                         child: Text(
-                          l10n.onboardingHeadline,
+                          l10n.onboardingEyebrow,
                           style: textTheme.displayLarge?.copyWith(
                             color: colors.onHeroSurface,
-                            fontSize: width >= 1400 ? 56 : 48,
-                            height: 1.05,
-                            letterSpacing: -1.1,
+                            fontSize: width >= 1400 ? 44 : 38,
+                            height: 1.15,
+                            letterSpacing: -0.6,
                           ),
                         ),
                       ),
@@ -344,20 +373,21 @@ class _MobileHero extends StatelessWidget {
               index: 0,
               child: _BrandLockup(onDark: false, compact: true),
             ),
-            const SizedBox(height: AppSpacing.xl),
-            FadeSlideIn(
+            const SizedBox(height: AppSpacing.xs),
+            const FadeSlideIn(
               index: 1,
-              child: Text(
-                l10n.onboardingEyebrow,
-                style: textTheme.labelLarge?.copyWith(color: colors.inkMuted),
-              ),
+              child: _Slogan(onDark: false, compact: true),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.lg),
             FadeSlideIn(
               index: 2,
               child: Text(
-                l10n.onboardingHeadline,
-                style: textTheme.displayMedium,
+                l10n.onboardingEyebrow,
+                style: textTheme.displayMedium?.copyWith(
+                  fontSize: 32,
+                  height: 1.15,
+                  letterSpacing: -0.4,
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -369,10 +399,7 @@ class _MobileHero extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      const AppNetworkImage(
-                        url: _heroImageUrl,
-                        width: double.infinity,
-                      ),
+                      const _BreathingHeroPhoto(),
                       // Soft bottom fade so the photo meets the CTAs cleanly.
                       DecoratedBox(
                         decoration: BoxDecoration(

@@ -37,7 +37,18 @@ ThemeData buildAppTheme(AppColors colors) {
     // Expose the raw token set to widgets via `context.colors`.
     extensions: <ThemeExtension<dynamic>>[colors],
     // InkSparkle is expensive on Flutter web (shader + animation per tap).
+    // `hoverColor`/`highlightColor` default to a flat black wash the size of
+    // whatever rect the InkWell/IconButton happens to occupy — on a rounded
+    // photo tile without a matching `borderRadius` on that InkWell, this
+    // painted as a plain rectangle laid over the rounded corners, reading as
+    // a stock Android ripple/hover rather than a considered hover state.
+    // Matches the b2c theme, which already disables these for the same
+    // reason — plain taps/hovers feel snappier and don't fight rounded
+    // cards without one.
     splashFactory: NoSplash.splashFactory,
+    splashColor: Colors.transparent,
+    highlightColor: Colors.transparent,
+    hoverColor: Colors.transparent,
     appBarTheme: AppBarTheme(
       backgroundColor: colors.background,
       surfaceTintColor: Colors.transparent,
@@ -66,6 +77,14 @@ ThemeData buildAppTheme(AppColors colors) {
       labelStyle: textTheme.labelLarge,
       shape: const StadiumBorder(),
       showCheckmark: false,
+    ),
+    // Without this, each Tab's hover/press overlay defaults to a flat
+    // rectangle the size of the tab — same "stock Android" look we already
+    // stripped from buttons/cards below. Splashes are already disabled
+    // globally, so keep tabs consistent instead of leaving a rare rectangle.
+    tabBarTheme: const TabBarThemeData(
+      splashFactory: NoSplash.splashFactory,
+      overlayColor: WidgetStatePropertyAll(Colors.transparent),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,

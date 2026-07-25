@@ -36,6 +36,9 @@ abstract class AppDurations {
   static const Duration fast = Duration(milliseconds: 160);
   static const Duration medium = Duration(milliseconds: 240);
   static const Duration slow = Duration(milliseconds: 360);
+
+  static const Curve enter = Curves.easeOutCubic;
+  static const Curve exit = Curves.easeInCubic;
 }
 
 /// Soft, layered shadows for elevated surfaces. Kept low-opacity and diffuse so

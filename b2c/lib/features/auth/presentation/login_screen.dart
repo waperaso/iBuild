@@ -15,7 +15,11 @@ import '../providers/auth_providers.dart';
 /// [AuthController.sendOtp], then hands off to [OtpScreen] for verification.
 /// Guest browsing stays fully available without going through this screen.
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.redirect});
+
+  /// Where to land after a successful sign-in (e.g. the lead form the user
+  /// was trying to submit as a guest). Defaults to `/home` when absent.
+  final String? redirect;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -51,7 +55,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       context.push(
         Uri(
           path: '/otp',
-          queryParameters: {'requestId': requestId, 'phone': phone},
+          queryParameters: {
+            'requestId': requestId,
+            'phone': phone,
+            if (widget.redirect != null) 'redirect': widget.redirect,
+          },
         ).toString(),
       );
     } catch (_) {

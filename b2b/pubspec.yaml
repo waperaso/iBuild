@@ -31,6 +31,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  # In-memory FlutterSecureStoragePlatform fake used by auth widget tests so
+  # they don't hang waiting on the real platform channel/FFI backend.
+  flutter_secure_storage_platform_interface: ^2.0.1
 
 flutter:
   uses-material-design: true

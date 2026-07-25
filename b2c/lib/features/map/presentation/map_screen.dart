@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +16,12 @@ import '../../discovery/presentation/widgets/filter_sheet.dart';
 import '../../discovery/presentation/widgets/property_card.dart';
 import '../../discovery/providers/discovery_providers.dart';
 import '../../discovery/providers/filters_providers.dart';
+
+/// Zoom range shared by the map's gestures and its [_VerticalZoomSlider] —
+/// keeps the slider's travel meaningful (whole app never needs continent- or
+/// street-level extremes) and matches the tile layer's `maxNativeZoom`.
+const _kMapMinZoom = 3.0;
+const _kMapMaxZoom = 18.0;
 
 /// Map discovery screen: search field, project pins over an OSM base layer, and
 /// a "Recommend for You" list. Mobile uses a bottom sheet; desktop uses a
@@ -50,17 +58,35 @@ class MapScreen extends ConsumerWidget {
   }
 }
 
-class _MobileMapLayout extends StatelessWidget {
+class _MobileMapLayout extends StatefulWidget {
   const _MobileMapLayout({required this.projects});
 
   final List<Project> projects;
+
+  @override
+  State<_MobileMapLayout> createState() => _MobileMapLayoutState();
+}
+
+class _MobileMapLayoutState extends State<_MobileMapLayout> {
+  final _mapController = MapController();
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Positioned.fill(child: _ProjectMap(projects: projects)),
+        Positioned.fill(
+          child: _ProjectMap(
+            projects: widget.projects,
+            mapController: _mapController,
+          ),
+        ),
         const SafeArea(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
@@ -72,16 +98,36 @@ class _MobileMapLayout extends StatelessWidget {
             child: _MapSearchControls(),
           ),
         ),
-        _RecommendSheet(projects: projects),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.lg),
+            child: _VerticalZoomSlider(mapController: _mapController),
+          ),
+        ),
+        _RecommendSheet(projects: widget.projects),
       ],
     );
   }
 }
 
-class _DesktopMapLayout extends StatelessWidget {
+class _DesktopMapLayout extends StatefulWidget {
   const _DesktopMapLayout({required this.projects});
 
   final List<Project> projects;
+
+  @override
+  State<_DesktopMapLayout> createState() => _DesktopMapLayoutState();
+}
+
+class _DesktopMapLayoutState extends State<_DesktopMapLayout> {
+  final _mapController = MapController();
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +139,12 @@ class _DesktopMapLayout extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Positioned.fill(child: _ProjectMap(projects: projects)),
+              Positioned.fill(
+                child: _ProjectMap(
+                  projects: widget.projects,
+                  mapController: _mapController,
+                ),
+              ),
               const SafeArea(
                 child: Padding(
                   padding: EdgeInsets.all(AppSpacing.lg),
@@ -101,6 +152,13 @@ class _DesktopMapLayout extends StatelessWidget {
                     alignment: Alignment.topLeft,
                     child: _MapSearchControls(maxWidth: 520),
                   ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: AppSpacing.lg),
+                  child: _VerticalZoomSlider(mapController: _mapController),
                 ),
               ),
             ],
@@ -112,41 +170,22 @@ class _DesktopMapLayout extends StatelessWidget {
             color: colors.background,
             border: Border(left: BorderSide(color: colors.outline)),
           ),
-          child: _RecommendPanel(projects: projects),
+          child: _RecommendPanel(projects: widget.projects),
         ),
       ],
     );
   }
 }
 
-class _ProjectMap extends StatefulWidget {
-  const _ProjectMap({required this.projects});
+class _ProjectMap extends StatelessWidget {
+  const _ProjectMap({required this.projects, required this.mapController});
 
   final List<Project> projects;
-
-  @override
-  State<_ProjectMap> createState() => _ProjectMapState();
-}
-
-class _ProjectMapState extends State<_ProjectMap> {
-  late final MapController _mapController;
-
-  @override
-  void initState() {
-    super.initState();
-    _mapController = MapController();
-  }
-
-  @override
-  void dispose() {
-    _mapController.dispose();
-    super.dispose();
-  }
+  final MapController mapController;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final projects = widget.projects;
     final center = projects.isNotEmpty
         ? LatLng(projects.first.lat, projects.first.lng)
         : const LatLng(41.3111, 69.2797);
@@ -155,10 +194,12 @@ class _ProjectMapState extends State<_ProjectMap> {
     // heavy rebuild on every pan/zoom on Flutter web.
     return RepaintBoundary(
       child: FlutterMap(
-        mapController: _mapController,
+        mapController: mapController,
         options: MapOptions(
           initialCenter: center,
           initialZoom: 12,
+          minZoom: _kMapMinZoom,
+          maxZoom: _kMapMaxZoom,
           interactionOptions: const InteractionOptions(
             flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
           ),
@@ -188,6 +229,106 @@ class _ProjectMapState extends State<_ProjectMap> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Floating vertical zoom slider (plus a +/- pair of buttons for a single
+/// precise step) — an explicit, always-visible way to zoom in/out that
+/// doesn't depend on pinch gestures or a mouse wheel that may be busy
+/// scrolling the page.
+class _VerticalZoomSlider extends StatefulWidget {
+  const _VerticalZoomSlider({required this.mapController});
+
+  final MapController mapController;
+
+  @override
+  State<_VerticalZoomSlider> createState() => _VerticalZoomSliderState();
+}
+
+class _VerticalZoomSliderState extends State<_VerticalZoomSlider> {
+  late double _zoom;
+  StreamSubscription<MapEvent>? _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _zoom = widget.mapController.camera.zoom;
+    // Keep the slider's thumb in sync when the zoom changes some other way
+    // (pinch, double-tap, or the coordinate fields), not just its own drag.
+    _subscription = widget.mapController.mapEventStream.listen((_) {
+      final next = widget.mapController.camera.zoom;
+      if (mounted && next != _zoom) setState(() => _zoom = next);
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  void _setZoom(double value) {
+    final clamped = value.clamp(_kMapMinZoom, _kMapMaxZoom);
+    widget.mapController.move(widget.mapController.camera.center, clamped);
+    setState(() => _zoom = clamped);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final l10n = AppLocalizations.of(context);
+    final zoom = _zoom.clamp(_kMapMinZoom, _kMapMaxZoom);
+
+    return Material(
+      color: colors.surface,
+      borderRadius: BorderRadius.circular(AppRadii.pill),
+      elevation: 2,
+      shadowColor: colors.ink.withValues(alpha: 0.12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: l10n.mapZoomIn,
+              iconSize: 18,
+              visualDensity: VisualDensity.compact,
+              onPressed: zoom < _kMapMaxZoom ? () => _setZoom(zoom + 1) : null,
+              icon: Icon(Icons.add, color: colors.ink),
+            ),
+            SizedBox(
+              width: 28,
+              height: 120,
+              child: RotatedBox(
+                quarterTurns: 3,
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    trackHeight: 3,
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 6,
+                    ),
+                    overlayShape: SliderComponentShape.noOverlay,
+                  ),
+                  child: Slider(
+                    value: zoom,
+                    min: _kMapMinZoom,
+                    max: _kMapMaxZoom,
+                    onChanged: _setZoom,
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: l10n.mapZoomOut,
+              iconSize: 18,
+              visualDensity: VisualDensity.compact,
+              onPressed: zoom > _kMapMinZoom ? () => _setZoom(zoom - 1) : null,
+              icon: Icon(Icons.remove, color: colors.ink),
+            ),
+          ],
+        ),
       ),
     );
   }

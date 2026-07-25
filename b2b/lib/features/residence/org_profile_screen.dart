@@ -778,9 +778,10 @@ class _OrgProfileScreenState extends ConsumerState<OrgProfileScreen> {
   }
 }
 
-/// Frontend-only AI profile generator: collects a website / Instagram link and
-/// an optional company PDF, then produces a deterministic mock description that
-/// the user can edit and push into the profile's `description` field.
+/// Frontend-only draft-description template: collects a website / Instagram
+/// link and an optional company PDF, then composes a deterministic template
+/// description (no AI/network call — the label and copy make this explicit)
+/// that the user can edit and push into the profile's `description` field.
 class _AiGeneratorCard extends StatelessWidget {
   const _AiGeneratorCard({
     required this.websiteController,
@@ -817,7 +818,7 @@ class _AiGeneratorCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome_outlined, color: colors.accentSecondary),
+              Icon(Icons.text_snippet_outlined, color: colors.accentSecondary),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
@@ -877,7 +878,7 @@ class _AiGeneratorCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
           PillButton(
             label: generating ? l10n.orgAiGenerating : l10n.orgAiGenerate,
-            icon: Icons.auto_awesome,
+            icon: Icons.edit_note_outlined,
             expand: true,
             variant: PillButtonVariant.ink,
             loading: generating,

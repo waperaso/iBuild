@@ -24,10 +24,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get navSettings => 'Sozlamalar';
 
   @override
-  String get onboardingEyebrow => 'Soting. Sarmoya kiriting. Bir ilovada.';
+  String get onboardingSlogan => 'iBuild the dream';
 
   @override
-  String get onboardingHeadline => 'Orzuingizdagi\nUyni Bugun\nToping';
+  String get onboardingEyebrow => 'Soting. Sarmoya kiriting. Bir ilovada.';
 
   @override
   String get onboardingDescription =>
@@ -210,6 +210,12 @@ class AppLocalizationsUz extends AppLocalizations {
   String liveLocationDistrict(String district) {
     return 'Joylashuv · $district';
   }
+
+  @override
+  String get mapZoomIn => 'Kattalashtirish';
+
+  @override
+  String get mapZoomOut => 'Kichiklashtirish';
 
   @override
   String get tabUnits => 'Xonadonlar';
@@ -456,6 +462,21 @@ class AppLocalizationsUz extends AppLocalizations {
   String leadSubmittedSnackbar(String number) {
     return '$number raqamli murojaat yuborildi';
   }
+
+  @override
+  String get leadSignInRequiredTitle =>
+      'Murojaatni yuborish uchun tizimga kiring';
+
+  @override
+  String get leadSignInRequiredBody =>
+      'Quruvchi sizning murojaatingiz boʻyicha bogʻlanishi uchun iBuild hisobingizga kiring yoki roʻyxatdan oʻting.';
+
+  @override
+  String get leadSignInCta => 'Davom etish uchun kiring';
+
+  @override
+  String get leadSignInRequiredError =>
+      'Murojaatni yuborish uchun tizimga kiring.';
 
   @override
   String get myInquiriesTitle => 'Mening murojaatlarim';

@@ -21,10 +21,78 @@ import 'features/residence/project_detail_admin.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/support/support_tickets.dart';
 import 'core/localization/locale_controller.dart';
+import 'core/theme/app_dimens.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
+import 'core/widgets/app_scroll_behavior.dart';
 import 'core/widgets/splash_screen.dart';
 import 'l10n/gen/app_localizations.dart';
+
+/// Cross-fade + subtle slide-up page transition — see the identical helper
+/// in the b2c app's router for the full rationale. Used for routes that are
+/// genuinely pushed on top of / popped off of whatever came before (the
+/// auth flow, and entering/leaving the dashboard shell as a whole) — these
+/// previously fell back to the platform-default [MaterialPage] transition
+/// (Zoom on Android, Cupertino-slide on iOS/macOS, fade-upwards elsewhere),
+/// which on desktop/web can leave the outgoing page visibly lingering
+/// behind the incoming one for a frame or two — the same "old page still
+/// there after the new one has appeared" glitch reported on b2c.
+///
+/// NOT used for panels *inside* the shell (see [_instantPage] below) — those
+/// are flat siblings that replace each other in place, so cross-fading them
+/// makes both panels visible/blended at once instead of a clean switch.
+CustomTransitionPage<void> _fadeSlidePage({
+  required LocalKey key,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: key,
+    child: child,
+    transitionDuration: AppDurations.medium,
+    reverseTransitionDuration: AppDurations.medium,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final enter = CurvedAnimation(
+        parent: animation,
+        curve: AppDurations.enter,
+        reverseCurve: AppDurations.exit,
+      );
+      final exit = CurvedAnimation(
+        parent: secondaryAnimation,
+        curve: AppDurations.exit,
+        reverseCurve: AppDurations.enter,
+      );
+
+      return FadeTransition(
+        opacity: Tween<double>(begin: 1, end: 0).animate(exit),
+        child: FadeTransition(
+          opacity: enter,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.03),
+              end: Offset.zero,
+            ).animate(enter),
+            child: child,
+          ),
+        ),
+      );
+    },
+  );
+}
+
+/// Instant, no-transition page for switching between sibling panels inside
+/// the dashboard shell (sidebar/bottom-nav destinations, and drilling into a
+/// detail screen from a list). These routes all sit as flat siblings under
+/// the same [ShellRoute], so navigating between them doesn't push a new
+/// screen "on top" of the old one — GoRouter just replaces the shell's
+/// current child in place. Animating that swap with [_fadeSlidePage] made
+/// the outgoing and incoming panel cross-fade — i.e. both fully visible and
+/// blended together — for the whole transition, which read as one panel
+/// "layering" on top of another instead of a clean switch. A dashboard
+/// switching sections (Platform ↔ CRM ↔ Moderation ↔ Residence ↔ Settings)
+/// should cut instantly, the same way b2c's `IndexedStack`-based tabs do.
+Page<void> _instantPage({required LocalKey key, required Widget child}) {
+  return NoTransitionPage<void>(key: key, child: child);
+}
 
 final _routerProvider = Provider<GoRouter>((ref) {
   // Do not `watch` auth here — that recreates GoRouter on every auth update
@@ -78,64 +146,119 @@ final _routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
-      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: '/splash',
+        pageBuilder: (_, state) =>
+            _fadeSlidePage(key: state.pageKey, child: const SplashScreen()),
+      ),
+      GoRoute(
+        path: '/login',
+        pageBuilder: (_, state) =>
+            _fadeSlidePage(key: state.pageKey, child: const LoginScreen()),
+      ),
       GoRoute(
         path: '/otp',
-        builder: (_, state) {
+        pageBuilder: (_, state) {
           final extra = state.extra as Map<String, String>? ?? {};
-          return OtpScreen(
-            phone: extra['phone'] ?? '',
-            requestId: extra['requestId'] ?? '',
+          return _fadeSlidePage(
+            key: state.pageKey,
+            child: OtpScreen(
+              phone: extra['phone'] ?? '',
+              requestId: extra['requestId'] ?? '',
+            ),
           );
         },
       ),
-      GoRoute(path: '/apply', builder: (_, _) => const DeveloperApplyScreen()),
+      GoRoute(
+        path: '/apply',
+        pageBuilder: (_, state) => _fadeSlidePage(
+          key: state.pageKey,
+          child: const DeveloperApplyScreen(),
+        ),
+      ),
       ShellRoute(
-        builder: (_, _, child) => B2bAdaptiveShell(child: child),
+        pageBuilder: (_, state, child) => _fadeSlidePage(
+          key: state.pageKey,
+          child: B2bAdaptiveShell(child: child),
+        ),
         routes: [
-          GoRoute(path: '/platform', builder: (_, _) => const PlatformHome()),
+          GoRoute(
+            path: '/platform',
+            pageBuilder: (_, state) =>
+                _instantPage(key: state.pageKey, child: const PlatformHome()),
+          ),
           GoRoute(
             path: '/platform/moderation',
-            builder: (_, _) => const PlatformModeration(),
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: const PlatformModeration(),
+            ),
           ),
           GoRoute(
             path: '/platform/active',
-            builder: (_, _) => const PlatformActiveProjects(),
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: const PlatformActiveProjects(),
+            ),
           ),
           GoRoute(
             path: '/platform/projects',
-            builder: (_, _) => const PlatformProjects(),
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: const PlatformProjects(),
+            ),
           ),
           GoRoute(
             path: '/platform/crm',
-            builder: (_, _) => const PlatformCrm(),
+            pageBuilder: (_, state) =>
+                _instantPage(key: state.pageKey, child: const PlatformCrm()),
           ),
           GoRoute(
             path: '/platform/tickets',
-            builder: (_, _) => const PlatformTickets(),
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: const PlatformTickets(),
+            ),
           ),
           GoRoute(
             path: '/platform/notifications',
-            builder: (_, _) => const PlatformNotifications(),
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: const PlatformNotifications(),
+            ),
           ),
-          GoRoute(path: '/residence', builder: (_, _) => const ResidenceHome()),
+          GoRoute(
+            path: '/residence',
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: const ResidenceHome(),
+            ),
+          ),
           GoRoute(
             path: '/residence/org',
-            builder: (_, _) => const OrgProfileScreen(),
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: const OrgProfileScreen(),
+            ),
           ),
           GoRoute(
             path: '/residence/project/:id',
-            builder: (_, state) =>
-                ProjectDetailAdmin(projectId: state.pathParameters['id']!),
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: ProjectDetailAdmin(
+                projectId: state.pathParameters['id']!,
+              ),
+            ),
           ),
           GoRoute(
             path: '/support',
-            builder: (_, _) => const SupportTickets(),
+            pageBuilder: (_, state) =>
+                _instantPage(key: state.pageKey, child: const SupportTickets()),
           ),
           GoRoute(
             path: '/settings',
-            builder: (_, _) => const SettingsScreen(),
+            pageBuilder: (_, state) =>
+                _instantPage(key: state.pageKey, child: const SettingsScreen()),
           ),
         ],
       ),
@@ -174,6 +297,7 @@ class B2bApp extends ConsumerWidget {
       theme: buildAppTheme(theme.light),
       darkTheme: buildAppTheme(theme.dark),
       themeMode: theme.themeMode,
+      scrollBehavior: const AppScrollBehavior(),
       routerConfig: router,
       locale: locale,
       supportedLocales: kSupportedLocales,

@@ -24,10 +24,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSettings => 'Settings';
 
   @override
-  String get onboardingEyebrow => 'Sell. Invest. All in One App.';
+  String get onboardingSlogan => 'iBuild the dream';
 
   @override
-  String get onboardingHeadline => 'Find Your\nDream Home\nToday';
+  String get onboardingEyebrow => 'Sell. Invest. All in One App.';
 
   @override
   String get onboardingDescription =>
@@ -210,6 +210,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String liveLocationDistrict(String district) {
     return 'Live location · $district';
   }
+
+  @override
+  String get mapZoomIn => 'Zoom in';
+
+  @override
+  String get mapZoomOut => 'Zoom out';
 
   @override
   String get tabUnits => 'Units';
@@ -455,6 +461,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String leadSubmittedSnackbar(String number) {
     return 'Lead $number submitted';
   }
+
+  @override
+  String get leadSignInRequiredTitle => 'Sign in to send this inquiry';
+
+  @override
+  String get leadSignInRequiredBody =>
+      'Create or sign in to your iBuild account so the developer can reach you about this request.';
+
+  @override
+  String get leadSignInCta => 'Sign in to continue';
+
+  @override
+  String get leadSignInRequiredError =>
+      'Please sign in to submit this inquiry.';
 
   @override
   String get myInquiriesTitle => 'My inquiries';

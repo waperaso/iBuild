@@ -73,6 +73,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get otpInvalidError => 'Неверный или истёкший код';
 
   @override
+  String get otpResendPrompt => 'Не получили код?';
+
+  @override
+  String get otpResendAction => 'Отправить код повторно';
+
+  @override
+  String otpResendCountdown(int seconds) {
+    return 'Повторно через $seconds с';
+  }
+
+  @override
+  String get otpResendSuccess => 'Новый код отправлен';
+
+  @override
+  String otpResendError(String error) {
+    return 'Не удалось отправить код повторно: $error';
+  }
+
+  @override
   String get applyStepWelcome => 'Добро пожаловать';
 
   @override
@@ -101,6 +120,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get applyHaveAccount => 'У меня есть аккаунт';
+
+  @override
+  String get authHeroTitle => 'Платформа для застройщиков';
+
+  @override
+  String get authHeroSubtitle =>
+      'Управляйте жилыми комплексами, юнитами и заявками покупателей в едином рабочем пространстве iBuild — созданном для команд, а не только администраторов.';
+
+  @override
+  String get authHeroPointVerified =>
+      'Проверенные застройщики и объекты — доверие покупателей';
+
+  @override
+  String get authHeroPointLeads =>
+      'Заявки покупателей и арендаторов приходят прямо в вашу CRM';
 
   @override
   String get applyRoleTitle => 'Регистрация застройщика';
@@ -171,10 +205,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get applyRegionTashkent => 'Ташкент';
 
   @override
-  String get applyRegionTashkentRegion => 'Ташкентская область';
-
-  @override
-  String get applyRegionOther => 'Другие регионы';
+  String get applyRegionNewTashkent => 'Новый Ташкент';
 
   @override
   String get applyEmail => 'Email компании';
@@ -239,6 +270,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get applyDocumentsRequiredHint =>
       'Загрузите все 4 документа для верификации выше, прежде чем отправить заявку на рассмотрение.';
+
+  @override
+  String applyDocumentsMissingHint(String names) {
+    return 'Вы не добавили: $names. Загрузите их выше, прежде чем отправить заявку на рассмотрение.';
+  }
 
   @override
   String get applyReviewDecisionLabel => 'Решение';
@@ -422,6 +458,49 @@ class AppLocalizationsRu extends AppLocalizations {
   String get platformPublish => 'Опубликовать';
 
   @override
+  String get platformProjectDetails => 'Подробнее';
+
+  @override
+  String get platformProjectDescriptionLabel => 'Описание';
+
+  @override
+  String get platformProjectPricingLabel => 'Цены';
+
+  @override
+  String platformProjectPriceRange(String min, String max) {
+    return '$min – $max сум';
+  }
+
+  @override
+  String platformProjectRentRange(String min, String max) {
+    return 'Аренда: $min – $max сум/мес';
+  }
+
+  @override
+  String platformProjectCompletionLabel(String date) {
+    return 'Срок сдачи: $date';
+  }
+
+  @override
+  String get platformProjectGalleryLabel => 'Галерея';
+
+  @override
+  String get platformProjectUnitsLabel => 'Юниты';
+
+  @override
+  String platformProjectUnitsSummary(int buildings, int total) {
+    return '$buildings корпусов · $total юнитов';
+  }
+
+  @override
+  String get platformProjectUnitsEmpty => 'Юниты пока не добавлены';
+
+  @override
+  String platformProjectLoadError(String error) {
+    return 'Не удалось загрузить данные проекта: $error';
+  }
+
+  @override
   String get platformPublishedProjectsSectionTitle => 'Опубликованные проекты';
 
   @override
@@ -459,6 +538,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get platformNoPendingReviews => 'Нет отзывов, ожидающих модерации';
 
   @override
+  String get platformReviewRatingLocation => 'Расположение';
+
+  @override
+  String get platformReviewRatingQuality => 'Качество';
+
+  @override
+  String get platformReviewRatingValue => 'Цена/качество';
+
+  @override
+  String platformReviewProjectLabel(String name) {
+    return 'Проект: $name';
+  }
+
+  @override
   String get platformAnonymous => 'Анонимно';
 
   @override
@@ -479,6 +572,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не соответствует требованиям к объявлению';
 
   @override
+  String platformRentalMonthlyRent(String amount) {
+    return '$amount сум/мес';
+  }
+
+  @override
+  String platformRentalContactLabel(String phone) {
+    return 'Контакт: $phone';
+  }
+
+  @override
   String get platformAuditLogSectionTitle => 'Журнал действий';
 
   @override
@@ -488,6 +591,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String platformAuditError(String error) {
     return 'Ошибка журнала действий: $error';
   }
+
+  @override
+  String get platformAuditLogActorPrefix => 'Изменил';
+
+  @override
+  String get platformAuditLogActorUnknown => 'Неизвестный пользователь';
+
+  @override
+  String platformAuditLogPageInfo(int page, int total) {
+    return 'Страница $page из $total';
+  }
+
+  @override
+  String get platformAuditLogPrevPage => 'Предыдущая страница';
+
+  @override
+  String get platformAuditLogNextPage => 'Следующая страница';
 
   @override
   String get notificationsTitle => 'Уведомления';
@@ -571,6 +691,26 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get platformBan => 'Заблокировать';
+
+  @override
+  String get platformDeleteAdminTooltip =>
+      'Удалить аккаунт администратора платформы';
+
+  @override
+  String platformDeleteAdminConfirmTitle(String phone) {
+    return 'Удалить $phone?';
+  }
+
+  @override
+  String get platformDeleteAdminConfirmBody =>
+      'Аккаунт администратора платформы будет удалён без возможности восстановления, доступ будет отозван везде.';
+
+  @override
+  String get platformDeleteAdminConfirm => 'Удалить аккаунт';
+
+  @override
+  String get platformDeleteAdminSelfHint =>
+      'Это ваш собственный аккаунт — войдите под другим админом, чтобы удалить его.';
 
   @override
   String platformBanDialogTitle(String phone) {
@@ -770,6 +910,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String mapLocationCoordinates(String lat, String lng) {
     return 'Координаты: $lat, $lng';
   }
+
+  @override
+  String get mapLocationZoomIn => 'Увеличить';
+
+  @override
+  String get mapLocationZoomOut => 'Уменьшить';
 
   @override
   String get residenceCreate => 'Создать';
@@ -996,11 +1142,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get orgPlanDecayCoefficientAxis => 'Усиление';
 
   @override
-  String get orgAiSectionTitle => 'AI-генератор профиля';
+  String get orgAiSectionTitle => 'Шаблон черновика описания';
 
   @override
   String get orgAiSectionSubtitle =>
-      'Добавьте ссылки и, при желании, презентацию компании, затем сгенерируйте черновик описания. Всё работает на устройстве — проверьте и отредактируйте перед сохранением.';
+      'Добавьте ссылки и, при желании, презентацию компании — по шаблону будет составлен черновик (это не написано ИИ), отредактируйте его перед сохранением.';
 
   @override
   String get orgAiWebsiteHint => 'URL веб-сайта';
@@ -1017,22 +1163,22 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get orgAiGenerate => 'Сгенерировать описание';
+  String get orgAiGenerate => 'Составить черновик по шаблону';
 
   @override
-  String get orgAiGenerating => 'Генерация…';
+  String get orgAiGenerating => 'Составление…';
 
   @override
-  String get orgAiApply => 'Использовать это описание';
+  String get orgAiApply => 'Использовать этот черновик';
 
   @override
-  String get orgAiResultHint => 'Сгенерированное описание (редактируемое)';
+  String get orgAiResultHint => 'Черновик по шаблону (редактируемый)';
 
   @override
   String get orgAiNoInputs => 'Сначала добавьте веб-сайт, Instagram или PDF.';
 
   @override
-  String get orgAiApplied => 'Описание применено — проверьте и сохраните.';
+  String get orgAiApplied => 'Черновик применён — проверьте и сохраните.';
 
   @override
   String get projectLoadError => 'Не удалось загрузить проект';
@@ -1299,15 +1445,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get projectInterestRateLabel => 'Процентная ставка %';
 
   @override
-  String get projectLeadEditorTitle => 'Теги и оценка';
-
-  @override
-  String get projectTagsLabel => 'Теги (через запятую)';
-
-  @override
-  String get projectTagsHint => 'vip, срочно, ипотека';
-
-  @override
   String get projectBulkUnitsDialogTitle => 'Массовое добавление юнитов';
 
   @override
@@ -1505,16 +1642,36 @@ class AppLocalizationsRu extends AppLocalizations {
   String get documentTypeLicense => 'Лицензия';
 
   @override
+  String get documentTypeLicenseHint =>
+      'Лицензия на строительную деятельность, подтверждающая, что компания имеет законное право выступать застройщиком.';
+
+  @override
   String get documentTypeConstructionPermit => 'Разрешение на строительство';
+
+  @override
+  String get documentTypeConstructionPermitHint =>
+      'Официальное разрешение местного органа власти на строительство именно этого объекта.';
 
   @override
   String get documentTypeLandRights => 'Права на землю';
 
   @override
+  String get documentTypeLandRightsHint =>
+      'Документ, подтверждающий право собственности или долгосрочной аренды на земельный участок под застройку.';
+
+  @override
   String get documentTypeProjectDeclaration => 'Проектная декларация';
 
   @override
+  String get documentTypeProjectDeclarationHint =>
+      'Декларация с описанием проекта: сроки, характеристики объекта и застройщика — обычно требуется для долевого строительства.';
+
+  @override
   String get documentTypeCadastre => 'Кадастр';
+
+  @override
+  String get documentTypeCadastreHint =>
+      'Кадастровый паспорт участка с его точными границами и учётными данными.';
 
   @override
   String get documentStatusPending => 'На проверке';
@@ -1539,7 +1696,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get moderationSubtitle =>
-      'Новые заявки на ЖК, жалобы на отзывы и заявки на аренду.';
+      'Новые заявки на ЖК, ожидающие проверки, и жалобы на отзывы.';
 
   @override
   String get adminProjectsTitle => 'Администрирование ЖК';
