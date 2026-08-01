@@ -4,17 +4,15 @@ import 'dart:typed_data';
 
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import 'package:uuid/uuid.dart';
 
 import 'auth_context.dart';
 import 'env_loader.dart';
 import 'http_helpers.dart';
 import 'rate_limiter.dart';
+import 'static_files.dart';
 import 'store.dart';
 import 'user_roles.dart';
 import 'validation.dart';
-
-const _uuid = Uuid();
 
 /// Legacy default bootstrap secret. Kept only to *reject* it — it must never
 /// be accepted, so an operator who forgot to set BOOTSTRAP_ADMIN_SECRET can't
@@ -631,6 +629,51 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     return jsonOk(items, meta: {'total': items.length});
   });
 
+  // Authenticated read side for KYC uploads. These are passports and business
+  // licences, so unlike unit photos they are not reachable through the public
+  // static route — only the developer who uploaded them and platform admins
+  // may fetch the bytes.
+  router.get('/v1/documents/<file>', (Request req, String file) async {
+    final auth = req.auth;
+    if (auth == null) {
+      return jsonError(
+        'UNAUTHENTICATED',
+        'Authentication required',
+        status: 401,
+      );
+    }
+    if (!isSafeUploadFilename(file)) {
+      return jsonError('VALIDATION_ERROR', 'Invalid path', status: 422);
+    }
+    final doc = store.documentByFileUrl('/v1/documents/$file');
+    if (doc == null) {
+      return jsonError('NOT_FOUND', 'Document not found', status: 404);
+    }
+    if (!auth.isSystemAdmin) {
+      final developer = store.developerForOwner(auth.userId);
+      if (developer == null || developer['id'] != doc['developerId']) {
+        return jsonError('FORBIDDEN', 'Not your document', status: 403);
+      }
+    }
+    final path =
+        '$kUploadsRoot${Platform.pathSeparator}$kPrivateSubdir'
+        '${Platform.pathSeparator}$file';
+    final onDisk = File(path);
+    if (!await onDisk.exists()) {
+      return jsonError('NOT_FOUND', 'Document not found', status: 404);
+    }
+    return Response.ok(
+      await onDisk.readAsBytes(),
+      headers: {
+        'content-type': contentTypeFor(file),
+        // Never cached by shared proxies: the response depends on who asked.
+        'cache-control': 'private, no-store',
+        'x-content-type-options': 'nosniff',
+        'content-disposition': 'inline',
+      },
+    );
+  });
+
   router.get('/v1/platform/developers/<id>/documents', (
     Request req,
     String id,
@@ -862,13 +905,8 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       }
       return jsonOk(updated);
     } on StateError catch (e) {
-      if (e.message == 'SUBSCRIPTION_REQUIRED') {
-        return jsonError(
-          'PAYMENT_REQUIRED',
-          'Active \$$kBusinessSubscriptionUsd/mo subscription required to publish',
-          status: 402,
-        );
-      }
+      final denied = _publishDenialFor(store, e, id);
+      if (denied != null) return denied;
       rethrow;
     }
   });
@@ -977,13 +1015,8 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       );
       return jsonOk(updated);
     } on StateError catch (e) {
-      if (e.message == 'SUBSCRIPTION_REQUIRED') {
-        return jsonError(
-          'PAYMENT_REQUIRED',
-          'Active \$$kBusinessSubscriptionUsd/mo subscription required to publish',
-          status: 402,
-        );
-      }
+      final denied = _publishDenialFor(store, e, id);
+      if (denied != null) return denied;
       rethrow;
     }
   });
@@ -1393,7 +1426,9 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     if (!auth.isSystemAdmin && !auth.isResidenceAdmin) {
       return jsonError('FORBIDDEN', 'Admin access required', status: 403);
     }
-    final items = store.crmAssignees();
+    final items = store.crmAssignees(
+      restrictToUserId: auth.isSystemAdmin ? null : auth.userId,
+    );
     return jsonOk(items, meta: {'total': items.length});
   });
 
@@ -1444,6 +1479,13 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       return jsonError(
         'VALIDATION_ERROR',
         'toUserId is required',
+        status: 422,
+      );
+    }
+    if (!_canUserManageProject(store, toUserId, project)) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'That user cannot be assigned leads for this project',
         status: 422,
       );
     }
@@ -1502,6 +1544,15 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       return jsonError(
         'VALIDATION_ERROR',
         'score must be one of ${allowedScores.join(', ')}',
+        status: 422,
+      );
+    }
+    final newOwnerId = body['ownerUserId'] as String?;
+    if (newOwnerId != null &&
+        !_canUserManageProject(store, newOwnerId, project)) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'That user cannot be assigned leads for this project',
         status: 422,
       );
     }
@@ -1747,14 +1798,8 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       );
       return jsonOk(project);
     } on StateError catch (e) {
-      if (e.message == 'SUBSCRIPTION_REQUIRED') {
-        return jsonError(
-          'PAYMENT_REQUIRED',
-          'Business must have an active \$$kBusinessSubscriptionUsd/mo '
-              'subscription before publishing',
-          status: 402,
-        );
-      }
+      final denied = _publishDenialFor(store, e, id);
+      if (denied != null) return denied;
       if (e.message == 'NOTE_REQUIRED') {
         return jsonError(
           'VALIDATION_ERROR',
@@ -1799,6 +1844,21 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     };
     if (role == null || !allowed.contains(role)) {
       return jsonError('VALIDATION_ERROR', 'Invalid role', status: 422);
+    }
+    final target = store.allUsers().where((u) => u['id'] == id).firstOrNull;
+    if (target == null) {
+      return jsonError('NOT_FOUND', 'User $id not found', status: 404);
+    }
+    // Demoting the last platform admin locks everyone out of admin routes with
+    // no in-app way back — the same reason DELETE guards on the count.
+    if (target['role'] == UserRole.systemAdmin &&
+        role != UserRole.systemAdmin &&
+        store.systemAdminCount() <= 1) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'At least one platform admin must remain',
+        status: 422,
+      );
     }
     final user = store.setUserRole(id, role);
     if (user == null) {
@@ -2185,10 +2245,54 @@ Response? _requireSystemAdmin(Request req) {
   return null;
 }
 
+/// Maps the two publish gates raised by `Store` onto responses, or null if
+/// [error] is something else. Shared by every route that can take a project
+/// live so they answer identically.
+Response? _publishDenialFor(Store store, StateError error, String projectId) {
+  if (error.message == 'SUBSCRIPTION_REQUIRED') {
+    return jsonError(
+      'PAYMENT_REQUIRED',
+      'Active \$$kBusinessSubscriptionUsd/mo subscription required to publish',
+      status: 402,
+    );
+  }
+  if (error.message == 'PROJECT_LIMIT_REACHED') {
+    final developerId =
+        (store.projectById(projectId)?['developer'] as Map?)?['id'] as String?;
+    final plan = developerId == null
+        ? null
+        : store.planForDeveloper(developerId);
+    final limit = plan?['maxProjects'];
+    return jsonError(
+      'PLAN_LIMIT_REACHED',
+      plan == null
+          ? 'Your plan does not allow publishing another project'
+          : 'The ${plan['name']} plan allows $limit published projects. '
+                'Unpublish one or upgrade to publish more.',
+      status: 402,
+    );
+  }
+  return null;
+}
+
 bool _canManageProject(Store store, AuthContext auth, Map project) {
   if (auth.isSystemAdmin) return true;
   if (!auth.isResidenceAdmin) return false;
   return store.ownsProject(auth.userId, project);
+}
+
+/// Whether [userId] would be able to work a lead on [project] — i.e. whether
+/// they are a valid assignee. Callers only checked that the target user
+/// existed, so a lead could be handed to an unrelated developer's admin, who
+/// would then see the customer's contact details in their own CRM.
+bool _canUserManageProject(Store store, String userId, Map project) {
+  final user = store.allUsers().where((u) => u['id'] == userId).firstOrNull;
+  if (user == null) return false;
+  if (user['banned'] == true) return false;
+  final role = user['role'] as String? ?? '';
+  if (role == UserRole.systemAdmin) return true;
+  if (role != UserRole.residenceAdmin) return false;
+  return store.ownsProject(userId, project);
 }
 
 Future<Map<String, dynamic>?> _handleMultipartMedia(
@@ -2196,26 +2300,12 @@ Future<Map<String, dynamic>?> _handleMultipartMedia(
   Store store, {
   required String unitId,
 }) async {
-  final contentType = req.headers['content-type']!;
-  final boundaryMatch = RegExp(r'boundary=(.+)').firstMatch(contentType);
-  if (boundaryMatch == null) return null;
-  final boundary = boundaryMatch.group(1)!.trim();
-  final bytes = await req.read().expand((c) => c).toList();
-  final parts = _parseMultipart(Uint8List.fromList(bytes), boundary);
+  final parts = await _readMultipartParts(req);
+  if (parts == null) return null;
   final filePart = parts.where((p) => p.filename != null).firstOrNull;
   if (filePart == null) return null;
 
-  final uploadsDir = Directory('uploads');
-  if (!uploadsDir.existsSync()) {
-    uploadsDir.createSync(recursive: true);
-  }
-  final ext = filePart.filename!.contains('.')
-      ? filePart.filename!.split('.').last
-      : 'bin';
-  final fileName = '${_uuid.v4()}.$ext';
-  final file = File('${uploadsDir.path}/$fileName');
-  await file.writeAsBytes(filePart.data);
-
+  final fileName = await saveUploadBytes(filePart.data, filePart.filename);
   final url = '/v1/static/uploads/$fileName';
   return store.addUnitMedia(unitId, url: url, type: 'photo');
 }
@@ -2229,12 +2319,8 @@ Future<Map<String, dynamic>?> _handleMultipartDocument(
   required String developerId,
   required String uploadedBy,
 }) async {
-  final contentType = req.headers['content-type']!;
-  final boundaryMatch = RegExp(r'boundary=(.+)').firstMatch(contentType);
-  if (boundaryMatch == null) return null;
-  final boundary = boundaryMatch.group(1)!.trim();
-  final bytes = await req.read().expand((c) => c).toList();
-  final parts = _parseMultipart(Uint8List.fromList(bytes), boundary);
+  final parts = await _readMultipartParts(req);
+  if (parts == null) return null;
   final filePart = parts.where((p) => p.filename != null).firstOrNull;
   if (filePart == null) return null;
   final typePart = parts
@@ -2243,18 +2329,14 @@ Future<Map<String, dynamic>?> _handleMultipartDocument(
   final type = typePart == null ? null : utf8.decode(typePart.data);
   if (type == null || !kAllowedDocumentTypes.contains(type)) return null;
 
-  final uploadsDir = Directory('uploads');
-  if (!uploadsDir.existsSync()) {
-    uploadsDir.createSync(recursive: true);
-  }
-  final ext = filePart.filename!.contains('.')
-      ? filePart.filename!.split('.').last
-      : 'bin';
-  final fileName = '${_uuid.v4()}.$ext';
-  final file = File('${uploadsDir.path}/$fileName');
-  await file.writeAsBytes(filePart.data);
-
-  final url = '/v1/static/uploads/$fileName';
+  // Identity paperwork goes to the private directory and is addressed through
+  // the authenticated route, never the public static one.
+  final fileName = await saveUploadBytes(
+    filePart.data,
+    filePart.filename,
+    subdir: kPrivateSubdir,
+  );
+  final url = '/v1/documents/$fileName';
   return store.addDocument(
     developerId: developerId,
     type: type,
@@ -2272,25 +2354,12 @@ Future<
   ({String url, String? takenAt, int? progressPercent, String? buildingId})?
 >
 _handleMultipartPhotoReport(Request req) async {
-  final contentType = req.headers['content-type']!;
-  final boundaryMatch = RegExp(r'boundary=(.+)').firstMatch(contentType);
-  if (boundaryMatch == null) return null;
-  final boundary = boundaryMatch.group(1)!.trim();
-  final bytes = await req.read().expand((c) => c).toList();
-  final parts = _parseMultipart(Uint8List.fromList(bytes), boundary);
+  final parts = await _readMultipartParts(req);
+  if (parts == null) return null;
   final filePart = parts.where((p) => p.filename != null).firstOrNull;
   if (filePart == null) return null;
 
-  final uploadsDir = Directory('uploads');
-  if (!uploadsDir.existsSync()) {
-    uploadsDir.createSync(recursive: true);
-  }
-  final ext = filePart.filename!.contains('.')
-      ? filePart.filename!.split('.').last
-      : 'bin';
-  final fileName = '${_uuid.v4()}.$ext';
-  final file = File('${uploadsDir.path}/$fileName');
-  await file.writeAsBytes(filePart.data);
+  final fileName = await saveUploadBytes(filePart.data, filePart.filename);
   final url = '/v1/static/uploads/$fileName';
 
   String? field(String name) {
@@ -2307,6 +2376,31 @@ _handleMultipartPhotoReport(Request req) async {
     progressPercent: progressRaw == null ? null : int.tryParse(progressRaw),
     buildingId: field('buildingId'),
   );
+}
+
+/// Buffers a multipart body and splits it into parts, refusing anything over
+/// [kMaxUploadBytes]. The parser needs the whole body in memory, so the cap is
+/// enforced while streaming rather than after the fact — otherwise an
+/// unauthenticated-size upload could be used to exhaust the heap.
+Future<List<_MultipartPart>?> _readMultipartParts(Request req) async {
+  final contentType = req.headers['content-type'] ?? '';
+  final boundaryMatch = RegExp(r'boundary=(.+)').firstMatch(contentType);
+  if (boundaryMatch == null) return null;
+  final boundary = boundaryMatch.group(1)!.trim();
+
+  final declared = int.tryParse(req.headers['content-length'] ?? '');
+  if (declared != null && declared > kMaxUploadBytes) {
+    throw const PayloadTooLargeException('Upload exceeds the 15 MB limit');
+  }
+
+  final builder = BytesBuilder(copy: false);
+  await for (final chunk in req.read()) {
+    builder.add(chunk);
+    if (builder.length > kMaxUploadBytes) {
+      throw const PayloadTooLargeException('Upload exceeds the 15 MB limit');
+    }
+  }
+  return _parseMultipart(builder.takeBytes(), boundary);
 }
 
 class _MultipartPart {

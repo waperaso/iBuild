@@ -1423,6 +1423,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String projectUnitsPartiallyAddedSnackbar(String count, String error) {
+    return 'Stopped after adding $count units: $error';
+  }
+
+  @override
   String get projectOfferEditorTitle => 'Add offer';
 
   @override

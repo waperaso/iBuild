@@ -20,12 +20,15 @@ dart run bin/server.dart
 # Seeded 18 projects (15 residential, 3 business centres).
 ```
 
-Bootstrap a platform admin (once):
+Bootstrap a platform admin (local dev only — the endpoint is disabled unless
+`BOOTSTRAP_ADMIN_ENABLED=true`, and production refuses to start with a weak
+`BOOTSTRAP_ADMIN_SECRET`). In production, list the operator's number in
+`SYSTEM_ADMIN_PHONES` instead and it is promoted on first sign-in:
 
 ```bash
 curl -X POST http://localhost:4000/v1/platform/bootstrap-admin \
   -H "Content-Type: application/json" \
-  -d "{\"secret\":\"ibuild-dev\",\"phone\":\"+998901111111\"}"
+  -d "{\"secret\":\"ibuild-local-demo-secret\",\"phone\":\"+998901111111\"}"
 ```
 
 Set `PORT` to run on something other than `4000`. Configuration is read
@@ -97,11 +100,31 @@ Dio interceptor expects.
 | GET | `/v1/projects/:id/units` | Flattened unit list |
 | GET | `/v1/projects/:id/offers` | Active offers |
 | GET | `/v1/units/:id` | Single unit |
-| GET | `/v1/leads` | All leads (newest first) |
-| POST | `/v1/leads` | Create a lead — `projectId` + `intent` required |
-| POST | `/v1/auth/otp/send` | Body `{ phone }` → `{ requestId }`. Dev-mode: no real SMS is sent. |
-| POST | `/v1/auth/otp/verify` | Body `{ requestId, code }` → `{ accessToken, refreshToken, user }`. Dev-mode fixed code `123456`. |
-| GET | `/v1/ws` | WebSocket upgrade — see below |
+| GET | `/v1/leads` | **Auth required.** Own leads; system admins get all. |
+| POST | `/v1/leads` | **Auth required.** Create a lead — `projectId`, `intent` and `consent: true` required. Rate-limited. |
+| POST | `/v1/auth/otp/send` | Body `{ phone }` → `{ requestId }`. The code is never in the response. |
+| POST | `/v1/auth/otp/verify` | Body `{ requestId, code }` → `{ accessToken, refreshToken, user }`. Dev-mode fixed code `123456`; production uses a random code over SMS. |
+| POST | `/v1/auth/logout` | **Auth required.** Revokes both halves of the token pair — the refresh token stops working too. |
+| GET | `/v1/static/uploads/:file` | Public operator uploads (unit media, photo reports). |
+| GET | `/v1/documents/:file` | **Auth required.** KYC paperwork from `uploads/private/`. Readable only by the developer who uploaded it and platform admins. |
+| GET | `/v1/ws` | **Auth required** (Bearer header or `?access_token=`). WebSocket upgrade — see below |
+
+Admin, platform and developer routes (`/v1/admin/*`, `/v1/platform/*`,
+`/v1/developers/*`) are mounted separately in `lib/src/admin_routes.dart` —
+see [`../docs/08-api.md`](../docs/08-api.md) for the full contract.
+
+Query params are validated: `?limit=` is capped at `100`, `?status=` must be
+one of `planned|under_construction|ready|handed_over`, and a body that is not
+a JSON object is rejected with `422 VALIDATION_ERROR` rather than a 500.
+
+Uploads are capped at 15 MB (`413 PAYLOAD_TOO_LARGE` beyond that) and stored
+under a random name with a whitelisted extension; anything unrecognised is
+written as an inert `.bin`. Calculator terms are capped at 50 years.
+
+Publishing a project requires an active subscription **and** room inside the
+tier's `maxProjects` allowance (`GET /v1/subscription-plans`): Start 3, Growth
+10, Corporate unlimited. Exceeding it answers `402 PLAN_LIMIT_REACHED`.
+Re-publishing a project that is already live does not consume a second slot.
 
 ### WebSocket events
 
@@ -130,6 +153,14 @@ stand in for a real SMS-based OTP provider:
 Tokens aren't verified on public catalogue routes. Protected routes
 (`/leads`, `/users/me/*`, `/admin/*`, `/platform/*`, `/developers/*`)
 require `Authorization: Bearer <accessToken>`.
+
+Brute-force protection: at most `kMaxOtpAttempts` (5) wrong codes per
+`requestId` before it is invalidated, codes are compared in constant time, and
+`/auth/otp/send` + `/auth/otp/verify` are IP rate-limited. Behind a reverse
+proxy — or in Docker — that means **`TRUST_PROXY=true` is required**,
+otherwise every request appears to come from one address and shares a single
+bucket. The server refuses to start in production without it in either case.
+See [`docs/DEPLOYMENT_SSH.md`](../docs/DEPLOYMENT_SSH.md) §5.
 
 ## Persistence (optional PostgreSQL)
 
@@ -184,6 +215,10 @@ mode you're actually in.
 Pending phone-OTP request codes stay in-memory in both modes (5-minute
 TTL, by design). Users and issued sessions **are** persisted, so accounts
 and Bearer tokens survive restarts.
+
+Migrations under `migrations/` are applied in filename order on startup and
+recorded in `schema_migrations`, so adding a numbered `.sql` file is all that
+is needed — there is no list to register it in.
 
 ### Local dev database
 
@@ -260,9 +295,22 @@ force a re-seed later (e.g. after changing `seed_data.dart`), wipe the
 tables first: `.\scripts\db-local.ps1 psql` then
 `TRUNCATE media, offers, units, buildings, leads, sessions, users, projects, developers RESTART IDENTITY CASCADE;`.
 
+### Deploying to a real server
+
+**Step-by-step SSH runbook** (bare Ubuntu → Dart API under systemd + both
+Flutter web apps behind nginx/TLS, with backups and troubleshooting):
+[`docs/DEPLOYMENT_SSH.md`](../docs/DEPLOYMENT_SSH.md).
+
+**Docker + autodeploy on push to `main`** (the API in a container, built and
+shipped by GitHub Actions with health-checked rollout and automatic rollback):
+[`docs/DEPLOYMENT_DOCKER.md`](../docs/DEPLOYMENT_DOCKER.md). The image is built
+from [`Dockerfile`](Dockerfile); `deploy/docker-compose.yml` is the compose
+file that runs on the server. `docker-compose.yml` in this directory is
+unrelated — it is the local-dev PostgreSQL described above.
+
 ### Production target: aHOST.uz
 
-**Full checklist (env, nginx, systemd, Flutter builds, GitHub secrets):**
+**aHOST-specific notes (cPanel, managed PostgreSQL, shared hosting vs VDS):**
 [`docs/HOSTING_AHOST.md`](../docs/HOSTING_AHOST.md).
 
 This dev server stands in for a future production backend on

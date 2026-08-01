@@ -210,12 +210,11 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     try {
       final updated =
           await ref.read(adminApiProvider).submitProjectForReview(widget.projectId);
+      if (!mounted) return;
       setState(() => _project = updated);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.projectSubmitForReviewSuccess)),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.projectSubmitForReviewSuccess)),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -251,12 +250,11 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     try {
       final updated =
           await ref.read(adminApiProvider).unpublishAdminProject(widget.projectId);
+      if (!mounted) return;
       setState(() => _project = updated);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.projectUnpublishSuccess)),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.projectUnpublishSuccess)),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -274,12 +272,11 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     try {
       final updated =
           await ref.read(adminApiProvider).publishAdminProject(widget.projectId);
+      if (!mounted) return;
       setState(() => _project = updated);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.projectPublishSuccess)),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.projectPublishSuccess)),
+      );
     } on DioException catch (e) {
       final status = e.response?.statusCode;
       final message = status == 402
@@ -746,32 +743,45 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     if (result == null) return;
     final api = ref.read(adminApiProvider);
     var number = result.startingNumber;
+    // One request per unit, so a run can fail part-way through (a duplicate
+    // number, a dropped connection). The units already created are real —
+    // reload and say how far we got rather than letting the error escape and
+    // leave the grid looking as though nothing happened.
+    Object? failure;
+    outer:
     for (var floor = result.floorFrom; floor <= result.floorTo; floor++) {
       for (var i = 0; i < result.unitsPerFloor; i++) {
-        await api.addUnit(widget.projectId, {
-          'buildingId': result.buildingId,
-          'number': '$number',
-          'floor': floor,
-          'kind': result.kind,
-          'dealType': result.dealType,
-          'areaTotal': result.areaTotal,
-          'rooms': result.rooms,
-          if (result.dealType == 'sale') 'price': result.price,
-          if (result.dealType == 'rent') 'rentMonthly': result.price,
-        });
+        try {
+          await api.addUnit(widget.projectId, {
+            'buildingId': result.buildingId,
+            'number': '$number',
+            'floor': floor,
+            'kind': result.kind,
+            'dealType': result.dealType,
+            'areaTotal': result.areaTotal,
+            'rooms': result.rooms,
+            if (result.dealType == 'sale') 'price': result.price,
+            if (result.dealType == 'rent') 'rentMonthly': result.price,
+          });
+        } catch (e) {
+          failure = e;
+          break outer;
+        }
         number++;
       }
     }
     await _load();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.projectUnitsAddedSnackbar('${number - result.startingNumber}'),
-          ),
+    if (!mounted) return;
+    final created = '${number - result.startingNumber}';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          failure == null
+              ? l10n.projectUnitsAddedSnackbar(created)
+              : l10n.projectUnitsPartiallyAddedSnackbar(created, '$failure'),
         ),
-      );
-    }
+      ),
+    );
   }
 
   Future<void> _addMedia(String unitId) async {

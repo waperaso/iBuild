@@ -537,15 +537,18 @@ class _OrgProfileScreenState extends ConsumerState<OrgProfileScreen> {
         'logoUrl': _logoUrl.text.trim().isEmpty ? null : _logoUrl.text.trim(),
       });
       ref.invalidate(_myOrgProvider);
+      if (!mounted) return;
       setState(() => _message = l10n.orgSavedMessage);
     } catch (e) {
-      setState(() => _message = e.toString());
+      if (!mounted) return;
+      setState(() => _message = l10n.orgError('$e'));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
 
   Future<void> _checkout(String planId) async {
+    final l10n = AppLocalizations.of(context);
     setState(() {
       _checkingOutPlanId = planId;
       _message = null;
@@ -555,9 +558,13 @@ class _OrgProfileScreenState extends ConsumerState<OrgProfileScreen> {
           .read(adminApiProvider)
           .checkoutSubscription(planId: planId);
       ref.invalidate(_myOrgProvider);
-      setState(() => _message = res['message']?.toString() ?? 'Subscribed.');
+      if (!mounted) return;
+      setState(
+        () => _message = res['message']?.toString() ?? l10n.orgSavedMessage,
+      );
     } catch (e) {
-      setState(() => _message = e.toString());
+      if (!mounted) return;
+      setState(() => _message = l10n.orgError('$e'));
     } finally {
       if (mounted) setState(() => _checkingOutPlanId = null);
     }

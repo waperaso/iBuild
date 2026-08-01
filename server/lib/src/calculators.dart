@@ -4,6 +4,13 @@
 /// route handler and tests can call them directly.
 library;
 
+import 'dart:math' as math;
+
+/// Longest term any quote will accept, in years. Real mortgage products top
+/// out well below this; the cap exists so a caller cannot ask for a term large
+/// enough to matter computationally or produce meaningless output.
+const kMaxTermYears = 50;
+
 /// Standard amortizing-loan monthly payment (French amortization), the same
 /// formula banks use for mortgage/installment quotes.
 double monthlyPayment({
@@ -14,16 +21,10 @@ double monthlyPayment({
   if (termMonths <= 0) return 0;
   if (annualRatePercent <= 0) return loanAmount / termMonths;
   final monthlyRate = annualRatePercent / 100 / 12;
-  final factor = _pow(1 + monthlyRate, termMonths);
+  // math.pow is O(1); the hand-rolled loop this replaces ran once per month,
+  // so a large term could pin the isolate from an unauthenticated request.
+  final factor = math.pow(1 + monthlyRate, termMonths).toDouble();
   return loanAmount * monthlyRate * factor / (factor - 1);
-}
-
-double _pow(double base, int exp) {
-  var result = 1.0;
-  for (var i = 0; i < exp; i++) {
-    result *= base;
-  }
-  return result;
 }
 
 class MortgageQuote {

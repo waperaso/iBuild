@@ -30,6 +30,21 @@ const kAllowedLeadStatuses = {
 /// Allowed values for the `mode` query param on `GET /v1/projects`.
 const kAllowedProjectModes = {'buy', 'rent', 'newBuilds'};
 
+/// Canonical construction-stage values for a project. Kept as a fixed
+/// vocabulary rather than derived from whatever the catalogue happens to hold,
+/// so filtering by a legitimate status keeps working even when no project is
+/// currently in that stage.
+const kAllowedProjectStatuses = {
+  'planned',
+  'under_construction',
+  'ready',
+  'handed_over',
+};
+
+/// Upper bound on `?limit=` for paginated list routes, so a single request
+/// cannot ask the server to serialize the entire catalogue.
+const kMaxPageLimit = 100;
+
 /// Whether [project] may be exposed to [req]: it must be published +
 /// moderation-approved, unless the caller is an admin (system/residence).
 /// Applied uniformly across every public project/unit read route so
@@ -63,10 +78,10 @@ Handler createHandler(
   final leadsRateLimiter =
       leadsLimiter ?? RateLimiter(10, const Duration(minutes: 1));
 
-  final allowedProjectStatuses = store.projects
-      .map((p) => p['status'] as String)
-      .toSet();
-  final allowedDistricts = store.projects
+  // Districts are data-driven, so they must be read per request: computing
+  // them once at startup made every project created later (in a district not
+  // present in the seed) unfilterable — `?district=` returned 422.
+  Set<String> allowedDistricts() => store.projects
       .map((p) => (p['district'] as String).toLowerCase())
       .toSet();
 
@@ -115,14 +130,14 @@ Handler createHandler(
     }
     final status = qp['status'];
     if (status != null && status.isNotEmpty) {
-      if (!isOneOf(status, allowedProjectStatuses)) {
+      if (!isOneOf(status, kAllowedProjectStatuses)) {
         return jsonError('VALIDATION_ERROR', 'Invalid status', status: 422);
       }
       items = items.where((p) => p['status'] == status).toList();
     }
     final district = qp['district'];
     if (district != null && district.isNotEmpty) {
-      if (!allowedDistricts.contains(district.toLowerCase())) {
+      if (!allowedDistricts().contains(district.toLowerCase())) {
         return jsonError('VALIDATION_ERROR', 'Invalid district', status: 422);
       }
       items = items
@@ -152,7 +167,10 @@ Handler createHandler(
       items = items.where((p) {
         final min = (p['priceMin'] as num?)?.toDouble();
         final max = (p['priceMax'] as num?)?.toDouble() ?? min;
-        if (min == null && max == null) return true;
+        // A project with no sale price cannot satisfy a sale-price range —
+        // excluded, mirroring the rent filter below (it used to be included,
+        // so `?priceMax=…` leaked rent-only projects into "Купить" results).
+        if (min == null && max == null) return false;
         final low = min ?? max!;
         final high = max ?? min!;
         if (priceMin != null && high < priceMin) return false;
@@ -216,7 +234,9 @@ Handler createHandler(
     final page = int.tryParse(qp['page'] ?? '') ?? 1;
     final limit = int.tryParse(qp['limit'] ?? '') ?? 20;
     final safePage = page < 1 ? 1 : page;
-    final safeLimit = limit < 1 ? 20 : limit;
+    final safeLimit = limit < 1
+        ? 20
+        : (limit > kMaxPageLimit ? kMaxPageLimit : limit);
     final start = (safePage - 1) * safeLimit;
     final paged = start >= items.length
         ? const <Map<String, dynamic>>[]
@@ -356,6 +376,9 @@ Handler createHandler(
     if (project == null) {
       return jsonError('NOT_FOUND', 'Project $id not found', status: 404);
     }
+    if (!_isProjectVisible(project, req)) {
+      return jsonError('NOT_FOUND', 'Project $id not found', status: 404);
+    }
     final items = store.reviewsForProject(id);
     return jsonOk(items, meta: {'total': items.length});
   });
@@ -373,6 +396,9 @@ Handler createHandler(
     if (project == null) {
       return jsonError('NOT_FOUND', 'Project $id not found', status: 404);
     }
+    if (!_isProjectVisible(project, req)) {
+      return jsonError('NOT_FOUND', 'Project $id not found', status: 404);
+    }
     final body = await req.readJson();
     final text = sanitizeText(capString(body['body'] as String?, 2000));
     if (text == null || text.isEmpty) {
@@ -382,14 +408,31 @@ Handler createHandler(
         status: 422,
       );
     }
+    // Ratings feed the project's aggregate score, so an out-of-range value
+    // would permanently skew it. Reject rather than clamp so the client can
+    // show the user what went wrong.
+    final ratingOverall = (body['ratingOverall'] as num?)?.toInt() ?? 5;
+    final subRatings = {
+      'ratingLocation': (body['ratingLocation'] as num?)?.toInt(),
+      'ratingQuality': (body['ratingQuality'] as num?)?.toInt(),
+      'ratingValue': (body['ratingValue'] as num?)?.toInt(),
+    };
+    bool outOfRange(int? v) => v != null && (v < 1 || v > 5);
+    if (outOfRange(ratingOverall) || subRatings.values.any(outOfRange)) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'ratings must be integers between 1 and 5',
+        status: 422,
+      );
+    }
     final review = store.createReview(
       userId: auth.userId,
       userName: (auth.user['name'] as String?) ?? auth.phone,
       projectId: id,
-      ratingOverall: (body['ratingOverall'] as num?)?.toInt() ?? 5,
-      ratingLocation: (body['ratingLocation'] as num?)?.toInt(),
-      ratingQuality: (body['ratingQuality'] as num?)?.toInt(),
-      ratingValue: (body['ratingValue'] as num?)?.toInt(),
+      ratingOverall: ratingOverall,
+      ratingLocation: subRatings['ratingLocation'],
+      ratingQuality: subRatings['ratingQuality'],
+      ratingValue: subRatings['ratingValue'],
       body: text,
     );
     return jsonOk(review, status: 201);
@@ -495,11 +538,13 @@ Handler createHandler(
         downPaymentPercent >= 1 ||
         termYears == null ||
         termYears <= 0 ||
+        termYears > kMaxTermYears ||
         annualRatePercent == null ||
         annualRatePercent < 0) {
       return jsonError(
         'VALIDATION_ERROR',
-        'price, downPaymentPercent (0-1), termYears, annualRatePercent are required',
+        'price, downPaymentPercent (0-1), '
+            'termYears (1-$kMaxTermYears), annualRatePercent are required',
         status: 422,
       );
     }
@@ -549,13 +594,19 @@ Handler createHandler(
     final termYears = (body['termYears'] as num?)?.toInt();
     final contactPhone = body['contactPhone'] as String?;
     if (price == null ||
+        price <= 0 ||
         downPayment == null ||
+        downPayment < 0 ||
+        downPayment > price ||
         termYears == null ||
+        termYears <= 0 ||
+        termYears > kMaxTermYears ||
         contactPhone == null ||
         !isValidPhone(contactPhone)) {
       return jsonError(
         'VALIDATION_ERROR',
-        'price, downPayment, termYears, contactPhone are required',
+        'price (> 0), downPayment (0..price), '
+            'termYears (1-$kMaxTermYears), contactPhone are required',
         status: 422,
       );
     }
@@ -825,9 +876,42 @@ Handler createHandler(
   return Pipeline()
       .addMiddleware(corsHeaders())
       .addMiddleware(logRequests())
+      // Outermost handler-side guard: everything below it (auth, ban check,
+      // routes) is guaranteed to answer with the JSON envelope.
+      .addMiddleware(errorEnvelopeMiddleware())
       .addMiddleware(authMiddleware(store))
       .addMiddleware(banGuardMiddleware())
       .addHandler(router.call);
+}
+
+/// Whether the process is running inside a container. Docker creates
+/// `/.dockerenv`; Podman creates `/run/.containerenv`.
+bool runningInContainer() {
+  if (Platform.isWindows) return false;
+  return File('/.dockerenv').existsSync() ||
+      File('/run/.containerenv').existsSync();
+}
+
+/// Whether the deployment must read the client IP from `X-Forwarded-For`.
+///
+/// True when requests cannot arrive directly: binding loopback puts a reverse
+/// proxy in front, and a container sees the bridge gateway (or, under host
+/// networking, nginx on loopback) instead of the caller. In both cases an
+/// untrusted `X-Forwarded-For` collapses every caller into a single rate-limit
+/// bucket, so the first five OTP requests lock out the whole platform.
+///
+/// Split out from [assertProductionSecrets] so it can be tested without
+/// touching the filesystem or the process environment.
+bool requiresTrustedProxyHeaders({
+  required String bindAddress,
+  required bool inContainer,
+}) {
+  final bind = bindAddress.trim();
+  final boundToLoopback =
+      bind == '127.0.0.1' || bind == 'localhost' || bind == '::1';
+  // A container binds 0.0.0.0 (the container is itself the boundary), so the
+  // loopback check alone cannot catch it.
+  return boundToLoopback || inContainer;
 }
 
 /// Fails fast (throws [StateError]) when `APP_ENV=production` but the secrets
@@ -884,6 +968,22 @@ void assertProductionSecrets({SmsService? sms}) {
     );
   }
 
+  final inContainer = runningInContainer();
+  final needsForwardedFor = requiresTrustedProxyHeaders(
+    bindAddress: env['BIND_ADDRESS'] ?? '',
+    inContainer: inContainer,
+  );
+  if (needsForwardedFor && !trustProxyHeaders) {
+    final reason = inContainer
+        ? 'running in a container, so requests never arrive directly'
+        : 'BIND_ADDRESS is loopback, so the API is behind a reverse proxy';
+    problems.add(
+      'TRUST_PROXY=true ($reason and the client IP must come from '
+      'X-Forwarded-For; make sure the proxy overwrites that header rather '
+      'than appending to it)',
+    );
+  }
+
   if (problems.isNotEmpty) {
     throw StateError(
       'Refusing to start in production (APP_ENV=production): missing or '
@@ -891,37 +991,4 @@ void assertProductionSecrets({SmsService? sms}) {
       'or server/.env before deploying. See docs/HOSTING_AHOST.md.',
     );
   }
-}
-
-Handler uploadsStaticHandler() {
-  final dir = Directory('uploads');
-  return (Request request) async {
-    final filename = request.url.pathSegments.last;
-    if (filename.isEmpty || filename.contains('..') || filename.contains('/')) {
-      return Response.forbidden('Invalid path');
-    }
-    if (!dir.existsSync()) {
-      return Response.notFound('File not found');
-    }
-    final file = File('${dir.path}${Platform.pathSeparator}$filename');
-    if (!await file.exists()) {
-      return Response.notFound('File not found: $filename');
-    }
-    final bytes = await file.readAsBytes();
-    final lower = filename.toLowerCase();
-    final contentType = lower.endsWith('.png')
-        ? 'image/png'
-        : (lower.endsWith('.jpg') || lower.endsWith('.jpeg'))
-        ? 'image/jpeg'
-        : lower.endsWith('.webp')
-        ? 'image/webp'
-        : 'application/octet-stream';
-    return Response.ok(
-      bytes,
-      headers: {
-        'content-type': contentType,
-        'cache-control': 'public, max-age=86400',
-      },
-    );
-  };
 }

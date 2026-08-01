@@ -31,6 +31,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    // Resolved before the await: reading it from `context` afterwards would
+    // touch a possibly-defunct element if the user navigated away mid-request.
+    final l10n = AppLocalizations.of(context);
     setState(() {
       _loading = true;
       _error = null;
@@ -42,8 +45,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           .sendOtp(phone);
       if (!mounted) return;
       context.push('/otp', extra: {'phone': phone, 'requestId': requestId});
-    } catch (e) {
-      setState(() => _error = AppLocalizations.of(context).loginSendCodeError);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _error = l10n.loginSendCodeError);
     } finally {
       if (mounted) setState(() => _loading = false);
     }

@@ -1,11 +1,10 @@
 import 'dart:io';
 
+import 'package:ibuild_server/src/app.dart';
+import 'package:ibuild_server/src/db/pg_config.dart';
+import 'package:ibuild_server/src/env_loader.dart';
+import 'package:ibuild_server/src/store.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
-
-import '../lib/src/app.dart';
-import '../lib/src/db/pg_config.dart';
-import '../lib/src/env_loader.dart';
-import '../lib/src/store.dart';
 
 /// iBuild dev/demo backend.
 ///
@@ -59,4 +58,28 @@ void main(List<String> args) async {
     '(${store.projects.where((p) => p['type'] == 'residential_complex').length} residential, '
     '${store.projects.where((p) => p['type'] == 'business_centre').length} business centres).',
   );
+
+  // Graceful shutdown: systemd sends SIGTERM and waits TimeoutStopSec before
+  // SIGKILL (see deploy/ibuild-api.service). Without this the process died
+  // mid-request with open WebSockets and an un-closed pool, so a deploy
+  // restart could drop in-flight writes.
+  var shuttingDown = false;
+  Future<void> shutdown(String signal) async {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    stderr.writeln('[server] $signal received — shutting down gracefully…');
+    try {
+      await server.close();
+      store.dispose();
+    } catch (error) {
+      stderr.writeln('[server] Error during shutdown: $error');
+    }
+    exit(0);
+  }
+
+  ProcessSignal.sigint.watch().listen((_) => shutdown('SIGINT'));
+  // SIGTERM cannot be watched on Windows.
+  if (!Platform.isWindows) {
+    ProcessSignal.sigterm.watch().listen((_) => shutdown('SIGTERM'));
+  }
 }

@@ -1425,6 +1425,11 @@ class AppLocalizationsUz extends AppLocalizations {
   }
 
   @override
+  String projectUnitsPartiallyAddedSnackbar(String count, String error) {
+    return '$count ta yunit qoʻshilgach toʻxtadi: $error';
+  }
+
+  @override
   String get projectOfferEditorTitle => 'Aksiya qoʻshish';
 
   @override

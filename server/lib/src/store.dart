@@ -173,11 +173,17 @@ class OtpVerifyResult {
 }
 
 /// An issued session (opaque token -> phone) with an absolute expiry.
+///
+/// [pairedToken] links the two halves of a token pair: the access token's
+/// entry points at its refresh token and vice versa, so signing out can
+/// invalidate both. Without it, logout revoked only the access token and the
+/// matching refresh token stayed usable for its full 30-day TTL.
 class _Session {
-  _Session(this.phone, this.expiresAt);
+  _Session(this.phone, this.expiresAt, {this.pairedToken});
 
   final String phone;
   final DateTime expiresAt;
+  final String? pairedToken;
 
   bool get isExpired => DateTime.now().isAfter(expiresAt);
 }
@@ -446,15 +452,24 @@ class Store {
       for (final s in sessions) {
         final phone = normalizePhone(s.phone);
         final accessExpiry = s.expiresAt ?? nowUtc.add(_accessTokenTtl);
-        if (!nowUtc.isAfter(accessExpiry)) {
-          store._sessionsByToken[s.accessToken] = _Session(phone, accessExpiry);
-        }
         final refresh = s.refreshToken;
-        if (refresh != null && refresh.isNotEmpty) {
+        final hasRefresh = refresh != null && refresh.isNotEmpty;
+        if (!nowUtc.isAfter(accessExpiry)) {
+          store._sessionsByToken[s.accessToken] = _Session(
+            phone,
+            accessExpiry,
+            pairedToken: hasRefresh ? refresh : null,
+          );
+        }
+        if (hasRefresh) {
           final refreshExpiry =
               s.refreshExpiresAt ?? nowUtc.add(_refreshTokenTtl);
           if (!nowUtc.isAfter(refreshExpiry)) {
-            store._refreshTokens[refresh] = _Session(phone, refreshExpiry);
+            store._refreshTokens[refresh] = _Session(
+              phone,
+              refreshExpiry,
+              pairedToken: s.accessToken,
+            );
           }
         }
       }
@@ -902,9 +917,18 @@ class Store {
       leads.where((l) => l['projectId'] == projectId).toList();
 
   /// CRM assignee candidates: active system/residence admins (not banned).
-  List<Map<String, dynamic>> crmAssignees() {
+  ///
+  /// [restrictToUserId] scopes the list for a non-platform caller. A residence
+  /// admin only owns their own developer org, so they may only assign leads to
+  /// themselves; returning every admin leaked the whole admin roster —
+  /// including phone numbers — to every developer on the platform, and let
+  /// them hand leads to a competitor.
+  List<Map<String, dynamic>> crmAssignees({String? restrictToUserId}) {
     return allUsers()
         .where((u) {
+          if (restrictToUserId != null && u['id'] != restrictToUserId) {
+            return false;
+          }
           final role = u['role'] as String? ?? '';
           final banned = u['banned'] == true;
           return !banned &&
@@ -1180,8 +1204,15 @@ class Store {
     return _usersByPhone[session.phone];
   }
 
+  /// Ends the session that [accessToken] belongs to — **both** halves of the
+  /// token pair. Revoking only the access token left the refresh token live,
+  /// so a leaked one could keep minting new access tokens long after sign-out.
   void revokeAccessToken(String accessToken) {
-    _sessionsByToken.remove(accessToken);
+    final session = _sessionsByToken.remove(accessToken);
+    final pairedRefresh = session?.pairedToken;
+    if (pairedRefresh != null) {
+      _refreshTokens.remove(pairedRefresh);
+    }
     final persistence = _persistence;
     if (persistence != null) {
       unawaited(
@@ -1191,6 +1222,27 @@ class Store {
           stderr.writeln('[Store] Failed to delete session: $error');
         }),
       );
+    }
+  }
+
+  /// Drops every issued token for [phone]. Used when an account is banned or
+  /// deleted so existing sessions stop working immediately instead of
+  /// surviving until their TTL.
+  void revokeAllSessionsForPhone(String phone) {
+    final normalized = normalizePhone(phone);
+    final accessTokens = _sessionsByToken.entries
+        .where((e) => e.value.phone == normalized)
+        .map((e) => e.key)
+        .toList();
+    _refreshTokens.removeWhere((_, s) => s.phone == normalized);
+    for (final token in accessTokens) {
+      _sessionsByToken.remove(token);
+      final persistence = _persistence;
+      if (persistence != null) {
+        unawaited(
+          persistence.deleteSessionByAccessToken(token).catchError((Object _) {}),
+        );
+      }
     }
   }
 
@@ -1220,8 +1272,17 @@ class Store {
     final refreshExpiry = now.add(_refreshTokenTtl);
     final accessToken = _uuid.v4();
     final newRefresh = _uuid.v4();
-    _sessionsByToken[accessToken] = _Session(phone, accessExpiry);
-    _refreshTokens[newRefresh] = _Session(phone, refreshExpiry);
+    // The rotated pair stays linked, so a later logout still kills both.
+    _sessionsByToken[accessToken] = _Session(
+      phone,
+      accessExpiry,
+      pairedToken: newRefresh,
+    );
+    _refreshTokens[newRefresh] = _Session(
+      phone,
+      refreshExpiry,
+      pairedToken: accessToken,
+    );
     final persistence = _persistence;
     if (persistence != null) {
       unawaited(
@@ -1370,8 +1431,16 @@ class Store {
     final refreshExpiry = now.add(_refreshTokenTtl);
     final accessToken = _uuid.v4();
     final refreshToken = _uuid.v4();
-    _sessionsByToken[accessToken] = _Session(phone, accessExpiry);
-    _refreshTokens[refreshToken] = _Session(phone, refreshExpiry);
+    _sessionsByToken[accessToken] = _Session(
+      phone,
+      accessExpiry,
+      pairedToken: refreshToken,
+    );
+    _refreshTokens[refreshToken] = _Session(
+      phone,
+      refreshExpiry,
+      pairedToken: accessToken,
+    );
 
     final persistence = _persistence;
     if (persistence != null) {
@@ -1801,6 +1870,43 @@ class Store {
     return sub['status'] as String? ?? 'none';
   }
 
+  /// The tier [developerId] is currently on, defaulting to the entry plan so
+  /// an unknown/missing `planId` is never treated as unlimited.
+  Map<String, dynamic> planForDeveloper(String developerId) {
+    final planId =
+        subscriptionsByDeveloperId[developerId]?['planId'] as String?;
+    return subscriptionPlanById(planId ?? '') ??
+        subscriptionPlanById('start')!;
+  }
+
+  /// How many of [developerId]'s projects are currently live. [excludingId]
+  /// skips the project being acted on, so re-publishing something that is
+  /// already counted does not trip its own limit.
+  int publishedProjectCount(String developerId, {String? excludingId}) {
+    return projects.where((p) {
+      if (p['id'] == excludingId) return false;
+      if (p['isPublished'] != true) return false;
+      return (p['developer'] as Map?)?['id'] == developerId;
+    }).length;
+  }
+
+  /// Gate for taking a project live: an active subscription, and room inside
+  /// the tier's `maxProjects` allowance. The allowance is advertised by
+  /// `GET /v1/subscription-plans` and billed for, so it has to actually hold —
+  /// previously any paying developer could publish without limit regardless of
+  /// which tier they bought.
+  void _assertCanPublish(String developerId, String projectId) {
+    if (!hasActiveSubscription(developerId)) {
+      throw StateError('SUBSCRIPTION_REQUIRED');
+    }
+    final maxProjects = planForDeveloper(developerId)['maxProjects'] as int;
+    if (maxProjects < 0) return; // -1 == unlimited (corporate tier)
+    final live = publishedProjectCount(developerId, excludingId: projectId);
+    if (live >= maxProjects) {
+      throw StateError('PROJECT_LIMIT_REACHED');
+    }
+  }
+
   Map<String, dynamic> registerDeveloper({
     required String ownerUserId,
     required String name,
@@ -2113,8 +2219,8 @@ class Store {
     if (developer == null) return null;
     developer['verificationStatus'] = status;
     developer['rejectionReason'] = sanitizeText(rejectionReason);
+    final ownerId = developer['ownerUserId'] as String?;
     if (status == 'approved') {
-      final ownerId = developer['ownerUserId'] as String?;
       if (ownerId != null) {
         final user = _userById(ownerId);
         if (user != null) {
@@ -2127,6 +2233,17 @@ class Store {
         _persistSubscription(sub);
         return sub;
       });
+    } else if (ownerId != null) {
+      // Approval is what grants residence_admin, so anything other than
+      // approved must take it back. Previously a rejected developer kept the
+      // role indefinitely and could still manage projects, leads and
+      // subscriptions. System admins are left alone — their role does not come
+      // from this application.
+      final user = _userById(ownerId);
+      if (user != null && user['role'] == UserRole.residenceAdmin) {
+        user['role'] = UserRole.ordinaryUser;
+        _persistUser(user);
+      }
     }
     _persistDeveloper(developer);
     _refreshProjectsForDeveloper(id);
@@ -2200,7 +2317,12 @@ class Store {
       await persistence.deleteUser(id);
     }
 
-    _usersByPhone.remove(user['phone']);
+    final phone = user['phone'] as String;
+    // Auth already fails once the user record is gone, but the token entries
+    // themselves are never reclaimed otherwise — they'd sit in memory until
+    // someone happened to present them.
+    revokeAllSessionsForPhone(phone);
+    _usersByPhone.remove(phone);
     return user;
   }
 
@@ -2302,9 +2424,10 @@ class Store {
     if (patch['isPublished'] == true) {
       final developer = project['developer'] as Map?;
       final developerId = developer?['id'] as String?;
-      if (developerId == null || !hasActiveSubscription(developerId)) {
+      if (developerId == null) {
         throw StateError('SUBSCRIPTION_REQUIRED');
       }
+      _assertCanPublish(developerId, id);
       // Re-publishing an already-approved listing goes live immediately.
       // Anything else still needs platform review.
       final status = project['moderationStatus'] as String? ?? 'draft';
@@ -2571,9 +2694,10 @@ class Store {
         if (!platformOverride) {
           final developer = project['developer'] as Map?;
           final developerId = developer?['id'] as String?;
-          if (developerId == null || !hasActiveSubscription(developerId)) {
+          if (developerId == null) {
             throw StateError('SUBSCRIPTION_REQUIRED');
           }
+          _assertCanPublish(developerId, id);
         }
         project['moderationStatus'] = 'approved';
         project['isPublished'] = true;
@@ -2787,6 +2911,16 @@ class Store {
 
   List<Map<String, dynamic>> documentsForDeveloper(String developerId) =>
       documents.where((d) => d['developerId'] == developerId).toList();
+
+  /// Looks up a document by the URL it is served under. Used by the
+  /// authenticated document route to resolve which developer owns the file
+  /// before handing over the bytes.
+  Map<String, dynamic>? documentByFileUrl(String fileUrl) {
+    for (final d in documents) {
+      if (d['fileUrl'] == fileUrl) return d;
+    }
+    return null;
+  }
 
   Map<String, dynamic>? documentById(String id) {
     for (final d in documents) {

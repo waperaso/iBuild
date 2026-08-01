@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:shelf/shelf.dart';
 
@@ -113,10 +114,77 @@ Middleware corsHeaders() {
   };
 }
 
+/// Thrown by [RequestJson.readJson] when the request body is not a JSON
+/// object. Converted to a 422 envelope by [errorEnvelopeMiddleware] instead of
+/// escaping as an unhandled error (which shelf renders as a plain-text 500 the
+/// clients' envelope interceptor cannot parse).
+class InvalidJsonBodyException implements Exception {
+  const InvalidJsonBodyException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'InvalidJsonBodyException: $message';
+}
+
+/// Thrown when a request body exceeds the limit a handler is willing to buffer
+/// in memory. Rendered as a 413 envelope by [errorEnvelopeMiddleware].
+class PayloadTooLargeException implements Exception {
+  const PayloadTooLargeException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'PayloadTooLargeException: $message';
+}
+
 extension RequestJson on Request {
+  /// Decodes the body as a JSON object. An empty body is treated as `{}` so
+  /// handlers can rely on per-field validation for their own error messages.
   Future<Map<String, dynamic>> readJson() async {
     final body = await readAsString();
-    if (body.isEmpty) return {};
-    return jsonDecode(body) as Map<String, dynamic>;
+    if (body.trim().isEmpty) return {};
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(body);
+    } on FormatException catch (error) {
+      throw InvalidJsonBodyException('Request body is not valid JSON: '
+          '${error.message}');
+    }
+    if (decoded is! Map<String, dynamic>) {
+      throw const InvalidJsonBodyException(
+        'Request body must be a JSON object',
+      );
+    }
+    return decoded;
   }
+}
+
+/// Guarantees every response — including ones produced by an unhandled
+/// exception — uses the `{ success, data, error }` envelope, so the Flutter
+/// clients never receive shelf's plain-text `Internal Server Error` body that
+/// their Dio interceptor cannot unwrap.
+Middleware errorEnvelopeMiddleware() {
+  return (Handler inner) {
+    return (Request request) async {
+      try {
+        return await inner(request);
+      } on InvalidJsonBodyException catch (error) {
+        return jsonError('VALIDATION_ERROR', error.message, status: 422);
+      } on PayloadTooLargeException catch (error) {
+        return jsonError('PAYLOAD_TOO_LARGE', error.message, status: 413);
+      } catch (error, stack) {
+        // Log server-side; never leak the exception text to the caller.
+        stderr.writeln(
+          '[error] ${request.method} ${request.requestedUri.path}: '
+          '$error\n$stack',
+        );
+        return jsonError(
+          'INTERNAL_ERROR',
+          'Something went wrong. Please try again.',
+          status: 500,
+        );
+      }
+    };
+  };
 }

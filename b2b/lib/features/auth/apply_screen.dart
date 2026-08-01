@@ -289,9 +289,11 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
         await ref.read(authControllerProvider.notifier).signOut();
         return;
       }
+      if (!mounted) return;
       setState(() => _message = _apiErrorMessage(l10n, e));
-    } catch (e) {
-      setState(() => _message = e.toString());
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _message = l10n.applyNetworkError);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -346,9 +348,11 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
         await ref.read(authControllerProvider.notifier).signOut();
         return;
       }
+      if (!mounted) return;
       setState(() => _message = _apiErrorMessage(l10n, e));
-    } catch (e) {
-      setState(() => _message = e.toString());
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _message = l10n.applyNetworkError);
     } finally {
       if (mounted) setState(() => _loading = false);
     }

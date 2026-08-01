@@ -468,6 +468,7 @@
   "projectMediaUrlHint": "https://...",
   "projectAddBuildingFirstSnackbar": "Сначала добавьте корпус",
   "projectUnitsAddedSnackbar": "Добавлено юнитов: {count}",
+  "projectUnitsPartiallyAddedSnackbar": "Остановлено после добавления {count} юнитов: {error}",
   "projectOfferEditorTitle": "Добавить акцию",
   "projectOfferTypeLabel": "Тип",
   "projectOfferTitleLabel": "Заголовок",

@@ -1424,6 +1424,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String projectUnitsPartiallyAddedSnackbar(String count, String error) {
+    return 'Остановлено после добавления $count юнитов: $error';
+  }
+
+  @override
   String get projectOfferEditorTitle => 'Добавить акцию';
 
   @override

@@ -507,6 +507,8 @@
   "projectAddBuildingFirstSnackbar": "Add a building first",
   "projectUnitsAddedSnackbar": "Added {count} units",
   "@projectUnitsAddedSnackbar": { "placeholders": { "count": { "type": "String" } } },
+  "projectUnitsPartiallyAddedSnackbar": "Stopped after adding {count} units: {error}",
+  "@projectUnitsPartiallyAddedSnackbar": { "placeholders": { "count": { "type": "String" }, "error": { "type": "String" } } },
   "projectOfferEditorTitle": "Add offer",
   "projectOfferTypeLabel": "Type",
   "projectOfferTitleLabel": "Title",

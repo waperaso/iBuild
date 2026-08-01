@@ -2,6 +2,12 @@
 # the Phase 4 persistence layer) — never commit this, it's machine-local.
 .tools/
 
+# Dart/Flutter build output. b2b/ and b2c/ ignore this via their own Flutter
+# .gitignore; server/ had none, so its .dart_tool (including a test snapshot
+# and an incremental kernel cache that is rewritten on every `dart test`) was
+# being tracked and produced a diff on every run.
+.dart_tool/
+
 # Runtime media uploads from the Dart API
 server/uploads/
 

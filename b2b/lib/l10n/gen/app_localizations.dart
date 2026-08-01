@@ -2567,6 +2567,12 @@ abstract class AppLocalizations {
   /// **'Added {count} units'**
   String projectUnitsAddedSnackbar(String count);
 
+  /// No description provided for @projectUnitsPartiallyAddedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped after adding {count} units: {error}'**
+  String projectUnitsPartiallyAddedSnackbar(String count, String error);
+
   /// No description provided for @projectOfferEditorTitle.
   ///
   /// In en, this message translates to:

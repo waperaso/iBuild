@@ -72,6 +72,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   Future<void> _verify() async {
+    // Resolved before the await, like _resend does: a successful verification
+    // navigates this screen away, so `context` may be gone by the catch.
+    final l10n = AppLocalizations.of(context);
     setState(() {
       _loading = true;
       _error = null;
@@ -81,7 +84,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           .read(authControllerProvider.notifier)
           .verifyOtp(requestId: _requestId, code: _code.text.trim());
     } catch (_) {
-      setState(() => _error = AppLocalizations.of(context).otpInvalidError);
+      if (!mounted) return;
+      setState(() => _error = l10n.otpInvalidError);
     } finally {
       if (mounted) setState(() => _loading = false);
     }

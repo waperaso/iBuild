@@ -1321,6 +1321,9 @@ class PgPersistence {
           @isFeatured, @sortOrder, @isPublished, @moderationStatus,
           @moderationNote
         )
+        -- sort_order is deliberately absent: it encodes the project's
+        -- original position (see _newestFirstSortOrder), so re-saving an
+        -- edited project must not jump it back to the top of the catalogue.
         ON CONFLICT (id) DO UPDATE SET
           name = EXCLUDED.name,
           type = EXCLUDED.type,
@@ -1329,6 +1332,7 @@ class PgPersistence {
           address = EXCLUDED.address,
           lat = EXCLUDED.lat,
           lng = EXCLUDED.lng,
+          developer_id = EXCLUDED.developer_id,
           description = EXCLUDED.description,
           amenities = EXCLUDED.amenities,
           tags = EXCLUDED.tags,

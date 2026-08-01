@@ -181,10 +181,7 @@ class AuthRepository {
     try {
       await _dio.post('/auth/logout');
     } catch (_) {}
-    setAccessTokenCache(null);
-    await _storage.delete(key: AuthStorageKeys.accessToken);
-    await _storage.delete(key: AuthStorageKeys.refreshToken);
-    await _storage.delete(key: AuthStorageKeys.userJson);
+    await clearStoredSession(_storage);
   }
 }
 
@@ -200,9 +197,22 @@ class AuthController extends Notifier<AsyncValue<AdminUser?>> {
 
   @override
   AsyncValue<AdminUser?> build() {
-    ref.onDispose(() => _banPoll?.cancel());
+    // The refresh interceptor can decide the session is unrecoverable while
+    // we still hold a user object. Without this the router keeps showing the
+    // authenticated shell and every request 401s behind it.
+    final unsubscribe = addSessionExpiredListener(_onSessionExpired);
+    ref.onDispose(() {
+      unsubscribe();
+      _banPoll?.cancel();
+    });
     Future.microtask(_restore);
     return const AsyncValue.loading();
+  }
+
+  void _onSessionExpired() {
+    _banPoll?.cancel();
+    if (state.value == null) return;
+    state = const AsyncValue.data(null);
   }
 
   void _scheduleBanPoll() {

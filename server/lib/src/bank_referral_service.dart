@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'env_loader.dart';
@@ -49,15 +50,20 @@ class BankReferralService {
       if (apiKey != null && apiKey.isNotEmpty) {
         request.headers.set('Authorization', 'Bearer $apiKey');
       }
-      request.write('''{
-        "referralId": "$referralId",
-        "contactPhone": "$contactPhone",
-        "price": $price,
-        "downPayment": $downPayment,
-        "termYears": $termYears,
-        "projectId": ${projectId == null ? 'null' : '"$projectId"'},
-        "unitId": ${unitId == null ? 'null' : '"$unitId"'}
-      }''');
+      // Built with jsonEncode rather than interpolation: these values come
+      // from the request body, and a quote mark in one of them would
+      // otherwise let a caller reshape the payload sent to the bank.
+      request.write(
+        jsonEncode({
+          'referralId': referralId,
+          'contactPhone': contactPhone,
+          'price': price,
+          'downPayment': downPayment,
+          'termYears': termYears,
+          'projectId': projectId,
+          'unitId': unitId,
+        }),
+      );
       final response = await request.close();
       final body = await response.transform(SystemEncoding().decoder).join();
       if (response.statusCode >= 400) {

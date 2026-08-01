@@ -467,6 +467,7 @@
   "projectMediaUrlHint": "https://...",
   "projectAddBuildingFirstSnackbar": "Avval bino qoʻshing",
   "projectUnitsAddedSnackbar": "{count} yunit qoʻshildi",
+  "projectUnitsPartiallyAddedSnackbar": "{count} ta yunit qoʻshilgach toʻxtadi: {error}",
   "projectOfferEditorTitle": "Aksiya qoʻshish",
   "projectOfferTypeLabel": "Turi",
   "projectOfferTitleLabel": "Sarlavha",

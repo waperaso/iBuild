@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ibuild_core/ibuild_core.dart';
 
 import 'env.dart';
+
+/// Marks a request that has already been replayed after a token refresh, so a
+/// second 401 surfaces to the caller instead of looping.
+const _retriedExtraKey = 'b2b_retried_after_refresh';
 
 abstract class AuthStorageKeys {
   static const accessToken = 'b2b_access_token';
@@ -42,6 +48,37 @@ void Function() addAccessTokenListener(void Function(String?) listener) {
   return () => _accessTokenListeners.remove(listener);
 }
 
+final List<void Function()> _sessionExpiredListeners = [];
+
+/// Subscribes to "the stored session is gone" events raised by the refresh
+/// interceptor. `AuthController` listens so the UI drops to signed-out
+/// instead of holding a user object whose token no longer works — otherwise
+/// the app looks signed in while every request 401s. Returns an unsubscribe
+/// callback.
+void Function() addSessionExpiredListener(void Function() listener) {
+  _sessionExpiredListeners.add(listener);
+  return () => _sessionExpiredListeners.remove(listener);
+}
+
+/// Clears every stored credential and tells the app the session is over.
+/// Safe to call more than once.
+Future<void> clearStoredSession(FlutterSecureStorage storage) async {
+  setAccessTokenCache(null);
+  await storage.delete(key: AuthStorageKeys.accessToken);
+  await storage.delete(key: AuthStorageKeys.refreshToken);
+  await storage.delete(key: AuthStorageKeys.userJson);
+  // Also drop the cached application snapshot: it belongs to the account that
+  // just signed out, and leaving it behind shows one user's KYC status to
+  // whoever signs in next on the same device.
+  await storage.delete(key: AuthStorageKeys.developerApplicationJson);
+}
+
+void notifySessionExpired() {
+  for (final listener in List<void Function()>.from(_sessionExpiredListeners)) {
+    listener();
+  }
+}
+
 final secureStorageProvider = Provider<FlutterSecureStorage>(
   (_) => const FlutterSecureStorage(),
 );
@@ -57,13 +94,68 @@ final apiClientProvider = Provider<Dio>((ref) {
     ),
   );
 
-  // Single-flight guard: without it, N concurrent requests that all 401 at
+  // Single-flight gate: without it, N concurrent requests that all 401 at
   // once each fire their own `/auth/refresh`, rotating the refresh token N
-  // times and invalidating every rotation but the last — the classic
-  // refresh race that logs the user out mid-session. While a refresh is in
-  // flight we skip re-entering the flow and let the original error surface;
-  // the caller can retry once the cache is repopulated.
-  var refreshing = false;
+  // times and invalidating every rotation but the last — the classic refresh
+  // race that logs the user out mid-session. Concurrent 401s await this
+  // completer's result (true = refreshed, retry; false = give up) instead of
+  // being failed outright, so one expired token does not surface as an error
+  // on every screen that happened to be loading. Mirrors the B2C client.
+  Completer<bool>? refreshGate;
+
+  Future<bool> performRefresh() async {
+    try {
+      final refresh = await storage.read(key: AuthStorageKeys.refreshToken);
+      if (refresh == null || refresh.isEmpty) return false;
+      final refreshDio = Dio(BaseOptions(baseUrl: Env.apiBaseUrl));
+      final res = await refreshDio.post<Map<String, dynamic>>(
+        '/auth/refresh',
+        data: {'refreshToken': refresh},
+      );
+      var data = res.data;
+      if (data != null && data.containsKey('data')) {
+        data = data['data'] as Map<String, dynamic>?;
+      }
+      if (data is Map<String, dynamic>) {
+        final access = data['accessToken'] as String?;
+        final newRefresh = data['refreshToken'] as String?;
+        // Only accept a fully-formed rotation. A partial/blank response must
+        // not overwrite a still-valid session with garbage tokens.
+        if (access != null &&
+            access.isNotEmpty &&
+            newRefresh != null &&
+            newRefresh.isNotEmpty) {
+          await storage.write(key: AuthStorageKeys.accessToken, value: access);
+          await storage.write(
+            key: AuthStorageKeys.refreshToken,
+            value: newRefresh,
+          );
+          setAccessTokenCache(access);
+          return true;
+        }
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> retry(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final options = err.requestOptions;
+    options.extra[_retriedExtraKey] = true;
+    final token = _accessTokenCache;
+    if (token != null && token.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+    try {
+      handler.resolve(await dio.fetch(options));
+    } on DioException catch (e) {
+      handler.next(e);
+    }
+  }
 
   dio.interceptors.add(
     InterceptorsWrapper(
@@ -83,63 +175,40 @@ final apiClientProvider = Provider<Dio>((ref) {
       onError: (err, handler) async {
         // Never try to refresh a failed auth call itself (a 401 from
         // `/auth/refresh` or `/auth/otp/*` means the credential is truly
-        // dead), and never re-enter while a refresh is already running.
-        if (err.response?.statusCode == 401 &&
-            !err.requestOptions.path.contains('/auth/') &&
-            !refreshing) {
-          refreshing = true;
-          try {
-            final refresh = await storage.read(
-              key: AuthStorageKeys.refreshToken,
-            );
-            if (refresh != null && refresh.isNotEmpty) {
-              final refreshDio = Dio(BaseOptions(baseUrl: Env.apiBaseUrl));
-              final res = await refreshDio.post<Map<String, dynamic>>(
-                '/auth/refresh',
-                data: {'refreshToken': refresh},
-              );
-              var data = res.data;
-              if (data != null && data.containsKey('data')) {
-                data = data['data'] as Map<String, dynamic>?;
-              }
-              if (data is Map<String, dynamic>) {
-                final access = data['accessToken'] as String?;
-                final newRefresh = data['refreshToken'] as String?;
-                // Only accept a fully-formed rotation. A partial/blank
-                // response must not overwrite a still-valid session with
-                // garbage tokens (the old "brittle restore" failure mode).
-                if (access != null &&
-                    access.isNotEmpty &&
-                    newRefresh != null &&
-                    newRefresh.isNotEmpty) {
-                  await storage.write(
-                    key: AuthStorageKeys.accessToken,
-                    value: access,
-                  );
-                  await storage.write(
-                    key: AuthStorageKeys.refreshToken,
-                    value: newRefresh,
-                  );
-                  setAccessTokenCache(access);
-                  err.requestOptions.headers['Authorization'] =
-                      'Bearer $access';
-                  final clone = await dio.fetch(err.requestOptions);
-                  refreshing = false;
-                  return handler.resolve(clone);
-                }
-              }
-            }
-          } catch (_) {
-            // Refresh failed — drop the stale session so the UI re-auths.
-            setAccessTokenCache(null);
-            await storage.delete(key: AuthStorageKeys.accessToken);
-            await storage.delete(key: AuthStorageKeys.refreshToken);
-            await storage.delete(key: AuthStorageKeys.userJson);
-          } finally {
-            refreshing = false;
-          }
+        // dead), and only ever retry a given request once.
+        final is401 = err.response?.statusCode == 401;
+        final isAuthPath = err.requestOptions.path.contains('/auth/');
+        final alreadyRetried =
+            err.requestOptions.extra[_retriedExtraKey] == true;
+        if (!is401 || isAuthPath || alreadyRetried) {
+          return handler.next(err);
         }
-        handler.next(err);
+
+        // A refresh is already running — wait for it rather than starting our
+        // own, then retry (or fail) based on its outcome.
+        final inFlight = refreshGate;
+        if (inFlight != null) {
+          final ok = await inFlight.future;
+          if (!ok) return handler.next(err);
+          return retry(err, handler);
+        }
+
+        final gate = Completer<bool>();
+        refreshGate = gate;
+        final ok = await performRefresh();
+        if (!ok) {
+          // The session cannot be renewed — no stored refresh token, a
+          // rejected one, or a response we could not use. Drop the
+          // credentials and tell the app, so it re-authenticates instead of
+          // sitting on a token that 401s forever.
+          await clearStoredSession(storage);
+          notifySessionExpired();
+        }
+        refreshGate = null;
+        gate.complete(ok);
+
+        if (!ok) return handler.next(err);
+        return retry(err, handler);
       },
     ),
   );
