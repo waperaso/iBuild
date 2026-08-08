@@ -5,27 +5,288 @@
 <h1 align="center">iBuild</h1>
 
 <p align="center">
-  <strong>Независимая цифровая система мониторинга, документирования и верификации сведений о ходе строительства</strong>
+  <strong>Independent digital system for monitoring, documenting, and verifying construction progress</strong><br>
+  <sub>Независимая цифровая система мониторинга, документирования и верификации сведений о ходе строительства</sub>
 </p>
 
 <p align="center">
-  <sub>Материал из внутренней справочной системы проекта — <b>iBuild Wiki</b> · версия от августа 2026 года</sub>
+  <a href="#english">English</a> ·
+  <a href="#русский">Русский</a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white" alt="Flutter">
-  <img src="https://img.shields.io/badge/стек-Dart%20%7C%20PostgreSQL-002147" alt="Stack">
-  <img src="https://img.shields.io/badge/рынок-Узбекистан-14866d" alt="Market">
-  <img src="https://img.shields.io/badge/стадия-MVP-3366cc" alt="Stage">
+  <img src="https://img.shields.io/badge/stack-Dart%20%7C%20PostgreSQL-002147" alt="Stack">
+  <img src="https://img.shields.io/badge/market-Uzbekistan-14866d" alt="Market">
+  <img src="https://img.shields.io/badge/stage-MVP-3366cc" alt="Stage">
 </p>
 
 ---
 
-> **Справка составлена для профильного специалиста.** Готовность каждого блока обозначена меткой:
-> <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">реализовано</span> — работает в текущей сборке,
-> <span style="background:#e8f0e4;color:#5a7a2f;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #c5d6a8">в доработке</span> — есть, но ещё доводится,
-> <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">в разработке</span> — ведётся сейчас,
-> <span style="background:#eef1f5;color:#5a6270;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #ccd2da">план</span> — заявлено в дорожной карте.
+# English
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### Contents
+
+1. [Definition](#1-definition)
+2. [Market problem](#2-market-problem)
+3. [Schedule trust system](#3-schedule-trust-system)
+4. [Government interaction](#4-government-interaction)
+5. [Monitoring chain](#5-monitoring-chain-from-photo-to-specialist)
+6. [Four market sides](#6-four-market-sides-and-the-gaps-ibuild-closes)
+7. [Role of AI](#7-role-of-artificial-intelligence)
+8. [Buyer features](#8-buyer-features)
+9. [Business features](#9-business-features)
+10. [Differences](#10-differences-from-alternatives)
+11. [Monetization](#11-monetization)
+12. [Status and roadmap](#12-status-and-roadmap)
+
+</td>
+<td width="50%" valign="top">
+
+### iBuild · at a glance
+
+| | |
+|---|---|
+| **Market** | Uzbekistan: Tashkent, New Tashkent |
+| **Offers** | Ready apartments, off-plan, office lease, street retail |
+| **Apps** | Buyer app (Android, iOS, Web), two admin panels |
+| **Parties** | Buyers, developers, banks, specialists, government |
+| **Stack** | Flutter, Dart (REST & WebSocket), PostgreSQL with row-level isolation |
+| **AI vendors** | Newo AI, Karmon AI, AI photo-report verification |
+| **Stage** | MVP — end-to-end scenario works |
+| **Revenue** | Developer subscription, promotion, bank verification & referral leads |
+
+</td>
+</tr>
+</table>
+
+---
+
+## 1. Definition
+
+**iBuild** is an independent digital system for monitoring, documenting, and verifying construction progress. It connects developers, buyers, banks, and authorized government bodies. One product covers four offers: ready apartments from the developer, apartments under construction (*off-plan*), office lease in business centres, and street retail on the ground floors of residential complexes.
+
+The system includes a buyer app, a developer panel, a platform admin panel, and a shared API on one database. All parts work with the same data in real time.
+
+Unlike a classifieds board, iBuild does not publish third-party listings. It maintains a **verified registry of properties** with a traceable construction history and a comparison of promised schedules against actual progress.
+
+> **Primary-only sales.** Sales on the platform are primary real estate from the developer only. Secondary properties are allowed for rent only. This rule is enforced by the database schema, not just policy.
+
+---
+
+## 2. Market problem
+
+The main buyer complaint in Uzbekistan is not price or choice — it is the **inability to match a developer’s promises with facts**. Delivery dates appear in ads but are not documented: a project promised in three months may take a year, and some projects are never finished.
+
+- availability and price are only known by calling each sales office;
+- new builds have no public dated history of site progress;
+- promised vs actual work volumes are never compared;
+- developers lack a usable digital storefront and lead tracking;
+- banks cannot see how disbursed funds are used and must hunt separately for mortgage and loan leads;
+- government bodies learn about problem sites late — from harmed buyers.
+
+iBuild’s product job: give buyers and banks an **independent monitoring and verification tool** for construction progress, and give authorized agencies an early signal when plan and fact diverge.
+
+---
+
+## 3. Schedule trust system
+
+The product core. Instead of one marketing “readiness” number, a project card shows **two** figures and the gap between them.
+
+### 3.1. Two progress metrics
+
+- **Actual construction progress** — confirmed readiness from dated photo reports with percentage complete. <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">shipped</span>
+- **Planned construction progress** — readiness per the schedule the developer declared when publishing the project. <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">shipped</span>
+
+```
+Actual construction progress   ████████████░░░░░░░░  62 %
+Planned construction progress  ██████████████░░░░░░  74 %
+```
+
+> ⚠️ **Gap 12 %.** Acceptable deviation. Trust index — 84 %.
+
+### 3.2. Trust index and thresholds
+
+Trust index = actual readiness ÷ planned readiness on a 0–100 % scale. Gaps fall into three bands:
+
+| Range | Assessment |
+|---|---|
+| **up to 10 %** | on schedule |
+| **10–15 %** | acceptable deviation |
+| **over 15 %** | lag — monitoring |
+
+Up to 15 % is normal for a build cycle. Over 15 % triggers a flag and informational monitoring, with a possible site visit. Buyers, developers, banks, and admins all see the same number; the actual figure changes only with a verified photo report.
+
+---
+
+## 4. Government interaction
+
+iBuild is an **independent digital system** for monitoring, documenting, and verifying construction progress. Informational exchange with authorized government bodies is planned. <span style="background:#eef1f5;color:#5a6270;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #ccd2da">planned</span>
+
+A plan–fact gap is a signal for the buyer, the bank, and the agency. Judging compliance with building codes is the government’s job, not the platform’s.
+
+---
+
+## 5. Monitoring chain: from photo to specialist
+
+| Step | Stage | Description |
+|:---:|---|---|
+| **1** | Developer photo report | Dated site photo with geotag and readiness %. <span style="background:#e6f3ef;color:#14866d;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">shipped</span> |
+| **2** | AI photo verification | Geotag/metadata checks plus visual progress vs prior reports. <span style="background:#fdf2dc;color:#b8860b;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">in progress</span> |
+| **3** | “Needs clarification” flag | On mismatch the developer explains and re-shoots. <span style="background:#fdf2dc;color:#b8860b;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">in progress</span> |
+| **4** | System alert | No valid reply or lag over threshold — critical admin alert. <span style="background:#e6f3ef;color:#14866d;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">shipped</span> |
+| **5** | Specialist (tech expert) | Visit by contract or with developer consent — record actual progress. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
+| **6** | Signal to the agency | Data goes to the relevant government body in an agreed format. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
+| **7** | Result on the card | Monitoring outcome is published and affects the trust index. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
+
+Monitoring is two-tier: machine first (metadata and image compare), then a specialist. On material lag — informational monitoring and, if needed, a site visit by contract or with the developer’s consent.
+
+---
+
+## 6. Four market sides and the gaps iBuild closes
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+#### ① iBuild · <sub>earns revenue</sub>
+
+**Gap.** Between developer, buyer, and bank there is no independent party that documents and verifies construction progress: everyone takes claims on trust or runs their own checks.
+
+**Solution.** iBuild keeps the registry, records the schedule, and verifies reports by machine and specialists. The product is **monitoring and verification** plus hot leads: developers pay for subscription; banks pay for verification and mortgage/loan referral leads.
+
+</td>
+<td width="50%" valign="top">
+
+#### ② Banks · <sub>pays: verification · leads</sub>
+
+**Gap.** After lending, the bank cannot see what the money becomes: poor materials, misuse, or — worst case — the developer disappears with the funds. An in-house specialist team is expensive; mortgage and loan leads are a separate problem.
+
+**Solution.** A confirmed site picture lets tranches follow verified progress. Separately, banks may pay for mortgage/loan leads via an in-app referral link. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span>
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+#### ③ Buyers · <sub>do not pay iBuild</sub>
+
+**Gap.** Buyers in Uzbekistan often do not know the real progress of a project they already paid for: there is no verifiable link between the ad promise and the site.
+
+**Solution.** AI report checks and specialist visits provide a dated work history, actual next to plan, and monitoring results — before more money changes hands, not after.
+
+</td>
+<td valign="top">
+
+#### ④ Developers · <sub>pays for subscription</sub>
+
+**Gap.** Honest developers have no way to stand out from dishonest ones: the market treats everyone the same; storefront and lead tracking stay manual.
+
+**Solution.** Visibility, hot leads, a project admin panel with CRM, and **iBuild verified developer** status after document verification. Transparency becomes an advantage.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 7. Role of artificial intelligence
+
+iBuild does not train its own models — it plugs in vendor solutions. AI is not the product foundation; it is a layer that makes continuous informational monitoring cheaper.
+
+| Vendor | Role | Status |
+|---|---|---|
+| **Newo AI** | Voice assistant and call centre: answers on the catalogue and matches preferences — deal type, district, budget, rooms. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
+| **Karmon AI** | Budgeting: purchase budget with installments and mortgage, project expense planning. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
+| **AI verification** | Photo geotag/metadata (coords, date, device) and visual progress vs prior reports. Mismatches are flagged for clarification. | <span style="background:#fdf2dc;color:#b8860b;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">in progress</span> |
+
+### 7.1. Scope of AI
+
+- **Every** report goes through machine verification — continuous, not sampling.
+- AI flags and escalates; it **does not decide** — a human changes object status.
+- Site visits are only for disputed reports, so headcount grows slower than inventory.
+- Matching and budgeting are optional — the app works without them.
+
+### 7.2. Value for payers
+
+| Who pays | What AI delivers |
+|---|---|
+| **Developer** (subscription) | More completed leads at the same traffic; verified reports support verified-developer status. |
+| **Bank** (verification · leads) | Continuous monitoring plus specialists on disputes costs less than an in-house team; referral link brings mortgage/loan applications. |
+| **iBuild** (margin) | Monitoring unit cost falls; the service stays cheaper than a bank’s own staff as inventory grows. |
+
+---
+
+## 8. Buyer features
+
+| Feature | Status |
+|---|---|
+| Map and search with Buy / Rent / New-build filters | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">shipped</span> |
+| Live unit grid (“chessboard”) for apartments and offices | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">shipped</span> |
+| One-tap request: viewing, call, hold, rent | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">shipped</span> |
+| Dated construction photo-report feed | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">shipped</span> |
+| Dual progress bars and trust index | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">in progress</span> |
+| Developer card with verified documents | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">shipped</span> |
+| Mortgage, installment, and rental-yield calculators | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">in progress</span> |
+| Favorites, saved searches, My requests, reviews, three languages | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">in progress</span> |
+| Push alerts on price and construction stages | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">in progress</span> |
+| Bank referral for mortgage/loan; voice matching (Newo AI) | <span style="background:#eef1f5;color:#5a6270;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #ccd2da">planned</span> |
+
+---
+
+## 9. Business features
+
+| Feature | Status |
+|---|---|
+| Projects, buildings, units, media library, floor plans | <span style="background:#e8f0e4;color:#5a7a2f;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #c5d6a8">refining</span> |
+| Chessboard editor with conflict-safe edits | <span style="background:#e8f0e4;color:#5a7a2f;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #c5d6a8">refining</span> |
+| Lead CRM: funnel, statuses, tags, event history | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">shipped</span> |
+| Photo reports and planned construction schedule entry | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">in progress</span> |
+| Analytics: demand, funnel, lead conversion | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">shipped</span> |
+| Developer verification, project/review moderation, audit log | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">in progress</span> |
+| Alerts, including critical schedule-deviation alerts | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">in progress</span> |
+| Subscription payment via bank transfer | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">in progress</span> |
+| Bank reports and mortgage/loan referral leads | <span style="background:#eef1f5;color:#5a6270;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #ccd2da">planned</span> |
+
+---
+
+## 10. Differences from alternatives
+
+- Classifieds sell **impressions**; iBuild sells **monitoring and verification**.
+- **Source.** Only developers with verified documents.
+- **Availability and price.** Live chessboard instead of stale ads.
+- **Build progress.** Dated reports and a trust index instead of marketing photos.
+- **Missed deadline.** AI flag, alert, and specialist visit instead of silence.
+- **Bank and state.** Verification, mortgage/loan referral leads, informational signal to the agency.
+
+---
+
+## 11. Monetization
+
+Only businesses pay. Developers — subscription and promotion; banks — object verification and, as planned, mortgage/loan leads via referral. Buyers do not pay.
+
+| Source | From | Description |
+|---|---|---|
+| Developer subscription | Developers | Publishing, CRM, analytics. Start / Growth / Scale |
+| Promotion and lead packs | Developers | Search placement; leads above the plan limit |
+| Bank verification | Banks | Construction progress monitoring/verification as a lender service <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
+| Bank referral leads | Banks | Mortgage or loan application via referral link <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
+
+---
+
+## 12. Status and roadmap
+
+**Works today.** Search, chessboard, requests, CRM; platform panel; dual readiness bars.
+
+**Next stage.** AI verification, Newo AI and Karmon AI, subscription billing, specialists (tech experts), government information exchange, bank contracts and mortgage/loan referral leads. IT Park residency and tax benefits are planned. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span>
+
+---
+
+# Русский
 
 <table>
 <tr>
@@ -288,18 +549,18 @@ iBuild — **независимая цифровая система** монит
 
 ---
 
-## Репозиторий
+## Repository / Репозиторий
 
-| Каталог | Назначение |
+| Path | Purpose |
 |---|---|
-| [`b2c/`](b2c/) | Клиентское приложение — поиск, карта, карточки ЖК, избранное, заявки |
-| [`b2b/`](b2b/) | Панель застройщика и платформы — CRM, юниты, медиа, модерация |
+| [`b2c/`](b2c/) | Buyer app — search, map, project pages, favorites, requests |
+| [`b2b/`](b2b/) | Developer & platform admin — CRM, units, media, moderation |
 | [`server/`](server/) | API — REST, WebSocket, PostgreSQL |
-| [`packages/`](packages/) | Общие Dart-пакеты (тема, модели, виджеты) |
-| [`ibuild-wiki/`](ibuild-wiki/) | Внутренняя справка проекта (полная версия в HTML) |
+| [`packages/`](packages/) | Shared Dart packages (theme, models, widgets) |
+| [`ibuild-wiki/`](ibuild-wiki/) | Internal project reference (full HTML version) |
 
 ---
 
 <p align="center">
-  <sub>iBuild Wiki — служебная справка · © iBuild</sub>
+  <sub>iBuild Wiki · © iBuild</sub>
 </p>
