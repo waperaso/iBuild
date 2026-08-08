@@ -8,7 +8,7 @@ import '../../../models/mock_data.dart';
 
 /// Default page size for `GET /v1/projects`, matching the dev server's
 /// default (see `server/bin/server.dart`).
-const int kProjectsPageSize = 20;
+const int kProjectsPageSize = 12;
 
 /// Query params for [ProjectsRepository.fetchProjects].
 /// Price range is applied client-side after fetch.

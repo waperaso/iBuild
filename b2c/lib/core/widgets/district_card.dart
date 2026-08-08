@@ -53,6 +53,8 @@ class DistrictCard extends StatelessWidget {
                   url: imageUrl,
                   width: double.infinity,
                   height: double.infinity,
+                  memCacheWidth: 304,
+                  memCacheHeight: 216,
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,

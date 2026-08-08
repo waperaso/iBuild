@@ -12,6 +12,7 @@ import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/constrained_body.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/responsive_card_grid.dart';
+import '../../../core/widgets/scroll_tuning.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/verification_card.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -84,33 +85,89 @@ class _DeveloperBody extends StatelessWidget {
         .where((p) => p.type == ProjectType.businessCentre)
         .toList();
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xl,
-        AppSpacing.lg,
-        AppSpacing.xl,
-        AppSpacing.xxxl,
-      ),
-      children: [
-        _DeveloperHeader(developer: dev, projectsCount: entry.projects.length),
-        const SizedBox(height: AppSpacing.lg),
-        VerificationCard(developerId: dev.id),
-        const SizedBox(height: AppSpacing.xl),
-        SectionHeader(title: l10n.developerContactsTitle),
-        const SizedBox(height: AppSpacing.md),
-        _ContactsCard(developer: dev),
+    return CustomScrollView(
+      cacheExtent: scrollCacheExtentFor(context),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.lg,
+            AppSpacing.xl,
+            0,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _DeveloperHeader(
+                  developer: dev,
+                  projectsCount: entry.projects.length,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                VerificationCard(developerId: dev.id),
+                const SizedBox(height: AppSpacing.xl),
+                SectionHeader(title: l10n.developerContactsTitle),
+                const SizedBox(height: AppSpacing.md),
+                _ContactsCard(developer: dev),
+              ],
+            ),
+          ),
+        ),
         if (residences.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.xl),
-          SectionHeader(title: l10n.developerResidencesTitle),
-          const SizedBox(height: AppSpacing.md),
-          _ProjectGrid(projects: residences),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.md,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: SectionHeader(title: l10n.developerResidencesTitle),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+            sliver: ResponsiveCardSliverGrid(
+              itemCount: residences.length,
+              itemBuilder: (context, index) {
+                final project = residences[index];
+                return PropertyCard(
+                  project: project,
+                  onTap: () => context.go('/home/project/${project.id}'),
+                );
+              },
+            ),
+          ),
         ],
         if (offices.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.xl),
-          SectionHeader(title: l10n.developerOfficesTitle),
-          const SizedBox(height: AppSpacing.md),
-          _ProjectGrid(projects: offices),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.md,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: SectionHeader(title: l10n.developerOfficesTitle),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+            sliver: ResponsiveCardSliverGrid(
+              itemCount: offices.length,
+              itemBuilder: (context, index) {
+                final project = offices[index];
+                return PropertyCard(
+                  project: project,
+                  onTap: () => context.go('/home/project/${project.id}'),
+                );
+              },
+            ),
+          ),
         ],
+        const SliverPadding(
+          padding: EdgeInsets.only(bottom: AppSpacing.xxxl),
+        ),
       ],
     );
   }
@@ -130,6 +187,7 @@ class _DeveloperHeader extends StatelessWidget {
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context);
+    final logoUrl = AppNetworkImage.resolveUrl(developer.logoUrl);
 
     return AppCard(
       child: Column(
@@ -137,10 +195,8 @@ class _DeveloperHeader extends StatelessWidget {
           CircleAvatar(
             radius: 36,
             backgroundColor: colors.accentSecondary.withValues(alpha: 0.35),
-            backgroundImage: developer.logoUrl != null
-                ? NetworkImage(developer.logoUrl!)
-                : null,
-            child: developer.logoUrl != null
+            backgroundImage: logoUrl != null ? NetworkImage(logoUrl) : null,
+            child: logoUrl != null
                 ? null
                 : Text(
                     developer.name.isNotEmpty
@@ -217,6 +273,7 @@ class _ContactsCard extends StatelessWidget {
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context);
+    final avatarUrl = AppNetworkImage.resolveUrl(developer.agentAvatarUrl);
 
     return AppCard(
       child: Column(
@@ -238,15 +295,10 @@ class _ContactsCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: colors.surfaceAlt,
-                  backgroundImage: developer.agentAvatarUrl != null
-                      ? NetworkImage(
-                          AppNetworkImage.resolveUrl(
-                                developer.agentAvatarUrl,
-                              ) ??
-                              developer.agentAvatarUrl!,
-                        )
+                  backgroundImage: avatarUrl != null
+                      ? NetworkImage(avatarUrl)
                       : null,
-                  child: developer.agentAvatarUrl != null
+                  child: avatarUrl != null
                       ? null
                       : Icon(Icons.person_outline, color: colors.inkMuted),
                 ),
@@ -339,26 +391,6 @@ class _ContactRow extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ProjectGrid extends StatelessWidget {
-  const _ProjectGrid({required this.projects});
-
-  final List<Project> projects;
-
-  @override
-  Widget build(BuildContext context) {
-    return ResponsiveCardGrid(
-      itemCount: projects.length,
-      itemBuilder: (context, index) {
-        final project = projects[index];
-        return PropertyCard(
-          project: project,
-          onTap: () => context.go('/home/project/${project.id}'),
-        );
-      },
     );
   }
 }

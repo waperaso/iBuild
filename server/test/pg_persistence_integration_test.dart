@@ -73,6 +73,12 @@ void main() {
         }
 
         final seed = buildProjectsSeed();
+        if (seed.isEmpty) {
+          await persistence.seedFrom(seed);
+          expect(await persistence.isEmpty(), isTrue);
+          return;
+        }
+
         await persistence.seedFrom(seed);
 
         expect(await persistence.isEmpty(), isFalse);

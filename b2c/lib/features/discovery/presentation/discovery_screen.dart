@@ -16,6 +16,7 @@ import '../../../core/widgets/fade_slide_in.dart';
 import '../../../core/widgets/horizontal_scroll_rail.dart';
 import '../../../core/widgets/promo_banner.dart';
 import '../../../core/widgets/responsive_card_grid.dart';
+import '../../../core/widgets/scroll_tuning.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../notifications/providers/notifications_providers.dart';
@@ -153,6 +154,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
           child: CustomScrollView(
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
+            cacheExtent: scrollCacheExtentFor(context),
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(
@@ -200,17 +202,26 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                       if (loadedProjects != null &&
                           loadedProjects.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.xl),
-                        SectionHeader(title: l10n.popularDistrictsTitle),
-                        const SizedBox(height: AppSpacing.md),
-                        _PopularDistricts(projects: loadedProjects),
-                        const SizedBox(height: AppSpacing.xl),
-                        SectionHeader(title: l10n.developersTitle),
-                        const SizedBox(height: AppSpacing.md),
-                        _DevelopersRail(projects: loadedProjects),
+                        DeferredBuild(
+                          builder: (context) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SectionHeader(title: l10n.popularDistrictsTitle),
+                              const SizedBox(height: AppSpacing.md),
+                              _PopularDistricts(projects: loadedProjects),
+                              const SizedBox(height: AppSpacing.xl),
+                              SectionHeader(title: l10n.developersTitle),
+                              const SizedBox(height: AppSpacing.md),
+                              _DevelopersRail(projects: loadedProjects),
+                            ],
+                          ),
+                        ),
                       ],
                       if (mode == DiscoveryMode.rent) ...[
                         const SizedBox(height: AppSpacing.xl),
-                        const _OwnerListingsRail(),
+                        DeferredBuild(
+                          builder: (context) => const _OwnerListingsRail(),
+                        ),
                       ],
                       const SizedBox(height: AppSpacing.xl),
                       PromoBanner(
@@ -518,11 +529,8 @@ class _CategoryChips extends ConsumerWidget {
   }
 }
 
-/// Real Tashkent developers to surface first in the home-screen rail.
-const _featuredDeveloperIds = {'dev-hills-group', 'dev-murad', 'dev-imarat'};
-
-/// Unique developers derived from the loaded catalogue — featured builders
-/// (Hills Group, Murad Buildings, Imarat Development) are pinned to the front.
+/// Real-estate developers to surface first in the home-screen rail.
+/// Uses `Project.isFeatured` from the loaded catalogue — no hardcoded ids.
 class _DevelopersRail extends StatelessWidget {
   const _DevelopersRail({required this.projects});
 
@@ -546,8 +554,8 @@ class _DevelopersRail extends StatelessWidget {
 
     final entries = byDeveloper.values.toList()
       ..sort((a, b) {
-        final aFeatured = _featuredDeveloperIds.contains(a.dev.id);
-        final bFeatured = _featuredDeveloperIds.contains(b.dev.id);
+        final aFeatured = a.items.any((p) => p.isFeatured);
+        final bFeatured = b.items.any((p) => p.isFeatured);
         if (aFeatured != bFeatured) return aFeatured ? -1 : 1;
         return b.items.length.compareTo(a.items.length);
       });

@@ -71,8 +71,8 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
     final l10n = AppLocalizations.of(context);
 
     try {
-      final projectId = widget.projectId ?? 'prj-1';
-      final project = widget.projectId != null
+      final projectId = widget.projectId;
+      final project = projectId != null
           ? await ref.read(projectByIdProvider(projectId).future)
           : null;
       final unit = widget.unitId != null
@@ -82,7 +82,7 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
       final lead = await ref
           .read(leadsProvider.notifier)
           .submit(
-            projectId: project?.id ?? projectId,
+            projectId: project?.id ?? projectId ?? '',
             projectName: project?.name ?? l10n.iBuildPartner,
             unitId: unit?.id,
             unitLabel: unit == null ? null : l10n.unitNumberTitle(unit.number),

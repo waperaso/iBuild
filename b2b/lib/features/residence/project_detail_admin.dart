@@ -18,6 +18,7 @@ import '../../core/network/ws_client.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/app_card.dart';
+import '../../core/widgets/app_network_image.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/lead_kanban_board.dart';
 import '../../core/widgets/map_location_picker.dart';

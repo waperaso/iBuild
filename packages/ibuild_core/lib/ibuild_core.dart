@@ -14,4 +14,8 @@ export 'models/unit.dart';
 export 'src/models/api_envelope.dart';
 export 'src/models/json_map.dart';
 export 'src/theme/app_colors.dart';
+export 'src/theme/ibuild_scheme.dart';
+export 'src/widgets/brand_mark.dart';
+export 'src/widgets/ibuild_boot_splash.dart';
+export 'src/widgets/lazy_visibility.dart';
 export 'src/widgets/pressable_scale.dart';

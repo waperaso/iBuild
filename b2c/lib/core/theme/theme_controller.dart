@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_colors.dart';
+import 'color_schemes/ibuild_scheme.dart';
 import 'color_schemes/amethyst_scheme.dart';
 import 'color_schemes/aurora_scheme.dart';
 import 'color_schemes/crimson_scheme.dart';
@@ -20,8 +21,9 @@ import 'color_schemes/sapphire_scheme.dart';
 import 'color_schemes/sunset_scheme.dart';
 
 /// Runtime palette ids. Register light/dark [AppColors] pairs under
-/// `color_schemes/`; first entry ([meridian]) is the default.
+/// `color_schemes/`; first entry ([ibuild]) is the default brand palette.
 enum AppPalette {
+  ibuild('iBuild', ibuildScheme, ibuildSchemeDark),
   meridian('Meridian', meridianScheme, meridianSchemeDark),
   aurora('Aurora', auroraScheme, auroraSchemeDark),
   lime('Lime', limeScheme, limeSchemeDark),
@@ -49,7 +51,7 @@ enum AppPalette {
 /// and the Profile screen mutates it to switch schemes live.
 class ThemeState {
   const ThemeState({
-    this.palette = AppPalette.meridian,
+    this.palette = AppPalette.ibuild,
     this.themeMode = ThemeMode.light,
   });
 
@@ -83,11 +85,15 @@ class ThemeController extends Notifier<ThemeState> {
     final modeName = prefs.getString(_modeKey);
     var next = state;
     if (paletteName != null) {
+      final resolved = paletteName == 'meridian' ? 'ibuild' : paletteName;
       for (final p in AppPalette.values) {
-        if (p.name == paletteName) {
+        if (p.name == resolved) {
           next = next.copyWith(palette: p);
           break;
         }
+      }
+      if (paletteName == 'meridian') {
+        await prefs.setString(_paletteKey, AppPalette.ibuild.name);
       }
     }
     if (modeName != null) {

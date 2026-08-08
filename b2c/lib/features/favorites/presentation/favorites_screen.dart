@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ibuild_core/ibuild_core.dart';
 
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_theme_ext.dart';
@@ -8,6 +9,7 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/responsive_card_grid.dart';
+import '../../../core/widgets/scroll_tuning.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../models/saved_search.dart';
 import '../../discovery/presentation/widgets/property_card.dart';
@@ -44,36 +46,73 @@ class FavoritesScreen extends ConsumerWidget {
           children: [
             RefreshIndicator(
               onRefresh: () async => ref.invalidate(projectsProvider),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: AsyncValueView(
-                  value: projectsAsync,
-                  onRetry: () => ref.invalidate(projectsProvider),
-                  builder: (context, projects) {
-                    final favorites = projects
-                        .where((project) => favoriteIds.contains(project.id))
-                        .toList();
-                    if (favorites.isEmpty) {
-                      return Center(
-                        child: EmptyState(
-                          icon: Icons.favorite_border,
-                          title: l10n.noFavoritesYet,
-                          subtitle: l10n.favoritesEmptySubtitle,
-                          actionLabel: l10n.browseListingsAction,
-                          onAction: () => context.go('/home'),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                cacheExtent: scrollCacheExtentFor(context),
+                slivers: [
+                  ...projectsAsync.when(
+                    loading: () => [
+                      SliverPadding(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        sliver: SliverToBoxAdapter(
+                          child: AsyncValueView<List<Project>>(
+                            value: const AsyncLoading(),
+                            builder: (_, _) => const SizedBox.shrink(),
+                          ),
                         ),
-                      );
-                    }
-                    return ResponsiveCardGrid(
-                      itemCount: favorites.length,
-                      itemBuilder: (context, index) => PropertyCard(
-                        project: favorites[index],
-                        onTap: () =>
-                            context.go('/home/project/${favorites[index].id}'),
                       ),
-                    );
-                  },
-                ),
+                    ],
+                    error: (_, _) => [
+                      SliverPadding(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        sliver: SliverToBoxAdapter(
+                          child: AsyncValueView<List<Project>>(
+                            value: projectsAsync,
+                            onRetry: () => ref.invalidate(projectsProvider),
+                            builder: (_, _) => const SizedBox.shrink(),
+                          ),
+                        ),
+                      ),
+                    ],
+                    data: (projects) {
+                      final favorites = projects
+                          .where(
+                            (project) => favoriteIds.contains(project.id),
+                          )
+                          .toList();
+                      if (favorites.isEmpty) {
+                        return [
+                          SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: Center(
+                              child: EmptyState(
+                                icon: Icons.favorite_border,
+                                title: l10n.noFavoritesYet,
+                                subtitle: l10n.favoritesEmptySubtitle,
+                                actionLabel: l10n.browseListingsAction,
+                                onAction: () => context.go('/home'),
+                              ),
+                            ),
+                          ),
+                        ];
+                      }
+                      return [
+                        SliverPadding(
+                          padding: const EdgeInsets.all(AppSpacing.lg),
+                          sliver: ResponsiveCardSliverGrid(
+                            itemCount: favorites.length,
+                            itemBuilder: (context, index) => PropertyCard(
+                              project: favorites[index],
+                              onTap: () => context.go(
+                                '/home/project/${favorites[index].id}',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ];
+                    },
+                  ),
+                ],
               ),
             ),
             const _SavedSearches(),
@@ -106,6 +145,7 @@ class _SavedSearches extends ConsumerWidget {
 
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.lg),
+      cacheExtent: scrollCacheExtentFor(context),
       itemCount: searches.length,
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
       itemBuilder: (context, index) {

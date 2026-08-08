@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 
-/// Branded circular loader — always Meridian accent, never Material blue.
+/// Branded circular loader — uses the active palette accent, never Material blue.
 class AppLoadingIndicator extends StatelessWidget {
   const AppLoadingIndicator({
     super.key,

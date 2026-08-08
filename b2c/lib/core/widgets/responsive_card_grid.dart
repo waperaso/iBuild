@@ -92,15 +92,17 @@ class ResponsiveCardSliverGrid extends StatelessWidget {
                 padding: EdgeInsets.only(
                   bottom: rowIndex < rowCount - 1 ? spacing : 0,
                 ),
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (var c = 0; c < children.length; c++) ...[
-                        if (c > 0) SizedBox(width: spacing),
-                        children[c],
+                child: RepaintBoundary(
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var c = 0; c < children.length; c++) ...[
+                          if (c > 0) SizedBox(width: spacing),
+                          children[c],
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               );

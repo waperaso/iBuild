@@ -311,12 +311,12 @@ class _UnitPreviewCard extends StatelessWidget {
             if (floorplanUrl != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(AppRadii.sm),
-                child: Image.network(
-                  floorplanUrl,
+                child: AppNetworkImage(
+                  url: floorplan?['url']?.toString(),
                   height: 90,
                   width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  memCacheWidth: 440,
+                  memCacheHeight: 180,
                 ),
               ),
             if (floorplanUrl != null) const SizedBox(height: AppSpacing.xs),

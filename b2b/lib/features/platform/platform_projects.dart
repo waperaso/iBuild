@@ -7,6 +7,7 @@ import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/empty_state.dart';
+import '../../core/widgets/scroll_tuning.dart';
 import '../../l10n/gen/app_localizations.dart';
 import 'platform_providers.dart';
 
@@ -43,6 +44,7 @@ class _PlatformProjectsState extends ConsumerState<PlatformProjects> {
     );
 
     return CustomScrollView(
+      cacheExtent: scrollCacheExtentFor(context),
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(pad, pad, pad, AppSpacing.lg),

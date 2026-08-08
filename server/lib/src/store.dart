@@ -183,87 +183,7 @@ class Store {
       }
     }
     _seedDefaultAdmins();
-    _seedLeads();
-    _seedReviewsAndRentalListings();
     _startLiveUpdates();
-  }
-
-  void _seedReviewsAndRentalListings() {
-    final p1 = projects[0];
-    final p2 = projects[1];
-    reviews.addAll([
-      {
-        'id': 'rev-seed-1',
-        'userId': 'user-seed-1',
-        'userName': 'Aziz K.',
-        'projectId': p1['id'],
-        'developerId': (p1['developer'] as Map)['id'],
-        'ratingOverall': 5,
-        'ratingLocation': 5,
-        'ratingQuality': 4,
-        'ratingValue': 4,
-        'body':
-            'Moved in last year — the pool deck and concierge are '
-            'genuinely as advertised. Construction quality is solid.',
-        'status': 'published',
-        'createdAt': DateTime.now()
-            .subtract(const Duration(days: 40))
-            .toIso8601String(),
-      },
-      {
-        'id': 'rev-seed-2',
-        'userId': 'user-seed-2',
-        'userName': 'Malika T.',
-        'projectId': p2['id'],
-        'developerId': (p2['developer'] as Map)['id'],
-        'ratingOverall': 4,
-        'ratingLocation': 4,
-        'ratingQuality': 4,
-        'ratingValue': 5,
-        'body':
-            'Installment terms were exactly as promised, no hidden fees. '
-            'Still under construction but progress updates are frequent.',
-        'status': 'published',
-        'createdAt': DateTime.now()
-            .subtract(const Duration(days: 12))
-            .toIso8601String(),
-      },
-    ]);
-    for (final p in [p1, p2]) {
-      _recomputeProjectRating(p['id'] as String);
-    }
-
-    rentalListings.addAll([
-      {
-        'id': 'rl-seed-1',
-        'ownerUserId': 'user-seed-owner-1',
-        'title': 'Cozy 2-room flat near Chorsu bazaar',
-        'description':
-            'Second-hand apartment, recently renovated, 5 minutes to metro. '
-            'Long-term tenants preferred.',
-        'district': 'Shayxontohur',
-        'address': 'Chorsu maydoni 6, Tashkent',
-        'lat': 41.3269,
-        'lng': 69.2350,
-        'propertyKind': 'apartment',
-        'dealType': 'rent',
-        'areaTotal': 54.0,
-        'rooms': 2,
-        'rentMonthly': 320.0,
-        'minLeaseMonths': 12,
-        'contactPhone': '+998 90 123 00 11',
-        'photos': [
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Skyline_of_Tashkent.jpg/1280px-Skyline_of_Tashkent.jpg',
-        ],
-        'isSecondary': true,
-        'moderationStatus': 'approved',
-        'moderationNote': null,
-        'isFeatured': false,
-        'createdAt': DateTime.now()
-            .subtract(const Duration(days: 5))
-            .toIso8601String(),
-      },
-    ]);
   }
 
   final List<Map<String, dynamic>> projects;
@@ -627,70 +547,6 @@ class Store {
         existing['name'] = incoming['name'];
       }
     }
-  }
-
-  void _seedLeads() {
-    final p1 = projects[0];
-    final firstUnit =
-        (p1['buildings'] as List).cast<Map>().first['units'] as List;
-    final unit = firstUnit.cast<Map>().first;
-    leads.addAll([
-      _lead(
-        project: p1,
-        unit: unit,
-        intent: 'viewing',
-        status: 'scheduled',
-        contactPhone: '+998 90 123 45 67',
-        message: 'Prefer a weekend viewing.',
-        preferredAt: DateTime.now().add(const Duration(days: 2)),
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-      _lead(
-        project: projects[1],
-        unit: null,
-        intent: 'callback',
-        status: 'contacted',
-        contactPhone: '+998 90 123 45 67',
-        createdAt: DateTime.now().subtract(const Duration(days: 4)),
-      ),
-      _lead(
-        project: projects[12],
-        unit: null,
-        intent: 'rent',
-        status: 'won',
-        contactPhone: '+998 90 123 45 67',
-        createdAt: DateTime.now().subtract(const Duration(days: 20)),
-      ),
-    ]);
-  }
-
-  Map<String, dynamic> _lead({
-    required Map project,
-    Map? unit,
-    required String intent,
-    required String status,
-    required String contactPhone,
-    String? message,
-    DateTime? preferredAt,
-    required DateTime createdAt,
-  }) {
-    _leadSeq += _rand.nextInt(12) + 1;
-    return {
-      'id': 'lead-${_leadSeq}',
-      'number': 'LD-$_leadSeq',
-      'projectId': project['id'],
-      'projectName': project['name'],
-      'unitId': unit?['id'],
-      'unitLabel': unit == null
-          ? null
-          : '${_unitKindLabel(unit)} ${unit['number']}',
-      'intent': intent,
-      'status': status,
-      'contactPhone': contactPhone,
-      'message': message,
-      'preferredAt': preferredAt?.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
-    };
   }
 
   String _unitKindLabel(Map unit) => switch (unit['kind']) {
@@ -1092,8 +948,8 @@ class Store {
     final normalized = normalizePhone(phone);
     _otpRequests.removeWhere((_, r) => r.phone == normalized);
     final requestId = _uuid.v4();
-    // Dev fixed code only outside production; production uses secure RNG.
-    final code = (sms.isDevMode && !isProduction)
+    // Dev fixed code while SMS (Eskiz) is not configured — local or deployed.
+    final code = sms.isDevMode
         ? kDevOtpCode
         : (100000 + _secureRand.nextInt(900000)).toString();
     _otpRequests[requestId] = _OtpRequest(normalized, code);
@@ -1101,8 +957,8 @@ class Store {
     return requestId;
   }
 
-  /// True when the fixed dev OTP may be hinted (non-production, no Eskiz).
-  bool get devOtpEnabled => sms.isDevMode && !isProduction;
+  /// True when the fixed dev OTP may be hinted (no SMS provider configured).
+  bool get devOtpEnabled => sms.isDevMode;
 
   /// User for Bearer access token, or null. Expired sessions are evicted.
   Map<String, dynamic>? userForAccessToken(String accessToken) {

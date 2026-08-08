@@ -203,11 +203,12 @@ class _PhotoReportTile extends StatelessWidget {
                     aspectRatio: 1,
                     child: url == null
                         ? Container(color: colors.surfaceAlt)
-                        : Image.network(
-                            url,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(color: colors.surfaceAlt),
+                        : AppNetworkImage(
+                            url: report['photoUrl']?.toString(),
+                            width: double.infinity,
+                            height: double.infinity,
+                            memCacheWidth: 400,
+                            memCacheHeight: 400,
                           ),
                   ),
                 ),

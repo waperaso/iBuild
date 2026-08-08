@@ -525,23 +525,29 @@ class _RecommendPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+
+    return ListView.builder(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      children: [
-        Text(
-          AppLocalizations.of(context).recommendForYou,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        for (final p in projects)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-            child: PropertyCard(
-              project: p,
-              onTap: () => context.go('/home/project/${p.id}'),
-            ),
+      cacheExtent: 120,
+      itemCount: projects.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: Text(l10n.recommendForYou, style: textTheme.titleLarge),
+          );
+        }
+        final p = projects[index - 1];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+          child: PropertyCard(
+            project: p,
+            onTap: () => context.go('/home/project/${p.id}'),
           ),
-      ],
+        );
+      },
     );
   }
 }
@@ -554,6 +560,8 @@ class _RecommendSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
     // Room for the floating pill bottom nav (extendBody: true on mobile).
     final bottomInset = MediaQuery.paddingOf(context).bottom + 88;
 
@@ -570,7 +578,7 @@ class _RecommendSheet extends StatelessWidget {
             ),
             boxShadow: AppShadows.raised(colors.ink),
           ),
-          child: ListView(
+          child: ListView.builder(
             controller: controller,
             padding: EdgeInsets.fromLTRB(
               AppSpacing.lg,
@@ -578,32 +586,40 @@ class _RecommendSheet extends StatelessWidget {
               AppSpacing.lg,
               AppSpacing.lg + bottomInset,
             ),
-            children: [
-              Center(
-                child: Container(
-                  width: 44,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: colors.outline,
-                    borderRadius: BorderRadius.circular(AppRadii.pill),
-                  ),
+            cacheExtent: 120,
+            itemCount: projects.length + 1,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Column(
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 44,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: colors.outline,
+                          borderRadius: BorderRadius.circular(AppRadii.pill),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      l10n.recommendForYou,
+                      style: textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                );
+              }
+              final p = projects[index - 1];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                child: PropertyCard(
+                  project: p,
+                  onTap: () => context.go('/home/project/${p.id}'),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                AppLocalizations.of(context).recommendForYou,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              for (final p in projects)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                  child: PropertyCard(
-                    project: p,
-                    onTap: () => context.go('/home/project/${p.id}'),
-                  ),
-                ),
-            ],
+              );
+            },
           ),
         );
       },

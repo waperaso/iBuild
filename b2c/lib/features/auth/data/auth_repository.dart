@@ -14,7 +14,7 @@ import '../../../models/user_role.dart';
 /// Secure-storage key for the persisted [AuthUser] JSON.
 const _authUserStorageKey = 'auth_user';
 
-/// Mock OTP accepted when [Env.useMockData] is true (matches server `kDevOtpCode`).
+/// Mock OTP accepted in client-only mock mode (matches server `kDevOtpCode`).
 const kMockOtpCode = '123456';
 
 /// Signed-in user from `/v1/auth/otp/verify` or restored session.

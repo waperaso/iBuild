@@ -9,6 +9,7 @@ import '../lib/src/db/pg_config.dart';
 import '../lib/src/db/pg_persistence.dart';
 import '../lib/src/store.dart';
 import '../lib/src/user_roles.dart';
+import 'test_fixtures.dart';
 
 void main() {
   group('filterLeadsByOwner', () {
@@ -45,7 +46,7 @@ void main() {
     late String leadId;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
       final manager = store.ensureUser(
         phone: '+998901239999',
         role: 'system_admin',

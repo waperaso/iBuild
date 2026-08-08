@@ -6,6 +6,7 @@ import 'package:test/test.dart';
 import '../lib/src/app.dart';
 import '../lib/src/rate_limiter.dart';
 import '../lib/src/store.dart';
+import 'test_fixtures.dart';
 
 Future<Map<String, dynamic>> _decode(Response response) async {
   final body = await response.readAsString();
@@ -78,7 +79,7 @@ void main() {
     late String token;
 
     setUp(() async {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
       token = await _signIn(handler);
     });
@@ -131,7 +132,7 @@ void main() {
     late Handler handler;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
     });
 
@@ -196,7 +197,7 @@ void main() {
     late Handler handler;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
     });
 
@@ -242,7 +243,7 @@ void main() {
     late String token;
 
     setUp(() async {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
       token = await _signIn(handler);
     });
@@ -293,7 +294,7 @@ void main() {
     late Handler handler;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
     });
 
@@ -302,11 +303,11 @@ void main() {
     test(
       'installment offers expose downPaymentPercent/termMonths/interestRate',
       () async {
-        final nur = store.projects.firstWhere(
-          (p) => p['name'] == 'Nur Residence',
+        final project = store.projects.firstWhere(
+          (p) => p['name'] == testResidentialName,
         );
         final response = await handler(
-          _get('/v1/projects/${nur['id']}/offers'),
+          _get('/v1/projects/${project['id']}/offers'),
         );
         final json = await _decode(response);
         final offers = (json['data'] as List).cast<Map<String, dynamic>>();
@@ -320,10 +321,10 @@ void main() {
     );
 
     test('discount offers leave the installment fields null', () async {
-      final tcr = store.projects.firstWhere(
-        (p) => p['name'] == 'Tashkent City Residence',
+      final project = store.projects.firstWhere(
+        (p) => p['name'] == testResidentialName,
       );
-      final response = await handler(_get('/v1/projects/${tcr['id']}/offers'));
+      final response = await handler(_get('/v1/projects/${project['id']}/offers'));
       final json = await _decode(response);
       final offers = (json['data'] as List).cast<Map<String, dynamic>>();
       final discount = offers.firstWhere((o) => o['type'] == 'discount');
@@ -339,7 +340,7 @@ void main() {
     late String adminToken;
 
     setUp(() async {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
       store.ensureUser(phone: '+998901234567', role: 'system_admin');
       adminToken = await _signIn(handler);
@@ -703,7 +704,7 @@ void main() {
     late String userId;
 
     setUp(() async {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
       store.ensureUser(phone: '+998901234567', role: 'system_admin');
       adminToken = await _signIn(handler);
@@ -818,7 +819,7 @@ void main() {
     late String secondAdminToken;
 
     setUp(() async {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
       store.ensureUser(phone: '+998901234567', role: 'system_admin');
       adminToken = await _signIn(handler);
@@ -908,7 +909,7 @@ void main() {
     late Store store;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
     });
 
     tearDown(() => store.dispose());
@@ -959,7 +960,7 @@ void main() {
     late Handler handler;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
     });
 
@@ -1031,7 +1032,7 @@ void main() {
     late Handler handler;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
     });
 
@@ -1143,7 +1144,7 @@ void main() {
     late Handler handler;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
     });
 
@@ -1280,7 +1281,7 @@ void main() {
     late String projectId;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
       final project = store.projects.first;
       projectId = project['id'] as String;
@@ -1318,7 +1319,7 @@ void main() {
     late Handler handler;
 
     setUp(() {
-      store = Store();
+      store = createTestStore();
       handler = createHandler(store);
     });
 

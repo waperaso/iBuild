@@ -1,11 +1,11 @@
 {
-    "name": "ibuild_b2b",
-    "short_name": "ibuild_b2b",
+    "name": "iBuild Admin",
+    "short_name": "iBuild",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#E4E7EB",
+    "theme_color": "#002147",
+    "description": "iBuild — platform and project administration.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

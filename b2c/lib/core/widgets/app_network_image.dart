@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ibuild_core/ibuild_core.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../config/env.dart';
+import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 
 /// Network image with a shimmer placeholder and a graceful fallback.
@@ -16,6 +18,7 @@ class AppNetworkImage extends StatelessWidget {
     this.height,
     this.memCacheWidth,
     this.memCacheHeight,
+    this.lazy,
   });
 
   final String? url;
@@ -28,6 +31,10 @@ class AppNetworkImage extends StatelessWidget {
   final int? memCacheWidth;
   final int? memCacheHeight;
 
+  /// When true, the image fetch/decode is deferred until near the viewport.
+  /// Defaults to lazy on mobile web where scroll jank is most noticeable.
+  final bool? lazy;
+
   /// Turns server-relative paths (`/v1/static/...`) into absolute URLs using
   /// [Env.apiBaseUrl] so locally hosted residence photos work in every build.
   static String? resolveUrl(String? raw) {
@@ -37,6 +44,11 @@ class AppNetworkImage extends StatelessWidget {
       return Uri.parse(Env.apiBaseUrl).resolve(raw).toString();
     }
     return raw;
+  }
+
+  bool _lazyLoad(BuildContext context) {
+    if (lazy != null) return lazy!;
+    return kIsWeb && context.isMobile;
   }
 
   Widget _placeholder(BuildContext context) {
@@ -54,6 +66,25 @@ class AppNetworkImage extends StatelessWidget {
     );
   }
 
+  int _cacheWidth(BuildContext context) {
+    if (memCacheWidth != null) return memCacheWidth!;
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    if (width != null && width!.isFinite) {
+      return (width! * dpr).round();
+    }
+    // Mobile cards rarely exceed ~400 logical px — cap decode cost on phones.
+    return context.isMobile ? 400 : 600;
+  }
+
+  int? _cacheHeight(BuildContext context) {
+    if (memCacheHeight != null) return memCacheHeight;
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    if (height != null && height!.isFinite) {
+      return (height! * dpr).round();
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -67,19 +98,13 @@ class AppNetworkImage extends StatelessWidget {
       );
     }
 
-    final dpr = MediaQuery.devicePixelRatioOf(context);
-    final cacheW = memCacheWidth ??
-        (width != null && width!.isFinite ? (width! * dpr).round() : 600);
-    final cacheH = memCacheHeight ??
-        (height != null && height!.isFinite ? (height! * dpr).round() : null);
-
-    return CachedNetworkImage(
+    final image = CachedNetworkImage(
       imageUrl: resolved,
       width: width,
       height: height,
       fit: fit,
-      memCacheWidth: cacheW,
-      memCacheHeight: cacheH,
+      memCacheWidth: _cacheWidth(context),
+      memCacheHeight: _cacheHeight(context),
       fadeInDuration: kIsWeb ? Duration.zero : const Duration(milliseconds: 300),
       fadeOutDuration: kIsWeb ? Duration.zero : const Duration(milliseconds: 300),
       placeholder: (context, _) => _placeholder(context),
@@ -89,6 +114,14 @@ class AppNetworkImage extends StatelessWidget {
         color: colors.surfaceAlt,
         child: Icon(Icons.broken_image_outlined, color: colors.inkMuted),
       ),
+    );
+
+    if (!_lazyLoad(context)) return image;
+
+    return LazyVisibility(
+      placeholder: _placeholder(context),
+      preloadExtent: 320,
+      child: image,
     );
   }
 }

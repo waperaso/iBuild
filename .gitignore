@@ -51,6 +51,10 @@ export_pptx.js
 *.pdf
 !docs/**/*.pdf
 
+# --- Internal developer docs (keep locally / on private/internal branch) -----
+/docs/
+DEMO.md
+
 # --- Financial models & investor materials (NEVER public) --------------------
 /investment/
 /ibuild-wiki/
@@ -64,6 +68,12 @@ PRESENTATION_READINESS.md
 
 # --- Marketing / catalogue assets (optional local only) ----------------------
 /residences-images/
+server/residences-images/
+
+# --- Local deploy build artifacts --------------------------------------------
+b2c-web.tgz
+b2b-web.tgz
+*.tgz
 
 # --- Third-party skill packs & agent junk ------------------------------------
 /skills/

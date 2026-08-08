@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../core/env.dart';
 import '../../core/localization/status_labels.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/app_card.dart';
+import '../../core/widgets/app_network_image.dart';
 import '../../core/widgets/document_review_row.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/map_location_picker.dart';
@@ -457,17 +457,15 @@ class _PendingRentalListingCard extends ConsumerWidget {
                       separatorBuilder: (_, _) =>
                           const SizedBox(width: AppSpacing.xs),
                       itemBuilder: (_, i) {
-                        final url = Env.resolveUrl(gallery[i]?.toString());
-                        if (url == null) return const SizedBox.shrink();
+                        if (gallery[i] == null) return const SizedBox.shrink();
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(AppRadii.sm),
-                          child: Image.network(
-                            url,
+                          child: AppNetworkImage(
+                            url: gallery[i]?.toString(),
                             width: 84,
                             height: 64,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) =>
-                                const SizedBox.shrink(),
+                            memCacheWidth: 168,
+                            memCacheHeight: 128,
                           ),
                         );
                       },
@@ -791,18 +789,18 @@ class _ProjectReviewDialogState extends ConsumerState<_ProjectReviewDialog> {
                     separatorBuilder: (_, _) =>
                         const SizedBox(width: AppSpacing.sm),
                     itemBuilder: (_, i) {
-                      final url = Env.resolveUrl(
-                        gallery[i]['url']?.toString(),
-                      );
-                      if (url == null) return const SizedBox.shrink();
+                      final photoUrl = gallery[i]['url']?.toString();
+                      if (photoUrl == null || photoUrl.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(AppRadii.sm),
-                        child: Image.network(
-                          url,
+                        child: AppNetworkImage(
+                          url: photoUrl,
                           width: 120,
                           height: 90,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                          memCacheWidth: 240,
+                          memCacheHeight: 180,
                         ),
                       );
                     },

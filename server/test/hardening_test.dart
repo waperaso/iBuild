@@ -7,6 +7,7 @@ import '../lib/src/app.dart';
 import '../lib/src/rate_limiter.dart';
 import '../lib/src/static_files.dart';
 import '../lib/src/store.dart';
+import 'test_fixtures.dart';
 
 /// Regression tests for the audit fixes: malformed-body handling, catalogue
 /// filter semantics, pagination bounds, review rating validation, static-file
@@ -66,10 +67,10 @@ void main() {
   late Store store;
   late Handler handler;
 
-  // `Store()` (not `Store.create()`) keeps these hermetic and in-memory —
-  // `create()` would try to reach the PostgreSQL host in server/.env.
+  // `createTestStore()` keeps these hermetic and in-memory —
+  // `Store.create()` would try to reach the PostgreSQL host in server/.env.
   setUp(() {
-    store = Store();
+    store = createTestStore();
     handler = createHandler(store);
   });
 
