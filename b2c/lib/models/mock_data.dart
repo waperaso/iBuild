@@ -41,7 +41,7 @@ abstract class MockData {
       final col = i % 4;
       final rooms = 1 + (i % 4);
       final area = 42.0 + (rooms - 1) * 19;
-      final price = 46000 + rooms * 14000;
+      final price = 46000.0 + rooms * 14000.0;
       return Unit(
         id: '$buildingId-u$floor$col',
         buildingId: buildingId,
