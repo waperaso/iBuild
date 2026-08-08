@@ -5,7 +5,7 @@ import '../theme/app_theme_ext.dart';
 import 'app_loading_indicator.dart';
 import 'pressable_scale.dart';
 
-enum PillButtonVariant { accent, outline, ink }
+enum PillButtonVariant { accent, outline, ink, hero }
 
 /// Full-radius primary button used for CTAs (Start, Book a viewing, etc.).
 class PillButton extends StatelessWidget {
@@ -35,6 +35,13 @@ class PillButton extends StatelessWidget {
       PillButtonVariant.accent => (colors.accent, colors.onAccent, null),
       PillButtonVariant.ink => (colors.ink, colors.surface, null),
       PillButtonVariant.outline => (colors.surface, colors.ink, colors.outline),
+      // Hero/onboarding: accent matches heroSurface in iBuild light — use the
+      // secondary brand tone so "Start" stays visible on the navy artwork.
+      PillButtonVariant.hero => (
+        colors.accentSecondary,
+        colors.onAccentSecondary,
+        null,
+      ),
     };
 
     return PressableScale(

@@ -279,55 +279,16 @@ class _VerticalZoomSliderState extends State<_VerticalZoomSlider> {
     final l10n = AppLocalizations.of(context);
     final zoom = _zoom.clamp(_kMapMinZoom, _kMapMaxZoom);
 
-    return Material(
-      color: colors.surface,
-      borderRadius: BorderRadius.circular(AppRadii.pill),
-      elevation: 2,
-      shadowColor: colors.ink.withValues(alpha: 0.12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              tooltip: l10n.mapZoomIn,
-              iconSize: 18,
-              visualDensity: VisualDensity.compact,
-              onPressed: zoom < _kMapMaxZoom ? () => _setZoom(zoom + 1) : null,
-              icon: Icon(Icons.add, color: colors.ink),
-            ),
-            SizedBox(
-              width: 28,
-              height: 120,
-              child: RotatedBox(
-                quarterTurns: 3,
-                child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    trackHeight: 3,
-                    thumbShape: const RoundSliderThumbShape(
-                      enabledThumbRadius: 6,
-                    ),
-                    overlayShape: SliderComponentShape.noOverlay,
-                  ),
-                  child: Slider(
-                    value: zoom,
-                    min: _kMapMinZoom,
-                    max: _kMapMaxZoom,
-                    onChanged: _setZoom,
-                  ),
-                ),
-              ),
-            ),
-            IconButton(
-              tooltip: l10n.mapZoomOut,
-              iconSize: 18,
-              visualDensity: VisualDensity.compact,
-              onPressed: zoom > _kMapMinZoom ? () => _setZoom(zoom - 1) : null,
-              icon: Icon(Icons.remove, color: colors.ink),
-            ),
-          ],
-        ),
-      ),
+    return VerticalSliderControl(
+      value: zoom,
+      min: _kMapMinZoom,
+      max: _kMapMaxZoom,
+      colors: colors,
+      onChanged: _setZoom,
+      onIncrease: zoom < _kMapMaxZoom ? () => _setZoom(zoom + 1) : null,
+      onDecrease: zoom > _kMapMinZoom ? () => _setZoom(zoom - 1) : null,
+      increaseTooltip: l10n.mapZoomIn,
+      decreaseTooltip: l10n.mapZoomOut,
     );
   }
 }

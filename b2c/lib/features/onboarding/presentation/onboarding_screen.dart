@@ -123,9 +123,10 @@ class _TrustLine extends StatelessWidget {
 }
 
 class _PrimaryActions extends StatelessWidget {
-  const _PrimaryActions({this.expand = false});
+  const _PrimaryActions({this.expand = false, this.onHero = false});
 
   final bool expand;
+  final bool onHero;
 
   @override
   Widget build(BuildContext context) {
@@ -134,6 +135,7 @@ class _PrimaryActions extends StatelessWidget {
     final start = PillButton(
       label: l10n.start,
       icon: Icons.arrow_forward,
+      variant: onHero ? PillButtonVariant.hero : PillButtonVariant.accent,
       expand: expand,
       onPressed: () => context.go('/home'),
     );
@@ -348,7 +350,7 @@ class _DesktopHero extends StatelessWidget {
                           const FadeSlideIn(
                             index: 4,
                             delayStep: Duration(milliseconds: 70),
-                            child: _PrimaryActions(),
+                            child: _PrimaryActions(onHero: true),
                           ),
                           const SizedBox(height: AppSpacing.md),
                           const FadeSlideIn(

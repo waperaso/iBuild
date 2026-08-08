@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'package:ibuild_core/ibuild_core.dart';
+
 import 'app_colors.dart';
 import 'app_dimens.dart';
 import 'app_typography.dart';
 
 /// Maps [AppColors] tokens onto Flutter [ThemeData].
 ThemeData buildAppTheme(AppColors colors) {
-  final isDark = colors.brightness == Brightness.dark;
   final textTheme = AppTypography.textTheme(
     colors.brightness,
   ).apply(bodyColor: colors.ink, displayColor: colors.ink);
@@ -164,11 +165,8 @@ ThemeData buildAppTheme(AppColors colors) {
       ),
     ),
     iconTheme: IconThemeData(color: colors.ink),
-    scrollbarTheme: ScrollbarThemeData(
-      thumbColor: WidgetStatePropertyAll(
-        colors.inkMuted.withValues(alpha: isDark ? 0.4 : 0.3),
-      ),
-    ),
+    scrollbarTheme: buildIbuildScrollbarTheme(colors),
+    sliderTheme: buildIbuildSliderTheme(colors),
     // Fade-through on all platforms instead of Android's default slide-up.
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
