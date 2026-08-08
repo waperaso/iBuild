@@ -154,7 +154,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
           child: CustomScrollView(
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
-            cacheExtent: scrollCacheExtentFor(context),
+            scrollCacheExtent: scrollCacheExtentFor(context),
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(

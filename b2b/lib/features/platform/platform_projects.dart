@@ -44,7 +44,7 @@ class _PlatformProjectsState extends ConsumerState<PlatformProjects> {
     );
 
     return CustomScrollView(
-      cacheExtent: scrollCacheExtentFor(context),
+      scrollCacheExtent: scrollCacheExtentFor(context),
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(pad, pad, pad, AppSpacing.lg),

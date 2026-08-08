@@ -222,7 +222,7 @@ abstract class MockData {
         ),
       ],
       offers: [
-        Offer(
+        const Offer(
           id: 'off-nestone-installment',
           projectId: 'prj-nestone',
           type: OfferType.installment,

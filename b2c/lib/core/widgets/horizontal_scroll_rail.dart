@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_dimens.dart';
+import 'scroll_tuning.dart';
 
 /// Mouse/trackpad horizontal scrolling without the bulky overlay scrollbar
 /// Flutter draws by default on desktop/web.
@@ -61,7 +62,7 @@ class HorizontalScrollRail extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: padding,
           physics: const ClampingScrollPhysics(),
-          cacheExtent: 120,
+          scrollCacheExtent: kScrollCacheExtent120,
           itemCount: itemCount,
           separatorBuilder: (_, _) => SizedBox(width: separatorWidth),
           itemBuilder: itemBuilder,
@@ -95,7 +96,7 @@ class HorizontalScrollRow extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: padding,
           physics: const ClampingScrollPhysics(),
-          cacheExtent: 120,
+          scrollCacheExtent: kScrollCacheExtent120,
           children: children,
         ),
       ),

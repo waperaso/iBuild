@@ -48,7 +48,7 @@ class FavoritesScreen extends ConsumerWidget {
               onRefresh: () async => ref.invalidate(projectsProvider),
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                cacheExtent: scrollCacheExtentFor(context),
+                scrollCacheExtent: scrollCacheExtentFor(context),
                 slivers: [
                   ...projectsAsync.when(
                     loading: () => [
@@ -145,7 +145,7 @@ class _SavedSearches extends ConsumerWidget {
 
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      cacheExtent: scrollCacheExtentFor(context),
+      scrollCacheExtent: scrollCacheExtentFor(context),
       itemCount: searches.length,
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
       itemBuilder: (context, index) {

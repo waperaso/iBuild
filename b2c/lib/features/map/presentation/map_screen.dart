@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_theme_ext.dart';
+import '../../../core/widgets/scroll_tuning.dart';
 import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/shell_tab_scope.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -530,7 +531,7 @@ class _RecommendPanel extends StatelessWidget {
 
     return ListView.builder(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      cacheExtent: 120,
+      scrollCacheExtent: kScrollCacheExtent120,
       itemCount: projects.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -586,7 +587,7 @@ class _RecommendSheet extends StatelessWidget {
               AppSpacing.lg,
               AppSpacing.lg + bottomInset,
             ),
-            cacheExtent: 120,
+            scrollCacheExtent: kScrollCacheExtent120,
             itemCount: projects.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {

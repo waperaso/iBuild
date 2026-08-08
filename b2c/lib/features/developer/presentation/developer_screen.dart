@@ -86,7 +86,7 @@ class _DeveloperBody extends StatelessWidget {
         .toList();
 
     return CustomScrollView(
-      cacheExtent: scrollCacheExtentFor(context),
+      scrollCacheExtent: scrollCacheExtentFor(context),
       slivers: [
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
