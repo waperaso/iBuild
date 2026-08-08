@@ -3,15 +3,7 @@ import 'dart:io';
 
 import 'env_loader.dart';
 
-/// Mortgage/installment bank-referral delivery (Konseptsiya §11.C —
-/// "комиссия от банков за приведённых клиентов").
-///
-/// Production wiring is entirely environment-driven: set `BANK_PARTNER_API_URL`
-/// (+ optionally `BANK_PARTNER_API_KEY`) to POST referrals to a real partner
-/// bank/aggregator. With neither set (the default local/dev setup) this
-/// simply logs the referral and returns a locally-generated reference id, so
-/// the calculator → lead-gen flow is fully exercised without any external
-/// dependency.
+/// Bank referral POST to `BANK_PARTNER_API_URL`, or log + local ref if unset.
 class BankReferralService {
   BankReferralService();
 
@@ -20,8 +12,7 @@ class BankReferralService {
     return url == null || url.isEmpty;
   }
 
-  /// Submits a mortgage/installment referral to the configured bank partner
-  /// adapter. Returns a provider reference id.
+  /// Submit referral; returns provider reference id.
   Future<String> submitReferral({
     required String referralId,
     required String contactPhone,
@@ -50,9 +41,7 @@ class BankReferralService {
       if (apiKey != null && apiKey.isNotEmpty) {
         request.headers.set('Authorization', 'Bearer $apiKey');
       }
-      // Built with jsonEncode rather than interpolation: these values come
-      // from the request body, and a quote mark in one of them would
-      // otherwise let a caller reshape the payload sent to the bank.
+      // jsonEncode: user-supplied fields must not reshape the bank payload.
       request.write(
         jsonEncode({
           'referralId': referralId,

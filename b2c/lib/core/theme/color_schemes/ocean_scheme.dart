@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Ocean" — a bright cyan-teal primary on a cool seafoam canvas, grounded by a
-/// deep-navy secondary for depth. Foregrounds clear WCAG AA on their surfaces.
+/// "Ocean" — cyan-teal primary, navy secondary, seafoam canvas.
 const AppColors oceanScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF0F6F7),
@@ -27,8 +26,7 @@ const AppColors oceanScheme = AppColors(
   unitBlocked: Color(0xFF51625F),
 );
 
-/// Dark variant of [oceanScheme]: a deep abyssal canvas with a brightened
-/// cyan-teal primary and a lifted navy-blue secondary.
+/// Dark [oceanScheme]: deep navy canvas, brighter cyan-teal.
 const AppColors oceanSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF08110F),

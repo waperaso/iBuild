@@ -5,9 +5,7 @@ import 'package:shelf/shelf.dart';
 
 import 'env_loader.dart';
 
-/// `{ success, data, meta }` — the envelope documented in
-/// `IBUILD_APP_PLAN.md` §8 and unwrapped by the Flutter `apiClientProvider`
-/// interceptor.
+/// JSON response headers for the `{ success, data, meta }` envelope.
 const _jsonHeaders = {'content-type': 'application/json; charset=utf-8'};
 
 Response jsonOk(Object? data, {Map<String, dynamic>? meta, int status = 200}) {
@@ -39,9 +37,7 @@ const _staticCorsHeaders = {
   'Access-Control-Allow-Headers': 'Origin, Content-Type, Authorization, Accept',
 };
 
-/// Loopback hosts that stay allowed for zero-config local development even
-/// when `ALLOWED_ORIGINS` is unset — never a public host, so production is
-/// locked down by default rather than falling back to a wildcard.
+/// Loopback origins allowed when `ALLOWED_ORIGINS` is unset. Public hosts are not.
 bool _isLoopbackOrigin(String origin) {
   final uri = Uri.tryParse(origin);
   if (uri == null) return false;
@@ -50,28 +46,13 @@ bool _isLoopbackOrigin(String origin) {
   return host == 'localhost' || host == '127.0.0.1' || host == '::1';
 }
 
-/// Builds the CORS headers for a given [request].
-///
-/// The request's `Origin` is echoed back only when it is explicitly allowed;
-/// otherwise `Access-Control-Allow-Origin` is omitted entirely so the browser
-/// blocks the cross-origin response. An origin is allowed when either:
-///
-/// * it appears in the comma-separated `ALLOWED_ORIGINS` allow-list
-///   (e.g. `http://localhost:8099,https://app.example.uz`), or
-/// * `ALLOWED_ORIGINS` is unset **and** the origin is a loopback address
-///   (`localhost`/`127.0.0.1`/`::1`) — preserving zero-config local dev.
-///
-/// Unlike the previous implementation this never emits a wildcard `*` by
-/// default, so an unconfigured production deployment does not silently expose
-/// its API to every origin. Operators who genuinely want the old permissive
-/// behavior can opt in explicitly with `ALLOWED_ORIGINS=*`.
+/// CORS for [request]: echo allowed `Origin` (`ALLOWED_ORIGINS`, else loopback; `*` opt-in).
 Map<String, String> corsHeadersFor(Request request) {
   final headers = {..._staticCorsHeaders};
   final origin = request.headers['origin'];
   final allowedOriginsEnv = appEnv()['ALLOWED_ORIGINS']?.trim();
 
   if (allowedOriginsEnv != null && allowedOriginsEnv.isNotEmpty) {
-    // Explicit operator opt-in to the legacy wildcard behavior.
     if (allowedOriginsEnv == '*') {
       headers['Access-Control-Allow-Origin'] = '*';
       return headers;
@@ -88,8 +69,7 @@ Map<String, String> corsHeadersFor(Request request) {
     return headers;
   }
 
-  // No allow-list configured: only reflect loopback origins so local dev keeps
-  // working, while remote origins stay blocked until ALLOWED_ORIGINS is set.
+  // Unset allow-list: reflect loopback only.
   if (origin != null && _isLoopbackOrigin(origin)) {
     headers['Access-Control-Allow-Origin'] = origin;
     headers['Vary'] = 'Origin';
@@ -97,10 +77,7 @@ Map<String, String> corsHeadersFor(Request request) {
   return headers;
 }
 
-/// Adds CORS headers (allow-listed via `ALLOWED_ORIGINS`, with loopback
-/// origins reflected for local dev — see [corsHeadersFor]) so the Flutter web
-/// build (served from a different port) can call this API, and short-circuits
-/// `OPTIONS` preflight.
+/// CORS middleware; see [corsHeadersFor]. Short-circuits `OPTIONS` preflight.
 Middleware corsHeaders() {
   return (Handler innerHandler) {
     return (Request request) async {
@@ -114,10 +91,7 @@ Middleware corsHeaders() {
   };
 }
 
-/// Thrown by [RequestJson.readJson] when the request body is not a JSON
-/// object. Converted to a 422 envelope by [errorEnvelopeMiddleware] instead of
-/// escaping as an unhandled error (which shelf renders as a plain-text 500 the
-/// clients' envelope interceptor cannot parse).
+/// Non-object JSON body. Mapped to 422 by [errorEnvelopeMiddleware].
 class InvalidJsonBodyException implements Exception {
   const InvalidJsonBodyException(this.message);
 
@@ -127,8 +101,7 @@ class InvalidJsonBodyException implements Exception {
   String toString() => 'InvalidJsonBodyException: $message';
 }
 
-/// Thrown when a request body exceeds the limit a handler is willing to buffer
-/// in memory. Rendered as a 413 envelope by [errorEnvelopeMiddleware].
+/// Body larger than the handler buffer limit. Mapped to 413 by [errorEnvelopeMiddleware].
 class PayloadTooLargeException implements Exception {
   const PayloadTooLargeException(this.message);
 
@@ -139,8 +112,7 @@ class PayloadTooLargeException implements Exception {
 }
 
 extension RequestJson on Request {
-  /// Decodes the body as a JSON object. An empty body is treated as `{}` so
-  /// handlers can rely on per-field validation for their own error messages.
+  /// Decodes the body as a JSON object. Empty body → `{}`.
   Future<Map<String, dynamic>> readJson() async {
     final body = await readAsString();
     if (body.trim().isEmpty) return {};
@@ -160,10 +132,7 @@ extension RequestJson on Request {
   }
 }
 
-/// Guarantees every response — including ones produced by an unhandled
-/// exception — uses the `{ success, data, error }` envelope, so the Flutter
-/// clients never receive shelf's plain-text `Internal Server Error` body that
-/// their Dio interceptor cannot unwrap.
+/// Maps unhandled errors to the `{ success, data, error }` envelope (no plain-text 500).
 Middleware errorEnvelopeMiddleware() {
   return (Handler inner) {
     return (Request request) async {
@@ -174,7 +143,7 @@ Middleware errorEnvelopeMiddleware() {
       } on PayloadTooLargeException catch (error) {
         return jsonError('PAYLOAD_TOO_LARGE', error.message, status: 413);
       } catch (error, stack) {
-        // Log server-side; never leak the exception text to the caller.
+        // Log server-side; do not leak exception text to the client.
         stderr.writeln(
           '[error] ${request.method} ${request.requestedUri.path}: '
           '$error\n$stack',

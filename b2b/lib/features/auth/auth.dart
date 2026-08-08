@@ -4,9 +4,9 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../core/api_client.dart';
+import '../../core/session_storage.dart';
 
 class AdminUser {
   const AdminUser({
@@ -111,7 +111,7 @@ class AuthRepository {
   AuthRepository(this._dio, this._storage);
 
   final Dio _dio;
-  final FlutterSecureStorage _storage;
+  final SessionStorage _storage;
 
   Future<String> sendOtp(String phone) async {
     final res = await _dio.post<Map<String, dynamic>>(
@@ -161,12 +161,7 @@ class AuthRepository {
     }
   }
 
-  /// Re-pulls the signed-in user from the server and refreshes the cached
-  /// copy. Used while an application is pending/in review so the moment a
-  /// platform admin approves it (role flips to `residence_admin`), the next
-  /// poll picks it up and the router redirect out of the apply flow fires
-  /// without requiring the applicant to sign out and back in. Also picks up
-  /// account bans (`banned` / `banReason` / `bannedByName`).
+  /// Refreshes cached user from `GET /users/me` (role flips, bans).
   Future<AdminUser> fetchMe() async {
     final res = await _dio.get<Map<String, dynamic>>('/users/me');
     final user = AdminUser.fromJson(res.data!);
@@ -197,9 +192,7 @@ class AuthController extends Notifier<AsyncValue<AdminUser?>> {
 
   @override
   AsyncValue<AdminUser?> build() {
-    // The refresh interceptor can decide the session is unrecoverable while
-    // we still hold a user object. Without this the router keeps showing the
-    // authenticated shell and every request 401s behind it.
+    // Clear local user when the refresh interceptor ends the session.
     final unsubscribe = addSessionExpiredListener(_onSessionExpired);
     ref.onDispose(() {
       unsubscribe();
@@ -219,7 +212,7 @@ class AuthController extends Notifier<AsyncValue<AdminUser?>> {
     _banPoll?.cancel();
     final user = state.value;
     if (user == null || user.banned) return;
-    // Pick up mid-session bans without requiring the user to reload the app.
+    // Poll for mid-session bans.
     _banPoll = Timer.periodic(const Duration(seconds: 20), (_) {
       unawaited(refreshMe());
     });
@@ -231,9 +224,7 @@ class AuthController extends Notifier<AsyncValue<AdminUser?>> {
       state = AsyncValue.data(user);
       _scheduleBanPoll();
     } catch (error, stack) {
-      // Cold-start session restore must never throw during the first build
-      // (e.g. corrupted secure storage, offline on refresh) — fall back to
-      // signed-out so the login screen renders instead of a blank page.
+      // Restore failures → signed-out (don't blank the first frame).
       developer.log(
         'AuthController._restore failed, falling back to signed-out',
         error: error,
@@ -274,12 +265,11 @@ class AuthController extends Notifier<AsyncValue<AdminUser?>> {
         _scheduleBanPoll();
       }
     } catch (_) {
-      // Best-effort — keep the previously cached user on network failure.
+      // Keep cached user on network failure.
     }
   }
 
-  /// Marks the current session banned from an `ACCOUNT_BANNED` response so
-  /// the shell can show the notice immediately (without waiting for poll).
+  /// Applies ban fields from an `ACCOUNT_BANNED` response immediately.
   void applyBannedFromError(Object error) {
     final current = state.value;
     if (current == null || current.banned) return;

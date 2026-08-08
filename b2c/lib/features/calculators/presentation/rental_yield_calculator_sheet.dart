@@ -8,10 +8,7 @@ import '../../../core/widgets/app_card.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../data/calculators_repository.dart';
 
-/// Investment yield calculator for a purchase-to-rent scenario — e.g. "buy
-/// this off-plan unit at $X, rent it out at $Y/mo, what's my payback?"
-/// (Konseptsiya §7 "инвестиционные калькуляторы"). Uses
-/// `POST /v1/calculators/rental-yield`.
+/// Rental-yield calculator (`POST /v1/calculators/rental-yield`).
 Future<void> showRentalYieldCalculatorSheet(
   BuildContext context, {
   required double price,

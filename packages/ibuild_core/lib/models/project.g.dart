@@ -30,6 +30,7 @@ _Project _$ProjectFromJson(Map<String, dynamic> json) => _Project(
   rentMin: (json['rentMin'] as num?)?.toDouble(),
   rentMax: (json['rentMax'] as num?)?.toDouble(),
   constructionProgress: (json['constructionProgress'] as num?)?.toInt(),
+  plannedProgress: (json['plannedProgress'] as num?)?.toInt(),
   completionDate: json['completionDate'] == null
       ? null
       : DateTime.parse(json['completionDate'] as String),
@@ -72,6 +73,7 @@ Map<String, dynamic> _$ProjectToJson(_Project instance) => <String, dynamic>{
   'rentMin': instance.rentMin,
   'rentMax': instance.rentMax,
   'constructionProgress': instance.constructionProgress,
+  'plannedProgress': instance.plannedProgress,
   'completionDate': instance.completionDate?.toIso8601String(),
   'rating': instance.rating,
   'availableUnits': instance.availableUnits,

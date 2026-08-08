@@ -5,21 +5,17 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../../../core/widgets/brand_mark.dart';
 import '../../../core/widgets/fade_slide_in.dart';
+import '../../../core/widgets/language_menu.dart';
 import '../../../core/widgets/pill_button.dart';
+import '../../../core/widgets/theme_brightness_menu.dart';
 import '../../../l10n/gen/app_localizations.dart';
 
-/// Brand-drawn isometric skyline (line art in the palette's teal/brass
-/// accents) instead of a stock photo — reads as "iBuild" at a glance rather
-/// than a generic city-photo hero any competitor could use.
+/// Brand isometric skyline asset for the onboarding hero.
 const _heroImageAsset = 'assets/images/onboarding_hero.png';
 
 const _brandName = 'iBuild';
 
-/// Immersive first-run landing for B2C.
-///
-/// Desktop/tablet: full-bleed city photography with a left reading column —
-/// brand first, one headline, one supporting line, clear CTA hierarchy.
-/// Mobile: stacked brand → copy → photo → actions, still brand-led.
+/// First-run landing: full-bleed hero + copy column on desktop; stacked on mobile.
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
@@ -68,9 +64,7 @@ class _BrandLockup extends StatelessWidget {
   }
 }
 
-/// Small tagline sitting right underneath the wordmark — "iBuild the dream"
-/// reads as part of the brand lockup itself rather than repeating "iBuild"
-/// a second time as a stand-alone headline further down the page.
+/// Tagline under the wordmark (part of the brand lockup).
 class _Slogan extends StatelessWidget {
   const _Slogan({required this.onDark, this.compact = false});
 
@@ -201,6 +195,25 @@ class _QuizLink extends StatelessWidget {
   }
 }
 
+/// Language + theme pills for the onboarding header.
+class _OnboardingPrefs extends StatelessWidget {
+  const _OnboardingPrefs({this.compact = false});
+
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        LanguageMenu(compact: compact),
+        SizedBox(width: compact ? AppSpacing.sm : AppSpacing.md),
+        ThemeBrightnessMenu(compact: compact),
+      ],
+    );
+  }
+}
+
 /// Hero artwork — a static local asset now (see [_heroImageAsset]), so there
 /// is no placeholder/shimmer flash and no network dependency on this, the
 /// very first screen a cold start renders.
@@ -234,7 +247,7 @@ class _DesktopHero extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         const _BreathingHeroPhoto(),
-        // Left reading wash — keeps type crisp without boxing the photo.
+        // Left-side gradient for text contrast over the hero photo.
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -250,7 +263,7 @@ class _DesktopHero extends StatelessWidget {
             ),
           ),
         ),
-        // Bottom vignette so the skyline still reads as place, not a crop.
+        // Bottom fade on the hero photo.
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -272,75 +285,89 @@ class _DesktopHero extends StatelessWidget {
               horizontalPad,
               AppSpacing.xxl,
             ),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: contentMax),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const FadeSlideIn(
-                        index: 0,
-                        delayStep: Duration(milliseconds: 70),
-                        child: _BrandLockup(onDark: true),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      const FadeSlideIn(
-                        index: 1,
-                        delayStep: Duration(milliseconds: 70),
-                        child: _Slogan(onDark: true),
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-                      FadeSlideIn(
-                        index: 2,
-                        delayStep: const Duration(milliseconds: 70),
-                        child: Text(
-                          l10n.onboardingEyebrow,
-                          style: textTheme.displayLarge?.copyWith(
-                            color: colors.onHeroSurface,
-                            fontSize: width >= 1400 ? 44 : 38,
-                            height: 1.15,
-                            letterSpacing: -0.6,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-                      FadeSlideIn(
-                        index: 3,
-                        delayStep: const Duration(milliseconds: 70),
-                        child: Text(
-                          l10n.onboardingDescription,
-                          style: textTheme.bodyLarge?.copyWith(
-                            color: colors.onHeroSurface.withValues(alpha: 0.78),
-                            fontSize: 16,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xxxl),
-                      const FadeSlideIn(
-                        index: 4,
-                        delayStep: Duration(milliseconds: 70),
-                        child: _PrimaryActions(),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      const FadeSlideIn(
-                        index: 5,
-                        delayStep: Duration(milliseconds: 70),
-                        child: _QuizLink(onDark: true),
-                      ),
-                      const SizedBox(height: AppSpacing.xxl),
-                      const FadeSlideIn(
-                        index: 6,
-                        delayStep: Duration(milliseconds: 70),
-                        child: _TrustLine(onDark: true),
-                      ),
-                    ],
+            child: Stack(
+              children: [
+                const Align(
+                  alignment: Alignment.topRight,
+                  child: FadeSlideIn(
+                    index: 0,
+                    delayStep: Duration(milliseconds: 70),
+                    child: _OnboardingPrefs(compact: true),
                   ),
                 ),
-              ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: contentMax),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const FadeSlideIn(
+                            index: 0,
+                            delayStep: Duration(milliseconds: 70),
+                            child: _BrandLockup(onDark: true),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          const FadeSlideIn(
+                            index: 1,
+                            delayStep: Duration(milliseconds: 70),
+                            child: _Slogan(onDark: true),
+                          ),
+                          const SizedBox(height: AppSpacing.xl),
+                          FadeSlideIn(
+                            index: 2,
+                            delayStep: const Duration(milliseconds: 70),
+                            child: Text(
+                              l10n.onboardingEyebrow,
+                              style: textTheme.displayLarge?.copyWith(
+                                color: colors.onHeroSurface,
+                                fontSize: width >= 1400 ? 44 : 38,
+                                height: 1.15,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xl),
+                          FadeSlideIn(
+                            index: 3,
+                            delayStep: const Duration(milliseconds: 70),
+                            child: Text(
+                              l10n.onboardingDescription,
+                              style: textTheme.bodyLarge?.copyWith(
+                                color: colors.onHeroSurface.withValues(
+                                  alpha: 0.78,
+                                ),
+                                fontSize: 16,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xxxl),
+                          const FadeSlideIn(
+                            index: 4,
+                            delayStep: Duration(milliseconds: 70),
+                            child: _PrimaryActions(),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          const FadeSlideIn(
+                            index: 5,
+                            delayStep: Duration(milliseconds: 70),
+                            child: _QuizLink(onDark: true),
+                          ),
+                          const SizedBox(height: AppSpacing.xxl),
+                          const FadeSlideIn(
+                            index: 6,
+                            delayStep: Duration(milliseconds: 70),
+                            child: _TrustLine(onDark: true),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -371,7 +398,15 @@ class _MobileHero extends StatelessWidget {
           children: [
             const FadeSlideIn(
               index: 0,
-              child: _BrandLockup(onDark: false, compact: true),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _BrandLockup(onDark: false, compact: true),
+                  ),
+                  _OnboardingPrefs(compact: true),
+                ],
+              ),
             ),
             const SizedBox(height: AppSpacing.xs),
             const FadeSlideIn(
@@ -400,7 +435,7 @@ class _MobileHero extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       const _BreathingHeroPhoto(),
-                      // Soft bottom fade so the photo meets the CTAs cleanly.
+                      // Bottom gradient under CTAs.
                       DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(

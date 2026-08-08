@@ -2,17 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// Refined "Aurora" palette — the default scheme. A calm ivory canvas with a
-/// confident deep-indigo primary and a warm amber secondary, tuned for premium
-/// contrast (primary/secondary foregrounds clear WCAG AA on their surfaces)
-/// while keeping the existing semantic token architecture untouched.
-///
-/// Semantic mapping used by the app:
-/// - [AppColors.background]/[AppColors.surface]/[AppColors.surfaceAlt] — the
-///   layered "Background/Surface" tokens.
-/// - [AppColors.accent]/[AppColors.onAccent] — the "Primary" brand pair.
-/// - [AppColors.accentSecondary]/[AppColors.onAccentSecondary] — the
-///   "Secondary/Accent" pair for highlights, promo blocks and badges.
+/// "Aurora" — ivory canvas, deep-indigo primary, amber secondary.
 const AppColors auroraScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF7F6F2),
@@ -36,8 +26,7 @@ const AppColors auroraScheme = AppColors(
   unitBlocked: Color(0xFF565A64),
 );
 
-/// Dark variant of [auroraScheme]: a deep slate canvas with a brightened indigo
-/// so the primary stays legible on dark surfaces.
+/// Dark [auroraScheme]: slate canvas, brighter indigo primary.
 const AppColors auroraSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF13141B),

@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Amethyst" — a vivid violet primary on a cool lavender-white canvas, sparked
-/// by a fresh lime secondary for a bold, energetic contrast. The lime is
-/// darkened enough for dark text to clear WCAG AA. Foregrounds clear WCAG AA on
-/// their surfaces.
+/// "Amethyst" — violet primary, lime secondary (dark enough for dark text).
 const AppColors amethystScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF6F4FB),
@@ -29,8 +26,7 @@ const AppColors amethystScheme = AppColors(
   unitBlocked: Color(0xFF5B5569),
 );
 
-/// Dark variant of [amethystScheme]: a deep indigo-violet canvas with a
-/// brightened amethyst primary and a vivid lime secondary.
+/// Dark [amethystScheme]: indigo-violet canvas, brighter amethyst + lime.
 const AppColors amethystSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF0E0B16),

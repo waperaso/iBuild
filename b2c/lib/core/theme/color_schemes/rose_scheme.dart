@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Rose" — a refined rose primary on a pale pink-tinted canvas, anchored by a
-/// charcoal secondary so the palette feels editorial rather than sugary.
-/// Foregrounds clear WCAG AA on their surfaces.
+/// "Rose" — rose primary, charcoal secondary, pink-tinted canvas.
 const AppColors roseScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFFAF4F5),
@@ -28,8 +26,7 @@ const AppColors roseScheme = AppColors(
   unitBlocked: Color(0xFF67585C),
 );
 
-/// Dark variant of [roseScheme]: a deep mauve-charcoal canvas with a
-/// brightened rose primary and a light-grey secondary.
+/// Dark [roseScheme]: mauve-charcoal canvas, brighter rose.
 const AppColors roseSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF130F10),

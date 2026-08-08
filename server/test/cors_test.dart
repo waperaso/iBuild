@@ -19,9 +19,7 @@ void main() {
       expect(headers['Access-Control-Allow-Headers'], contains('Authorization'));
     });
 
-    // The allow-list is sourced from the process environment, which Dart can't
-    // mutate at runtime. These assertions describe the zero-config default and
-    // are only meaningful when ALLOWED_ORIGINS is unset (the common dev case).
+    // Dart can't mutate process env; these checks need ALLOWED_ORIGINS unset.
     final allowList = Platform.environment['ALLOWED_ORIGINS'];
     final envUnset = allowList == null || allowList.trim().isEmpty;
 

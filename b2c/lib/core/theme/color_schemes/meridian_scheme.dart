@@ -2,26 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Meridian" — the default palette, chosen after a competitor sweep of
-/// global proptech portals (Zillow, Redfin, Airbnb) and local classifieds
-/// (Uybor, OLX.uz) alongside luxury brokerages (Compass, Sotheby's,
-/// Century 21).
-///
-/// Findings that shaped the tokens:
-/// - Digital portals lean on saturated tech-blue/red/purple, which reads as
-///   "classifieds" rather than a considered real-estate brand, and is where
-///   every local competitor already lives.
-/// - Luxury brokerages succeed with a disciplined, near-monochrome base and
-///   a single confident accent — restraint signals trust for a high-value
-///   transaction; 2026 brand trend data also flags a shift away from cool
-///   grays toward warm, editorial neutrals.
-///
-/// Meridian applies that discipline: a warm ivory/graphite neutral base (not
-/// another blue/red/purple portal), a deep jewel-toned teal primary (trust
-/// and stability without colliding with the green "success" status color),
-/// and a muted brass/champagne secondary reserved for premium moments
-/// (subscriptions, featured badges, hero panels) — the same "gold on
-/// charcoal" cue luxury real-estate brands use for perceived prestige.
+/// "Meridian" — default palette: warm ivory base, deep teal primary, brass secondary.
+/// Teal stays distinct from the green success status color.
 const AppColors meridianScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF6F3EA),
@@ -45,9 +27,7 @@ const AppColors meridianScheme = AppColors(
   unitBlocked: Color(0xFF5B564C),
 );
 
-/// Dark variant of [meridianScheme]: a near-black canvas with a teal undertone
-/// so the deep hero/charcoal treatment carries through instead of defaulting
-/// to a generic gray dark mode.
+/// Dark [meridianScheme]: near-black canvas with a teal undertone.
 const AppColors meridianSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF0F1412),

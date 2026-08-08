@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ibuild_core/ibuild_core.dart';
 
 import 'env.dart';
+import 'session_storage.dart';
 
-/// Marks a request that has already been replayed after a token refresh, so a
-/// second 401 surfaces to the caller instead of looping.
+/// Request extra: already retried after refresh (blocks refresh loops).
 const _retriedExtraKey = 'b2b_retried_after_refresh';
 
 abstract class AuthStorageKeys {
@@ -16,10 +15,7 @@ abstract class AuthStorageKeys {
   static const refreshToken = 'b2b_refresh_token';
   static const userJson = 'b2b_user';
 
-  /// Last known snapshot of the signed-in user's developer application
-  /// (`GET /developers/me`). Cached so the apply screen can paint the
-  /// pending/rejected state instantly on relaunch, before the network
-  /// round-trip that refreshes it resolves.
+  /// Cached `GET /developers/me` snapshot for apply-screen first paint.
   static const developerApplicationJson = 'b2b_developer_application';
 }
 
@@ -35,14 +31,10 @@ void setAccessTokenCache(String? token) {
   }
 }
 
-/// Current in-memory bearer token, if any — read by [wsClientProvider] (see
-/// `core/network/ws_client.dart`) to authenticate the `/v1/ws` handshake
-/// without awaiting secure storage on every reconnect attempt.
+/// In-memory bearer token for WS handshake (avoids secure-storage on reconnect).
 String? get accessTokenCache => _accessTokenCache;
 
-/// Notifies [listener] whenever [setAccessTokenCache] runs (sign-in, token
-/// refresh, sign-out) so the shared WebSocket client can reconnect with
-/// fresh credentials. Returns an unsubscribe callback.
+/// Listen for [setAccessTokenCache]; returns unsubscribe.
 void Function() addAccessTokenListener(void Function(String?) listener) {
   _accessTokenListeners.add(listener);
   return () => _accessTokenListeners.remove(listener);
@@ -50,26 +42,19 @@ void Function() addAccessTokenListener(void Function(String?) listener) {
 
 final List<void Function()> _sessionExpiredListeners = [];
 
-/// Subscribes to "the stored session is gone" events raised by the refresh
-/// interceptor. `AuthController` listens so the UI drops to signed-out
-/// instead of holding a user object whose token no longer works — otherwise
-/// the app looks signed in while every request 401s. Returns an unsubscribe
-/// callback.
+/// Listen for session-expired from the refresh interceptor; returns unsubscribe.
 void Function() addSessionExpiredListener(void Function() listener) {
   _sessionExpiredListeners.add(listener);
   return () => _sessionExpiredListeners.remove(listener);
 }
 
-/// Clears every stored credential and tells the app the session is over.
-/// Safe to call more than once.
-Future<void> clearStoredSession(FlutterSecureStorage storage) async {
+/// Clear stored credentials (idempotent).
+Future<void> clearStoredSession(SessionStorage storage) async {
   setAccessTokenCache(null);
   await storage.delete(key: AuthStorageKeys.accessToken);
   await storage.delete(key: AuthStorageKeys.refreshToken);
   await storage.delete(key: AuthStorageKeys.userJson);
-  // Also drop the cached application snapshot: it belongs to the account that
-  // just signed out, and leaving it behind shows one user's KYC status to
-  // whoever signs in next on the same device.
+  // Drop KYC snapshot so the next account on this device doesn't inherit it.
   await storage.delete(key: AuthStorageKeys.developerApplicationJson);
 }
 
@@ -79,12 +64,10 @@ void notifySessionExpired() {
   }
 }
 
-final secureStorageProvider = Provider<FlutterSecureStorage>(
-  (_) => const FlutterSecureStorage(),
-);
+final secureStorageProvider = sessionStorageProvider;
 
 final apiClientProvider = Provider<Dio>((ref) {
-  final storage = ref.watch(secureStorageProvider);
+  final storage = ref.watch(sessionStorageProvider);
   final dio = Dio(
     BaseOptions(
       baseUrl: Env.apiBaseUrl,
@@ -94,13 +77,7 @@ final apiClientProvider = Provider<Dio>((ref) {
     ),
   );
 
-  // Single-flight gate: without it, N concurrent requests that all 401 at
-  // once each fire their own `/auth/refresh`, rotating the refresh token N
-  // times and invalidating every rotation but the last — the classic refresh
-  // race that logs the user out mid-session. Concurrent 401s await this
-  // completer's result (true = refreshed, retry; false = give up) instead of
-  // being failed outright, so one expired token does not surface as an error
-  // on every screen that happened to be loading. Mirrors the B2C client.
+  // Single-flight refresh: concurrent 401s await one `/auth/refresh` (same as b2c).
   Completer<bool>? refreshGate;
 
   Future<bool> performRefresh() async {
@@ -167,15 +144,12 @@ final apiClientProvider = Provider<Dio>((ref) {
         handler.next(options);
       },
       onResponse: (response, handler) {
-        // Unwrap the shared `{ success, data, meta }` envelope in one place
-        // (see `ApiEnvelope` in ibuild_core) so callers see the raw entity.
+        // Unwrap `{ success, data, meta }` once for callers.
         response.data = ApiEnvelope.unwrap(response.data);
         handler.next(response);
       },
       onError: (err, handler) async {
-        // Never try to refresh a failed auth call itself (a 401 from
-        // `/auth/refresh` or `/auth/otp/*` means the credential is truly
-        // dead), and only ever retry a given request once.
+        // Skip refresh for `/auth/*` 401s; retry any other request at most once.
         final is401 = err.response?.statusCode == 401;
         final isAuthPath = err.requestOptions.path.contains('/auth/');
         final alreadyRetried =
@@ -184,8 +158,7 @@ final apiClientProvider = Provider<Dio>((ref) {
           return handler.next(err);
         }
 
-        // A refresh is already running — wait for it rather than starting our
-        // own, then retry (or fail) based on its outcome.
+        // Refresh already in flight — wait, then retry or fail with it.
         final inFlight = refreshGate;
         if (inFlight != null) {
           final ok = await inFlight.future;
@@ -197,10 +170,7 @@ final apiClientProvider = Provider<Dio>((ref) {
         refreshGate = gate;
         final ok = await performRefresh();
         if (!ok) {
-          // The session cannot be renewed — no stored refresh token, a
-          // rejected one, or a response we could not use. Drop the
-          // credentials and tell the app, so it re-authenticates instead of
-          // sitting on a token that 401s forever.
+          // Refresh failed — clear session so the UI re-authenticates.
           await clearStoredSession(storage);
           notifySessionExpired();
         }

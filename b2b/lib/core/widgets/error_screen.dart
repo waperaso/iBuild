@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import '../reload/reload.dart';
 import 'restart_widget.dart';
 
-/// Replaces Flutter's default grey "exception occurred" box (a silent blank
-/// page in release mode) with a real, recoverable screen — installed as
-/// [ErrorWidget.builder] in `main.dart` so any first-build failure is at
-/// least visible and escapable instead of a dead white screen.
+/// Recoverable [ErrorWidget.builder] screen (reload instead of blank page).
 class ErrorScreen extends StatelessWidget {
   const ErrorScreen({super.key, required this.message});
 

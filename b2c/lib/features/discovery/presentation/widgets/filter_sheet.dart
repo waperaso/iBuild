@@ -13,9 +13,7 @@ import '../../../favorites/providers/saved_searches_providers.dart';
 import '../../providers/discovery_providers.dart';
 import '../../providers/filters_providers.dart';
 
-/// Districts covered by the dev server's seed data (`server/lib/src/seed_data.dart`).
-/// There's no dedicated `/v1/districts` endpoint yet, so this dropdown works
-/// off a fixed, alphabetised list rather than deriving it from a fetch.
+/// Seed districts for the filter dropdown (no `/v1/districts` API yet).
 const List<String> kDiscoveryDistricts = [
   'Bektemir',
   'Chilanzar',
@@ -34,11 +32,7 @@ const List<String> kDiscoveryDistricts = [
 const double kDiscoveryPriceMin = 0;
 const double kDiscoveryPriceMax = 300000;
 
-/// Opens the district/status/price-range filter sheet, writing to
-/// [discoveryFiltersProvider] on Apply/Clear.
-///
-/// Mobile uses a bottom sheet; desktop uses a centered dialog so the panel
-/// doesn't stretch edge-to-edge across a wide monitor.
+/// Opens discovery filters (bottom sheet on mobile, dialog on desktop).
 Future<void> showFilterSheet(BuildContext context) {
   if (context.isMobile) {
     return showModalBottomSheet<void>(

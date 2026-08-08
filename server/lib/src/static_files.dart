@@ -6,29 +6,20 @@ import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
 
-/// Root for everything operators upload. Public assets (unit media, photo
-/// reports) sit directly inside it; KYC paperwork goes in [kPrivateSubdir].
+/// Upload root. Public media lives here; KYC docs go under [kPrivateSubdir].
 const kUploadsRoot = 'uploads';
 
-/// Sub-directory of [kUploadsRoot] holding identity documents. It is
-/// deliberately *not* reachable through the public static route — those files
-/// are passports and business licences, and a random UUID in a URL is not an
-/// access control.
+/// KYC docs under [kUploadsRoot]. Not served by the public static route
+/// (UUID-in-URL is not access control).
 const kPrivateSubdir = 'private';
 
-/// Largest accepted upload body. The multipart parser buffers the whole
-/// request in memory, so without a cap a single request could exhaust the
-/// server's heap.
+/// Max upload size. Multipart is buffered in memory; uncapped uploads can OOM.
 const kMaxUploadBytes = 15 * 1024 * 1024;
 
-/// Extensions we are willing to write to disk. The extension is attacker
-/// controlled (it comes from the multipart filename), so anything unknown is
-/// stored as `.bin` rather than trusted.
+/// Allowed on-disk extensions. Unknown client extensions become `.bin`.
 const _allowedExtensions = {'jpg', 'jpeg', 'png', 'webp', 'pdf', 'heic'};
 
-/// Derives a safe, lowercase extension from a client-supplied [filename].
-/// Only the characters we expect are kept, which keeps path separators and
-/// `..` out of the name we build the destination path from.
+/// Safe lowercase extension from a client [filename] (strips separators / `..`).
 String safeExtension(String? filename) {
   if (filename == null || !filename.contains('.')) return 'bin';
   final raw = filename.split('.').last.toLowerCase();
@@ -37,9 +28,7 @@ String safeExtension(String? filename) {
   return _allowedExtensions.contains(cleaned) ? cleaned : 'bin';
 }
 
-/// Writes [data] under [kUploadsRoot] (optionally in [subdir]) with a random
-/// name, returning the stored filename. Shared by every upload route so the
-/// naming and sanitisation rules can only be defined once.
+/// Writes [data] under [kUploadsRoot] (optional [subdir]) with a random name.
 Future<String> saveUploadBytes(
   Uint8List data,
   String? originalFilename, {
@@ -58,8 +47,7 @@ Future<String> saveUploadBytes(
   return fileName;
 }
 
-/// Image content types served from the two static roots. Anything else is
-/// handed back as a generic binary download rather than being sniffed.
+/// Content-Type by extension; unknown → `application/octet-stream` (no sniffing).
 String contentTypeFor(String filename) {
   final lower = filename.toLowerCase();
   if (lower.endsWith('.webp')) return 'image/webp';
@@ -69,9 +57,7 @@ String contentTypeFor(String filename) {
   return 'application/octet-stream';
 }
 
-/// Rejects anything that could escape [dir]: path separators (both flavours,
-/// since the server also runs on Windows), parent-directory hops, absolute
-/// paths, and NUL bytes.
+/// Rejects path traversal: separators, `..`, absolute paths, NUL.
 bool isSafeUploadFilename(String filename) {
   if (filename.isEmpty) return false;
   if (filename.contains('..')) return false;
@@ -80,8 +66,7 @@ bool isSafeUploadFilename(String filename) {
   return true;
 }
 
-/// Shared implementation for the two static roots: validate the filename,
-/// stream the file if it exists, 404 otherwise.
+/// Serve a file from [resolveDir] after filename checks; 404 if missing.
 Handler _staticDirHandler(String Function() resolveDir) {
   return (Request request) async {
     final filename = request.url.pathSegments.isEmpty
@@ -99,8 +84,7 @@ Handler _staticDirHandler(String Function() resolveDir) {
       headers: {
         'content-type': contentTypeFor(filename),
         'cache-control': 'public, max-age=86400',
-        // Uploaded content is user-supplied: never let a browser re-interpret
-        // it as HTML/JS on the API origin.
+        // User-supplied bytes: block MIME sniffing on the API origin.
         'x-content-type-options': 'nosniff',
         'content-disposition': 'inline',
       },
@@ -108,10 +92,7 @@ Handler _staticDirHandler(String Function() resolveDir) {
   };
 }
 
-/// Serves locally bundled residence photos from `residences-images/` at
-/// `/v1/static/residences/<filename>`. Used by seed data for projects like
-/// Hills Blue where we have real marketing assets instead of Wikimedia
-/// placeholders.
+/// Bundled residence photos from `residences-images/` at `/v1/static/residences/<filename>`.
 Handler residencesStaticHandler({String? imagesDir}) {
   final dir =
       imagesDir ??
@@ -119,10 +100,6 @@ Handler residencesStaticHandler({String? imagesDir}) {
   return _staticDirHandler(() => dir);
 }
 
-/// Serves *public* operator uploads (unit media, photo reports) from
-/// `uploads/` at `/v1/static/uploads/<filename>`. KYC paperwork lives in
-/// `uploads/private/` and is served by the authenticated document route
-/// instead — this handler only reads the top-level directory, so a nested
-/// private file cannot be reached through it.
+/// Public uploads at `/v1/static/uploads/<filename>` (top-level only; not `private/`).
 Handler uploadsStaticHandler({String? uploadsDir}) =>
     _staticDirHandler(() => uploadsDir ?? kUploadsRoot);

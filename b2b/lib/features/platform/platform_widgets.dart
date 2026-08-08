@@ -4,10 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 
-/// Runs a platform admin mutation (ban, moderate, role change, ticket
-/// reply, ...), showing a success/error snackbar either way. Shared across
-/// every platform-admin page so failures are never silent.
-/// Returns `true` when [action] completes without error.
+/// Runs a platform admin action and shows success/error snackbar.
 Future<bool> runPlatformAction(
   BuildContext context,
   WidgetRef ref, {

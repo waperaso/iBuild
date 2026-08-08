@@ -25,10 +25,7 @@ const double kMaxMortgageRatePercent = 60;
 /// a unit (Profile shortcut). Rough mid-market Tashkent primary-sale apartment.
 const double kDefaultCalculatorPriceUsd = 65000;
 
-/// Bank mortgage calculator with a real annuity quote from
-/// `POST /v1/calculators/mortgage`, plus an opt-in bank-partner referral
-/// (Konseptsiya §7, §11.C — distinct from the developer's own 0%
-/// installment plan in [InstallmentCalculatorSheet]).
+/// Mortgage calculator (`POST /v1/calculators/mortgage`) + optional referral.
 Future<void> showMortgageCalculatorSheet(
   BuildContext context, {
   double? price,

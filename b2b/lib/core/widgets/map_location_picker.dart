@@ -16,8 +16,7 @@ const kDefaultMapCenter = LatLng(41.3111, 69.2797);
 const _kMapMinZoom = 3.0;
 const _kMapMaxZoom = 18.0;
 
-/// Interactive OSM map for picking a single geographic point — tap the map,
-/// or type exact latitude/longitude coordinates directly.
+/// OSM map point picker (tap or typed lat/lng).
 class MapLocationPicker extends StatefulWidget {
   const MapLocationPicker({
     super.key,
@@ -131,19 +130,8 @@ class _MapLocationPickerState extends State<MapLocationPicker> {
                         ? (_, point) => _onMapTap(point)
                         : null,
                     interactionOptions: InteractionOptions(
-                      // This picker always sits inside a scrollable form,
-                      // never full-screen. `scrollWheelZoom` claims the
-                      // mouse wheel the instant the cursor is over the map —
-                      // flutter_map registers with the same
-                      // [PointerSignalResolver] the page's own `Scrollable`
-                      // uses, and wins because it's deeper in the hit-test
-                      // order, so the page scroll just stops dead as soon as
-                      // the cursor crosses onto the map. Dropping that one
-                      // flag stops it from registering at all, so the
-                      // ancestor scrollable keeps handling the wheel —
-                      // pinch-zoom, drag-to-pan and tap-to-pick still work
-                      // fine without it, and the slider below covers precise
-                      // zooming without the mouse wheel at all.
+                      // Disable wheel zoom so the parent form keeps scrolling;
+                      // use pinch/slider for zoom instead.
                       flags: widget.interactive
                           ? InteractiveFlag.all &
                                 ~InteractiveFlag.scrollWheelZoom
@@ -257,9 +245,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> {
   }
 }
 
-/// Floating vertical zoom slider for the map — an explicit way to zoom
-/// in/out that doesn't need the mouse wheel (disabled here, see the
-/// `interactionOptions` comment above) or a precise pinch gesture.
+/// Vertical zoom control (wheel zoom is disabled on this picker).
 class _VerticalZoomSlider extends StatefulWidget {
   const _VerticalZoomSlider({required this.mapController});
 
@@ -277,8 +263,7 @@ class _VerticalZoomSliderState extends State<_VerticalZoomSlider> {
   void initState() {
     super.initState();
     _zoom = widget.mapController.camera.zoom;
-    // Keep the slider's thumb in sync when the zoom changes some other way
-    // (pinch, double-tap, or the coordinate fields), not just its own drag.
+    // Sync thumb when zoom changes via pinch/double-tap/coords.
     _subscription = widget.mapController.mapEventStream.listen((_) {
       final next = widget.mapController.camera.zoom;
       if (mounted && next != _zoom) setState(() => _zoom = next);

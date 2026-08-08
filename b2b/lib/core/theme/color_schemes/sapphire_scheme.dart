@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Sapphire" — a deep-blue primary paired with a cool silver/slate secondary
-/// on a crisp cool-white canvas. Reads as trustworthy and corporate for the
-/// admin surface. All foreground pairs clear WCAG-AA on their backgrounds.
+/// "Sapphire" — deep blue primary, silver/slate secondary, cool-white canvas.
 const AppColors sapphireScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF4F6FB),

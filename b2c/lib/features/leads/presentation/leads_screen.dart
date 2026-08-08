@@ -12,6 +12,7 @@ import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/shell_tab_scope.dart';
 import '../../../l10n/enum_labels.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../auth/providers/auth_providers.dart';
 import '../providers/leads_providers.dart';
 
 /// "My inquiries": Active / Completed / Cancelled tabs over the client's leads.
@@ -26,6 +27,36 @@ class LeadsScreen extends ConsumerWidget {
     // Indexed stack keeps this tab mounted — don't hit /leads until opened.
     if (tabIndex != null && tabIndex != ShellTabScope.inquiriesTabIndex) {
       return ColoredBox(color: colors.background);
+    }
+
+    final authState = ref.watch(authControllerProvider);
+    if (authState.isLoading) {
+      return Scaffold(
+        backgroundColor: colors.background,
+        appBar: AppBar(title: Text(l10n.myInquiriesTitle)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    // GET /users/me/leads requires auth — don't show list skeletons to guests.
+    if (authState.value == null) {
+      return Scaffold(
+        backgroundColor: colors.background,
+        appBar: AppBar(title: Text(l10n.myInquiriesTitle)),
+        body: Center(
+          child: EmptyState(
+            icon: Icons.lock_outline,
+            title: l10n.inquiriesSignInRequiredTitle,
+            subtitle: l10n.inquiriesSignInRequiredBody,
+            actionLabel: l10n.leadSignInCta,
+            onAction: () => context.push(
+              Uri(
+                path: '/login',
+                queryParameters: const {'redirect': '/inquiries'},
+              ).toString(),
+            ),
+          ),
+        ),
+      );
     }
 
     final leadsAsync = ref.watch(leadsProvider);

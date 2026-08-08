@@ -11,11 +11,7 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../favorites/providers/favorites_providers.dart';
 
-/// Property card matching the "Recommend for You" cards in the mockups, now
-/// image-forward: the cover photo fills most of the card and carries the
-/// name/price directly on a gradient overlay (Airbnb/Zillow style) instead
-/// of a plain white block below, with a hover-lift on desktop/web via
-/// [PressableScale].
+/// Discovery card: cover photo with name/price on a gradient overlay.
 class PropertyCard extends ConsumerWidget {
   const PropertyCard({super.key, required this.project, this.onTap});
 

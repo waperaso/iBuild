@@ -14,9 +14,7 @@ import '../../../../models/review.dart';
 import '../../../reviews/data/reviews_repository.dart';
 import '../../../reviews/providers/reviews_providers.dart';
 
-/// Published-review list + "write a review" entry point for one project
-/// (Konseptsiya §8 — surfaces review aggregates/evidence in B2C, mirroring
-/// the developer-visible moderation queue on the platform side).
+/// Published reviews for one project, plus write-review entry.
 class ReviewsTab extends ConsumerWidget {
   const ReviewsTab({super.key, required this.projectId});
 

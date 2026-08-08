@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Ocean" — a bright cyan-teal primary grounded by a deep navy secondary on a
-/// cool aqua-tinted canvas. Fresh and clean for a data-heavy admin surface.
+/// "Ocean" — cyan-teal primary, navy secondary, aqua canvas.
 const AppColors oceanScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFEFF6F7),

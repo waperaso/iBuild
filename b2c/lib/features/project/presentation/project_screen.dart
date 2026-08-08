@@ -135,17 +135,18 @@ class _ProjectBody extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         if (project.priceMin != null) ...[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              onPressed: () => showMortgageCalculatorSheet(
-                context,
-                price: project.priceMin!,
-                projectId: projectId,
+          Wrap(
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => showMortgageCalculatorSheet(
+                  context,
+                  price: project.priceMin!,
+                  projectId: projectId,
+                ),
+                icon: const Icon(Icons.account_balance_outlined, size: 18),
+                label: Text(l10n.mortgageCalculatorAction),
               ),
-              icon: const Icon(Icons.account_balance_outlined, size: 18),
-              label: Text(l10n.mortgageCalculatorAction),
-            ),
+            ],
           ),
           const SizedBox(height: AppSpacing.lg),
         ],
@@ -155,6 +156,7 @@ class _ProjectBody extends StatelessWidget {
               child: PillButton(
                 label: l10n.viewUnitGrid,
                 variant: PillButtonVariant.outline,
+                expand: true,
                 onPressed: () => context.go('/home/project/$projectId/grid'),
               ),
             ),
@@ -162,6 +164,7 @@ class _ProjectBody extends StatelessWidget {
             Expanded(
               child: PillButton(
                 label: l10n.requestCallback,
+                expand: true,
                 onPressed: () =>
                     context.go('/home/lead/new?project=$projectId'),
               ),
@@ -296,8 +299,16 @@ class _UnitsTab extends StatelessWidget {
                 ),
               ),
               UnitStatusBadge(status: u.status),
-              const SizedBox(width: AppSpacing.md),
-              Text(price, style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(width: AppSpacing.sm),
+              Flexible(
+                child: Text(
+                  price,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
             ],
           ),
         );
@@ -366,9 +377,7 @@ class _AboutTab extends StatelessWidget {
   }
 }
 
-/// Best-effort keyword mapping from a free-form amenity label (server seed
-/// data, not a fixed enum) to a representative icon — falls back to a plain
-/// checkmark so unknown amenities still render with something.
+/// Maps free-form amenity labels to icons; unknown → checkmark.
 IconData _amenityIcon(String label) {
   final l = label.toLowerCase();
   if (l.contains('pool')) return Icons.pool_outlined;

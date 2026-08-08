@@ -1,24 +1,105 @@
-# Local-only dev tooling (portable PostgreSQL binaries/data used for testing
-# the Phase 4 persistence layer) — never commit this, it's machine-local.
-.tools/
+# =============================================================================
+# iBuild — .gitignore
+# =============================================================================
+# Public repo = application source only. Everything else stays on disk locally
+# or on the local-only branch `private/internal` (never push that branch).
 
-# Dart/Flutter build output. b2b/ and b2c/ ignore this via their own Flutter
-# .gitignore; server/ had none, so its .dart_tool (including a test snapshot
-# and an incremental kernel cache that is rewritten on every `dart test`) was
-# being tracked and produced a diff on every run.
+# --- Local dev tooling & IDE -------------------------------------------------
+.tools/
+.cursor/
+
+# --- Dart / Flutter ----------------------------------------------------------
 .dart_tool/
+**/.dart_tool/
+build/
+**/build/
+*.iml
+.flutter-plugins
+.flutter-plugins-dependencies
 
 # Runtime media uploads from the Dart API
 server/uploads/
 
-# Machine-local server configuration (auto-loaded; copy from server/.env.example)
+# Machine-local server configuration
 server/.env
+.env
+.env.*
+!.env.example
+!**/.env.example
 
-# Flutter compile-time defines (copy from *.json.example) — may point at local/prod hosts
+# Flutter compile-time defines (copy from *.json.example)
 b2b/dart_defines.dev.json
 b2b/dart_defines.prod.json
+b2b/dart_defines.staging.json
 b2c/dart_defines.dev.json
 b2c/dart_defines.prod.json
+b2c/dart_defines.staging.json
 
-# pgAdmin connection export (local monitoring; passwords live in %APPDATA%\postgresql\pgpass.conf)
+# pgAdmin export (passwords live in OS keychain / pgpass)
 server/pgadmin-servers.json
+
+# --- Node / presentation export tooling --------------------------------------
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# Root presentation deck generator + exported decks (private / admissions)
+/presentation/
+export_pdf.js
+export_pptx.js
+*.pptx
+*.pdf
+!docs/**/*.pdf
+
+# --- Financial models & investor materials (NEVER public) --------------------
+/investment/
+/ibuild-wiki/
+INVESTOR_READINESS_ANALYSIS.md
+PRESENTATION_READINESS.md
+/IBUILD_APP_PLAN.md
+/iBuild_Prototype_Spec.html
+
+# --- Codebase analysis cache (local tooling output) --------------------------
+/graphify-out/
+
+# --- Marketing / catalogue assets (optional local only) ----------------------
+/residences-images/
+
+# --- Third-party skill packs & agent junk ------------------------------------
+/skills/
+
+# --- Deploy/bootstrap scripts (server IPs, one-off ops) ----------------------
+scripts/_*.mjs
+scripts/setup-github-deploy-key.mjs
+scripts/_setup-sudoers.mjs
+
+# --- OS / editor junk --------------------------------------------------------
+__MACOSX/
+.DS_Store
+**/.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.log
+
+# --- Python (investment/ local runs) -----------------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+.venv/
+venv/
+
+# --- Secrets & keys ----------------------------------------------------------
+*.pem
+*.key
+id_rsa
+id_ed25519
+id_ed25519.pub
+*.ppk
+**/secrets/
+credentials.json

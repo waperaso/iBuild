@@ -785,10 +785,7 @@ class _OrgProfileScreenState extends ConsumerState<OrgProfileScreen> {
   }
 }
 
-/// Frontend-only draft-description template: collects a website / Instagram
-/// link and an optional company PDF, then composes a deterministic template
-/// description (no AI/network call — the label and copy make this explicit)
-/// that the user can edit and push into the profile's `description` field.
+/// Local description template from website/Instagram/PDF (no network).
 class _AiGeneratorCard extends StatelessWidget {
   const _AiGeneratorCard({
     required this.websiteController,

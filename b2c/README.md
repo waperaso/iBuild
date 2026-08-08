@@ -75,7 +75,7 @@ buildings/units/floor plans) on boot and simulates live unit-status changes
 over WebSocket every few seconds — see
 [`../server/README.md`](../server/README.md). By default that seed data is
 purely in-memory (reset on every server restart); to persist it in a real
-PostgreSQL database instead — locally or on the aHOST.uz production target —
+PostgreSQL database instead — locally or on the airnet.uz production target —
 see [`../server/README.md#persistence-optional-postgresql`](../server/README.md#persistence-optional-postgresql).
 This only changes what backs the server; nothing on the client changes
 beyond the `USE_MOCK_DATA=false` + server URLs above.

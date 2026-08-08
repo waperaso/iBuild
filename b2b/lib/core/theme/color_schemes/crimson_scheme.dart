@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Crimson" — a deep, confident red primary with a reserved gold secondary on
-/// a warm off-white canvas. Bold without tipping into alarm-red; the danger
-/// token is deliberately a different, more orange-red so status stays readable.
+/// "Crimson" — deep red primary, gold secondary, warm off-white canvas.
+/// Danger token is a distinct orange-red for status readability.
 const AppColors crimsonScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFFAF3F1),

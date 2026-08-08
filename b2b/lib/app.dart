@@ -28,19 +28,7 @@ import 'core/widgets/app_scroll_behavior.dart';
 import 'core/widgets/splash_screen.dart';
 import 'l10n/gen/app_localizations.dart';
 
-/// Cross-fade + subtle slide-up page transition — see the identical helper
-/// in the b2c app's router for the full rationale. Used for routes that are
-/// genuinely pushed on top of / popped off of whatever came before (the
-/// auth flow, and entering/leaving the dashboard shell as a whole) — these
-/// previously fell back to the platform-default [MaterialPage] transition
-/// (Zoom on Android, Cupertino-slide on iOS/macOS, fade-upwards elsewhere),
-/// which on desktop/web can leave the outgoing page visibly lingering
-/// behind the incoming one for a frame or two — the same "old page still
-/// there after the new one has appeared" glitch reported on b2c.
-///
-/// NOT used for panels *inside* the shell (see [_instantPage] below) — those
-/// are flat siblings that replace each other in place, so cross-fading them
-/// makes both panels visible/blended at once instead of a clean switch.
+/// Fade + slight slide for pushed auth/shell entry routes (not shell siblings).
 CustomTransitionPage<void> _fadeSlidePage({
   required LocalKey key,
   required Widget child,
@@ -79,17 +67,7 @@ CustomTransitionPage<void> _fadeSlidePage({
   );
 }
 
-/// Instant, no-transition page for switching between sibling panels inside
-/// the dashboard shell (sidebar/bottom-nav destinations, and drilling into a
-/// detail screen from a list). These routes all sit as flat siblings under
-/// the same [ShellRoute], so navigating between them doesn't push a new
-/// screen "on top" of the old one — GoRouter just replaces the shell's
-/// current child in place. Animating that swap with [_fadeSlidePage] made
-/// the outgoing and incoming panel cross-fade — i.e. both fully visible and
-/// blended together — for the whole transition, which read as one panel
-/// "layering" on top of another instead of a clean switch. A dashboard
-/// switching sections (Platform ↔ CRM ↔ Moderation ↔ Residence ↔ Settings)
-/// should cut instantly, the same way b2c's `IndexedStack`-based tabs do.
+/// No transition for sibling shell panels (instant cut).
 Page<void> _instantPage({required LocalKey key, required Widget child}) {
   return NoTransitionPage<void>(key: key, child: child);
 }

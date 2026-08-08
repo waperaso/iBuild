@@ -12,10 +12,7 @@ import '../../l10n/gen/app_localizations.dart';
 import '../auth/account_banned_panel.dart';
 import '../auth/auth.dart';
 
-/// Admin preferences: a live palette + dark-mode switcher (mirrors the B2C
-/// profile appearance controls), language, and sign-out. The palette picker is
-/// a scrollable swatch grid rather than a plain dropdown because the catalog
-/// now has fifteen entries.
+/// Admin preferences: palette/dark-mode (swatch grid), language, sign-out.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -140,9 +137,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-/// Scrollable grid of palette swatches. Each tile previews the palette's
-/// accent + secondary against its own surface so the choice is legible before
-/// it's applied.
+/// Palette swatches previewing accent + secondary on their surface.
 class _PaletteGrid extends StatelessWidget {
   const _PaletteGrid({
     required this.selected,

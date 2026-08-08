@@ -11,11 +11,10 @@ import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/pressable_scale.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../models/app_notification.dart';
+import '../notification_copy.dart';
 import '../providers/notifications_providers.dart';
 
-/// Notifications list. All unread notifications are marked read as soon as
-/// this screen opens (rather than on the bell tap) so the badge clears the
-/// moment the user has actually seen the list.
+/// Notifications list; marks unread as read on open so the badge clears.
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -144,6 +143,7 @@ class _NotificationTile extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context);
     final accent = _accentFor(notification.type, colors);
+    final copy = buyerNotificationCopy(l10n, notification);
 
     return PressableScale(
       hoverScale: expanded ? 1.005 : 1,
@@ -190,7 +190,7 @@ class _NotificationTile extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              notification.title,
+                              copy.title,
                               style:
                                   (expanded
                                           ? textTheme.titleMedium
@@ -209,7 +209,7 @@ class _NotificationTile extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        notification.body,
+                        copy.body,
                         maxLines: expanded ? 4 : 3,
                         overflow: TextOverflow.ellipsis,
                         style: textTheme.bodyMedium?.copyWith(

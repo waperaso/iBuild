@@ -4,10 +4,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import 'pressable_scale.dart';
 
-/// A small "quick glance" metric card: icon badge, big value, muted label.
-/// Used for the home screen's stats row (listings, available units,
-/// districts, rating) and reusable anywhere a dashboard-style number needs
-/// to stand out from body text.
+/// Compact metric: icon, value, label.
 class StatCard extends StatelessWidget {
   const StatCard({
     super.key,

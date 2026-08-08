@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Sapphire" — a deep, confident sapphire-blue primary on a cool ivory
-/// canvas, paired with a brushed-silver secondary for premium moments.
-/// Foregrounds clear WCAG AA on their surfaces.
+/// "Sapphire" — deep blue primary, silver secondary, cool ivory canvas.
 const AppColors sapphireScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF4F6FA),
@@ -28,8 +26,7 @@ const AppColors sapphireScheme = AppColors(
   unitBlocked: Color(0xFF565B66),
 );
 
-/// Dark variant of [sapphireScheme]: a midnight-navy canvas with a brightened
-/// sapphire so the primary stays legible on dark surfaces.
+/// Dark [sapphireScheme]: midnight-navy canvas, brighter sapphire.
 const AppColors sapphireSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF0C0F16),

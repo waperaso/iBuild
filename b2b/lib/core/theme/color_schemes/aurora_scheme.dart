@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Aurora" — a calm ivory canvas with a confident deep-indigo primary and a
-/// warm amber secondary. Mirrors the B2C palette of the same name so the two
-/// surfaces stay visually related, tuned for WCAG-AA foreground contrast.
+/// "Aurora" — ivory canvas, deep-indigo primary, amber secondary (matches B2C).
 const AppColors auroraScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF7F6F2),
@@ -28,8 +26,7 @@ const AppColors auroraScheme = AppColors(
   unitBlocked: Color(0xFF565A64),
 );
 
-/// Dark variant: a deep slate canvas with a brightened indigo so the primary
-/// stays legible on dark surfaces.
+/// Dark [auroraScheme]: slate canvas, brighter indigo.
 const AppColors auroraSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF13141B),

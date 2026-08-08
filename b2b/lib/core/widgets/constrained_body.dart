@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_dimens.dart';
 
-/// Caps content width and centers it on wide desktop windows.
-///
-/// Detail routes (project, unit, unit grid, lead form) push onto the root
-/// navigator — outside [AdaptiveScaffold] — so without this they'd render
-/// edge-to-edge on a big monitor. On mobile it's a no-op passthrough.
+/// Centers content with a max width on wide screens; passthrough on mobile.
 class ConstrainedBody extends StatelessWidget {
   const ConstrainedBody({super.key, required this.child, this.maxWidth = 760});
 

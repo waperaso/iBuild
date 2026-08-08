@@ -11,10 +11,7 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import 'media_gallery_viewer.dart';
 
-/// Groups every unit in the project by its layout (rooms for apartments,
-/// the `layout` string for offices) so a buyer can browse distinct
-/// apartment/office types — the "look inside with different apartments"
-/// flow — instead of only seeing a flat unit list.
+/// Units grouped by layout/rooms for browsing floor-plan types.
 class FloorPlansTab extends StatelessWidget {
   const FloorPlansTab({super.key, required this.project});
 
@@ -224,10 +221,15 @@ class _LayoutCard extends StatelessWidget {
                               ),
                             ),
                             UnitStatusBadge(status: u.status),
-                            const SizedBox(width: AppSpacing.md),
-                            Text(
-                              price,
-                              style: Theme.of(context).textTheme.titleSmall,
+                            const SizedBox(width: AppSpacing.sm),
+                            Flexible(
+                              child: Text(
+                                price,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.end,
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
                             ),
                           ],
                         ),

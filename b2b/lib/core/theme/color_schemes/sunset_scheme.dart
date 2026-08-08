@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Sunset" — a warm coral-orange primary with a deep plum secondary on a
-/// blush-tinted canvas. Energetic and modern while keeping text contrast high.
+/// "Sunset" — coral-orange primary, plum secondary, blush canvas.
 const AppColors sunsetScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFFBF4F0),

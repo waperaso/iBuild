@@ -52,11 +52,7 @@ final _auditLogPageProvider = NotifierProvider<_AuditLogPageController, int>(
 
 const _auditLogPageSize = 10;
 
-/// Platform dashboard: KPIs, owned businesses, developer application
-/// review, users & roles, and the audit trail. Project/review/rental
-/// moderation queues live in "Модерация" (see `platform_moderation.dart`) —
-/// a system admin never owns a ЖК of their own, so this page never shows
-/// "your projects".
+/// Platform dashboard (KPIs, KYC, users, audit). Moderation is separate.
 class PlatformHome extends ConsumerWidget {
   const PlatformHome({super.key});
 
@@ -548,10 +544,7 @@ class _DeveloperStatusChip extends StatelessWidget {
   }
 }
 
-/// Lets a platform admin walk a developer application across the review
-/// pipeline: Waiting for review -> On review -> Accepted/Declined (with a
-/// reason). Every transition is reachable directly, so a decision can be
-/// walked back (e.g. re-open a declined application for another look).
+/// Developer application status transitions for platform review.
 class _DeveloperStatusMenu extends ConsumerWidget {
   const _DeveloperStatusMenu({
     required this.developerId,
@@ -979,10 +972,7 @@ class _BanDialogState extends ConsumerState<_BanDialog> {
   }
 }
 
-/// KYC review dialog: developer application fields plus (Track B.3) a real
-/// document viewer with accept/reject actions — replacing the previous
-/// text-only view that had no way to review the uploaded verification
-/// documents at all.
+/// KYC review dialog with document accept/reject.
 class _KycDetailDialog extends ConsumerStatefulWidget {
   const _KycDetailDialog({required this.developer});
 

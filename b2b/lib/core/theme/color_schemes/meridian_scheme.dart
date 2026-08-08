@@ -2,18 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Meridian" — the default B2B palette, mirroring the B2C scheme of the
-/// same name for a cohesive brand across the buyer and developer-admin
-/// surfaces. See `b2c/lib/core/theme/color_schemes/meridian_scheme.dart` for
-/// the full competitor-analysis rationale (proptech portals lean on
-/// saturated blue/red/purple already claimed by Zillow/Redfin/OLX; luxury
-/// brokerages succeed with a disciplined neutral base plus one confident
-/// jewel-tone accent and a reserved gold for premium moments).
-///
-/// In the admin surface, the deep teal accent also reads as "operational
-/// trust" for subscription/billing and KYC flows, while the brass secondary
-/// is reserved for premium tier badges (e.g. "Always on Top") and the
-/// subscription visualizer.
+/// "Meridian" — default B2B palette (matches B2C). Teal primary; brass for tier badges.
 const AppColors meridianScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF6F3EA),
@@ -37,8 +26,7 @@ const AppColors meridianScheme = AppColors(
   unitBlocked: Color(0xFF5B564C),
 );
 
-/// Dark variant, kept for parity with B2C even though B2B currently wires
-/// only the light theme in `app.dart`.
+/// Dark [meridianScheme] (parity with B2C; B2B currently uses light in app.dart).
 const AppColors meridianSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF0F1412),

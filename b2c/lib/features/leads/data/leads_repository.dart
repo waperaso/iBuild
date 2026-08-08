@@ -41,12 +41,7 @@ class LeadsRepository {
     String? message,
     DateTime? preferredAt,
 
-    /// PII-processing consent — the server rejects `POST /v1/leads` with
-    /// `422 VALIDATION_ERROR` unless this is `true` (plan section 11 /
-    /// Track A.2). The lead form only enables submit once the user has
-    /// checked the consent checkbox, so this is always `true` by the time it
-    /// gets here, but the parameter stays required so a future call site
-    /// can't accidentally skip it.
+    /// Required; server rejects POST /v1/leads without true.
     required bool consent,
   }) async {
     if (Env.useMockData) {

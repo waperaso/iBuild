@@ -5,28 +5,13 @@ import 'package:postgres/postgres.dart';
 import '../user_roles.dart';
 import 'database.dart';
 
-/// Reads/writes the normalized PostgreSQL schema (`migrations/0001_init.sql`)
-/// on behalf of [Store], reconstructing/flattening the exact nested JSON
-/// shape produced by `buildProjectsSeed()` so the in-memory `Store` model
-/// (`List<Map<String, dynamic>> projects`/`leads`) never has to change
-/// shape depending on whether persistence is active.
+/// Postgres read/write for [Store]; same nested JSON shape as the in-memory model.
 class PgPersistence {
   PgPersistence(this._db);
 
   final Database _db;
 
-  /// Runs [fn] inside a transaction whose RLS context is the `service`
-  /// role, scoped to that transaction only (`set_config(..., true)`).
-  ///
-  /// Write-through calls are fire-and-forget (`unawaited` in [Store]), so by
-  /// the time they hit the shared connection the per-request context set by
-  /// `authMiddleware` may already belong to a different caller — which made
-  /// FORCE-RLS tables (users, sessions, developers, subscriptions,
-  /// favorites, saved_searches, audit_log) reject writes intermittently.
-  /// Every such write mirrors an in-memory mutation that was already
-  /// authorized by the route layer, so `service` is the correct identity
-  /// here; the transaction-local scope means the ambient request context is
-  /// untouched.
+  /// Run [fn] as `service` in a local tx (fire-and-forget writes outlive request RLS).
   Future<T> _asService<T>(Future<T> Function(Session session) fn) =>
       _db.runTx((tx) async {
         await tx.execute(
@@ -38,17 +23,14 @@ class PgPersistence {
 
   // --- Read path ----------------------------------------------------------
 
-  /// Whether the projects table has zero rows (runs as `service` so FORCE RLS
-  /// cannot hide unpublished rows and fake an "empty" database).
+  /// True if `projects` has zero rows (as `service`, so FORCE RLS cannot hide drafts).
   Future<bool> isEmpty() => _asService((s) async {
     final result = await s.execute('SELECT COUNT(*) FROM projects');
     final count = result.first.first;
     return (count as int) == 0;
   });
 
-  /// First-boot catalogue seed gate. Unlike [isEmpty], this stays false after
-  /// an admin wipes every complex — see migration
-  /// `0014_rls_write_isolation_and_seed_guard.sql` (`app_meta.catalogue_seeded`).
+  /// True only before first seed (`app_meta.catalogue_seeded`; survives admin wipe).
   Future<bool> needsCatalogueSeed() => _asService((s) async {
     final flagged = await s.execute(
       Sql.named("SELECT value FROM app_meta WHERE key = 'catalogue_seeded'"),
@@ -70,9 +52,7 @@ class PgPersistence {
     ),
   );
 
-  /// Loads every project (including unpublished). Caller must have set
-  /// `app.role=service` (or `system_admin`) — typically [Store.create] via
-  /// [setRequestContext] — because FORCE RLS would otherwise hide drafts.
+  /// All projects including unpublished. Caller needs `service` or `system_admin` (FORCE RLS).
   Future<List<Map<String, dynamic>>> loadAllProjects() async {
     final projectRows = await _db.execute('''
       SELECT p.*,
@@ -160,9 +140,7 @@ class PgPersistence {
 
   // --- Write path (seeding) ------------------------------------------------
 
-  /// Inserts the full seeded dataset (as built by `buildProjectsSeed()`)
-  /// into the normalized tables inside a single transaction, then marks the
-  /// catalogue as seeded so a later wipe is not undone on restart.
+  /// Seed catalogue in one transaction; set `catalogue_seeded` so wipes stay wiped.
   Future<void> seedFrom(List<Map<String, dynamic>> projects) async {
     await _db.runTx((tx) async {
       await tx.execute(
@@ -222,9 +200,7 @@ class PgPersistence {
     });
   }
 
-  /// First-boot seeding for the demo reviews and rental listings. Their
-  /// `user_id`/`owner_user_id` FKs require user rows, so placeholder users
-  /// (with synthetic, non-routable phone numbers) are created first.
+  /// Seed demo reviews/rentals; creates placeholder users first (FK).
   Future<void> seedAuxiliary({
     required List<Map<String, dynamic>> reviews,
     required List<Map<String, dynamic>> rentalListings,
@@ -253,26 +229,15 @@ class PgPersistence {
 
   // --- Write-through path (project inventory mutations) --------------------
 
-  /// Sort order used for user-created projects: negative seconds-since-epoch
-  /// so `ORDER BY sort_order` puts the newest first, before the seed
-  /// catalogue (0..N) — matching the in-memory `projects.insert(0, ...)`.
+  /// Newest-first sort_order (negative epoch seconds; seed catalogue stays 0..N).
   static int _newestFirstSortOrder() =>
       -(DateTime.now().millisecondsSinceEpoch ~/ 1000);
 
-  /// Upserts one project row (not its nested buildings/units/media/offers —
-  /// those have their own save methods called by their own mutations).
-  ///
-  /// Runs as the `service` role (see [_asService]): `projects` is FORCE-RLS
-  /// (migration `0012_rls_core_tables.sql`) and this write-through is
-  /// fire-and-forget, so the ambient per-request context set by
-  /// `authMiddleware` may belong to a different caller by the time this
-  /// executes — same rationale as the other FORCE-RLS tables above.
+  /// Upsert project row only (nested rows have their own savers). Via [_asService].
   Future<void> saveProject(Map<String, dynamic> project) =>
       _asService((s) => _upsertProject(s, project, _newestFirstSortOrder()));
 
-  /// Hard-deletes a project row (and cascaded inventory / favorites / leads).
-  /// Runs as `service` so FORCE-RLS write policies cannot silently no-op the
-  /// DELETE (0 rows, no error) the way a stale per-request `app.role` would.
+  /// Hard-delete project (+ cascades). Via `service` so FORCE RLS cannot no-op DELETE.
   Future<void> deleteProject(String projectId) => _asService((s) async {
     // Pre-FK cleanup is still useful if migration 0014 has not applied yet.
     await s.execute(
@@ -319,8 +284,7 @@ class PgPersistence {
     required String unitId,
   }) => _asService((s) => _upsertMedia(s, media, unitId: unitId));
 
-  /// `PUT` semantics matching `Store.setProjectOffers`: replaces the
-  /// project's offers wholesale.
+  /// Replace all offers for a project.
   Future<void> replaceProjectOffers(
     String projectId,
     List<Map<String, dynamic>> offers,
@@ -814,8 +778,7 @@ class PgPersistence {
 
   // --- Write-through path (mutations) --------------------------------------
 
-  /// `leads` is FORCE-RLS as of migration `0012_rls_core_tables.sql`; see
-  /// [saveProject] for why write-throughs run as `service`.
+  /// Via `service` (FORCE RLS on `leads`; see [_asService]).
   Future<void> saveLead(Map<String, dynamic> lead) => _asService(
     (s) => s.execute(
       Sql.named('''
@@ -948,8 +911,7 @@ class PgPersistence {
     ),
   );
 
-  /// `units` is FORCE-RLS as of migration `0012_rls_core_tables.sql`; see
-  /// [saveProject] for why write-throughs run as `service`.
+  /// Via `service` (FORCE RLS on `units`; see [_asService]).
   Future<void> saveUnitStatus(String unitId, String status) => _asService(
     (s) => s.execute(
       Sql.named('UPDATE units SET status = @status WHERE id = @id'),
@@ -1025,29 +987,42 @@ class PgPersistence {
     return rows.map((r) => _notificationFromRow(r.toColumnMap())).toList();
   }
 
-  Map<String, dynamic> _notificationFromRow(Map<String, dynamic> m) => {
-    'id': m['id'],
-    'type': m['type'],
-    'title': m['title'],
-    'body': m['body'],
-    'developerId': m['developer_id'],
-    'projectId': m['project_id'],
-    'targetType': m['target_type'],
-    'targetId': m['target_id'],
-    'actorUserId': m['actor_user_id'],
-    'isRead': m['is_read'] ?? false,
-    'createdAt': (m['created_at'] as DateTime).toIso8601String(),
-  };
+  Map<String, dynamic> _notificationFromRow(Map<String, dynamic> m) {
+    final rawPayload = m['payload'];
+    Map<String, dynamic>? payload;
+    if (rawPayload is Map) {
+      payload = Map<String, dynamic>.from(rawPayload);
+    } else if (rawPayload is String && rawPayload.isNotEmpty) {
+      final decoded = jsonDecode(rawPayload);
+      if (decoded is Map) payload = Map<String, dynamic>.from(decoded);
+    }
+    return {
+      'id': m['id'],
+      'type': m['type'],
+      'title': m['title'],
+      'body': m['body'],
+      if (payload != null) 'payload': payload,
+      'developerId': m['developer_id'],
+      'projectId': m['project_id'],
+      'targetType': m['target_type'],
+      'targetId': m['target_id'],
+      'actorUserId': m['actor_user_id'],
+      'severity': m['severity'] ?? 'info',
+      'isRead': m['is_read'] ?? false,
+      'createdAt': (m['created_at'] as DateTime).toIso8601String(),
+    };
+  }
 
   Future<void> saveNotification(Map<String, dynamic> n) => _asService(
     (s) => s.execute(
       Sql.named('''
         INSERT INTO notifications (
-          id, type, title, body, developer_id, project_id, target_type,
-          target_id, actor_user_id, is_read, created_at
+          id, type, title, body, payload, developer_id, project_id, target_type,
+          target_id, actor_user_id, severity, is_read, created_at
         ) VALUES (
-          @id, @type, @title, @body, @developerId, @projectId, @targetType,
-          @targetId, @actorUserId, @isRead, COALESCE(@createdAt::timestamptz, now())
+          @id, @type, @title, @body, @payload::jsonb, @developerId, @projectId,
+          @targetType, @targetId, @actorUserId, @severity, @isRead,
+          COALESCE(@createdAt::timestamptz, now())
         )
         ON CONFLICT (id) DO UPDATE SET
           is_read = EXCLUDED.is_read
@@ -1057,11 +1032,16 @@ class PgPersistence {
         'type': TypedValue(Type.text, n['type'] as String? ?? ''),
         'title': TypedValue(Type.text, n['title'] as String? ?? ''),
         'body': TypedValue(Type.text, n['body'] as String?),
+        'payload': TypedValue(
+          Type.text,
+          n['payload'] == null ? null : jsonEncode(n['payload']),
+        ),
         'developerId': TypedValue(Type.text, n['developerId'] as String?),
         'projectId': TypedValue(Type.text, n['projectId'] as String?),
         'targetType': TypedValue(Type.text, n['targetType'] as String?),
         'targetId': TypedValue(Type.text, n['targetId'] as String?),
         'actorUserId': TypedValue(Type.text, n['actorUserId'] as String?),
+        'severity': TypedValue(Type.text, n['severity'] as String? ?? 'info'),
         'isRead': TypedValue(Type.boolean, n['isRead'] as bool? ?? false),
         'createdAt': TypedValue(Type.text, n['createdAt'] as String?),
       },
@@ -1230,6 +1210,7 @@ class PgPersistence {
     'rentMin': row['rent_min'],
     'rentMax': row['rent_max'],
     'constructionProgress': row['construction_progress'],
+    'plannedProgress': row['planned_progress'],
     'completionDate': (row['completion_date'] as DateTime?)?.toIso8601String(),
     'rating': row['rating'],
     'availableUnits': row['available_units'],
@@ -1310,20 +1291,18 @@ class PgPersistence {
         INSERT INTO projects (
           id, name, type, status, district, address, lat, lng, developer_id,
           description, amenities, tags, price_min, price_max, rent_min,
-          rent_max, construction_progress, completion_date, rating,
-          available_units, total_units, is_featured, sort_order,
+          rent_max, construction_progress, planned_progress, completion_date,
+          rating, available_units, total_units, is_featured, sort_order,
           is_published, moderation_status, moderation_note
         ) VALUES (
           @id, @name, @type, @status, @district, @address, @lat, @lng,
           @developerId, @description, @amenities, @tags, @priceMin,
           @priceMax, @rentMin, @rentMax, @constructionProgress,
-          @completionDate, @rating, @availableUnits, @totalUnits,
-          @isFeatured, @sortOrder, @isPublished, @moderationStatus,
-          @moderationNote
+          @plannedProgress, @completionDate, @rating, @availableUnits,
+          @totalUnits, @isFeatured, @sortOrder, @isPublished,
+          @moderationStatus, @moderationNote
         )
-        -- sort_order is deliberately absent: it encodes the project's
-        -- original position (see _newestFirstSortOrder), so re-saving an
-        -- edited project must not jump it back to the top of the catalogue.
+        -- Do not update sort_order on conflict (keeps catalogue position).
         ON CONFLICT (id) DO UPDATE SET
           name = EXCLUDED.name,
           type = EXCLUDED.type,
@@ -1341,6 +1320,7 @@ class PgPersistence {
           rent_min = EXCLUDED.rent_min,
           rent_max = EXCLUDED.rent_max,
           construction_progress = EXCLUDED.construction_progress,
+          planned_progress = EXCLUDED.planned_progress,
           completion_date = EXCLUDED.completion_date,
           rating = EXCLUDED.rating,
           available_units = EXCLUDED.available_units,
@@ -1388,6 +1368,10 @@ class PgPersistence {
         'constructionProgress': TypedValue(
           Type.integer,
           project['constructionProgress'] as int?,
+        ),
+        'plannedProgress': TypedValue(
+          Type.integer,
+          project['plannedProgress'] as int?,
         ),
         'completionDate': TypedValue(
           Type.timestampTz,
@@ -1626,8 +1610,7 @@ class PgPersistence {
 
   // --- Auth (phone OTP users + sessions) ----------------------------------
 
-  /// Loads every persisted B2C/B2B user into the in-memory auth cache on
-  /// startup so repeat sign-ins reuse the same `id`/`role`.
+  /// Load users into the in-memory auth cache (stable id/role across restarts).
   Future<Map<String, Map<String, dynamic>>> loadAllUsers() async {
     final result = await _db.execute(
       'SELECT id, phone, name, role, banned, ban_reason, banned_by_name, '
@@ -1651,7 +1634,7 @@ class PgPersistence {
     return users;
   }
 
-  /// Creates or updates a user row keyed by [phone].
+  /// Upsert user by [phone].
   Future<void> upsertUser(Map<String, dynamic> user) async {
     await _asService(
       (s) => s.execute(
@@ -1691,11 +1674,7 @@ class PgPersistence {
     );
   }
 
-  /// Hard-deletes a user row. Runs as `service` so an admin can always
-  /// remove another admin's account regardless of the caller's own
-  /// per-request RLS context. `sessions`/`leads`/`favorites`/etc. reference
-  /// `users.id` with `ON DELETE CASCADE` or `ON DELETE SET NULL` (see
-  /// migrations 0001–0015), so this one statement is enough.
+  /// Hard-delete user as `service` (cascades/SET NULL on related tables).
   Future<void> deleteUser(String id) => _asService(
     (s) => s.execute(
       Sql.named('DELETE FROM users WHERE id = @id'),
@@ -1703,9 +1682,7 @@ class PgPersistence {
     ),
   );
 
-  /// Loads every persisted session (with expiry) into the in-memory auth
-  /// caches on startup so Bearer tokens survive server restarts — while
-  /// still honoring their TTL.
+  /// Load sessions for in-memory auth cache (Bearer survives restart; TTL still applies).
   Future<
     List<
       ({
@@ -1734,8 +1711,7 @@ class PgPersistence {
     }).toList();
   }
 
-  /// Persists the opaque token pair minted by [Store.verifyOtp] /
-  /// [Store.refreshSession], including their absolute expiry timestamps.
+  /// Persist access/refresh token pair with expiry.
   Future<void> saveSession({
     required String accessToken,
     required String refreshToken,
@@ -1787,10 +1763,9 @@ class PgPersistence {
     );
   }
 
-  // --- RLS request context (parameterized set_config — never string-concat) -
+  // --- RLS request context (parameterized set_config) -----------------------
 
-  /// Sets `app.user_id` / `app.role` for FORCE RLS policies. Use role
-  /// `service` for startup/seed and `system_admin` for platform ops.
+  /// Set `app.user_id` / `app.role` for FORCE RLS (`service` for seed/startup).
   Future<void> setRequestContext({String? userId, String? role}) async {
     await _db.execute(
       Sql.named("SELECT set_config('app.user_id', @userId, false)"),
@@ -2070,8 +2045,7 @@ class PgPersistence {
     'profileComplete': m['profile_complete'] ?? false,
   };
 
-  /// NUMERIC columns come back from the `postgres` driver as [String];
-  /// DOUBLE PRECISION comes back as [double]. Accept both.
+  /// Parse NUMERIC ([String]) or DOUBLE PRECISION ([double]).
   num? _asNum(Object? v) => switch (v) {
     null => null,
     final num n => n,

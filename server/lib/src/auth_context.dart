@@ -31,8 +31,8 @@ extension AuthRequest on Request {
   AuthContext? get auth => context[authContextKey] as AuthContext?;
 }
 
-/// Attaches [AuthContext] when a valid Bearer token is present.
-/// Does not reject unauthenticated requests — use [requireAuth] for that.
+/// Attach [AuthContext] for a valid Bearer token. Does not reject anonymous
+/// callers — use [requireAuth] for that.
 Middleware authMiddleware(Store store) {
   return (Handler inner) {
     return (Request request) async {
@@ -48,7 +48,7 @@ Middleware authMiddleware(Store store) {
           );
         }
       }
-      // Defense-in-depth for FORCE RLS: bind DB session to caller (or service).
+      // FORCE RLS: bind DB session to caller (or service).
       final persistence = store.persistence;
       if (persistence != null) {
         await persistence.setRequestContext(
@@ -59,10 +59,7 @@ Middleware authMiddleware(Store store) {
       try {
         return await inner(request);
       } finally {
-        // Reset must never turn a successful response (e.g. logout) into a
-        // 500. Fire-and-forget session deletes can still be mid-`runTx` when
-        // we get here; Database serializes them, but we also swallow any
-        // residual context-reset failure so the client always gets its body.
+        // Ignore reset failures so the response still returns.
         if (persistence != null) {
           try {
             await persistence.setRequestContext(role: 'service');
@@ -73,16 +70,11 @@ Middleware authMiddleware(Store store) {
   };
 }
 
-/// Paths a banned account may still hit — just enough to see *why* it was
-/// banned (own profile, incl. `banReason`/`bannedByName`) and to sign out.
-/// Everything else authenticated (leads, favorites, reviews, admin actions,
-/// etc.) is rejected with 403 while `banned = true` on the account.
+/// Banned accounts may still hit these (profile + sign-out).
 const _banAllowedPaths = {'v1/users/me', 'v1/auth/logout', 'v1/auth/refresh'};
 
-/// Freezes a banned account's authenticated surface (must run after
-/// [authMiddleware] so [Request.auth] is resolved). Public/anonymous
-/// requests are untouched — a ban only blocks *that account's* actions, not
-/// anonymous browsing of the public catalogue.
+/// 403 authenticated actions for banned users. Run after [authMiddleware].
+/// Anonymous/public requests are unchanged.
 Middleware banGuardMiddleware() {
   return (Handler inner) {
     return (Request request) async {

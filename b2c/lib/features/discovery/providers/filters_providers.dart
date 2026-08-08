@@ -113,11 +113,7 @@ class DiscoveryFilters {
   );
 }
 
-/// Search text, filter-sheet fields and the category chip, shared by the
-/// search bar, `filter_sheet.dart` and `_CategoryChips` on the discovery
-/// screen. `projectsProvider` in `discovery_providers.dart` watches this
-/// alongside `discoveryModeProvider` to build the query it sends through
-/// [ProjectsRepository].
+/// Discovery search/filter/category state for [ProjectsRepository] queries.
 class DiscoveryFiltersController extends Notifier<DiscoveryFilters> {
   @override
   DiscoveryFilters build() => const DiscoveryFilters();

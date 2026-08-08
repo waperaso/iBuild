@@ -25,7 +25,7 @@
     "placeholders": { "phone": { "type": "String" } }
   },
   "otpCodeHint": "6-digit code",
-  "otpDevHint": "Dev mode: use code 123456",
+  "otpDevHint": "Test mode",
   "stepOneOfTwo": "Step 1 of 2",
   "stepTwoOfTwo": "Step 2 of 2",
   "verifyCode": "Verify",
@@ -91,6 +91,21 @@
   "tabReviews": "Reviews",
   "tabProgress": "Progress",
   "overallProgressTitle": "Overall construction progress",
+  "actualProgressLabel": "Actual construction progress",
+  "plannedProgressLabel": "Planned construction progress",
+  "progressOnSchedule": "On schedule",
+  "progressAheadOfSchedule": "Ahead of schedule",
+  "progressAcceptableDeviation": "Acceptable deviation",
+  "progressBehindSchedule": "Behind schedule",
+  "progressDeviation": "Deviation {percent}%",
+  "@progressDeviation": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "trustIndexLabel": "Trust index {percent}%",
+  "@trustIndexLabel": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "progressComparisonNote": "A gap of up to 15% is normal on a building site: weather, seasonal work bans and supply delays. Above 15% the platform sends the project for inspection.",
   "progressEmptyTitle": "No photo reports yet",
   "progressEmptySubtitle": "Dated construction photos will appear here as the developer uploads them.",
   "noReviewsYet": "No reviews yet",
@@ -209,6 +224,8 @@
   "tabCancelled": "Cancelled",
   "nothingHereYet": "Nothing here yet",
   "inquiriesEmptySubtitle": "Your callback and viewing requests will show up here.",
+  "inquiriesSignInRequiredTitle": "Sign in to see your inquiries",
+  "inquiriesSignInRequiredBody": "Sign in to your iBuild account to view callback and viewing requests.",
 
   "savedTitle": "Saved",
   "tabSavedSearches": "Saved searches",
@@ -220,6 +237,7 @@
   "guestUser": "Guest user",
   "appearanceTitle": "Appearance",
   "darkModeLabel": "Dark mode",
+  "lightModeLabel": "Light mode",
   "paletteLabel": "Palette",
   "languageLabel": "Language",
   "currencyLabel": "Currency",
@@ -357,6 +375,13 @@
   "notificationsEmpty": "No notifications yet",
   "notificationsEmptySubtitle": "We'll let you know about price drops, new offers and updates.",
   "markAllRead": "Mark all read",
+  "notifLeadStatusTitle": "Inquiry status updated",
+  "notifLeadStatusBody": "Your inquiry is now “{status}”.",
+  "@notifLeadStatusBody": { "placeholders": { "status": { "type": "String" } } },
+  "notifNewOfferTitle": "New offer available",
+  "notifNewOfferBody": "A new offer was added to a project you follow.",
+  "notifLeadCreatedTitle": "Inquiry received",
+  "notifLeadCreatedBody": "We received your inquiry and will be in touch shortly.",
 
   "compareModeAction": "Compare units",
   "compareCountLabel": "Compare ({count})",

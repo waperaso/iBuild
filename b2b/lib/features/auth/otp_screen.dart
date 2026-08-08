@@ -5,12 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/auth_hero_panel.dart';
 import '../../core/widgets/b2b_brand.dart';
-import '../../core/widgets/language_switcher.dart';
+import '../../core/widgets/locale_theme_bar.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/gen/app_localizations.dart';
 import 'auth.dart';
@@ -83,6 +84,14 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       await ref
           .read(authControllerProvider.notifier)
           .verifyOtp(requestId: _requestId, code: _code.text.trim());
+      if (!mounted) return;
+      final user = ref.read(authControllerProvider).value;
+      if (user != null) {
+        context.go(user.isSystemAdmin ? '/platform' : '/residence');
+      }
+    } on DioException catch (error) {
+      if (!mounted) return;
+      setState(() => _error = l10n.otpInvalidError);
     } catch (_) {
       if (!mounted) return;
       setState(() => _error = l10n.otpInvalidError);
@@ -256,7 +265,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             const Positioned(
               top: AppSpacing.lg,
               right: AppSpacing.lg,
-              child: LanguageSwitcher(),
+              child: LocaleThemeBar(),
             ),
           ],
         ),

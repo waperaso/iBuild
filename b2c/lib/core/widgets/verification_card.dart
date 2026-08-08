@@ -9,20 +9,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import 'app_card.dart';
 
-/// The B2C "Verified" badge + mandatory disclaimer (plan section 11 "Trust
-/// system") shown wherever a developer's verification status matters — the
-/// developer profile header and the project page's developer card.
-///
-/// Badge state is derived from [developerDocumentsProvider]:
-/// - all 4 required document types `accepted` → green "Verified" badge.
-/// - some documents on file but not all accepted yet → grey "Verification
-///   in progress" badge.
-/// - no documents available (none uploaded yet, or the breakdown isn't
-///   reachable for a signed-out buyer) → falls back to the plain
-///   `iBuildPartner` pill, no per-document breakdown.
-///
-/// The disclaimer itself always renders — a buyer should understand what
-/// "Verified" does (and doesn't) mean before ever seeing a green badge.
+/// "Verified" badge + disclaimer from [developerDocumentsProvider].
 class VerificationCard extends ConsumerWidget {
   const VerificationCard({super.key, required this.developerId});
 

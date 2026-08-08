@@ -10,12 +10,8 @@ import '../../../models/mock_data.dart';
 /// default (see `server/bin/server.dart`).
 const int kProjectsPageSize = 20;
 
-/// Query parameters accepted by [ProjectsRepository.fetchProjects] — the
-/// Buy/Rent/New-builds mode, free-text search, the filter-sheet fields
-/// (district/status/price range), the category-chip type/status and paging.
-///
-/// [minPrice]/[maxPrice] are applied client-side after the fetch since the
-/// server has no price-range query param.
+/// Query params for [ProjectsRepository.fetchProjects].
+/// Price range is applied client-side after fetch.
 class ProjectFilter {
   const ProjectFilter({
     this.mode,
@@ -61,12 +57,7 @@ class ProjectFilter {
   );
 }
 
-/// Fetches project data.
-///
-/// When [Env.useMockData] is `false` (the default), this calls the real REST
-/// API against [Env.apiBaseUrl]. Pass `--dart-define=USE_MOCK_DATA=true`
-/// (as CI's `flutter test` step and offline dev do) to serve the bundled
-/// [MockData] instead, so the app still renders without a server running.
+/// Project list/detail fetch (live API or [MockData] when [Env.useMockData]).
 class ProjectsRepository {
   ProjectsRepository(this._dio);
 

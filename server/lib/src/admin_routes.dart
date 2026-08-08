@@ -14,23 +14,18 @@ import 'store.dart';
 import 'user_roles.dart';
 import 'validation.dart';
 
-/// Legacy default bootstrap secret. Kept only to *reject* it — it must never
-/// be accepted, so an operator who forgot to set BOOTSTRAP_ADMIN_SECRET can't
-/// be privilege-escalated with a well-known value.
+/// Known-bad bootstrap secret; always rejected (blocks missing-env escalation).
 const kDefaultBootstrapSecret = 'ibuild-dev';
 
-/// Whether `POST /v1/platform/bootstrap-admin` is reachable. Enabled by
-/// default outside production; in production it is disabled unless the
-/// operator explicitly opts in with `BOOTSTRAP_ADMIN_ENABLED=true`.
+/// `POST /v1/platform/bootstrap-admin` on outside production; in prod needs
+/// `BOOTSTRAP_ADMIN_ENABLED=true`.
 bool get bootstrapAdminEnabled {
   if (!isProduction) return true;
   return (appEnv()['BOOTSTRAP_ADMIN_ENABLED'] ?? '').trim().toLowerCase() ==
       'true';
 }
 
-/// Whether the manual/dev subscription checkout may activate publishing for
-/// free. Allowed outside production; in production a real payment is required
-/// unless the operator explicitly opts in with `ALLOW_DEV_CHECKOUT=true`.
+/// Free/dev subscription checkout outside production; in prod needs `ALLOW_DEV_CHECKOUT=true`.
 bool get devCheckoutAllowed {
   if (!isProduction) return true;
   return (appEnv()['ALLOW_DEV_CHECKOUT'] ?? '').trim().toLowerCase() == 'true';
@@ -504,6 +499,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
         type: 'developer_submitted',
         title: 'Developer application submitted: ${developer['name']}',
         body: '${developer['name']} submitted their KYC application for review.',
+        payload: {'developerName': developer['name']},
         developerId: developer['id'] as String?,
         targetType: 'developer',
         targetId: developer['id'] as String?,
@@ -538,13 +534,8 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
         status: 401,
       );
     }
-    // Deliberately no `isResidenceAdmin` gate here (unlike `PATCH
-    // /v1/developers/me`, which edits the post-approval public profile):
-    // verification documents must be uploadable *before* approval — a
-    // developer only becomes `residence_admin` once approved, and approval
-    // itself requires these documents to already be accepted. Ownership via
-    // `developerForOwner` below is the real access boundary, matching the
-    // `GET` of this same resource.
+    // No residence_admin gate: KYC docs must upload before approval.
+    // Access is ownership via developerForOwner (same as GET).
     final developer = store.developerForOwner(auth.userId);
     if (developer == null) {
       return jsonError('NOT_FOUND', 'No developer profile', status: 404);
@@ -571,6 +562,10 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
         type: 'document_uploaded',
         title: 'Document submitted: ${doc['type']}',
         body: '${developer['name']} uploaded a "${doc['type']}" document for review.',
+        payload: {
+          'documentType': doc['type'],
+          'developerName': developer['name'],
+        },
         developerId: developerId,
         targetType: 'document',
         targetId: doc['id'] as String?,
@@ -604,6 +599,10 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       type: 'document_uploaded',
       title: 'Document submitted: $type',
       body: '${developer['name']} uploaded a "$type" document for review.',
+      payload: {
+        'documentType': type,
+        'developerName': developer['name'],
+      },
       developerId: developerId,
       targetType: 'document',
       targetId: doc['id'] as String?,
@@ -629,10 +628,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     return jsonOk(items, meta: {'total': items.length});
   });
 
-  // Authenticated read side for KYC uploads. These are passports and business
-  // licences, so unlike unit photos they are not reachable through the public
-  // static route — only the developer who uploaded them and platform admins
-  // may fetch the bytes.
+  // KYC docs: authenticated only (uploader or system admin), not public static.
   router.get('/v1/documents/<file>', (Request req, String file) async {
     final auth = req.auth;
     if (auth == null) {
@@ -749,10 +745,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
         status: 422,
       );
     }
-    // Manual/dev checkout stub — Payme/Click can replace this later. Free
-    // activation is gated: in production it requires a completed payment
-    // (or an explicit ALLOW_DEV_CHECKOUT opt-in), so publishing can't be
-    // unlocked for free by hitting this endpoint.
+    // Dev checkout stub. Production needs payment or ALLOW_DEV_CHECKOUT=true.
     if (!devCheckoutAllowed) {
       return jsonError(
         'PAYMENT_REQUIRED',
@@ -839,6 +832,10 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       body: devName == null
           ? 'A new project draft was created.'
           : '$devName created a new project draft.',
+      payload: {
+        'projectName': project['name'],
+        if (devName != null) 'developerName': devName,
+      },
       developerId: (project['developer'] as Map?)?['id'] as String?,
       projectId: project['id'] as String?,
       targetType: 'project',
@@ -888,14 +885,16 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     final body = await req.readJson();
     try {
       final updated = store.updateProject(id, body);
-      // Only notify when a residence admin edits their own project — a
-      // system admin's own moderation actions (approve/reject/publish/...)
-      // already surface via the audit log and shouldn't self-notify.
+      // Skip notify for system-admin moderation (already in audit log).
       if (!auth.isSystemAdmin && updated != null) {
         store.notifyAdmins(
           type: 'project_updated',
           title: 'Project updated: ${updated['name']}',
           body: 'Changed fields: ${body.keys.join(', ')}',
+          payload: {
+            'projectName': updated['name'],
+            'changedFields': body.keys.toList(),
+          },
           developerId: (updated['developer'] as Map?)?['id'] as String?,
           projectId: id,
           targetType: 'project',
@@ -1052,6 +1051,10 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
         body: devName == null
             ? 'A project was submitted for moderation.'
             : '$devName submitted this project for moderation.',
+        payload: {
+          'projectName': updated['name'],
+          if (devName != null) 'developerName': devName,
+        },
         developerId: (updated['developer'] as Map?)?['id'] as String?,
         projectId: id,
         targetType: 'project',
@@ -1607,9 +1610,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     if (store.developerById(id) == null) {
       return jsonError('NOT_FOUND', 'Developer $id not found', status: 404);
     }
-    // Documents API contract: approval requires every required document
-    // type to be reviewed and accepted — this is what makes the "Verified"
-    // badge on B2C actually mean "documents checked".
+    // Approval requires every required document type accepted.
     if (!store.hasAllRequiredDocumentsAccepted(id)) {
       return jsonError(
         'VALIDATION_ERROR',
@@ -1658,10 +1659,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     return jsonOk(developer);
   });
 
-  // Free-form transition across the whole review pipeline (pending ->
-  // in_review -> approved/rejected, and back again if an admin changes their
-  // mind) — the generalization of the two endpoints above, driving the B2B
-  // "change status" control instead of just a binary approve/reject.
+  // Free-form verification status (pending/in_review/approved/rejected).
   router.patch('/v1/platform/developers/<id>/status', (
     Request req,
     String id,
@@ -1685,9 +1683,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
         status: 422,
       );
     }
-    // Same document-completeness contract as the dedicated /approve
-    // endpoint above — this generalized transition must not become a way
-    // to grant `residence_admin` while skipping the KYC document check.
+    // Same KYC completeness check as /approve.
     if (status == 'approved' && !store.hasAllRequiredDocumentsAccepted(id)) {
       return jsonError(
         'VALIDATION_ERROR',
@@ -1735,9 +1731,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     );
   });
 
-  // Full ЖК/business-centre roster — any status — for the platform admin's
-  // "ЖК" oversight list (Konseptsiya: admins inspect how a listing is
-  // furnished/attached rather than owning projects of their own).
+  // Full ЖК/business-centre roster (any status) for platform admin oversight.
   router.get('/v1/platform/projects', (Request req) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
@@ -1748,9 +1742,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     );
   });
 
-  // Platform-wide lead CRM — every lead across every project, for the
-  // "CRM" section (as opposed to `/admin/projects/:id/leads`, which is
-  // scoped to one residence admin's own project).
+  // Platform-wide leads (vs project-scoped /admin/projects/:id/leads).
   router.get('/v1/platform/leads', (Request req) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
@@ -1920,12 +1912,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     return jsonOk(user);
   });
 
-  // Scoped to `system_admin` accounts only (see the concept doc's
-  // "platform admins" team management) — ordinary/residence-admin accounts
-  // own real business data (developer orgs, leads, listings) where an
-  // outright delete has much bigger data-integrity implications than
-  // removing a teammate's platform-admin seat, so [banUser] remains the
-  // only way to freeze those.
+  // Delete system_admin seats only; freeze others via banUser.
   router.delete('/v1/platform/users/<id>', (Request req, String id) async {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
@@ -2200,11 +2187,8 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     return jsonOk(ticket);
   });
 
-  // Seed bootstrap: promote a phone to system admin. This is a privilege-
-  // escalation endpoint, so it is disabled entirely in production unless
-  // explicitly enabled, and always requires a strong, operator-configured
-  // BOOTSTRAP_ADMIN_SECRET — the legacy `ibuild-dev` default is never
-  // accepted.
+  // Promote a phone to system admin. Off in production unless enabled;
+  // requires BOOTSTRAP_ADMIN_SECRET (legacy `ibuild-dev` rejected).
   router.post('/v1/platform/bootstrap-admin', (Request req) async {
     if (!bootstrapAdminEnabled) {
       return jsonError('NOT_FOUND', 'Not found', status: 404);
@@ -2245,9 +2229,7 @@ Response? _requireSystemAdmin(Request req) {
   return null;
 }
 
-/// Maps the two publish gates raised by `Store` onto responses, or null if
-/// [error] is something else. Shared by every route that can take a project
-/// live so they answer identically.
+/// Maps Store publish gates to HTTP responses; null if [error] is unrelated.
 Response? _publishDenialFor(Store store, StateError error, String projectId) {
   if (error.message == 'SUBSCRIPTION_REQUIRED') {
     return jsonError(
@@ -2281,10 +2263,7 @@ bool _canManageProject(Store store, AuthContext auth, Map project) {
   return store.ownsProject(auth.userId, project);
 }
 
-/// Whether [userId] would be able to work a lead on [project] — i.e. whether
-/// they are a valid assignee. Callers only checked that the target user
-/// existed, so a lead could be handed to an unrelated developer's admin, who
-/// would then see the customer's contact details in their own CRM.
+/// True if [userId] may manage leads on [project] (valid assignee).
 bool _canUserManageProject(Store store, String userId, Map project) {
   final user = store.allUsers().where((u) => u['id'] == userId).firstOrNull;
   if (user == null) return false;
@@ -2310,9 +2289,7 @@ Future<Map<String, dynamic>?> _handleMultipartMedia(
   return store.addUnitMedia(unitId, url: url, type: 'photo');
 }
 
-/// Multipart handler for `POST /v1/developers/me/documents`, mirroring
-/// [_handleMultipartMedia]'s upload-to-local-`uploads/` pattern. Expects a
-/// file part plus a `type` field (one of [kAllowedDocumentTypes]).
+/// Multipart KYC document upload (`type` in [kAllowedDocumentTypes]).
 Future<Map<String, dynamic>?> _handleMultipartDocument(
   Request req,
   Store store, {
@@ -2345,11 +2322,7 @@ Future<Map<String, dynamic>?> _handleMultipartDocument(
   );
 }
 
-/// Multipart handler for `POST /v1/admin/projects/:id/photo-reports`.
-/// Expects a file part plus optional `takenAt`/`progressPercent`/
-/// `buildingId` fields; returns the uploaded file's URL alongside the raw
-/// field values so the route can apply the same validation it uses for the
-/// JSON-body variant.
+/// Multipart photo-report upload; returns URL plus raw fields for JSON-path validation.
 Future<
   ({String url, String? takenAt, int? progressPercent, String? buildingId})?
 >
@@ -2378,10 +2351,7 @@ _handleMultipartPhotoReport(Request req) async {
   );
 }
 
-/// Buffers a multipart body and splits it into parts, refusing anything over
-/// [kMaxUploadBytes]. The parser needs the whole body in memory, so the cap is
-/// enforced while streaming rather than after the fact — otherwise an
-/// unauthenticated-size upload could be used to exhaust the heap.
+/// Split multipart body into parts. Cap enforced during read to avoid OOM.
 Future<List<_MultipartPart>?> _readMultipartParts(Request req) async {
   final contentType = req.headers['content-type'] ?? '';
   final boundaryMatch = RegExp(r'boundary=(.+)').firstMatch(contentType);

@@ -4,12 +4,7 @@ import '../features/admin/admin_api.dart';
 import '../models/admin_project.dart';
 import '../models/developer_profile.dart';
 
-/// Repository for the residence-admin (ЖК owner) surface. Sits between the raw
-/// [AdminApi] transport and the presentation layer, mapping loosely-typed JSON
-/// into domain models so screens depend on models instead of `Map` keys.
-///
-/// This is the first slice of the repository layer the audit called for; other
-/// surfaces (platform governance, support) can follow the same pattern.
+/// Residence-admin API access; maps [AdminApi] JSON into domain models.
 class ResidenceRepository {
   ResidenceRepository(this._api);
 

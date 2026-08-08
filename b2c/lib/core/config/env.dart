@@ -1,8 +1,4 @@
-/// Compile-time environment configuration.
-///
-/// Inject with `--dart-define-from-file=dart_defines.dev.json` (local) or
-/// `dart_defines.prod.json` (release). Copy from `*.json.example`.
-/// See `docs/HOSTING_AHOST.md`.
+/// Compile-time env (`--dart-define-from-file=dart_defines.*.json`).
 abstract class Env {
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',

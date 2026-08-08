@@ -4,25 +4,19 @@ import 'package:shelf/shelf.dart';
 
 import 'env_loader.dart';
 
-/// Simple in-memory fixed-window rate limiter, keyed by an arbitrary string
-/// (typically a client IP). Dependency-free stand-in for a Redis-backed
-/// limiter in the future production backend.
+/// In-memory fixed-window rate limiter keyed by an arbitrary string (usually IP).
 class RateLimiter {
   RateLimiter(this.maxRequests, this.window, {this.maxTrackedKeys = 10000});
 
   final int maxRequests;
   final Duration window;
 
-  /// Upper bound on distinct keys held in memory. Without it an attacker who
-  /// rotates the client key (spoofed `X-Forwarded-For`, or simply a large
-  /// botnet) grows [_hits] without limit until the process is OOM-killed.
+  /// Cap on distinct keys in memory (spoofed `X-Forwarded-For` / botnet OOM guard).
   final int maxTrackedKeys;
 
   final Map<String, List<DateTime>> _hits = {};
 
-  /// Records a hit for [key] and returns `true` if it's still within the
-  /// limit for the current window, or `false` (without recording) if the
-  /// window's request budget is already exhausted.
+  /// Record a hit; `false` if [key] is already over the window budget.
   bool allow(String key) {
     final now = DateTime.now();
     final windowStart = now.subtract(window);
@@ -36,8 +30,7 @@ class RateLimiter {
     return true;
   }
 
-  /// Seconds until the oldest hit for [key] falls out of the current
-  /// window — suitable for a `Retry-After` header on a 429 response.
+  /// Seconds until [key]'s oldest hit leaves the window (`Retry-After`).
   int retryAfterSeconds(String key) {
     final hits = _hits[key];
     if (hits == null || hits.isEmpty) return window.inSeconds;
@@ -46,19 +39,16 @@ class RateLimiter {
     return remaining < 0 ? 0 : remaining + 1;
   }
 
-  /// Number of distinct keys currently held — exposed so tests can assert the
-  /// map stays bounded.
+  /// Distinct keys held (tests assert the bound).
   int get debugTrackedKeyCount => _hits.length;
 
-  /// Drops keys whose hits have all aged out of the window. Runs only when
-  /// the map hits [maxTrackedKeys], so the common path stays allocation-free.
+  /// Drop expired keys when at [maxTrackedKeys].
   void _evictExpired(DateTime windowStart) {
     _hits.removeWhere((_, hits) {
       hits.removeWhere((t) => t.isBefore(windowStart));
       return hits.isEmpty;
     });
-    // Still full of live entries (a genuine traffic spike): drop the oldest
-    // half rather than letting the map grow past the cap.
+    // Still full: drop oldest half to stay under the cap.
     if (_hits.length >= maxTrackedKeys) {
       final byAge = _hits.keys.toList()
         ..sort((a, b) => _hits[a]!.first.compareTo(_hits[b]!.first));
@@ -69,18 +59,11 @@ class RateLimiter {
   }
 }
 
-/// Whether `X-Forwarded-For` may be believed. Only true when the operator
-/// explicitly opts in with `TRUST_PROXY=true`, because the header is
-/// attacker-controlled on any directly reachable port: trusting it
-/// unconditionally lets a single client mint a fresh rate-limit bucket per
-/// request and walk straight through the OTP brute-force guard.
+/// True only with `TRUST_PROXY=true`. Blind XFF trust bypasses rate limits.
 bool get trustProxyHeaders =>
     (appEnv()['TRUST_PROXY'] ?? '').trim().toLowerCase() == 'true';
 
-/// Best-effort client identifier for rate limiting: the first hop of an
-/// `X-Forwarded-For` header when running behind a trusted reverse proxy
-/// (`TRUST_PROXY=true`), else the underlying socket's remote address, else a
-/// constant fallback.
+/// Rate-limit client key: XFF first hop if trusted proxy, else socket address.
 String clientKeyFor(Request request) {
   if (trustProxyHeaders) {
     final forwardedFor = request.headers['x-forwarded-for'];

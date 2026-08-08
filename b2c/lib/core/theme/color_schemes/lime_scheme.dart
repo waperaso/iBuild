@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// Default palette, sampled from the DESIGN mockups: a lime-yellow accent on a
-/// warm cream canvas with near-black ink text.
-///
-/// To introduce a new theme, copy this file, tweak the tokens, and register it
-/// in `theme_controller.dart`. No other code needs to change.
+/// "Lime" — lime-yellow accent on warm cream (from DESIGN mockups).
 const AppColors limeScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF4F2E8),
@@ -30,8 +26,7 @@ const AppColors limeScheme = AppColors(
   unitBlocked: Color(0xFF5B5E66),
 );
 
-/// Optional dark variant, kept in the same file for convenience. Wired up as an
-/// alternative in `theme_controller.dart`.
+/// Dark [limeScheme].
 const AppColors limeSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF15161A),

@@ -3,12 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 
-/// A form field that looks like the surrounding [TextField]s but opens a
-/// rounded, brand-styled option list instead of Flutter's default flat
-/// dropdown menu (square corners, hard grey selection bar, no icons/check
-/// mark). Meant for short, fixed-choice pickers — e.g. the KYC region
-/// selector — where a full [DropdownButtonFormField] menu feels out of
-/// place next to the rest of the form.
+/// Text-field-styled picker with a custom option list (for short fixed choices).
 class AppDropdownField<T> extends StatefulWidget {
   const AppDropdownField({
     super.key,

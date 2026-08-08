@@ -306,7 +306,7 @@ class _UnitSummary extends StatelessWidget {
           ),
         ],
         SizedBox(height: desktop ? AppSpacing.xxl : AppSpacing.xl),
-        _UnitActions(unit: unit, projectId: projectId, desktop: desktop),
+        _UnitActions(unit: unit, projectId: projectId),
       ],
     );
 
@@ -320,12 +320,10 @@ class _UnitActions extends StatelessWidget {
   const _UnitActions({
     required this.unit,
     this.projectId,
-    this.desktop = false,
   });
 
   final Unit unit;
   final String? projectId;
-  final bool desktop;
 
   @override
   Widget build(BuildContext context) {
@@ -340,29 +338,21 @@ class _UnitActions extends StatelessWidget {
     final viewing = PillButton(
       label: l10n.bookViewing,
       variant: PillButtonVariant.outline,
+      expand: true,
       onPressed: lead,
     );
     final primary = PillButton(
       label: isRent ? l10n.rentEnquiry : l10n.reserve,
+      expand: true,
       onPressed: lead,
     );
 
-    if (desktop) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(width: double.infinity, child: primary),
-          const SizedBox(height: AppSpacing.md),
-          SizedBox(width: double.infinity, child: viewing),
-        ],
-      );
-    }
-
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(child: viewing),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(child: primary),
+        viewing,
+        const SizedBox(height: AppSpacing.md),
+        primary,
       ],
     );
   }

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Sand" — a warm desert-tan primary with a terracotta secondary on a soft
-/// sandstone canvas. Earthy and calm. The tan primary is deep enough that a
-/// dark foreground clears WCAG-AA.
+/// "Sand" — desert-tan primary, terracotta secondary, sandstone canvas.
 const AppColors sandScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF8F3EA),

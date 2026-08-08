@@ -1,11 +1,7 @@
-/// A decoded JSON object. Every model in the iBuild apps is constructed from
-/// one of these (the REST API always returns JSON objects for entities).
+/// Decoded JSON object from the REST API.
 typedef JsonMap = Map<String, dynamic>;
 
-/// Small, null-safe coercion helpers for reading loosely-typed JSON into
-/// strongly-typed model fields. The iBuild API occasionally returns numbers
-/// as strings (and vice versa), so these normalise on the way in instead of
-/// scattering `as`/`?? ` casts across every model.
+/// Null-safe JSON field readers (coerces loose number/string types).
 extension JsonReaders on JsonMap {
   String? optString(String key) {
     final value = this[key];

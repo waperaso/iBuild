@@ -12,8 +12,7 @@ import '../admin/admin_api.dart';
 import 'platform_providers.dart';
 import 'platform_widgets.dart';
 
-/// Live catalogue residences — warn / unpublish / delete. Split out of the
-/// moderation inbox so that queue stays focused on pending reviews.
+/// Published residences: warn / unpublish / delete (separate from pending queue).
 class PlatformActiveProjects extends ConsumerWidget {
   const PlatformActiveProjects({super.key});
 

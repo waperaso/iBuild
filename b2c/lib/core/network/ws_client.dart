@@ -36,22 +36,7 @@ class WsEvent {
   );
 }
 
-/// Thin WebSocket client for the live availability grid and lead pushes.
-///
-/// One [WsClient] backs the whole app (see [wsClientProvider]): every consumer
-/// shares a single socket and a single broadcast [connect] stream. [connect]
-/// is idempotent — repeated calls reuse the existing connection rather than
-/// leaking a new socket each time — and the client reconnects with exponential
-/// backoff, re-subscribing to any projects that were live before the drop.
-///
-/// Auth: the server requires a bearer token (`access_token` query param). The
-/// client never dials without a token, never bypasses backoff on [connect],
-/// and stops retrying after repeated handshake failures until [onAuthChanged]
-/// (sign-in / token refresh / sign-out).
-///
-/// When [enabled] is `false` (i.e. [Env.useMockData]), the client is inert: it
-/// never opens a socket, and [connect] returns a broadcast stream that simply
-/// stays quiet, so mock/offline runs don't dial the production WSS endpoint.
+/// Live availability/lead WebSocket; reconnects with backoff when authenticated.
 class WsClient {
   // A private field can't be a named initializing formal, so assign it in the
   // initializer list instead.

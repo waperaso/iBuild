@@ -1,10 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// In-memory bearer token so the Dio interceptor never awaits secure storage
-/// on every request. Concurrent [FlutterSecureStorage.read] calls on Flutter
-/// web (IndexedDB) can hang or throw, which leaves list screens stuck in the
-/// loading skeleton while the server never sees a single GET.
+/// In-memory access token for Dio interceptors (avoids per-request storage I/O).
 class AuthTokenCache {
   AuthTokenCache._();
 
@@ -40,10 +37,7 @@ class AuthTokenCache {
   }
 }
 
-/// Runs [AuthTokenCache.warmUp] behind the animated splash instead of
-/// blocking `main` on it — the router stays on `/splash` until this
-/// resolves, so the very first frame is never delayed by a secure-storage
-/// read (which can be slow, especially on web).
+/// Warms [AuthTokenCache] during `/splash` so `main` isn't blocked on storage.
 final bootstrapProvider = FutureProvider<void>((ref) async {
   await AuthTokenCache.warmUp(const FlutterSecureStorage());
 });

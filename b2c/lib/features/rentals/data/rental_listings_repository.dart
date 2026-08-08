@@ -19,11 +19,7 @@ class RentalListingFilter {
   final int? roomsMin;
 }
 
-/// Owner (secondary) rental listings feed (Konseptsiya §5). Submission is a
-/// business-side action performed through iBuild for Business, not from the
-/// consumer app — ordinary B2C users may only browse the moderated feed and
-/// place inquiries, never list their own property. See
-/// `server/lib/src/app.dart` `/v1/rental-listings` route.
+/// Moderated secondary rental feed (`/v1/rental-listings`).
 class RentalListingsRepository {
   RentalListingsRepository(this._dio);
 

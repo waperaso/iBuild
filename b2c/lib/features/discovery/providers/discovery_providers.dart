@@ -17,10 +17,7 @@ final discoveryModeProvider =
       DiscoveryModeController.new,
     );
 
-/// Paginated projects list, filtered by the active discovery mode and the
-/// search/filter-sheet/category state — backed by [ProjectsRepository] (live
-/// API or mock fallback). Re-fetches page 1 whenever the mode or filters
-/// change; [loadMore] appends subsequent pages for infinite scroll.
+/// Paginated discovery projects; [loadMore] for infinite scroll.
 class ProjectsController extends AsyncNotifier<List<Project>> {
   int _page = 1;
   bool _hasMore = true;

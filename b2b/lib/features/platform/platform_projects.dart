@@ -12,12 +12,7 @@ import 'platform_providers.dart';
 
 enum _StatusFilter { all, pending, approved, rejected }
 
-/// Platform admin's "ЖК" roster — every residential complex / business
-/// centre on the platform, any moderation status, purely for oversight:
-/// how it's furnished (photos, buildings, units) and what's attached
-/// (offers, developer). A system admin never owns one of these — tap a
-/// card to open the same detail screen a residence admin sees for their
-/// own project, just in a read/inspect capacity.
+/// Platform-wide project roster for oversight (any moderation status).
 class PlatformProjects extends ConsumerStatefulWidget {
   const PlatformProjects({super.key});
 

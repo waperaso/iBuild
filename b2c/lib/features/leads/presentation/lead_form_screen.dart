@@ -17,8 +17,7 @@ import '../../discovery/providers/discovery_providers.dart';
 import '../../units/providers/units_providers.dart';
 import '../providers/leads_providers.dart';
 
-/// Lead submission form (viewing / callback / off-plan reservation / rent
-/// enquiry). Lead-gen only — no payment (plan section 3.6).
+/// Lead form (viewing / callback / off-plan / rent). No payment.
 class LeadFormScreen extends ConsumerStatefulWidget {
   const LeadFormScreen({
     super.key,
@@ -99,10 +98,7 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
       context.go('/inquiries');
     } catch (error) {
       if (!mounted) return;
-      // The sign-in gate above should catch this before submit is even
-      // reachable, but a session can expire mid-fill — surface *why* it
-      // failed instead of a generic error so the user knows to sign back in
-      // rather than assuming the app is just broken.
+      // Session may expire mid-fill; show auth-specific error on 401.
       final isAuthError =
           error is DioException && error.response?.statusCode == 401;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -136,14 +132,7 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
         ),
         title: Text(l10n.newInquiryTitle),
       ),
-      // `POST /leads` is authenticated server-side — a guest who filled this
-      // in and hit submit used to just get a generic "something went wrong"
-      // from the resulting 401, with the request silently never landing.
-      // Gating on sign-in *before* they fill the form (instead of failing
-      // after) is what actually gets the inquiry to the server: the CTA
-      // below round-trips through `/login` → `/otp` with this screen's own
-      // location as `redirect`, so verifying OTP drops them right back here
-      // signed in, ready to submit for real.
+      // POST /leads requires auth; gate guests to login→otp with redirect back here.
       body: authState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : authState.value == null
@@ -216,15 +205,11 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
   }
 }
 
-/// Shown instead of the form when the visitor is browsing as a guest —
-/// `POST /leads` requires a signed-in session, so this is the actual fix for
-/// inquiries "not sending": previously a guest could fill in the whole form
-/// and only discover it never reached the server after tapping submit.
+/// Shown to guests; `POST /leads` requires sign-in.
 class _SignInRequiredBody extends StatelessWidget {
   const _SignInRequiredBody({required this.redirectTo});
 
-  /// This screen's own location (path + query), so `/otp` can send the user
-  /// right back here — with the same project/unit/intent — once verified.
+  /// Current route for post-OTP redirect (keeps project/unit/intent).
   final String redirectTo;
 
   @override
@@ -286,9 +271,7 @@ class _SignInRequiredBody extends StatelessWidget {
   }
 }
 
-/// Required PII-processing consent checkbox (plan section 11 / Track A.2)
-/// — the server rejects `POST /v1/leads` with `422` unless `consent: true`
-/// is sent, so this must be checked before [PillButton.onPressed] is enabled.
+/// Consent checkbox; server requires `consent: true` on `POST /leads`.
 class _ConsentCheckbox extends StatelessWidget {
   const _ConsentCheckbox({required this.value, required this.onChanged});
 

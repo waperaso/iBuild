@@ -64,7 +64,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get otpHint => '000000';
 
   @override
-  String get otpDevHelper => 'Тест-режим: 123456, если Eskiz не настроен';
+  String get otpDevHelper => 'Тестовый режим';
 
   @override
   String get otpVerify => 'Подтвердить';
@@ -335,6 +335,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsAppearance => 'Оформление';
 
   @override
+  String get settingsLightMode => 'Светлая';
+
+  @override
+  String get settingsDarkShort => 'Тёмная';
+
+  @override
   String get settingsDarkMode => 'Тёмная тема';
 
   @override
@@ -347,8 +353,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get platformTitle => 'Администрирование платформы';
 
   @override
-  String get platformSubtitle =>
-      'Одобряйте компании, модерируйте проекты, отслеживайте подписки \$299/мес.';
+  String get platformSubtitle => 'Администрируйте платформу.';
 
   @override
   String platformAnalyticsError(String error) {
@@ -640,6 +645,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Новые проекты, изменения и отправленные документы появятся здесь.';
 
   @override
+  String get notificationsCriticalBadge => 'Критично';
+
+  @override
   String get notificationsJustNow => 'Только что';
 
   @override
@@ -655,6 +663,74 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String notificationsDaysAgo(int days) {
     return '$days дн назад';
+  }
+
+  @override
+  String notifDeveloperSubmittedTitle(String name) {
+    return 'Заявка застройщика: $name';
+  }
+
+  @override
+  String notifDeveloperSubmittedBody(String name) {
+    return '$name отправил заявку KYC на проверку.';
+  }
+
+  @override
+  String notifDocumentUploadedTitle(String documentType) {
+    return 'Документ отправлен: $documentType';
+  }
+
+  @override
+  String notifDocumentUploadedBody(String name, String documentType) {
+    return '$name загрузил «$documentType» на проверку.';
+  }
+
+  @override
+  String notifProjectCreatedTitle(String name) {
+    return 'Новый проект: $name';
+  }
+
+  @override
+  String notifProjectCreatedBody(String name) {
+    return '$name создал черновик проекта.';
+  }
+
+  @override
+  String get notifProjectCreatedBodyAnonymous =>
+      'Создан черновик нового проекта.';
+
+  @override
+  String notifProjectSubmittedTitle(String name) {
+    return 'Проект на проверку: $name';
+  }
+
+  @override
+  String notifProjectSubmittedBody(String name) {
+    return '$name отправил проект на модерацию.';
+  }
+
+  @override
+  String get notifProjectSubmittedBodyAnonymous =>
+      'Проект отправлен на модерацию.';
+
+  @override
+  String notifProjectUpdatedTitle(String name) {
+    return 'Проект обновлён: $name';
+  }
+
+  @override
+  String notifProjectUpdatedBody(String fields) {
+    return 'Изменённые поля: $fields';
+  }
+
+  @override
+  String notifProgressDeviationTitle(String name) {
+    return 'Отставание от графика: $name';
+  }
+
+  @override
+  String notifProgressDeviationBody(int actual, int planned, int gap) {
+    return 'Подтверждено $actual% при обещанных $planned% — разрыв $gap%. Нужна проверка на объекте.';
   }
 
   @override
@@ -1523,6 +1599,40 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get projectUnitsByStatusTitle => 'Юниты по статусу';
+
+  @override
+  String get projectScheduleSectionTitle => 'График строительства';
+
+  @override
+  String get projectScheduleSubtitle =>
+      'Готовность, которую обещает ваш заявленный график на сегодня. Покупатель видит её рядом с подтверждённой цифрой из фотоотчётов, поэтому держите значение в соответствии с реальным планом.';
+
+  @override
+  String get projectPlannedProgressLabel => 'Плановая готовность, %';
+
+  @override
+  String get projectScheduleSave => 'Сохранить график';
+
+  @override
+  String get projectScheduleSaved => 'График сохранён';
+
+  @override
+  String get projectScheduleInvalid => 'Введите целое число от 0 до 100';
+
+  @override
+  String projectActualProgressHint(int percent) {
+    return 'Подтверждённая готовность: $percent%';
+  }
+
+  @override
+  String projectScheduleGapOk(int percent) {
+    return 'Расхождение $percent% — в пределах допустимого';
+  }
+
+  @override
+  String projectScheduleGapAlert(int percent) {
+    return 'Расхождение $percent% — больше 15%, платформа передаёт объект на проверку';
+  }
 
   @override
   String get projectPhotoReportsTitle => 'Фотоотчёты о строительстве';

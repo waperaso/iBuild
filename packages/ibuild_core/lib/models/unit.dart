@@ -6,10 +6,7 @@ import 'media.dart';
 part 'unit.freezed.dart';
 part 'unit.g.dart';
 
-/// A concrete sellable/rentable object (apartment or office).
-///
-/// Sale and rent fields coexist and are filled per [dealType] (plan section
-/// 7.2). `planColumn`/`planRow` place the unit in the availability grid.
+/// Sellable/rentable unit; sale/rent fields filled per [dealType].
 @freezed
 abstract class Unit with _$Unit {
   const factory Unit({

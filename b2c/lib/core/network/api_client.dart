@@ -16,33 +16,24 @@ abstract class AuthStorageKeys {
   static const refreshToken = 'refresh_token';
 }
 
-/// Secure storage key for the persisted signed-in user. Mirrors the constant
-/// in `auth_repository.dart`; kept here too so the 401 interceptor can purge a
-/// dead session without importing the auth feature.
+/// Persisted user key (same as auth_repository; here for 401 session purge).
 const _authUserStorageKey = 'auth_user';
 
 final secureStorageProvider = Provider<FlutterSecureStorage>(
   (ref) => const FlutterSecureStorage(),
 );
 
-/// Marks a request that has already been retried once after a token refresh,
-/// so a second 401 on the retry doesn't kick off an endless refresh loop.
+/// Request extra: already retried after refresh (blocks refresh loops).
 const _retriedExtraKey = '__ibuild_retried__';
 
-/// Configured [Dio] instance for the iBuild REST API.
-///
-/// Handles the standard `{ success, data, meta, error }` envelope, attaches
-/// the bearer token, and on 401 refreshes via `/auth/refresh` then retries.
-/// Concurrent 401s share a single in-flight refresh (queued behind it), and a
-/// failed refresh signs the session out so the UI reflects the logout.
+/// [Dio] for the REST API: envelope unwrap, bearer token, 401 → refresh/retry.
+/// Concurrent 401s share one refresh; failed refresh signs out.
 final apiClientProvider = Provider<Dio>((ref) {
   final storage = ref.watch(secureStorageProvider);
   return _createDio(
     storage,
     onSessionExpired: () {
-      // Reset the auth controller to a signed-out state. Invalidation rebuilds
-      // it via `restoreSession()`, which — with the tokens just cleared —
-      // resolves to `null`, so guarded UI drops back to guest/sign-in.
+      // Tokens cleared; invalidate so restoreSession() yields guest/null.
       ref.invalidate(authControllerProvider);
     },
   );
@@ -61,9 +52,7 @@ Dio _createDio(
     ),
   );
 
-  // Non-null while a refresh is in flight; concurrent 401s await its result
-  // (true = refreshed, retry; false = give up) instead of each firing their
-  // own `/auth/refresh`.
+  // Single-flight refresh: concurrent 401s await one `/auth/refresh`.
   Completer<bool>? refreshGate;
 
   Future<bool> performRefresh() async {
@@ -147,8 +136,7 @@ Dio _createDio(
           return handler.next(err);
         }
 
-        // A refresh is already running — wait for it rather than starting our
-        // own, then retry (or fail) based on its outcome.
+        // Refresh already in flight — wait, then retry or fail with it.
         final inFlight = refreshGate;
         if (inFlight != null) {
           final ok = await inFlight.future;
@@ -156,7 +144,7 @@ Dio _createDio(
           return retry(err, handler);
         }
 
-        // We own the refresh for this wave of 401s.
+        // This interceptor owns the refresh for concurrent 401s.
         final gate = Completer<bool>();
         refreshGate = gate;
         final ok = await performRefresh();
@@ -174,8 +162,7 @@ Dio _createDio(
   );
 
   if (kDebugMode) {
-    // requestHeader stays false so the bearer token in the Authorization
-    // header is never written to logs.
+    // Omit request headers so the bearer token is not logged.
     dio.interceptors.add(
       PrettyDioLogger(requestHeader: false, requestBody: true),
     );

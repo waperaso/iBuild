@@ -1,8 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-/// Spacing, radii and layout breakpoints. Central place so the whole UI stays
-/// on a consistent rhythm and the "computer view" vs "mobile view" cutoffs live
-/// in one spot.
+/// Spacing scale.
 abstract class AppSpacing {
   static const double xs = 4;
   static const double sm = 8;
@@ -14,8 +12,7 @@ abstract class AppSpacing {
 }
 
 abstract class AppRadii {
-  /// Text fields / dropdowns. Deliberately smaller than [sm] so inputs read as
-  /// crisp, geometric rectangles rather than pills.
+  /// Inputs/dropdowns — tighter than [sm] so fields stay rectangular, not pills.
   static const double input = 8;
 
   static const double sm = 12;
@@ -29,9 +26,7 @@ abstract class AppRadii {
   static const double pill = 999;
 }
 
-/// Motion durations for transitions and micro-interactions. Centralised so the
-/// whole app animates on a consistent, unhurried rhythm instead of Material's
-/// default snappy timings.
+/// Shared motion durations/curves.
 abstract class AppDurations {
   static const Duration fast = Duration(milliseconds: 160);
   static const Duration medium = Duration(milliseconds: 240);
@@ -41,9 +36,7 @@ abstract class AppDurations {
   static const Curve exit = Curves.easeInCubic;
 }
 
-/// Soft, layered shadows for elevated surfaces. Kept low-opacity and diffuse so
-/// cards feel like they float on the cream canvas rather than carrying a hard
-/// "Android-default" drop shadow.
+/// Low-opacity layered shadows for elevated surfaces.
 abstract class AppShadows {
   static List<BoxShadow> soft(Color ink) => [
     BoxShadow(

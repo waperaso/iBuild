@@ -63,19 +63,37 @@ class PillButton extends StatelessWidget {
                       color: fg,
                     )
                   : Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: expand
+                          ? MainAxisSize.max
+                          : MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (icon != null) ...[
                           Icon(icon, size: 18, color: fg),
                           const SizedBox(width: AppSpacing.sm),
                         ],
-                        Text(
-                          label,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.labelLarge?.copyWith(color: fg),
-                        ),
+                        if (expand)
+                          Flexible(
+                            child: Text(
+                              label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.labelLarge?.copyWith(color: fg),
+                            ),
+                          )
+                        else
+                          Text(
+                            label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.labelLarge?.copyWith(color: fg),
+                          ),
                       ],
                     ),
             ),

@@ -16,18 +16,11 @@ import 'user_roles.dart';
 import 'seed_data.dart';
 import 'validation.dart';
 
-/// Monthly B2B publish subscription (USD). Kept for backward compatibility —
-/// equal to the `growth` tier below, which is the default plan assigned on
-/// developer approval.
+/// Legacy monthly B2B price (USD); equals the default `growth` tier.
 const kBusinessSubscriptionUsd = 299.0;
 const kBusinessSubscriptionPlanId = 'growth';
 
-/// Developer application review pipeline: new applications are saved as `draft`
-/// until the applicant explicitly submits for review (`pending` — "waiting for
-/// review"). A platform admin may move one into `in_review` ("on review")
-/// while investigating, then finalize as `approved` or `rejected` (with a
-/// reason). A `rejected` applicant may edit and save a new `draft`, then
-/// submit again.
+/// Developer verification statuses: draft → pending → in_review → approved|rejected.
 const kDeveloperVerificationStatuses = {
   'draft',
   'pending',
@@ -36,10 +29,7 @@ const kDeveloperVerificationStatuses = {
   'rejected',
 };
 
-/// Subscription tier ladder (Konseptsiya §11.A.1 — "линейка тарифов" instead
-/// of the single $199/299 plan the original presentation proposed). Each
-/// tier caps how many projects/units a developer may publish and how many
-/// leads are included before pay-per-lead overage applies.
+/// Subscription tiers (project/unit caps + included leads before overage).
 const kSubscriptionPlans = <Map<String, dynamic>>[
   {
     'id': 'start',
@@ -77,8 +67,7 @@ Map<String, dynamic>? subscriptionPlanById(String id) {
   return null;
 }
 
-/// The 4 document types a developer must have `accepted` before a platform
-/// admin can approve their organization (frozen contract — Documents API).
+/// Document types that must be `accepted` before org approval.
 const kRequiredDocumentTypes = {
   'license',
   'construction_permit',
@@ -86,12 +75,10 @@ const kRequiredDocumentTypes = {
   'project_declaration',
 };
 
-/// Uploadable alongside the required 4, but never checked by
-/// [Store.hasAllRequiredDocumentsAccepted] or [Store.documentStatusSummary] —
-/// purely informational (e.g. cadastral extract) and never blocks approval.
+/// Optional uploads; not required for approval.
 const kOptionalDocumentTypes = {'cadastre'};
 
-/// Every type accepted by the upload endpoints — required ∪ optional.
+/// Upload endpoint types: required ∪ optional.
 const kAllowedDocumentTypes = {
   ...kRequiredDocumentTypes,
   ...kOptionalDocumentTypes,
@@ -99,10 +86,7 @@ const kAllowedDocumentTypes = {
 
 const kDocumentStatuses = {'pending', 'accepted', 'rejected'};
 
-/// Thrown by [Store.updateUnit] when the caller's `expectedVersion` no
-/// longer matches the row's current `version` (optimistic locking — see
-/// `PATCH /v1/admin/units/:uid` in admin_routes.dart, which maps this to a
-/// `409 UNIT_CONFLICT`).
+/// Optimistic-lock miss on [Store.updateUnit] (`expectedVersion` stale → 409).
 class UnitConflictException implements Exception {
   UnitConflictException(this.currentVersion, this.unit);
 
@@ -113,27 +97,19 @@ class UnitConflictException implements Exception {
   String toString() => 'UnitConflictException(currentVersion: $currentVersion)';
 }
 
-/// Sanitizes [v] only when it is a String (see [sanitizeText]); numbers,
-/// bools, lists and `null` pass through untouched. Used to scrub stored
-/// free-text fields as they are copied out of untyped request-body maps
-/// without disturbing structured fields.
+/// [sanitizeText] for strings; other types pass through.
 Object? _clean(Object? v) => v is String ? sanitizeText(v) : v;
 
-/// Dev-mode fixed OTP code, used ONLY outside production (see
-/// [Store.createOtpRequest]). In production a cryptographically-random code
-/// is always generated instead, and this constant is never sent.
+/// Fixed OTP for non-production only (see [Store.createOtpRequest]).
 const kDevOtpCode = '123456';
 
-/// How long a `requestId` from `/v1/auth/otp/send` stays valid.
+/// OTP `requestId` lifetime.
 const _otpTtl = Duration(minutes: 5);
 
-/// Maximum wrong `otp/verify` attempts per `requestId` before it is
-/// invalidated, to keep the ~1M-code space from being brute-forced.
+/// Wrong-verify attempts per `requestId` before invalidation.
 const kMaxOtpAttempts = 5;
 
-/// Access-token / refresh-token lifetimes. Opaque tokens now carry an
-/// expiry so a leaked/stale token cannot be replayed forever; the refresh
-/// flow rotates and re-issues both with fresh TTLs.
+/// Opaque session TTLs (refresh rotates both tokens).
 const _accessTokenTtl = Duration(hours: 12);
 const _refreshTokenTtl = Duration(days: 30);
 
@@ -148,8 +124,7 @@ class _OtpRequest {
   bool get isExpired => DateTime.now().isAfter(expiresAt);
 }
 
-/// Outcome of [Store.verifyOtp]: either a minted token pair or a typed
-/// failure so the route can map it to the right status/message.
+/// [Store.verifyOtp] result for route status mapping.
 enum OtpVerifyError { notFound, invalidCode, tooManyAttempts }
 
 class OtpVerifyResult {
@@ -172,12 +147,7 @@ class OtpVerifyResult {
   bool get isSuccess => error == null;
 }
 
-/// An issued session (opaque token -> phone) with an absolute expiry.
-///
-/// [pairedToken] links the two halves of a token pair: the access token's
-/// entry points at its refresh token and vice versa, so signing out can
-/// invalidate both. Without it, logout revoked only the access token and the
-/// matching refresh token stayed usable for its full 30-day TTL.
+/// Opaque token → phone session. [pairedToken] links access↔refresh for logout.
 class _Session {
   _Session(this.phone, this.expiresAt, {this.pairedToken});
 
@@ -188,15 +158,7 @@ class _Session {
   bool get isExpired => DateTime.now().isAfter(expiresAt);
 }
 
-/// In-memory data store + live WebSocket broadcast, standing in for
-/// PostgreSQL + Redis pub/sub (plan §6.3) in this dev server.
-///
-/// Persistence is opt-in and purely additive: the plain [Store] constructor
-/// below is unchanged from before PostgreSQL support existed, and stays
-/// fully synchronous/in-memory — every existing test keeps using it as-is.
-/// [Store.create] is the only entry point that may attach a PostgreSQL-backed
-/// [PgPersistence] layer underneath the same in-memory model, based on
-/// [PgConfig.fromEnv].
+/// In-memory store + WebSocket broadcast. Optional Postgres via [Store.create].
 class Store {
   Store() : projects = buildProjectsSeed() {
     for (final project in projects) {
@@ -321,29 +283,20 @@ class Store {
   /// Construction-progress photo reports (Photo Reports API).
   final List<Map<String, dynamic>> photoReports = [];
 
-  /// Admin notification inbox — every developer-side change that needs a
-  /// system admin's attention (see [notifyAdmins]).
+  /// Admin inbox for developer-side events that need attention ([notifyAdmins]).
   final List<Map<String, dynamic>> notifications = [];
 
-  /// Reviews left by buyers/renters on a project + its developer
-  /// (Konseptsiya §9 "честные отзывы"). Published immediately; a system
-  /// admin may flag/remove abusive ones via the platform moderation queue.
+  /// Buyer/renter reviews (admin may flag/remove).
   final List<Map<String, dynamic>> reviews = [];
 
-  /// Secondary-market and developer-primary **rental** listings submitted by
-  /// private owners without a full developer dashboard (Konseptsiya §5, §8:
-  /// "упрощённая форма размещения объявления без полноценного дашборда
-  /// застройщика"). Never used for sale — the platform never lists secondary
-  /// housing for purchase, only for rent.
+  /// Owner rental listings only (no secondary sale).
   final List<Map<String, dynamic>> rentalListings = [];
 
-  /// Connected live-update sockets, mapped to whether the authenticated
-  /// subscriber is an admin (system/residence). Lead events — which carry
-  /// CRM/PII metadata — are only pushed to admin sockets (see [_broadcast]).
+  /// Live sockets → isAdmin. Lead/CRM frames go to admin sockets only.
   final Map<WebSocketChannel, bool> _sockets = {};
   final Random _rand = Random();
 
-  /// Cryptographically-secure RNG used for OTP codes (never `Random()`).
+  /// Secure RNG for OTP codes.
   final Random _secureRand = Random.secure();
   final Uuid _uuid = const Uuid();
   final SmsService sms = SmsService();
@@ -355,36 +308,23 @@ class Store {
   Database? _db;
   PgPersistence? _persistence;
 
-  /// `DB_HOST` was set but [create] could not attach PostgreSQL (startup
-  /// still serves in-memory seed for read-only demos, but destructive writes
-  /// must fail loudly instead of pretending to persist).
+  /// True when `DB_HOST` was set but attach failed (writes must fail, not fake-persist).
   bool _persistenceRequired = false;
 
-  /// Tombstone set: blocks late fire-and-forget `saveProject` calls from
-  /// re-inserting a row after [deleteProject] has removed it from the DB.
+  /// Ids deleted from DB; blocks late unawaited `saveProject` from re-inserting.
   final Set<String> _deletedProjectIds = {};
 
-  /// Whether a PostgreSQL persistence layer is attached (see [create]).
+  /// Postgres attached (see [create]).
   bool get hasPersistence => _persistence != null;
 
-  /// Whether `DB_*` env was set so mutations are expected to hit PostgreSQL.
+  /// `DB_*` was configured (writes expected to hit Postgres).
   bool get persistenceRequired => _persistenceRequired;
 
-  /// Exposed for request-scoped RLS context binding.
+  /// For request-scoped RLS binding.
   PgPersistence? get persistence => _persistence;
 
-  /// Builds a [Store] exactly like the plain constructor (in-memory seed
-  /// data, tickers running), then — only if [PgConfig.fromEnv] finds
-  /// `DB_HOST` set — connects to PostgreSQL, runs migrations, and either
-  /// seeds the database from the freshly-built in-memory data (first run,
-  /// gated by `app_meta.catalogue_seeded` so an admin wipe is not undone)
-  /// or replaces the in-memory `projects`/`leads` with what's already
-  /// persisted (subsequent runs resume state instead of re-seeding).
-  ///
-  /// If `DB_HOST` is unset, this returns the same plain in-memory [Store]
-  /// with zero behavior change. If a database *is* configured but fails to
-  /// connect/migrate, the error is logged to stderr and the store still
-  /// falls back to pure in-memory mode rather than crashing startup.
+  /// In-memory [Store]; if `DB_HOST` is set, migrate and load/seed Postgres.
+  /// Seed gated by `app_meta.catalogue_seeded`. On DB failure: log and stay in-memory.
   static Future<Store> create() async {
     final store = Store();
 
@@ -401,11 +341,10 @@ class Store {
       await db.connect();
       await db.migrate();
       final persistence = PgPersistence(db);
-      // RLS: startup/seed runs as service role (FORCE RLS on tenant tables).
+      // Startup/seed as service (FORCE RLS on tenant tables).
       await persistence.setRequestContext(role: 'service');
 
       if (await persistence.needsCatalogueSeed()) {
-        // First boot against an unseeded database: persist the in-memory seed.
         await persistence.seedFrom(store.projects);
         for (final lead in store.leads) {
           await persistence.saveLead(lead);
@@ -415,8 +354,7 @@ class Store {
           rentalListings: store.rentalListings,
         );
       } else {
-        // Subsequent boots (including after an intentional catalogue wipe):
-        // resume persisted state instead of re-seeding.
+        // Resume persisted state (including after an intentional wipe).
         store.projects
           ..clear()
           ..addAll(await persistence.loadAllProjects());
@@ -537,11 +475,8 @@ class Store {
     return store;
   }
 
-  /// When `DEMO_STAGE_TRUST=true`, ensures the first published residential
-  /// project has all 4 KYC docs accepted + a few construction photo reports
-  /// so the B2C "Verified" badge and Progress tab work in investor demos
-  /// without manual staging. Idempotent — skips if that developer already
-  /// has accepted docs.
+  /// If `DEMO_STAGE_TRUST=true`, stage KYC docs + photo reports on the first
+  /// residential project for demos. No-op if that developer already has accepted docs.
   void stageDemoTrustDataIfEnabled() {
     final enabled =
         (appEnv()['DEMO_STAGE_TRUST'] ?? '').trim().toLowerCase() == 'true';
@@ -650,12 +585,8 @@ class Store {
   /// refreshToken -> session (phone + expiry)
   final Map<String, _Session> _refreshTokens = {};
 
-  /// Phones that must always be [UserRole.systemAdmin] (platform operators).
-  ///
-  /// In production these MUST come from `SYSTEM_ADMIN_PHONES` — there is no
-  /// hardcoded default (the server refuses to start without it, see
-  /// `assertProductionSecrets`). Outside production the historical operator
-  /// number stays seeded for zero-config local dev/tests.
+  /// Platform operator phones. Production: `SYSTEM_ADMIN_PHONES` only.
+  /// Non-production: seeds a default for local/tests.
   Set<String> get _systemAdminPhones {
     final defaults = isProduction
         ? const <String>[]
@@ -821,9 +752,7 @@ class Store {
         ..remove('constructionLicense')
         ..remove('profileComplete');
 
-  /// Refreshes the embedded `developer` block from the live registry so list
-  /// endpoints never return a stale or partial snapshot (e.g. after PG reload
-  /// or developer profile updates).
+  /// Refresh embedded `developer` from the live registry.
   void _refreshProjectDeveloper(Map<String, dynamic> project) {
     final embedded = project['developer'];
     final devId = embedded is Map ? embedded['id'] as String? : null;
@@ -849,8 +778,7 @@ class Store {
     }
   }
 
-  /// A shallow copy of [project] without the heavy `buildings` list, used
-  /// for the list/search endpoint payload.
+  /// List/search payload: [project] without `buildings`.
   Map<String, dynamic> summarize(Map<String, dynamic> project) {
     final copy = Map<String, dynamic>.from(project);
     copy.remove('buildings');
@@ -916,13 +844,8 @@ class Store {
   List<Map<String, dynamic>> leadsForProject(String projectId) =>
       leads.where((l) => l['projectId'] == projectId).toList();
 
-  /// CRM assignee candidates: active system/residence admins (not banned).
-  ///
-  /// [restrictToUserId] scopes the list for a non-platform caller. A residence
-  /// admin only owns their own developer org, so they may only assign leads to
-  /// themselves; returning every admin leaked the whole admin roster —
-  /// including phone numbers — to every developer on the platform, and let
-  /// them hand leads to a competitor.
+  /// Active system/residence admins for CRM assign. [restrictToUserId] scopes
+  /// non-platform callers (avoids leaking the full admin roster / phones).
   List<Map<String, dynamic>> crmAssignees({String? restrictToUserId}) {
     return allUsers()
         .where((u) {
@@ -1078,11 +1001,8 @@ class Store {
     }
   }
 
-  /// Public catalogue: only published + approved projects.
-  ///
-  /// Recomputes [priceMin]/[priceMax]/[rentMin]/[rentMax] from units before
-  /// returning — B2B `addUnit` historically left those null, and B2C
-  /// `GET /v1/projects?mode=buy` drops any project without sale prices.
+  /// Published + approved projects. Recomputes price/rent bounds from units first
+  /// (B2C `mode=buy` drops projects without sale prices).
   List<Map<String, dynamic>> get publishedProjects {
     final list = <Map<String, dynamic>>[];
     for (final p in projects) {
@@ -1167,17 +1087,12 @@ class Store {
 
   // --- Phone-OTP auth ----------------------------------------------------
 
-  /// Creates a pending OTP request for [phone] and returns its `requestId`.
-  /// Sends SMS via [SmsService] (Eskiz when configured; otherwise logs the
-  /// fixed [kDevOtpCode]).
+  /// Pending OTP for [phone]; returns `requestId`. Sends via [SmsService].
   Future<String> createOtpRequest(String phone) async {
     final normalized = normalizePhone(phone);
     _otpRequests.removeWhere((_, r) => r.phone == normalized);
     final requestId = _uuid.v4();
-    // The fixed dev code is a convenience for local dev/tests only. In
-    // production it is never used: OTPs are always generated with a
-    // cryptographically-secure RNG (and the server refuses to start without
-    // Eskiz creds, so `isDevMode` is false there anyway).
+    // Dev fixed code only outside production; production uses secure RNG.
     final code = (sms.isDevMode && !isProduction)
         ? kDevOtpCode
         : (100000 + _secureRand.nextInt(900000)).toString();
@@ -1186,14 +1101,10 @@ class Store {
     return requestId;
   }
 
-  /// Whether the fixed dev OTP is currently in effect (only true outside
-  /// production when Eskiz is not configured). Route layer uses this to
-  /// decide whether a debug hint may be surfaced.
+  /// True when the fixed dev OTP may be hinted (non-production, no Eskiz).
   bool get devOtpEnabled => sms.isDevMode && !isProduction;
 
-  /// Resolves a Bearer access token to the user record, or null. Expired
-  /// sessions are rejected (and evicted) so a stale/leaked token can't be
-  /// replayed after its TTL.
+  /// User for Bearer access token, or null. Expired sessions are evicted.
   Map<String, dynamic>? userForAccessToken(String accessToken) {
     final session = _sessionsByToken[accessToken];
     if (session == null) return null;
@@ -1204,9 +1115,7 @@ class Store {
     return _usersByPhone[session.phone];
   }
 
-  /// Ends the session that [accessToken] belongs to — **both** halves of the
-  /// token pair. Revoking only the access token left the refresh token live,
-  /// so a leaked one could keep minting new access tokens long after sign-out.
+  /// Revoke access + paired refresh for [accessToken].
   void revokeAccessToken(String accessToken) {
     final session = _sessionsByToken.remove(accessToken);
     final pairedRefresh = session?.pairedToken;
@@ -1225,9 +1134,7 @@ class Store {
     }
   }
 
-  /// Drops every issued token for [phone]. Used when an account is banned or
-  /// deleted so existing sessions stop working immediately instead of
-  /// surviving until their TTL.
+  /// Revoke all sessions for [phone] (ban/delete).
   void revokeAllSessionsForPhone(String phone) {
     final normalized = normalizePhone(phone);
     final accessTokens = _sessionsByToken.entries
@@ -1246,9 +1153,7 @@ class Store {
     }
   }
 
-  /// Rotates tokens given a valid, unexpired refresh token. The old refresh
-  /// token is consumed (single-use rotation) and a fresh access+refresh pair
-  /// with new TTLs is issued.
+  /// Single-use refresh: consume old token, issue a new access+refresh pair.
   ({String accessToken, String refreshToken, Map<String, dynamic> user})?
   refreshSession(String refreshToken) {
     final session = _refreshTokens.remove(refreshToken);
@@ -1336,10 +1241,7 @@ class Store {
     _persist('user', (p) => p.upsertUser(user));
   }
 
-  /// Fire-and-forget write-through: runs [op] against the persistence layer
-  /// (when attached), logging — never throwing — on failure, so the
-  /// in-memory mutation that already happened stays authoritative for the
-  /// current process either way.
+  /// Fire-and-forget persist; log failures, keep in-memory state authoritative.
   void _persist(String what, Future<void> Function(PgPersistence p) op) {
     final persistence = _persistence;
     if (persistence == null) return;
@@ -1382,12 +1284,8 @@ class Store {
     developersRegistry.removeWhere((d) => d['ownerUserId'] == null);
   }
 
-  /// Verifies [code] for [requestId]; on success, creates the user on first
-  /// sign-in (keyed by phone) and mints a fresh opaque token pair.
-  ///
-  /// Wrong codes are counted per `requestId`; after [kMaxOtpAttempts] the
-  /// request is invalidated so the ~1M-code space can't be brute-forced. The
-  /// code comparison is constant-time to avoid a timing side-channel.
+  /// Verifies OTP for [requestId]; creates user on first sign-in and mints tokens.
+  /// Invalidates after [kMaxOtpAttempts]; comparison is constant-time.
   OtpVerifyResult verifyOtp({
     required String requestId,
     required String code,
@@ -1592,12 +1490,7 @@ class Store {
     return null;
   }
 
-  // --- Support tickets (any user -> platform admin triage) ---------------
-  //
-  // Deliberately not scoped to a project/developer: a buyer, renter,
-  // residence admin, or developer can all open one (billing question,
-  // moderation appeal, bug report, ...), and only a system admin triages
-  // the whole inbox from the B2B "Тикеты" section.
+  // Support tickets: any user opens; system admin triages.
   final List<Map<String, dynamic>> tickets = [];
 
   static const kTicketCategories = {
@@ -1656,9 +1549,7 @@ class Store {
       .where((t) => status == null || t['status'] == status)
       .toList();
 
-  /// Appends one message to the ticket thread — from either the ticket
-  /// owner (`isAdmin: false`) or a platform admin (`isAdmin: true`, who may
-  /// also move [status] forward in the same call).
+  /// Append a ticket reply; admin may also advance [status].
   Map<String, dynamic>? addTicketReply(
     String id, {
     required String message,
@@ -1703,13 +1594,7 @@ class Store {
     return ticket;
   }
 
-  // --- Owner secondary/primary rental listings (Konseptsiya §5, §8) ------
-  //
-  // Deliberately a *separate*, lighter-weight collection from
-  // `projects`/`units`: an owner submitting a rental listing never gets a
-  // full developer dashboard, and — critically — this collection is never
-  // exposed for `dealType: sale`, enforcing the platform-wide rule that
-  // secondary housing may only ever be rented, never bought/sold here.
+  // Owner rental listings (separate from projects/units; rent only, no sale).
   List<Map<String, dynamic>> approvedRentalListings({
     String? district,
     String? propertyKind,
@@ -1879,9 +1764,7 @@ class Store {
         subscriptionPlanById('start')!;
   }
 
-  /// How many of [developerId]'s projects are currently live. [excludingId]
-  /// skips the project being acted on, so re-publishing something that is
-  /// already counted does not trip its own limit.
+  /// Live project count for [developerId]. [excludingId] skipped (re-publish).
   int publishedProjectCount(String developerId, {String? excludingId}) {
     return projects.where((p) {
       if (p['id'] == excludingId) return false;
@@ -1890,11 +1773,7 @@ class Store {
     }).length;
   }
 
-  /// Gate for taking a project live: an active subscription, and room inside
-  /// the tier's `maxProjects` allowance. The allowance is advertised by
-  /// `GET /v1/subscription-plans` and billed for, so it has to actually hold —
-  /// previously any paying developer could publish without limit regardless of
-  /// which tier they bought.
+  /// Require active subscription and room under the tier's `maxProjects`.
   void _assertCanPublish(String developerId, String projectId) {
     if (!hasActiveSubscription(developerId)) {
       throw StateError('SUBSCRIPTION_REQUIRED');
@@ -2132,9 +2011,7 @@ class Store {
         filled('officeAddress');
   }
 
-  /// Starts or renews a subscription tier (manual/dev checkout — Payme/Click
-  /// can replace `provider` later without changing this contract). Defaults
-  /// to the caller's existing plan, or `growth` for a first activation.
+  /// Start/renew subscription. Defaults to existing plan, else `growth`.
   Map<String, dynamic>? activateSubscription(
     String ownerUserId, {
     String? planId,
@@ -2186,8 +2063,7 @@ class Store {
     return null;
   }
 
-  /// Applications still awaiting a final decision — both freshly submitted
-  /// (`pending`) and those an admin has started investigating (`in_review`).
+  /// Developers in `pending` or `in_review`.
   List<Map<String, dynamic>> pendingDevelopers() => developersRegistry
       .where(
         (d) =>
@@ -2234,11 +2110,7 @@ class Store {
         return sub;
       });
     } else if (ownerId != null) {
-      // Approval is what grants residence_admin, so anything other than
-      // approved must take it back. Previously a rejected developer kept the
-      // role indefinitely and could still manage projects, leads and
-      // subscriptions. System admins are left alone — their role does not come
-      // from this application.
+      // Non-approved: revoke residence_admin (system admins unchanged).
       final user = _userById(ownerId);
       if (user != null && user['role'] == UserRole.residenceAdmin) {
         user['role'] = UserRole.ordinaryUser;
@@ -2267,10 +2139,7 @@ class Store {
     return user;
   }
 
-  /// Freezes [userId]'s account: every authenticated action except reading
-  /// `/v1/users/me` and signing out is rejected (see `banGuardMiddleware`)
-  /// until an admin lifts the ban. [reason] and [bannedByName] are shown
-  /// back on the user's own account so they know why and by whom.
+  /// Ban [userId] (see `banGuardMiddleware`). [reason]/[bannedByName] shown on `/me`.
   Map<String, dynamic>? banUser(
     String userId, {
     required String reason,
@@ -2297,16 +2166,11 @@ class Store {
     return user;
   }
 
-  /// How many accounts currently hold [UserRole.systemAdmin] — used to block
-  /// [deleteUser] from removing the platform's last admin and locking
-  /// everyone out.
+  /// Count of [UserRole.systemAdmin] (blocks deleting the last admin).
   int systemAdminCount() =>
       _usersByPhone.values.where((u) => u['role'] == UserRole.systemAdmin).length;
 
-  /// Permanently removes a platform-admin account. Unlike [banUser] (which
-  /// just freezes access), this awaits the DB DELETE first — like
-  /// [deleteProject] — so a restart cannot resurrect the row from a
-  /// fire-and-forget write that lost the race with process shutdown.
+  /// Hard-delete user. Awaits DB DELETE first so a restart cannot resurrect the row.
   Future<Map<String, dynamic>?> deleteUser(String id) async {
     _assertPersistenceForWrite('user delete');
     final user = _userById(id);
@@ -2318,9 +2182,7 @@ class Store {
     }
 
     final phone = user['phone'] as String;
-    // Auth already fails once the user record is gone, but the token entries
-    // themselves are never reclaimed otherwise — they'd sit in memory until
-    // someone happened to present them.
+    // Drop in-memory sessions for this phone.
     revokeAllSessionsForPhone(phone);
     _usersByPhone.remove(phone);
     return user;
@@ -2369,6 +2231,7 @@ class Store {
       'rentMin': input['rentMin'],
       'rentMax': input['rentMax'],
       'constructionProgress': input['constructionProgress'],
+      'plannedProgress': input['plannedProgress'],
       'completionDate': input['completionDate'],
       'rating': 0.0,
       'availableUnits': 0,
@@ -2404,6 +2267,7 @@ class Store {
       'rentMin',
       'rentMax',
       'constructionProgress',
+      'plannedProgress',
       'completionDate',
       'lat',
       'lng',
@@ -2443,10 +2307,7 @@ class Store {
     return project;
   }
 
-  /// Removes a project (and cascaded inventory) from persistence first, then
-  /// from memory. Awaits the DB DELETE so a restart cannot resurrect the row
-  /// (fire-and-forget `_persist` was racing process shutdown / RLS no-ops).
-  /// Returns the removed project, or `null` if it did not exist.
+  /// Delete project: await DB DELETE first, then drop from memory.
   Future<Map<String, dynamic>?> deleteProject(String id) async {
     _assertPersistenceForWrite('project delete');
     final index = projects.indexWhere((p) => p['id'] == id);
@@ -2480,9 +2341,7 @@ class Store {
     return project;
   }
 
-  /// Replaces a project's promotions/installment/rent-terms list wholesale
-  /// (Konseptsiya §8 "управление акциями, скидками и условиями
-  /// рассрочки/аренды"). `PUT` semantics — developer submits the full list.
+  /// Replace project offers list (full PUT).
   Map<String, dynamic>? setProjectOffers(
     String projectId,
     List<Map<String, dynamic>> offers,
@@ -2596,11 +2455,7 @@ class Store {
     return unit;
   }
 
-  /// Applies [patch] to unit [unitId]. If [patch] carries an
-  /// `expectedVersion` field and it no longer matches the row's current
-  /// `version`, throws [UnitConflictException] instead of applying the
-  /// patch (optimistic locking — see `PATCH /v1/admin/units/:uid`).
-  /// On success, `version` is incremented and returned on the unit.
+  /// Patch unit [unitId]. Stale `expectedVersion` → [UnitConflictException]; else bump `version`.
   Map<String, dynamic>? updateUnit(String unitId, Map<String, dynamic> patch) {
     final found = unitById(unitId);
     if (found == null) return null;
@@ -2704,7 +2559,7 @@ class Store {
         if (note != null) {
           project['moderationNote'] = sanitizeText(note);
         }
-        // Ensure sale/rent aggregates exist so B2C `mode=buy|rent` can see it.
+        // Recompute sale/rent aggregates for B2C mode filters.
         _recomputeProjectPricing(project);
       case 'reject':
         project['moderationStatus'] = 'rejected';
@@ -2802,9 +2657,7 @@ class Store {
     return lead;
   }
 
-  /// Demand/CRM analytics for one project (Konseptsiya §8 "аналитика
-  /// спроса", "воронка, прогресс продаж"). Computed on the fly from the
-  /// in-memory model — no separate event-tracking pipeline yet.
+  /// Demand/CRM analytics for one project (from current leads/units).
   Map<String, dynamic> projectAnalytics(String projectId) {
     final project = projectById(projectId)!;
     final projectLeads = leadsForProject(projectId);
@@ -2912,9 +2765,7 @@ class Store {
   List<Map<String, dynamic>> documentsForDeveloper(String developerId) =>
       documents.where((d) => d['developerId'] == developerId).toList();
 
-  /// Looks up a document by the URL it is served under. Used by the
-  /// authenticated document route to resolve which developer owns the file
-  /// before handing over the bytes.
+  /// Lookup document by served [fileUrl].
   Map<String, dynamic>? documentByFileUrl(String fileUrl) {
     for (final d in documents) {
       if (d['fileUrl'] == fileUrl) return d;
@@ -2929,8 +2780,7 @@ class Store {
     return null;
   }
 
-  /// Moderator review of one document. [status] must be one of
-  /// [kDocumentStatuses]; [rejectReason] is only kept when rejecting.
+  /// Set document [status] ([kDocumentStatuses]); keep [rejectReason] only when rejecting.
   Map<String, dynamic>? reviewDocument(
     String id, {
     required String status,
@@ -2947,9 +2797,7 @@ class Store {
     return doc;
   }
 
-  /// Whether every entry in [kRequiredDocumentTypes] has at least one
-  /// `accepted` document for [developerId] — the precondition for
-  /// `PATCH /v1/platform/developers/:id/approve` (Documents API contract).
+  /// True if every required doc type has an `accepted` upload for [developerId].
   bool hasAllRequiredDocumentsAccepted(String developerId) {
     final devDocs = documentsForDeveloper(developerId);
     for (final type in kRequiredDocumentTypes) {
@@ -2961,14 +2809,10 @@ class Store {
     return true;
   }
 
-  /// Privacy-safe per-type status for [developerId], for the public
-  /// `GET /v1/developers/:id/verification` route: one `{type, status}` entry
-  /// per [kRequiredDocumentTypes] (using `missing` when nothing's been
-  /// uploaded yet), deliberately excluding `fileUrl`/`rejectReason`/reviewer
-  /// identity, which stay moderator-only via the platform documents routes.
+  /// Public verification summary: `{type, status}` per required doc (`missing` if none).
+  /// Omits `fileUrl` / reject reason / reviewer (moderator-only).
   List<Map<String, String>> documentStatusSummary(String developerId) {
-    // documentsForDeveloper returns newest-first (see addDocument), so the
-    // first match per type is that type's latest submission.
+    // Newest-first; first match per type is the latest.
     final devDocs = documentsForDeveloper(developerId);
     return [
       for (final type in kRequiredDocumentTypes)
@@ -2986,31 +2830,34 @@ class Store {
 
   // --- Admin notifications --------------------------------------------------
 
-  /// Records a change that needs a system admin's attention (new/updated/
-  /// submitted project, uploaded document, developer application) and pushes
-  /// it live to every connected admin socket. Called explicitly from the
-  /// route layer next to the matching [audit] call, mirroring how audit
-  /// entries are recorded — see `admin_routes.dart`.
+  /// Record an admin-attention event and push to connected admin sockets.
+  ///
+  /// [title]/[body] are English fallbacks; [payload] holds structured fields
+  /// for client-side localization (`documentType`, `projectName`, …).
   Map<String, dynamic> notifyAdmins({
     required String type,
     required String title,
     String? body,
+    Map<String, dynamic>? payload,
     String? developerId,
     String? projectId,
     String? targetType,
     String? targetId,
     String? actorUserId,
+    String severity = 'info',
   }) {
     final n = {
       'id': 'ntf-${_uuid.v4()}',
       'type': type,
       'title': title,
       'body': body,
+      if (payload != null) 'payload': payload,
       'developerId': developerId,
       'projectId': projectId,
       'targetType': targetType,
       'targetId': targetId,
       'actorUserId': actorUserId,
+      'severity': severity,
       'isRead': false,
       'createdAt': DateTime.now().toIso8601String(),
     };
@@ -3060,6 +2907,9 @@ class Store {
 
   // --- Photo reports (construction progress) ------------------------------
 
+  /// Max schedule slip (pp) before escalation; keep in sync with B2C progress_tab.
+  static const int _scheduleDeviationThreshold = 15;
+
   String _dateOnly(DateTime dt) => dt.toIso8601String().split('T').first;
 
   Map<String, dynamic> addPhotoReport({
@@ -3089,13 +2939,39 @@ class Store {
       if (project != null) {
         project['constructionProgress'] = progressPercent;
         _persistProject('project construction progress', project);
+        _flagScheduleDeviation(project, progressPercent);
       }
     }
     return report;
   }
 
-  /// Entries for [projectId], newest-first by `takenAt` (client groups the
-  /// result by month — see Photo Reports API contract).
+  /// If planned−actual exceeds [_scheduleDeviationThreshold], notify admins (critical).
+  void _flagScheduleDeviation(Map<String, dynamic> project, int actual) {
+    final planned = (project['plannedProgress'] as num?)?.round();
+    if (planned == null) return;
+    final gap = planned - actual;
+    if (gap <= _scheduleDeviationThreshold) return;
+    notifyAdmins(
+      type: 'progress_deviation',
+      title: 'Construction behind schedule: ${project['name']}',
+      body:
+          'Confirmed progress $actual% against $planned% promised — '
+          'a $gap% gap. Project needs an on-site inspection.',
+      payload: {
+        'projectName': project['name'],
+        'actual': actual,
+        'planned': planned,
+        'gap': gap,
+      },
+      developerId: (project['developer'] as Map?)?['id'] as String?,
+      projectId: project['id'] as String?,
+      targetType: 'project',
+      targetId: project['id'] as String?,
+      severity: 'critical',
+    );
+  }
+
+  /// Photo reports for [projectId], newest `takenAt` first.
   List<Map<String, dynamic>> photoReportsForProject(String projectId) {
     final items = photoReports.where((r) => r['projectId'] == projectId).toList();
     items.sort(
@@ -3173,9 +3049,7 @@ class Store {
     );
   }
 
-  /// Broadcasts an [event] to connected sockets. When [adminOnly] is set the
-  /// frame is only delivered to admin subscribers — used for lead events,
-  /// which expose CRM/PII metadata that ordinary users must not receive.
+  /// Broadcast [event]. [adminOnly] limits delivery (lead/CRM PII).
   void _broadcast(String event, Object? data, {bool adminOnly = false}) {
     final frame = jsonEncode({'event': event, 'data': data});
     for (final entry in _sockets.entries.toList()) {
@@ -3188,10 +3062,7 @@ class Store {
     }
   }
 
-  /// Periodically flips a random unit's status to simulate the live
-  /// availability grid. **Off by default** — it steals the "I clicked Sold"
-  /// demo moment. Enable only with `LIVE_DEMO_TICKER=true` in the environment
-  /// / `.env` (see `docs/HOSTING_AHOST.md` and `PRESENTATION_READINESS.md`).
+  /// Demo ticker: random unit status flips. Off unless `LIVE_DEMO_TICKER=true`.
   void _startLiveUpdates() {
     final tickerOn =
         (appEnv()['LIVE_DEMO_TICKER'] ?? '').trim().toLowerCase() == 'true';
@@ -3242,9 +3113,7 @@ class Store {
       }
     });
 
-    // Simulated "flash offer" push, purely for client engagement/demo
-    // purposes — reuses an existing seeded offer rather than modeling a
-    // full offers-management system.
+    // Demo flash-offer push from an existing seeded offer.
     _offerTicker = Timer.periodic(const Duration(seconds: 45), (_) {
       final withOffers = projects
           .where((p) => (p['offers'] as List).isNotEmpty)

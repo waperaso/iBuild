@@ -3,15 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 
-/// Generic drag-and-drop column board for lead-like records keyed by a
-/// `status` field — one column per entry in [statuses]. Dropping a card on a
-/// different column invokes [onStatusChanged] instead of requiring a manual
-/// status menu (Track B.2, "Kanban CRM").
-///
-/// Used by both the per-project lead CRM
-/// ([residence/project_detail_admin.dart]) and the platform-wide CRM
-/// ([platform/platform_crm.dart]) — each supplies its own [cardBuilder] so
-/// the card content can differ while the drag/drop mechanics stay shared.
+/// Drag-and-drop status columns for lead-like records.
 class LeadKanbanBoard extends StatelessWidget {
   const LeadKanbanBoard({
     super.key,

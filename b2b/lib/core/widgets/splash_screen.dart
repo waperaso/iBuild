@@ -4,11 +4,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import 'brand_mark.dart';
 
-/// Shown at `/splash` — the app's single initial-load state — while the
-/// session restore (and any other startup state) resolves, so the user
-/// sees one deliberate animated screen instead of a flash of the login
-/// screen followed by an instant jump into the dashboard once auth
-/// resolves.
+/// `/splash` while session restore completes.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

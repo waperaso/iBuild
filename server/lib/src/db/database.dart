@@ -5,22 +5,7 @@ import 'package:postgres/postgres.dart';
 
 import 'pg_config.dart';
 
-/// Thin wrapper around a single `postgres` v3 [Connection], adding an
-/// idempotent [migrate] step that applies the SQL files under
-/// `migrations/` (tracked in a `schema_migrations` table) in filename
-/// order.
-///
-/// Kept deliberately small: the rest of the persistence layer
-/// ([PgPersistence]) only needs [execute] and [runTx].
-///
-/// All access is serialized through [_serialized]: the postgres driver
-/// rejects concurrent `execute` while a `runTx` is open on the same
-/// connection, and Store write-throughs are fire-and-forget (`unawaited`),
-/// so without a gate the auth middleware's `setRequestContext` (and the
-/// next HTTP request) race with in-flight deletes/upserts and throw
-/// `Attempting to execute query on connection while inside a runTx call`
-/// — which also wedged the connection and made subsequent requests hang
-/// until Dio's connectTimeout.
+/// One Postgres connection + [migrate]. Ops serialized to avoid racing RLS context.
 class Database {
   Database(this.config, {String? migrationsDir})
     : _migrationsDir =
@@ -32,8 +17,7 @@ class Database {
 
   Connection? _connection;
 
-  /// Tail of the serialization chain. Completes when the latest queued
-  /// operation finishes (successfully or not).
+  /// Serialization chain tail.
   Future<void> _gate = Future<void>.value();
 
   Connection get connection {
@@ -44,7 +28,7 @@ class Database {
     return c;
   }
 
-  /// Runs [fn] only after every previously queued DB op has finished.
+  /// Run [fn] after prior queued DB ops finish.
   Future<T> _serialized<T>(Future<T> Function() fn) {
     final previous = _gate;
     final done = Completer<void>();
@@ -102,10 +86,7 @@ class Database {
     return true;
   }
 
-  /// Applies every `*.sql` file in [_migrationsDir] that hasn't already
-  /// been recorded in `schema_migrations`, in filename order, each inside
-  /// its own transaction. Safe to call on every startup — already-applied
-  /// migrations are skipped.
+  /// Apply pending `*.sql` in [_migrationsDir] (filename order, one tx each).
   Future<void> migrate() async {
     await connection.execute('''
       CREATE TABLE IF NOT EXISTS schema_migrations (

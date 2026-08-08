@@ -15,17 +15,8 @@ import '../../discovery/providers/discovery_providers.dart';
 import '../providers/compare_providers.dart';
 import '../providers/live_unit_status_provider.dart';
 
-/// The availability grid ("шахматка"): a matrix of cells per building/floor,
-/// colored by unit status (plan section 3.4), with a secondary room-count
-/// accent and a type filter (apartment/office/retail) above the grid.
-/// Statuses update live over WebSocket via [liveUnitStatusProvider] —
-/// watching it here subscribes to this project's pushes for as long as the
-/// screen is on-screen, and unsubscribes automatically once it's popped (the
-/// provider is `autoDispose`).
-///
-/// The app bar's compare toggle switches cell taps from "open unit" to
-/// "toggle compare selection" (plan Phase 3, compare units); selecting 1+
-/// units surfaces a floating "Compare (n)" bar that opens `/compare`.
+/// Availability chessboard; live status via [liveUnitStatusProvider].
+/// App-bar compare mode toggles multi-select for `/compare`.
 class UnitGridScreen extends ConsumerStatefulWidget {
   const UnitGridScreen({super.key, required this.projectId});
 
@@ -310,9 +301,7 @@ class _BuildingGrid extends StatelessWidget {
   }
 }
 
-/// Room count → corner-accent colour, shared by the cell badge and the
-/// legend. Kept intentionally independent of the light/dark theme palette —
-/// this is a fixed key, not a themed surface colour.
+/// Fixed room-count → accent color (not theme-dependent).
 Color roomAccentColor(int? rooms) => switch (rooms) {
   null => Colors.transparent,
   1 => const Color(0xFF3B82F6),

@@ -2,8 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-/// Desktop/web-friendly scroll: mouse + trackpad drag, clamping physics, no
-/// glow/overscroll chrome. Bounce physics on Flutter web felt laggy.
+/// Desktop/web scroll: mouse/trackpad drag, clamping on web, no overscroll glow.
 class AppScrollBehavior extends MaterialScrollBehavior {
   const AppScrollBehavior();
   @override

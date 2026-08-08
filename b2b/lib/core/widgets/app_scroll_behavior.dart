@@ -2,11 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-/// Desktop/web-friendly scroll: mouse + trackpad drag, clamping physics, no
-/// glow/overscroll chrome. Bounce physics on Flutter web felt laggy — every
-/// list in the app (admin dashboards, CRM tables, forms) inherits this via
-/// `MaterialApp.router(scrollBehavior: ...)` instead of each screen tuning
-/// its own `physics:`.
+/// App-wide scroll: mouse/trackpad drag, clamping on web, no overscroll glow.
 class AppScrollBehavior extends MaterialScrollBehavior {
   const AppScrollBehavior();
 

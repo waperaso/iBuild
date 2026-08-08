@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Midnight" — a deep navy primary on a cool pale-blue canvas, lit by a bright
-/// cyan secondary for a nocturnal, high-tech pairing. Foregrounds clear WCAG AA
-/// on their surfaces.
+/// "Midnight" — navy primary, cyan secondary, pale-blue canvas.
 const AppColors midnightScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF1F4F8),
@@ -28,8 +26,7 @@ const AppColors midnightScheme = AppColors(
   unitBlocked: Color(0xFF535A6B),
 );
 
-/// Dark variant of [midnightScheme]: a near-black indigo canvas with a
-/// brightened periwinkle primary and a vivid cyan secondary.
+/// Dark [midnightScheme]: near-black indigo canvas, periwinkle + cyan.
 const AppColors midnightSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF080B14),

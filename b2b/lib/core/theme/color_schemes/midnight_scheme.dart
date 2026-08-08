@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Midnight" — a deep navy primary with a bright cyan secondary on a cool
-/// slate-tinted canvas. A darker, more nocturnal cousin of Sapphire; the cyan
-/// keeps interactive accents lively against the sober navy.
+/// "Midnight" — navy primary, cyan secondary, cool slate canvas.
 const AppColors midnightScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF1F4F8),

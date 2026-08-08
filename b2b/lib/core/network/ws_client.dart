@@ -8,8 +8,7 @@ import '../../features/auth/auth.dart';
 import '../api_client.dart';
 import '../env.dart';
 
-/// Real-time events pushed by the API over `/v1/ws` (mirrors the B2C
-/// client's `WsEventType` — see `server/lib/src/store.dart`, `_broadcast`).
+/// Real-time events from `/v1/ws`.
 enum WsEventType {
   unitStatusChanged,
   unitPriceChanged,
@@ -39,24 +38,7 @@ class WsEvent {
   );
 }
 
-/// Thin WebSocket client for admin live updates (unit status + lead pushes).
-///
-/// Ported from the B2C app's `core/network/ws_client.dart` — same
-/// reconnect/backoff/auth-gating shape, adapted to the B2B app's token cache
-/// ([accessTokenCache]/[addAccessTokenListener] in `core/api_client.dart`)
-/// instead of B2C's standalone `AuthTokenCache`.
-///
-/// One [WsClient] backs the whole app (see [wsClientProvider]): every
-/// consumer shares a single socket and a single broadcast [connect] stream.
-/// [connect] is idempotent — repeated calls reuse the existing connection
-/// rather than leaking a new socket each time — and the client reconnects
-/// with exponential backoff, re-subscribing to any projects that were live
-/// before the drop.
-///
-/// Auth: the server requires a bearer token (`access_token` query param). The
-/// client never dials without a token, never bypasses backoff on [connect],
-/// and stops retrying after repeated handshake failures until
-/// [onAuthChanged] (sign-in / token refresh / sign-out).
+/// Admin WebSocket client (unit/lead pushes; reconnect with backoff).
 class WsClient {
   // A private field can't be a named initializing formal, so assign it in the
   // initializer list instead.

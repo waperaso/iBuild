@@ -280,15 +280,25 @@ class _RentalListingSheet extends StatelessWidget {
               const SizedBox(height: AppSpacing.xl),
               Row(
                 children: [
-                  Text(
-                    Formatters.rentMonthly(listing.rentMonthly),
-                    style: textTheme.headlineSmall,
+                  Flexible(
+                    child: Text(
+                      Formatters.rentMonthly(listing.rentMonthly),
+                      style: textTheme.headlineSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const Spacer(),
-                  PillButton(
-                    label: listing.contactPhone,
-                    icon: Icons.call,
-                    onPressed: () => _dial(context),
+                  const SizedBox(width: AppSpacing.sm),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: PillButton(
+                        label: listing.contactPhone,
+                        icon: Icons.call,
+                        onPressed: () => _dial(context),
+                      ),
+                    ),
                   ),
                 ],
               ),

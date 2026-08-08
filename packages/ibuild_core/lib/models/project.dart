@@ -31,6 +31,10 @@ abstract class Project with _$Project {
     double? rentMin,
     double? rentMax,
     int? constructionProgress,
+    /// Progress the developer's published schedule promises for today. Shown
+    /// next to [constructionProgress] so a buyer sees promise against fact
+    /// instead of a single unverifiable number.
+    int? plannedProgress,
     DateTime? completionDate,
     @Default(0) double rating,
     @Default(0) int availableUnits,

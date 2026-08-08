@@ -1,12 +1,8 @@
 import 'json_map.dart';
 
-/// The iBuild REST API wraps every payload in a
-/// `{ success, data, meta, error }` envelope. These helpers unwrap it in one
-/// place so callers (and the Dio response interceptor) don't each re-implement
-/// the "is this the envelope or the raw body?" check.
+/// Unwrap helpers for the API `{ success, data, meta, error }` envelope.
 abstract final class ApiEnvelope {
-  /// Returns the `data` field if [body] is an envelope, otherwise [body]
-  /// itself. Handles the case where an interceptor has already unwrapped it.
+  /// `data` if [body] is an envelope; otherwise [body] (already unwrapped).
   static dynamic unwrap(dynamic body) {
     if (body is JsonMap && body.containsKey('data')) {
       return body['data'];
@@ -32,8 +28,7 @@ abstract final class ApiEnvelope {
   }
 }
 
-/// A transport-agnostic API error. Repositories throw this so presentation
-/// code can react to a stable type without depending on the HTTP client.
+/// API error thrown by repositories; independent of the HTTP client.
 class ApiException implements Exception {
   const ApiException(this.message, {this.statusCode, this.code});
 

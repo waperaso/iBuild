@@ -17,43 +17,27 @@ import '../../core/widgets/auth_hero_panel.dart';
 import '../../core/widgets/b2b_brand.dart';
 import '../../core/widgets/confirm_dialogs.dart';
 import '../../core/widgets/documents_upload_card.dart';
-import '../../core/widgets/language_switcher.dart';
+import '../../core/widgets/locale_theme_bar.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../admin/admin_api.dart';
 import 'auth.dart';
 
-/// Verification documents for the application currently being drafted or
-/// awaiting review — separate from `org_profile_screen.dart`'s own provider
-/// since a fresh applicant isn't `residence_admin` yet and shouldn't depend
-/// on that screen ever having been visited.
+/// Documents for the in-progress apply flow (separate from org profile).
 final _applyDocumentsProvider = FutureProvider((ref) {
   return ref.watch(adminApiProvider).myDocuments();
 });
 
 enum _ApplyStep { onboarding, role, details }
 
-/// Where the applicant currently sits: filling out the multi-step form, or
-/// looking at the outcome of a submission already on file with the server.
+/// Apply UI phase: wizard vs read-only status views.
 enum _AppPhase { loading, wizard, draft, pending, rejected, approved }
 
-/// Every applicant registers as a property developer — that's the only role
-/// this app's residence-admin features are built around. "Also acts as a
-/// contractor" isn't a mutually-exclusive alternative (a developer can very
-/// well build its own projects), so it's a non-exclusive checkbox rather than
-/// a second card; it just decides whether the construction-license field is
-/// relevant and which `accountKind` value goes to the server (kept for
-/// backward compatibility with existing KYC records and server validation).
+/// Account kinds for KYC (`accountKind`). Contractor is an optional add-on.
 const String _kDeveloperAccountKind = 'property_developer';
 const String _kContractorAccountKind = 'construction_company';
 
-/// Fixed region choices for the registration form. Stored as stable,
-/// human-readable values so the KYC review dialog reads sensibly regardless of
-/// the applicant's UI language.
-///
-/// Deliberately narrowed to the two areas iBuild currently onboards
-/// developers in — the rest of the country is filtered out for now rather
-/// than offered as a choice that can't actually be acted on yet.
+/// Fixed registration regions (stable English values for KYC review).
 const List<String> kRegionOptions = <String>['Tashkent', 'New Tashkent'];
 
 String _regionLabel(AppLocalizations l10n, String value) => switch (value) {
@@ -62,8 +46,7 @@ String _regionLabel(AppLocalizations l10n, String value) => switch (value) {
   _ => value,
 };
 
-/// Maps free-text region data from an older submission onto one of the fixed
-/// [kRegionOptions], falling back to null when it doesn't match.
+/// Maps a stored region string onto [kRegionOptions], or null.
 String? _regionFromStored(String? value) {
   if (value == null || value.trim().isEmpty) return null;
   return kRegionOptions.contains(value.trim()) ? value.trim() : null;
@@ -101,9 +84,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
   String? _uploadingDocType;
   double _docUploadProgress = 0;
 
-  /// Which screen is on display: the wizard itself, or a read-only view of
-  /// an application already on file (pending / on review / declined /
-  /// approved). Backed by [_developer], which mirrors `GET /developers/me`.
+  /// Current phase; backed by [_developer] from `GET /developers/me`.
   _AppPhase _phase = _AppPhase.loading;
   Map<String, dynamic>? _developer;
   bool _refreshing = false;
@@ -135,10 +116,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
     super.dispose();
   }
 
-  /// Paints instantly from whatever was cached in secure storage on the
-  /// last successful fetch (so returning to a pending application doesn't
-  /// flash the wizard while the network round-trip is in flight), then
-  /// reconciles with the server.
+  /// Show cached application immediately, then refresh from the server.
   Future<void> _bootstrap() async {
     try {
       final storage = ref.read(secureStorageProvider);
@@ -153,13 +131,11 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
             _phase = _phaseFor(dev);
           });
         } catch (_) {
-          // Corrupt cache — fall through to the network fetch below.
+          // Corrupt cache — fetch from network below.
         }
       }
     } catch (_) {
-      // Secure-storage read itself failed (e.g. platform channel error on a
-      // fresh web reload) — no cached snapshot to paint from, but the
-      // network fetch below still runs and can recover on its own.
+      // Storage read failed; network fetch below still runs.
     }
     await _refreshDeveloper(showSpinner: _developer == null);
   }
@@ -203,8 +179,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
       }
       final status = dev['verificationStatus'] as String?;
       if (status == 'approved') {
-        // Flips the cached role to residence_admin so the router redirects
-        // out of this screen without requiring a fresh sign-in.
+        // Refresh role so the router can leave the apply flow.
         await ref.read(authControllerProvider.notifier).refreshMe();
       }
       _schedulePoll(status);
@@ -217,8 +192,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
     }
   }
 
-  /// While a decision is still pending, quietly re-check every 20s so an
-  /// admin's decision shows up without the applicant having to tap refresh.
+  /// Poll every 20s while status is pending/in_review.
   void _schedulePoll(String? status) {
     _pollTimer?.cancel();
     if (status == 'pending' || status == 'in_review') {
@@ -228,10 +202,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
     }
   }
 
-  /// "Resend with new data": hydrates the wizard from the declined
-  /// application so the applicant only has to fix what was wrong, then
-  /// drops them on the role step (in case the account kind itself needs to
-  /// change) instead of the welcome screen.
+  /// Prefill wizard from a declined/draft application and jump to role step.
   void _startResubmit() {
     final dev = _developer;
     if (dev != null) {
@@ -358,11 +329,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
     }
   }
 
-  /// Verification-document upload for the in-progress application — the
-  /// same `POST /developers/me/documents` used post-approval, but reachable
-  /// here too: a moderator can only approve once all 4 required documents
-  /// are on file, so applicants must be able to upload them *before*
-  /// approval, while still in `draft`/`pending`/`rejected` status.
+  /// Upload a required KYC document (`POST /developers/me/documents`).
   Future<void> _uploadDocument(String type) async {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
@@ -375,8 +342,6 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
     if (bytes == null) return;
 
     final l10n = AppLocalizations.of(context);
-    // Documents are never sent the instant a file is picked — the applicant
-    // reviews a preview (name, size, thumbnail) and must explicitly confirm.
     final confirmed = await confirmDocumentUpload(
       context,
       documentTypeLabel: documentTypeLabel(l10n, type),
@@ -529,7 +494,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
         actions: [
           const Padding(
             padding: EdgeInsets.only(right: AppSpacing.sm),
-            child: LanguageSwitcher(),
+            child: LocaleThemeBar(),
           ),
           TextButton(
             onPressed: () async {
@@ -545,10 +510,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
     );
   }
 
-  /// Centers [child] in a phone-width column on narrow windows; once there's
-  /// room for both a real form column and [AuthHeroPanel], switches to a
-  /// two-pane desktop layout instead of stranding a mobile-width card in an
-  /// otherwise empty desktop canvas.
+  /// Narrow: centered form. Wide: [AuthHeroPanel] + form.
   Widget _responsiveBody(Widget child, {double wideMaxWidth = 560}) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -606,7 +568,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
         actions: [
           const Padding(
             padding: EdgeInsets.only(right: AppSpacing.sm),
-            child: LanguageSwitcher(),
+            child: LocaleThemeBar(),
           ),
           TextButton(
             onPressed: () async {
@@ -679,9 +641,7 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
   }
 }
 
-/// Horizontal stepper for the review pipeline: waiting for review -> on
-/// review -> decision. Mirrors [_StepDots] visually but labels each stop so
-/// the applicant can see exactly where their application sits.
+/// Labeled review-pipeline stepper (pending → in review → decision).
 class _ReviewStepper extends StatelessWidget {
   const _ReviewStepper({required this.status});
 
@@ -753,9 +713,7 @@ class _ReviewStepper extends StatelessWidget {
   }
 }
 
-/// Same lookup as [developerStatusLabel] but importable without the raw
-/// value falling back to itself for approved/rejected — kept local so the
-/// stepper reads naturally ("Approved" / "Declined") as its final stop.
+/// Approved/rejected label for the review stepper's final stop.
 String developerStatusLabelStandalone(AppLocalizations l10n, String status) =>
     switch (status) {
       'approved' => l10n.devStatusApproved,
@@ -763,8 +721,7 @@ String developerStatusLabelStandalone(AppLocalizations l10n, String status) =>
       _ => status,
     };
 
-/// Shown while the application is saved as `draft` — the applicant can edit
-/// or explicitly submit for platform review.
+/// Draft application: edit or submit for review.
 class _DraftApplicationCard extends StatelessWidget {
   const _DraftApplicationCard({
     required this.developer,
@@ -781,9 +738,7 @@ class _DraftApplicationCard extends StatelessWidget {
   final String? message;
   final bool canSubmit;
 
-  /// Raw document `type` values (e.g. `license`) still missing an upload —
-  /// named individually in the hint below instead of a generic "some
-  /// documents are missing" so the applicant knows exactly what to add.
+  /// Missing required document `type` values for the submit hint.
   final List<String> missingDocumentTypes;
   final VoidCallback onEdit;
   final VoidCallback? onSubmitForReview;
@@ -878,9 +833,7 @@ class _DraftApplicationCard extends StatelessWidget {
   }
 }
 
-/// Shown while a submitted application is `pending` or `in_review` — the
-/// applicant can't do anything but wait (or nudge a refresh); editing
-/// reopens only after a decline.
+/// Pending / in-review status card.
 class _PendingReviewCard extends StatelessWidget {
   const _PendingReviewCard({
     required this.developer,
@@ -963,9 +916,7 @@ class _PendingReviewCard extends StatelessWidget {
   }
 }
 
-/// Shown after a decline — surfaces the admin's reason and offers "Edit &
-/// resubmit", which hydrates the wizard from this application so the
-/// applicant only has to fix what was flagged.
+/// Rejected application with reason and resubmit action.
 class _RejectedCard extends StatelessWidget {
   const _RejectedCard({
     required this.developer,
@@ -1046,8 +997,7 @@ class _RejectedCard extends StatelessWidget {
   }
 }
 
-/// Brief transitional view while the cached role refresh (which triggers
-/// the router redirect out of this screen) is in flight.
+/// Brief view while role refresh redirects out of apply.
 class _ApprovedCard extends StatelessWidget {
   const _ApprovedCard();
 
@@ -1250,10 +1200,7 @@ class _RoleStep extends StatelessWidget {
   }
 }
 
-/// Every applicant is a property developer, full stop — shown as a fixed
-/// (non-interactive) card rather than a picker so there's nothing to choose
-/// wrong. Whether they also build themselves is the only actual variable,
-/// captured separately by [_AlsoContractorOption] below.
+/// Always-selected developer role row.
 class _DeveloperRoleCard extends StatelessWidget {
   const _DeveloperRoleCard();
 
@@ -1300,9 +1247,7 @@ class _DeveloperRoleCard extends StatelessWidget {
   }
 }
 
-/// Non-exclusive add-on: a developer building its own projects still needs a
-/// construction license number, so this just toggles that field on in
-/// [_DetailsStep] rather than swapping the whole account type.
+/// Optional contractor checkbox (shows license field in details).
 class _AlsoContractorOption extends StatelessWidget {
   const _AlsoContractorOption({required this.value, required this.onChanged});
 

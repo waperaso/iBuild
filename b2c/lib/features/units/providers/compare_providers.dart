@@ -1,8 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Unit ids selected for side-by-side comparison, capped at 3. Adding a 4th
-/// drops the oldest selection rather than no-op'ing, so the list always
-/// reflects the most recently picked units.
+/// Compare selection (max 3); adding a 4th drops the oldest id.
 class CompareController extends Notifier<List<String>> {
   static const int _cap = 3;
 

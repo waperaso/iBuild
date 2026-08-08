@@ -224,6 +224,7 @@ class _BulkUnitsDialogState extends State<_BulkUnitsDialog> {
           children: [
             DropdownButtonFormField<String>(
               initialValue: _buildingId,
+              isExpanded: true,
               decoration: InputDecoration(labelText: l10n.projectBuildingLabel),
               items: [
                 for (final b in widget.buildings)
@@ -231,6 +232,7 @@ class _BulkUnitsDialogState extends State<_BulkUnitsDialog> {
                     value: b['id'] as String,
                     child: Text(
                       b['name']?.toString() ?? l10n.projectBuildingFallback,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
               ],
@@ -269,75 +271,62 @@ class _BulkUnitsDialogState extends State<_BulkUnitsDialog> {
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _unitsPerFloor,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(3),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: l10n.projectUnitsPerFloorLabel,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: TextField(
-                    controller: _startingNumber,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(4),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: l10n.projectStartingNumberLabel,
-                    ),
-                  ),
-                ),
+            TextField(
+              controller: _unitsPerFloor,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(3),
               ],
+              decoration: InputDecoration(
+                labelText: l10n.projectUnitsPerFloorLabel,
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _kind,
-                    decoration: InputDecoration(
-                      labelText: l10n.projectKindLabel,
-                    ),
-                    items: [
-                      for (final k in const ['apartment', 'office', 'retail'])
-                        DropdownMenuItem(
-                          value: k,
-                          child: Text(unitKindLabel(l10n, k)),
-                        ),
-                    ],
-                    onChanged: (v) => setState(() => _kind = v ?? _kind),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _dealType,
-                    decoration: InputDecoration(
-                      labelText: l10n.projectDealLabel,
-                    ),
-                    items: [
-                      for (final d in const ['sale', 'rent'])
-                        DropdownMenuItem(
-                          value: d,
-                          child: Text(dealTypeLabel(l10n, d)),
-                        ),
-                    ],
-                    onChanged: (v) =>
-                        setState(() => _dealType = v ?? _dealType),
-                  ),
-                ),
+            TextField(
+              controller: _startingNumber,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(4),
               ],
+              decoration: InputDecoration(
+                labelText: l10n.projectStartingNumberLabel,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            DropdownButtonFormField<String>(
+              initialValue: _kind,
+              isExpanded: true,
+              decoration: InputDecoration(labelText: l10n.projectKindLabel),
+              items: [
+                for (final k in const ['apartment', 'office', 'retail'])
+                  DropdownMenuItem(
+                    value: k,
+                    child: Text(
+                      unitKindLabel(l10n, k),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: (v) => setState(() => _kind = v ?? _kind),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            DropdownButtonFormField<String>(
+              initialValue: _dealType,
+              isExpanded: true,
+              decoration: InputDecoration(labelText: l10n.projectDealLabel),
+              items: [
+                for (final d in const ['sale', 'rent'])
+                  DropdownMenuItem(
+                    value: d,
+                    child: Text(
+                      dealTypeLabel(l10n, d),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: (v) => setState(() => _dealType = v ?? _dealType),
             ),
             const SizedBox(height: AppSpacing.sm),
             Row(
@@ -392,30 +381,48 @@ class _BulkUnitsDialogState extends State<_BulkUnitsDialog> {
           ],
         ),
       ),
+      actionsAlignment: MainAxisAlignment.center,
+      actionsPadding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        0,
+        AppSpacing.lg,
+        AppSpacing.lg,
+      ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.commonCancel),
-        ),
-        PillButton(
-          label: l10n.projectGenerate,
-          onPressed: () {
-            Navigator.pop(
-              context,
-              _BulkUnitsSpec(
-                buildingId: _buildingId,
-                floorFrom: int.tryParse(_floorFrom.text.trim()) ?? 1,
-                floorTo: int.tryParse(_floorTo.text.trim()) ?? 1,
-                unitsPerFloor: int.tryParse(_unitsPerFloor.text.trim()) ?? 1,
-                startingNumber: int.tryParse(_startingNumber.text.trim()) ?? 1,
-                kind: _kind,
-                dealType: _dealType,
-                areaTotal: double.tryParse(_areaTotal.text.trim()) ?? 50,
-                rooms: int.tryParse(_rooms.text.trim()) ?? 1,
-                price: double.tryParse(_price.text.trim()) ?? 0,
+        SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PillButton(
+                label: l10n.projectGenerate,
+                expand: true,
+                onPressed: () {
+                  Navigator.pop(
+                    context,
+                    _BulkUnitsSpec(
+                      buildingId: _buildingId,
+                      floorFrom: int.tryParse(_floorFrom.text.trim()) ?? 1,
+                      floorTo: int.tryParse(_floorTo.text.trim()) ?? 1,
+                      unitsPerFloor:
+                          int.tryParse(_unitsPerFloor.text.trim()) ?? 1,
+                      startingNumber:
+                          int.tryParse(_startingNumber.text.trim()) ?? 1,
+                      kind: _kind,
+                      dealType: _dealType,
+                      areaTotal: double.tryParse(_areaTotal.text.trim()) ?? 50,
+                      rooms: int.tryParse(_rooms.text.trim()) ?? 1,
+                      price: double.tryParse(_price.text.trim()) ?? 0,
+                    ),
+                  );
+                },
               ),
-            );
-          },
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.commonCancel),
+              ),
+            ],
+          ),
         ),
       ],
     );

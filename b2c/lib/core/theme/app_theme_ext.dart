@@ -2,19 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Ergonomic access to the semantic palette from any widget.
-///
-/// ```dart
-/// final c = context.colors;
-/// Container(color: c.accent);
-/// ```
+/// `context.colors` → theme [AppColors] extension.
 extension AppColorsX on BuildContext {
   AppColors get colors => Theme.of(this).extension<AppColors>() ?? _fallback;
 }
 
-// Should never be hit in practice because [buildAppTheme] always registers the
-// extension, but keeps `context.colors` non-null and crash-free. Mirrors
-// [meridianScheme] so the fallback never looks like a stale/different brand.
+// Fallback if [AppColors] isn't on the theme (should not happen in app).
 const AppColors _fallback = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF6F3EA),

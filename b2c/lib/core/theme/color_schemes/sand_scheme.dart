@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Sand" — a warm desert-tan base with a grounded terracotta primary, evoking
-/// sunbaked adobe. The secondary is a deep olive-brown for contrast.
-/// Foregrounds clear WCAG AA on their surfaces.
+/// "Sand" — terracotta primary, olive-brown secondary, warm tan canvas.
 const AppColors sandScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF7F1E7),
@@ -28,8 +26,7 @@ const AppColors sandScheme = AppColors(
   unitBlocked: Color(0xFF6A6049),
 );
 
-/// Dark variant of [sandScheme]: a deep espresso canvas with a brightened
-/// terracotta primary and a warm khaki secondary.
+/// Dark [sandScheme]: espresso canvas, brighter terracotta + khaki.
 const AppColors sandSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF12100B),

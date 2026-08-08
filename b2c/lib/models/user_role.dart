@@ -1,7 +1,4 @@
-/// Account role returned by `/v1/auth/otp/verify` in `user.role`.
-///
-/// Every B2C sign-up is tagged [ordinaryUser]. B2B will add [systemAdmin] and
-/// [residenceAdmin] when that app ships.
+/// `user.role` values from `/v1/auth/otp/verify`.
 abstract class UserRole {
   static const ordinaryUser = 'ordinary_user';
   static const systemAdmin = 'system_admin';

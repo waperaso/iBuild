@@ -3,9 +3,7 @@ import 'dart:io';
 
 import 'env_loader.dart';
 
-/// SMS OTP delivery. Uses Eskiz.uz when `ESKIZ_EMAIL` + `ESKIZ_PASSWORD`
-/// (or `ESKIZ_TOKEN`) are set; otherwise falls back to the fixed dev code
-/// and logs the OTP to stderr (never returned to clients in production).
+/// SMS OTP via Eskiz when configured; else log fixed dev code to stderr.
 class SmsService {
   SmsService();
 
@@ -16,12 +14,10 @@ class SmsService {
     'https://notify.eskiz.uz/api/auth/login',
   );
 
-  /// Token obtained from [_loginUri] with `ESKIZ_EMAIL`/`ESKIZ_PASSWORD`.
-  /// Eskiz tokens expire (~30 days), so a 401 from the send endpoint clears
-  /// this and the next send re-authenticates.
+  /// Cached Eskiz login token; cleared on send 401 (~30d expiry).
   String? _sessionToken;
 
-  /// When true, [sendOtp] only logs and does not call Eskiz.
+  /// True when Eskiz env is unset ([sendOtp] only logs).
   bool get isDevMode {
     final env = appEnv();
     final email = env['ESKIZ_EMAIL'];
@@ -32,10 +28,7 @@ class SmsService {
         (token == null || token.isEmpty);
   }
 
-  /// Sender ID registered with Eskiz. `4546` is Eskiz's shared test sender,
-  /// which only delivers to numbers allow-listed in your Eskiz account —
-  /// production accounts must set `ESKIZ_FROM` to their approved alphanumeric
-  /// sender or real messages are silently dropped by the provider.
+  /// Eskiz sender. Default `4546` is test-only; set `ESKIZ_FROM` in production.
   String get _from => appEnv()['ESKIZ_FROM']?.trim().isNotEmpty == true
       ? appEnv()['ESKIZ_FROM']!.trim()
       : '4546';

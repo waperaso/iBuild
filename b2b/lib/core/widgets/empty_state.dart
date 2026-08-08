@@ -4,10 +4,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import 'pill_button.dart';
 
-/// Shared "nothing here yet" view: an icon badge, a title, an optional
-/// subtitle and an optional primary CTA — replaces the one-off bare
-/// icon+caption empty views scattered across Favorites, Leads,
-/// Notifications and the Project page's placeholder tabs.
+/// Empty-state: icon, title, optional subtitle and CTA.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,

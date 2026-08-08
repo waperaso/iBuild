@@ -1,11 +1,6 @@
 import '../env_loader.dart';
 
-/// Connection settings for the optional PostgreSQL persistence layer.
-///
-/// Constructed from environment variables via [PgConfig.fromEnv]. A `null`
-/// return from that factory is the signal used throughout the app that no
-/// database is configured, and the server should stay in pure in-memory
-/// mode (see `Store.create`).
+/// Optional Postgres settings from env ([PgConfig.fromEnv]; null → in-memory).
 class PgConfig {
   const PgConfig({
     required this.host,
@@ -23,13 +18,7 @@ class PgConfig {
   final String password;
   final bool useSsl;
 
-  /// Reads `DB_HOST`, `DB_PORT` (default `5432`), `DB_NAME`, `DB_USER`,
-  /// `DB_PASSWORD`, `DB_SSL` (`true`/`false`, default `false`) from
-  /// [environment] (defaults to [appEnv] — the process environment merged
-  /// with `server/.env` when that file exists).
-  ///
-  /// Returns `null` when `DB_HOST` is unset or empty — the app should then
-  /// fall back to the fully in-memory mode used by every existing test.
+  /// From `DB_*` env ([appEnv] by default). Null if `DB_HOST` unset.
   static PgConfig? fromEnv([Map<String, String>? environment]) {
     final env = environment ?? appEnv();
     final host = env['DB_HOST']?.trim();

@@ -4,11 +4,7 @@ import 'package:ibuild_core/ibuild_core.dart';
 import '../../../core/config/env.dart';
 import '../../../core/network/ws_client.dart';
 
-/// Maps the wire status strings sent by the server's `unitStatusChanged`
-/// event (see `server/lib/src/store.dart`, `_startLiveUpdates`) onto
-/// [UnitStatus], mirroring the `@JsonValue` mapping declared on the enum in
-/// `packages/ibuild_core/lib/models/enums.dart`. Returns `null` for anything
-/// unrecognized so a malformed/future status never crashes the grid.
+/// Wire `unitStatusChanged` status → [UnitStatus]; null if unrecognized.
 UnitStatus? unitStatusFromWire(String? raw) => switch (raw) {
   'available' => UnitStatus.available,
   'reserved' => UnitStatus.reserved,
@@ -18,19 +14,9 @@ UnitStatus? unitStatusFromWire(String? raw) => switch (raw) {
   _ => null,
 };
 
-/// Live unit-status overrides for a single project, pushed over the
-/// WebSocket (plan section 3, "Live availability via WebSocket").
-///
-/// Keyed by [projectId] so screens (e.g. [UnitGridScreen]) subscribe scoped
-/// to whichever project they're viewing. This is an `autoDispose` family
-/// provider: [build] subscribes on first watch and [Ref.onDispose]
-/// unsubscribes once the last watcher goes away (e.g. the grid screen is
-/// popped), so entering/leaving the screen is all that's needed to
-/// subscribe/unsubscribe — no extra widget lifecycle plumbing required.
-///
-/// Values are `unitId -> UnitStatus` and should win over the static status
-/// baked into the fetched `Project`/`Unit` models, since they reflect
-/// pushes that arrived after that snapshot.
+/// Live unit-status overrides for one project via WebSocket (`unitId -> status`).
+/// `autoDispose` family: subscribe on first watch, unsubscribe on last dispose.
+/// Values override the static status from the last project fetch.
 class LiveUnitStatusController extends Notifier<Map<String, UnitStatus>> {
   LiveUnitStatusController(this.projectId);
 

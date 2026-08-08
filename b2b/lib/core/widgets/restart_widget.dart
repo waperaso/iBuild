@@ -1,11 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-/// Standard "restart the whole Flutter app" trick: changing this widget's
-/// [Key] tears down and rebuilds the entire tree below it, including every
-/// [ProviderScope]/router/controller — the closest thing to a fresh
-/// `main()` run without an actual process restart. Used by the error
-/// screen's Reload action on platforms where a real page reload (web)
-/// isn't available.
+/// Remounts the app tree by swapping [Key] (error-screen reload fallback).
 class RestartWidget extends StatefulWidget {
   const RestartWidget({super.key, required this.child});
 

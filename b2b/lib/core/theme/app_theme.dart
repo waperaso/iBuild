@@ -4,9 +4,7 @@ import 'app_colors.dart';
 import 'app_dimens.dart';
 import 'app_typography.dart';
 
-/// Builds a full [ThemeData] from a semantic [AppColors] token set. This is the
-/// single bridge between our palette tokens and Flutter's Material theming, so
-/// switching palettes flows through here automatically.
+/// Maps [AppColors] tokens onto Flutter [ThemeData].
 ThemeData buildAppTheme(AppColors colors) {
   final isDark = colors.brightness == Brightness.dark;
   final textTheme = AppTypography.textTheme(
@@ -19,6 +17,11 @@ ThemeData buildAppTheme(AppColors colors) {
     onPrimary: colors.onAccent,
     secondary: colors.accent,
     onSecondary: colors.onAccent,
+    // ChoiceChip (M3) fills with secondaryContainer and labels with
+    // onSecondaryContainer — keep these in lockstep with accent/onAccent so
+    // selected pills stay white-on-accent (light) / black-on-accent (dark).
+    secondaryContainer: colors.accent,
+    onSecondaryContainer: colors.onAccent,
     error: colors.danger,
     onError: Colors.white,
     surface: colors.surface,
@@ -36,15 +39,9 @@ ThemeData buildAppTheme(AppColors colors) {
     textTheme: textTheme,
     // Expose the raw token set to widgets via `context.colors`.
     extensions: <ThemeExtension<dynamic>>[colors],
-    // InkSparkle is expensive on Flutter web (shader + animation per tap).
-    // `hoverColor`/`highlightColor` default to a flat black wash the size of
-    // whatever rect the InkWell/IconButton happens to occupy — on a rounded
-    // photo tile without a matching `borderRadius` on that InkWell, this
-    // painted as a plain rectangle laid over the rounded corners, reading as
-    // a stock Android ripple/hover rather than a considered hover state.
-    // Matches the b2c theme, which already disables these for the same
-    // reason — plain taps/hovers feel snappier and don't fight rounded
-    // cards without one.
+    // InkSparkle is costly on Flutter web. Default hover/highlight also paints
+    // a rectangular wash that clips badly on rounded tiles without a matching
+    // InkWell borderRadius — disable both (same as b2c).
     splashFactory: NoSplash.splashFactory,
     splashColor: Colors.transparent,
     highlightColor: Colors.transparent,
@@ -73,8 +70,24 @@ ThemeData buildAppTheme(AppColors colors) {
     chipTheme: ChipThemeData(
       backgroundColor: colors.surface,
       selectedColor: colors.accent,
+      // ChoiceChip reads secondarySelectedColor, not selectedColor.
+      secondarySelectedColor: colors.accent,
       side: BorderSide(color: colors.outline),
-      labelStyle: textTheme.labelLarge,
+      color: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) return colors.accent;
+        return colors.surface;
+      }),
+      // WidgetStateColor survives M3's labelStyle merge path; plain Color on
+      // labelStyle alone is overwritten and selected chips keep ink (black).
+      labelStyle: textTheme.labelLarge?.copyWith(
+        color: WidgetStateColor.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return colors.onAccent;
+          return colors.ink;
+        }),
+      ),
+      secondaryLabelStyle: textTheme.labelLarge?.copyWith(
+        color: colors.onAccent,
+      ),
       shape: const StadiumBorder(),
       showCheckmark: false,
     ),
@@ -150,8 +163,7 @@ ThemeData buildAppTheme(AppColors colors) {
         colors.inkMuted.withValues(alpha: isDark ? 0.4 : 0.3),
       ),
     ),
-    // Softer, calmer route transitions on every platform instead of the
-    // default Android bottom-up slide, for a more premium feel.
+    // Fade-through on all platforms instead of Android's default slide-up.
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
         TargetPlatform.android: _FadeThroughPageTransitionsBuilder(),
@@ -164,8 +176,7 @@ ThemeData buildAppTheme(AppColors colors) {
   );
 }
 
-/// A gentle fade + slight upward slide used for all page transitions. Reads as
-/// a soft cross-fade rather than the hard platform-default push.
+/// Fade + slight upward slide for page transitions.
 class _FadeThroughPageTransitionsBuilder extends PageTransitionsBuilder {
   const _FadeThroughPageTransitionsBuilder();
 

@@ -40,7 +40,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get loginTitle => 'Administrator kirishi';
 
   @override
-  String get loginSubtitle => 'Platforma va ЖК (turar-joy majmuasi) boshqaruvi';
+  String get loginSubtitle => 'Platforma va TJ boshqaruvi';
 
   @override
   String get loginPhoneHint => 'Telefon raqami';
@@ -64,8 +64,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get otpHint => '000000';
 
   @override
-  String get otpDevHelper =>
-      'Test rejimi: Eskiz sozlanmagan boʻlsa 123456 dan foydalaning';
+  String get otpDevHelper => 'Test rejimi';
 
   @override
   String get otpVerify => 'Tasdiqlash';
@@ -334,6 +333,12 @@ class AppLocalizationsUz extends AppLocalizations {
   String get settingsAppearance => 'Ko‘rinish';
 
   @override
+  String get settingsLightMode => 'Yorug‘';
+
+  @override
+  String get settingsDarkShort => 'Tungi';
+
+  @override
   String get settingsDarkMode => 'Tungi rejim';
 
   @override
@@ -346,8 +351,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get platformTitle => 'Platforma boshqaruvi';
 
   @override
-  String get platformSubtitle =>
-      'Kompaniyalarni tasdiqlang, loyihalarni moderatsiya qiling, \$299/oy obunalarni kuzating.';
+  String get platformSubtitle => 'Platformani boshqaring.';
 
   @override
   String platformAnalyticsError(String error) {
@@ -642,6 +646,9 @@ class AppLocalizationsUz extends AppLocalizations {
       'Yangi loyihalar, oʻzgarishlar va yuborilgan hujjatlar shu yerda paydo boʻladi.';
 
   @override
+  String get notificationsCriticalBadge => 'Muhim';
+
+  @override
   String get notificationsJustNow => 'Hozirgina';
 
   @override
@@ -657,6 +664,74 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String notificationsDaysAgo(int days) {
     return '$days kun oldin';
+  }
+
+  @override
+  String notifDeveloperSubmittedTitle(String name) {
+    return 'Quruvchi arizasi: $name';
+  }
+
+  @override
+  String notifDeveloperSubmittedBody(String name) {
+    return '$name KYC arizasini tekshiruvga yubordi.';
+  }
+
+  @override
+  String notifDocumentUploadedTitle(String documentType) {
+    return 'Hujjat yuborildi: $documentType';
+  }
+
+  @override
+  String notifDocumentUploadedBody(String name, String documentType) {
+    return '$name «$documentType» hujjatini tekshiruvga yukladi.';
+  }
+
+  @override
+  String notifProjectCreatedTitle(String name) {
+    return 'Yangi loyiha: $name';
+  }
+
+  @override
+  String notifProjectCreatedBody(String name) {
+    return '$name yangi loyiha qoralamasini yaratdi.';
+  }
+
+  @override
+  String get notifProjectCreatedBodyAnonymous =>
+      'Yangi loyiha qoralamasi yaratildi.';
+
+  @override
+  String notifProjectSubmittedTitle(String name) {
+    return 'Loyiha tekshiruvga: $name';
+  }
+
+  @override
+  String notifProjectSubmittedBody(String name) {
+    return '$name loyihani moderatsiyaga yubordi.';
+  }
+
+  @override
+  String get notifProjectSubmittedBodyAnonymous =>
+      'Loyiha moderatsiyaga yuborildi.';
+
+  @override
+  String notifProjectUpdatedTitle(String name) {
+    return 'Loyiha yangilandi: $name';
+  }
+
+  @override
+  String notifProjectUpdatedBody(String fields) {
+    return 'Oʻzgargan maydonlar: $fields';
+  }
+
+  @override
+  String notifProgressDeviationTitle(String name) {
+    return 'Jadvaldan orqada: $name';
+  }
+
+  @override
+  String notifProgressDeviationBody(int actual, int planned, int gap) {
+    return 'Tasdiqlangan $actual% — vaʼda $planned%, farq $gap%. Obyektda tekshiruv kerak.';
   }
 
   @override
@@ -1524,6 +1599,40 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get projectUnitsByStatusTitle => 'Holat boʻyicha yunitlar';
+
+  @override
+  String get projectScheduleSectionTitle => 'Qurilish jadvali';
+
+  @override
+  String get projectScheduleSubtitle =>
+      'Eʼlon qilingan jadvalingiz bugunga vaʼda qilgan tayyorlik darajasi. Xaridor uni fotohisobotlardan olingan tasdiqlangan koʻrsatkich yonida koʻradi, shuning uchun qiymatni haqiqiy reja bilan mos saqlang.';
+
+  @override
+  String get projectPlannedProgressLabel => 'Rejadagi tayyorlik, %';
+
+  @override
+  String get projectScheduleSave => 'Jadvalni saqlash';
+
+  @override
+  String get projectScheduleSaved => 'Jadval saqlandi';
+
+  @override
+  String get projectScheduleInvalid => '0 dan 100 gacha butun son kiriting';
+
+  @override
+  String projectActualProgressHint(int percent) {
+    return 'Tasdiqlangan tayyorlik: $percent%';
+  }
+
+  @override
+  String projectScheduleGapOk(int percent) {
+    return 'Farq $percent% — ruxsat etilgan chegarada';
+  }
+
+  @override
+  String projectScheduleGapAlert(int percent) {
+    return 'Farq $percent% — 15% dan ortiq, platforma obyektni tekshiruvga yuboradi';
+  }
 
   @override
   String get projectPhotoReportsTitle => 'Qurilish fotohisobotlari';

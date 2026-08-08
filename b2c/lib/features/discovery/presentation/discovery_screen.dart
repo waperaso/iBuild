@@ -27,10 +27,7 @@ import '../providers/filters_providers.dart';
 import 'widgets/filter_sheet.dart';
 import 'widgets/property_card.dart';
 
-/// Home screen: greeting header, Buy / Rent / New-builds toggle, search +
-/// filters, category chips and the "Recommend for You" list — with
-/// pull-to-refresh and infinite-scroll pagination. Uses a responsive grid on
-/// desktop.
+/// Discovery home: mode toggle, search/filters, paginated project list.
 class DiscoveryScreen extends ConsumerStatefulWidget {
   const DiscoveryScreen({super.key});
 
@@ -291,10 +288,7 @@ class _OwnerListingsRail extends ConsumerWidget {
   }
 }
 
-/// Bell icon with an unread-count badge, driven by
-/// [unreadNotificationsCountProvider]. The badge clears when the
-/// notifications screen is opened and marks everything read (see
-/// `NotificationsScreen`), not on this tap itself.
+/// Notifications bell with unread badge.
 class _NotificationsBell extends ConsumerWidget {
   const _NotificationsBell();
 
@@ -444,20 +438,29 @@ class _SearchAndFilterRowState extends ConsumerState<_SearchAndFilterRow> {
     return Row(
       children: [
         Expanded(
-          child: Material(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(AppRadii.pill),
-            child: TextField(
-              controller: _controller,
-              onChanged: _onChanged,
-              decoration: InputDecoration(
-                hintText: l10n.searchHint,
-                prefixIcon: Icon(Icons.search, color: colors.inkMuted),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.md,
+          child: TextField(
+            controller: _controller,
+            onChanged: _onChanged,
+            decoration: InputDecoration(
+              hintText: l10n.searchHint,
+              prefixIcon: Icon(Icons.search, color: colors.inkMuted),
+              filled: true,
+              fillColor: colors.surface,
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: AppSpacing.md,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadii.pill),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadii.pill),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadii.pill),
+                borderSide: BorderSide(
+                  color: colors.accent.withValues(alpha: 0.45),
                 ),
               ),
             ),

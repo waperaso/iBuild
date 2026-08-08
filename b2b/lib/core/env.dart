@@ -1,9 +1,4 @@
-/// Compile-time config for the B2B admin app (shared API with B2C).
-///
-/// Inject with `--dart-define-from-file=dart_defines.dev.json` (local) or
-/// `dart_defines.prod.json` (release). Copy from `*.json.example` — those
-/// files are gitignored so hosts never live in the repo. See
-/// `docs/HOSTING_AHOST.md`.
+/// Compile-time env (`--dart-define-from-file=dart_defines.*.json`).
 abstract class Env {
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
@@ -16,9 +11,7 @@ abstract class Env {
     defaultValue: 'wss://api.ibuild.uz/v1/ws',
   );
 
-  /// Turns server-relative paths (`/v1/static/...`) into absolute URLs using
-  /// [apiBaseUrl], so uploaded documents/photo reports open correctly
-  /// regardless of which host a build points at.
+  /// Absolute URL for a server-relative path via [apiBaseUrl].
   static String? resolveUrl(String? raw) {
     if (raw == null || raw.isEmpty) return null;
     if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;

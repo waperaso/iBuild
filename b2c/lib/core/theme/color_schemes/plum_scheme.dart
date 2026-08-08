@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Plum" — a royal-purple primary on a soft lilac-tinted canvas, warmed by a
-/// peach secondary for a rich, welcoming pairing. Foregrounds clear WCAG AA on
-/// their surfaces.
+/// "Plum" — purple primary, peach secondary, lilac canvas.
 const AppColors plumScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF7F4FA),
@@ -28,8 +26,7 @@ const AppColors plumScheme = AppColors(
   unitBlocked: Color(0xFF5D5768),
 );
 
-/// Dark variant of [plumScheme]: a deep aubergine canvas with a brightened
-/// violet primary and a lifted peach secondary.
+/// Dark [plumScheme]: aubergine canvas, brighter violet + peach.
 const AppColors plumSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF100C16),

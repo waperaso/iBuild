@@ -3,15 +3,7 @@ import 'package:intl/intl.dart';
 /// Which currency prices are rendered in across the app.
 enum DisplayCurrency { usd, uzs }
 
-/// Presentation helpers for money, area and dates.
-///
-/// Currency display is driven by [Formatters.displayCurrency] and
-/// [Formatters.usdToUzsRate], kept in sync by [CurrencyController] and
-/// [exchangeRateProvider]. Catalog prices are stored in USD on the server, so
-/// every amount passed in here is treated as canonical USD and converted once
-/// for display. Editable amount fields (e.g. the mortgage calculator) work in
-/// the display currency and convert back with [fromDisplay] before sending the
-/// canonical USD value to the server.
+/// Money/area/date formatting. Catalog amounts are USD; display may convert.
 abstract class Formatters {
   static DisplayCurrency displayCurrency = DisplayCurrency.uzs;
   static double usdToUzsRate = 12650;

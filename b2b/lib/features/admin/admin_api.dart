@@ -463,9 +463,7 @@ class AdminApi {
   // license | construction_permit | land_rights | project_declaration;
   // `status` is pending | accepted | rejected.
 
-  /// Uploads a verification document for the signed-in developer. Multipart
-  /// (real file), mirroring the existing unit-media upload pattern — `type`
-  /// travels alongside the file as a form field.
+  /// Multipart verification-document upload (`type` as a form field).
   Future<Map<String, dynamic>> uploadDeveloperDocument({
     required String type,
     required List<int> bytes,
@@ -514,11 +512,7 @@ class AdminApi {
 
   // --- Photo reports (construction progress) ----------------------------
 
-  /// Uploads a dated site photo for a project. Multipart (real file),
-  /// mirroring the existing unit-media upload pattern; `takenAt`/
-  /// `progressPercent`/`buildingId` travel alongside the file as form
-  /// fields. When [progressPercent] is given, the server also updates the
-  /// project's `constructionProgress`.
+  /// Multipart site photo upload; optional [progressPercent] updates construction %.
   Future<Map<String, dynamic>> uploadPhotoReport(
     String projectId, {
     required List<int> bytes,

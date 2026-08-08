@@ -1,20 +1,10 @@
-// Integration test against a REAL PostgreSQL instance.
-//
-// Gated at runtime (not with @Skip, since the decision depends on an env
-// var that's only known when `dart test` actually runs) so `dart test`
-// keeps passing in any environment — CI, sandboxes, or any dev machine
-// without a database configured — while still being fully exercised when
-// pointed at a real database:
+// Integration test against a real PostgreSQL instance.
+// Skips when DB_* env is unset. Use a scratch DB (e.g. ibuild_test), not primary ibuild:
 //
 //   $env:DB_HOST = "localhost"; $env:DB_PORT = "5433"
 //   $env:DB_NAME = "ibuild_test"; $env:DB_USER = "postgres"
 //   $env:DB_PASSWORD = "postgres"; $env:DB_SSL = "false"
 //   dart test test/pg_persistence_integration_test.dart
-//
-// Uses a scratch database (e.g. `ibuild_test`, created via
-// `CREATE DATABASE ibuild_test;`) rather than the primary `ibuild` database
-// so it's free to seed/mutate/clean up without disturbing manually-verified
-// state in the main database.
 import 'dart:io';
 
 import 'package:postgres/postgres.dart';

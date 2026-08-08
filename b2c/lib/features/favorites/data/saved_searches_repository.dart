@@ -6,9 +6,7 @@ import '../../../models/saved_search.dart';
 
 const _prefsKey = 'ibuild.saved_searches';
 
-/// Persists the list of saved searches to local storage, mirroring
-/// [FavoritesRepository]'s restore/persist idiom but JSON-encoded since a
-/// [SavedSearch] carries more than a bare id.
+/// Local SharedPreferences store for [SavedSearch] (JSON-encoded).
 class SavedSearchesRepository {
   Future<List<SavedSearch>> restore() async {
     final prefs = await SharedPreferences.getInstance();

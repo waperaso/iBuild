@@ -18,10 +18,7 @@ import '../admin/admin_api.dart';
 import 'platform_providers.dart';
 import 'platform_widgets.dart';
 
-/// Moderation queue: new ЖК submissions awaiting publish, warn/unpublish
-/// actions on already-published ones, and flagged reviews — split out of
-/// the platform dashboard so it reads as its own inbox rather than being
-/// buried among KPIs and users.
+/// Moderation inbox: pending ЖК publish, warn/unpublish, flagged reviews.
 class PlatformModeration extends ConsumerWidget {
   const PlatformModeration({super.key});
 
@@ -497,11 +494,7 @@ class _PendingRentalListingCard extends ConsumerWidget {
   }
 }
 
-/// Full-data review dialog for one pending project: location, description,
-/// pricing, gallery, a units/buildings breakdown (fetched separately since
-/// the pending-list payload strips `buildings`), and the developer's KYC
-/// documents — everything a moderator needs to approve or reject without
-/// hopping between screens.
+/// Pending-project review dialog (details, buildings, KYC docs).
 class _ProjectReviewDialog extends ConsumerStatefulWidget {
   const _ProjectReviewDialog({required this.project});
 

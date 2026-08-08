@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-/// Domain enums mirroring the backend schema (plan section 7.2 "Status enums").
+/// Domain enums aligned with the backend schema.
 /// `@JsonValue` keeps wire values aligned with the API's snake_case strings.
 
 enum ProjectType {
@@ -119,8 +119,7 @@ enum DocumentType {
   landRights,
   @JsonValue('project_declaration')
   projectDeclaration,
-  /// Optional — cadastral document. Never required for approval (not part
-  /// of [requiredDocumentTypes]), but uploadable alongside the required 4.
+  /// Optional cadastre upload (not in [requiredDocumentTypes]).
   @JsonValue('cadastre')
   cadastre,
 }

@@ -1,15 +1,8 @@
 import 'package:ibuild_core/ibuild_core.dart';
 
-/// A residence (ЖК) / project as seen by an admin. Thin wrapper around the
-/// shared [Project] model (`packages/ibuild_core`) that adds the
-/// admin-/moderation-only fields the public-facing model has no business
-/// knowing about (`moderationStatus`, `isPublished`, `moderationNote`).
-///
-/// Delegates the fields it shares with [Project] straight through, so
-/// existing call sites (`p.id`, `p.name`, `p.district`, `p.address`) keep
-/// working unchanged. [raw] retains the original payload so callers that
-/// still need a not-yet-modelled field can read it without a second network
-/// trip — the model can grow incrementally without breaking existing screens.
+/// Admin view of a residence/project: shared [Project] plus moderation fields
+/// (`moderationStatus`, `isPublished`, `moderationNote`). Shared fields
+/// delegate to [Project]; [raw] keeps the original payload for unmodelled keys.
 class AdminProject {
   const AdminProject({
     required this.project,

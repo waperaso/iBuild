@@ -282,10 +282,7 @@ class _GuestHeader extends StatelessWidget {
   }
 }
 
-/// Prominent freeze notice shown on the account itself once a platform
-/// admin bans it (see `Store.banUser` / iBuild for Business "Users &
-/// roles") — always shows the reason and who imposed it, per the
-/// trust-and-safety requirement that a ban is never silent to the user.
+/// Ban notice with reason and admin name.
 class _BannedAccountCard extends StatelessWidget {
   const _BannedAccountCard({required this.user});
 
@@ -335,11 +332,7 @@ class _BannedAccountCard extends StatelessWidget {
   }
 }
 
-/// Link-out card for property owners/agencies: iBuild's consumer app never
-/// lets an ordinary account list or sell inventory — that's exclusively a
-/// business-side action performed in iBuild for Business. This card is the
-/// only bridge between the two: it opens the B2B workspace in a browser
-/// instead of exposing any submission form here.
+/// Link to the B2B workspace for listing inventory.
 class _ForBusinessCard extends StatelessWidget {
   const _ForBusinessCard();
 
@@ -411,12 +404,7 @@ class _ProfileHeaderLoading extends StatelessWidget {
   }
 }
 
-/// A single selectable palette preview: a split circle showing the palette's
-/// primary + secondary accents (in the currently active brightness), its name
-/// beneath, and a selected ring/check. Scales to the full 15-entry catalog far
-/// better than a plain dropdown. The swatch colors come from the palette's own
-/// [AppColors] pair (a legitimate preview), while all chrome uses semantic
-/// tokens — no hardcoded colors.
+/// Selectable palette swatch (accent + secondary preview).
 class _PaletteSwatch extends StatelessWidget {
   const _PaletteSwatch({
     required this.palette,
@@ -451,7 +439,7 @@ class _PaletteSwatch extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected ? colors.accent : colors.outline,
+                  color: scheme.accent,
                   width: selected ? 3 : 1.5,
                 ),
               ),

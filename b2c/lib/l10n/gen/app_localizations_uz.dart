@@ -69,7 +69,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get otpCodeHint => '6 xonali kod';
 
   @override
-  String get otpDevHint => 'Test rejimi: 123456 kodidan foydalaning';
+  String get otpDevHint => 'Test rejimi';
 
   @override
   String get stepOneOfTwo => '1-qadam, 2 tadan';
@@ -234,6 +234,38 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get overallProgressTitle => 'Umumiy qurilish jarayoni';
+
+  @override
+  String get actualProgressLabel => 'Haqiqiy qurilish jarayoni';
+
+  @override
+  String get plannedProgressLabel => 'Rejadagi qurilish jarayoni';
+
+  @override
+  String get progressOnSchedule => 'Jadvalga mos';
+
+  @override
+  String get progressAheadOfSchedule => 'Jadvaldan oldinda';
+
+  @override
+  String get progressAcceptableDeviation => 'Ruxsat etilgan chetlanish';
+
+  @override
+  String get progressBehindSchedule => 'Jadvaldan orqada';
+
+  @override
+  String progressDeviation(int percent) {
+    return 'Farq $percent%';
+  }
+
+  @override
+  String trustIndexLabel(int percent) {
+    return 'Ishonch indeksi $percent%';
+  }
+
+  @override
+  String get progressComparisonNote =>
+      '15% gacha farq qurilishda odatiy holat: ob-havo, mavsumiy cheklovlar va yetkazib berish kechikishlari. 15% dan ortiq boʻlsa, platforma obyektni tekshiruvga yuboradi.';
 
   @override
   String get progressEmptyTitle => 'Hozircha fotohisobotlar yoʻq';
@@ -498,6 +530,14 @@ class AppLocalizationsUz extends AppLocalizations {
       'Qayta qoʻngʻiroq va koʻrik soʻrovlaringiz shu yerda koʻrinadi.';
 
   @override
+  String get inquiriesSignInRequiredTitle =>
+      'Murojaatlarni koʻrish uchun tizimga kiring';
+
+  @override
+  String get inquiriesSignInRequiredBody =>
+      'Qayta qoʻngʻiroq va koʻrik soʻrovlarini koʻrish uchun iBuild hisobingizga kiring.';
+
+  @override
   String get savedTitle => 'Saqlanganlar';
 
   @override
@@ -525,6 +565,9 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get darkModeLabel => 'Tungi rejim';
+
+  @override
+  String get lightModeLabel => 'Yorugʻ rejim';
 
   @override
   String get paletteLabel => 'Rang sxemasi';
@@ -790,6 +833,28 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get markAllRead => 'Barchasini oʻqilgan deb belgilash';
+
+  @override
+  String get notifLeadStatusTitle => 'Murojaat holati yangilandi';
+
+  @override
+  String notifLeadStatusBody(String status) {
+    return 'Murojaatingiz endi: «$status».';
+  }
+
+  @override
+  String get notifNewOfferTitle => 'Yangi taklif';
+
+  @override
+  String get notifNewOfferBody =>
+      'Kuzatayotgan loyihangizga yangi taklif qoʻshildi.';
+
+  @override
+  String get notifLeadCreatedTitle => 'Murojaat qabul qilindi';
+
+  @override
+  String get notifLeadCreatedBody =>
+      'Murojaatingizni oldik — tez orada bogʻlanamiz.';
 
   @override
   String get compareModeAction => 'Xonadonlarni solishtirish';

@@ -4,10 +4,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import 'pill_button.dart';
 
-/// A dark, gradient hero-surface card for highlighting a single offer/CTA
-/// (e.g. off-plan launches, installment plans) — the one deliberately
-/// high-contrast block per screen that keeps the mostly white-on-cream UI
-/// from feeling flat.
+/// Dark gradient hero block for a single offer/CTA.
 class PromoBanner extends StatelessWidget {
   const PromoBanner({
     super.key,

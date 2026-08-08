@@ -12,11 +12,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../providers/photo_reports_providers.dart';
 import 'media_gallery_viewer.dart';
 
-/// Construction-progress timeline tab (plan section 11 "Trust system") —
-/// dated photo reports from [photoReportsProvider], grouped by month, with
-/// the project's overall progress-percent bar at the top. Falls back to an
-/// empty state when a project has no photo reports yet (e.g. ready/handed
-/// over projects, or one that hasn't been photographed yet).
+/// Construction-progress timeline from [photoReportsProvider], grouped by month.
 class ProgressTab extends ConsumerWidget {
   const ProgressTab({super.key, required this.project});
 
@@ -37,7 +33,7 @@ class ProgressTab extends ConsumerWidget {
           if (reports.isEmpty) {
             return ListView(
               children: [
-                _OverallProgressBar(project: project),
+                _ProgressComparison(project: project),
                 const SizedBox(height: AppSpacing.lg),
                 EmptyState(
                   compact: true,
@@ -60,7 +56,7 @@ class ProgressTab extends ConsumerWidget {
 
           return ListView(
             children: [
-              _OverallProgressBar(project: project),
+              _ProgressComparison(project: project),
               const SizedBox(height: AppSpacing.lg),
               for (final key in sortedKeys) ...[
                 _MonthSection(month: groups[key]!.first.takenAt, reports: groups[key]!),
@@ -74,8 +70,15 @@ class ProgressTab extends ConsumerWidget {
   }
 }
 
-class _OverallProgressBar extends StatelessWidget {
-  const _OverallProgressBar({required this.project});
+/// Gap (percentage points) still treated as on schedule.
+const int _onScheduleGap = 10;
+
+/// Gap above which the project is flagged behind (see `Store.addPhotoReport`).
+const int _acceptableGap = 15;
+
+/// Confirmed vs schedule-promised progress (confirmed alone if no schedule).
+class _ProgressComparison extends StatelessWidget {
+  const _ProgressComparison({required this.project});
 
   final Project project;
 
@@ -84,38 +87,157 @@ class _OverallProgressBar extends StatelessWidget {
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context);
-    final progress = (project.constructionProgress ?? 0).clamp(0, 100) / 100;
+    final actual = (project.constructionProgress ?? 0).clamp(0, 100);
+    final planned = project.plannedProgress?.clamp(0, 100);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l10n.overallProgressTitle, style: textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
+        _ProgressBar(
+          label: l10n.actualProgressLabel,
+          percent: actual,
+          color: colors.accent,
+        ),
+        if (planned != null) ...[
+          const SizedBox(height: AppSpacing.sm),
+          _ProgressBar(
+            label: l10n.plannedProgressLabel,
+            percent: planned,
+            color: colors.inkMuted,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _ScheduleVerdict(actual: actual, planned: planned),
+        ],
+        if (project.completionDate != null) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l10n.completionDate(Formatters.date(project.completionDate!)),
+            style: textTheme.labelMedium?.copyWith(color: colors.inkMuted),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ProgressBar extends StatelessWidget {
+  const _ProgressBar({
+    required this.label,
+    required this.percent,
+    required this.color,
+  });
+
+  final String label;
+  final int percent;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: textTheme.labelMedium?.copyWith(color: colors.inkMuted),
+              ),
+            ),
+            Text(
+              '$percent%',
+              style: textTheme.labelMedium?.copyWith(
+                color: colors.ink,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
         ClipRRect(
           borderRadius: BorderRadius.circular(AppRadii.pill),
           child: LinearProgressIndicator(
-            value: progress,
+            value: percent / 100,
             minHeight: 10,
             backgroundColor: colors.surfaceAlt,
-            color: colors.accent,
+            color: color,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
-        Row(
-          children: [
-            Text(
-              l10n.builtPercent(project.constructionProgress ?? 0),
-              style: textTheme.labelMedium?.copyWith(color: colors.inkMuted),
-            ),
-            const Spacer(),
-            if (project.completionDate != null)
+      ],
+    );
+  }
+}
+
+class _ScheduleVerdict extends StatelessWidget {
+  const _ScheduleVerdict({required this.actual, required this.planned});
+
+  final int actual;
+  final int planned;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context);
+    final gap = planned - actual;
+    // A project promising nothing yet cannot be behind on that promise.
+    final trustIndex = planned == 0
+        ? 100
+        : ((actual / planned) * 100).round().clamp(0, 100);
+
+    final (String verdict, Color color) = switch (gap) {
+      < 0 => (l10n.progressAheadOfSchedule, colors.success),
+      <= _onScheduleGap => (l10n.progressOnSchedule, colors.success),
+      <= _acceptableGap => (l10n.progressAcceptableDeviation, colors.warning),
+      _ => (l10n.progressBehindSchedule, colors.danger),
+    };
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: colors.surfaceAlt,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  verdict,
+                  style: textTheme.labelLarge?.copyWith(color: color),
+                ),
+              ),
               Text(
-                l10n.completionDate(Formatters.date(project.completionDate!)),
+                l10n.trustIndexLabel(trustIndex),
                 style: textTheme.labelMedium?.copyWith(color: colors.inkMuted),
               ),
-          ],
-        ),
-      ],
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l10n.progressDeviation(gap.abs()),
+            style: textTheme.labelMedium?.copyWith(color: colors.ink),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l10n.progressComparisonNote,
+            style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+          ),
+        ],
+      ),
     );
   }
 }

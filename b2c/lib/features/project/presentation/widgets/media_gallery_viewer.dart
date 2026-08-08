@@ -8,14 +8,7 @@ import '../../../../core/utils/floor_plan_assets.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 
-/// A small square thumbnail for a [MediaItem], with a badge for non-photo
-/// media (floor plan / render / tour) so "look inside" browsing can tell
-/// them apart at a glance.
-///
-/// When [item] is a floor plan and the caller can supply the unit's
-/// [rooms]/[layout], a bundled local SVG diagram is rendered instead of the
-/// (placeholder) network image — callers that don't have that context keep
-/// falling back to [AppNetworkImage] unchanged.
+/// Media thumbnail; floor plans may use a local SVG when rooms/layout known.
 class MediaThumbnail extends StatelessWidget {
   const MediaThumbnail({
     super.key,

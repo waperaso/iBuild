@@ -126,8 +126,7 @@ void main() {
     });
 
     test('a district added after startup is filterable', () async {
-      // The allow-list used to be snapshotted when the handler was built, so
-      // anything created later was rejected as an "Invalid district".
+      // Districts are computed per request (not snapshotted at handler build).
       store.projects.add({
         ...Map<String, dynamic>.from(store.projects.first),
         'id': 'prj-late-district',
@@ -386,7 +385,7 @@ void main() {
       }
       expect(store.publishedProjectCount(developerId), maxProjects);
 
-      // One more must be refused rather than silently allowed.
+      // Over the tier cap → PROJECT_LIMIT_REACHED.
       expect(
         () => store.updateProject(ids[maxProjects], {'isPublished': true}),
         throwsA(
@@ -480,8 +479,7 @@ void main() {
       for (var i = 0; i < 5000; i++) {
         limiter.allow('key-$i');
       }
-      // Exact size depends on eviction timing; the invariant is that it stays
-      // bounded rather than holding all 5000 keys.
+      // Eviction timing varies; must stay ≤ maxTrackedKeys.
       expect(limiter.debugTrackedKeyCount, lessThanOrEqualTo(50));
     });
   });

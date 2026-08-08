@@ -31,12 +31,7 @@ final _overrides = [
   bootstrapProvider.overrideWith((ref) async {}),
 ];
 
-/// A light smoke flow through the app's main happy path, driven with the
-/// bundled mock catalogue.
-///
-/// Kept intentionally shallow: assertions look for stable text that already
-/// appears in `test/widget_test.dart` rather than brittle finders, to avoid
-/// flaking where animations/timers behave differently.
+/// Smoke flow on the mock catalogue; asserts stable text from widget_test.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 

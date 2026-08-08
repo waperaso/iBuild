@@ -6,21 +6,10 @@ import 'package:ibuild_server/src/env_loader.dart';
 import 'package:ibuild_server/src/store.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 
-/// iBuild dev/demo backend.
-///
-/// A lightweight Dart stand-in for the NestJS + PostgreSQL + Redis API in
-/// `IBUILD_APP_PLAN.md` (§6, §8) — same REST envelope, resource paths and
-/// WebSocket events, so the Flutter client talks to a real, running server
-/// end-to-end in this environment (Node.js is not available here).
-///
-/// Persistence is opt-in: set `DB_HOST` (+ friends, see `PgConfig.fromEnv`
-/// and `README.md`) either as environment variables or in `server/.env`
-/// (auto-loaded, see `env_loader.dart`) to back this server with a real
-/// PostgreSQL database instead of the default in-memory-only store.
+/// iBuild API entrypoint. Optional Postgres via `DB_HOST` (see `PgConfig.fromEnv`).
 void main(List<String> args) async {
   final env = appEnv();
-  // Fail fast in production if SMS creds / required secrets are missing,
-  // rather than silently falling back to insecure dev behavior.
+  // Production: fail if SMS creds / secrets are missing (no insecure fallback).
   assertProductionSecrets();
   final store = await Store.create();
   final port = int.tryParse(env['PORT'] ?? '') ?? 4000;
@@ -28,7 +17,7 @@ void main(List<String> args) async {
   final handler = createHandler(store);
 
   // BIND_ADDRESS: use 127.0.0.1 in production behind nginx (see
-  // docs/HOSTING_AHOST.md). Default remains all-interfaces for local/dev.
+  // docs/HOSTING_AIRNET.md). Default remains all-interfaces for local/dev.
   final bindRaw = (env['BIND_ADDRESS'] ?? '').trim();
   final address = switch (bindRaw) {
     '' || '0.0.0.0' || 'any' => InternetAddress.anyIPv4,

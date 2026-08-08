@@ -1,11 +1,6 @@
 import 'package:ibuild_core/ibuild_core.dart';
 
-/// A user-created discovery filter snapshot, persisted locally so it can be
-/// re-applied later or (optionally) alerted on when new matches appear.
-///
-/// Plain class rather than freezed: this is a local-only model (never
-/// serialized over the wire), so it mirrors the lightweight style used by
-/// other `SharedPreferences`-backed features (see `FavoritesRepository`).
+/// Local discovery filter snapshot (SharedPreferences; not a wire model).
 class SavedSearch {
   const SavedSearch({
     required this.id,

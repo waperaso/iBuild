@@ -12,15 +12,9 @@ final notificationsRepositoryProvider = Provider<NotificationsRepository>(
   (ref) => NotificationsRepository(),
 );
 
-/// Notifications synthesized from `leadStatusChanged` / `newOffer` /
-/// `leadCreated` WebSocket pushes, restored from local storage on boot and
-/// persisted back on every change — mirroring [LiveUnitStatusController]'s
-/// subscribe-on-build idiom but for a global, non-`autoDispose` provider so
-/// pushes are captured for as long as the app is running.
-///
-/// Notification copy is composed here (outside any [BuildContext]), so it's
-/// plain English rather than run through `AppLocalizations` — acceptable for
-/// synthesized push-style content, unlike the app's chrome strings.
+/// In-app notifications from lead/offer WebSocket pushes; restored/persisted
+/// locally. Non-`autoDispose` so events are captured while the app runs.
+/// Structured fields are localized in the UI via [buyerNotificationCopy].
 class NotificationsController extends Notifier<List<AppNotification>> {
   StreamSubscription<WsEvent>? _subscription;
 
@@ -65,14 +59,17 @@ class NotificationsController extends Notifier<List<AppNotification>> {
   AppNotification? _notificationFor(WsEvent event) {
     final payload = event.payload;
     final id = 'wsn-${DateTime.now().microsecondsSinceEpoch}';
+    final now = DateTime.now();
+    final projectId = payload['projectId'] as String?;
     return switch (event.type) {
       WsEventType.leadStatusChanged => AppNotification(
         id: id,
         type: event.type,
         title: 'Inquiry status updated',
         body: 'Your inquiry is now "${payload['status'] ?? 'updated'}".',
-        createdAt: DateTime.now(),
-        projectId: payload['projectId'] as String?,
+        createdAt: now,
+        projectId: projectId,
+        status: payload['status']?.toString(),
       ),
       WsEventType.newOffer => AppNotification(
         id: id,
@@ -81,16 +78,17 @@ class NotificationsController extends Notifier<List<AppNotification>> {
         body:
             (payload['title'] as String?) ??
             'A new offer was added to a project you follow.',
-        createdAt: DateTime.now(),
-        projectId: payload['projectId'] as String?,
+        createdAt: now,
+        projectId: projectId,
+        offerTitle: payload['title'] as String?,
       ),
       WsEventType.leadCreated => AppNotification(
         id: id,
         type: event.type,
         title: 'Inquiry received',
         body: 'We received your inquiry and will be in touch shortly.',
-        createdAt: DateTime.now(),
-        projectId: payload['projectId'] as String?,
+        createdAt: now,
+        projectId: projectId,
       ),
       _ => null,
     };

@@ -57,6 +57,7 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
   bool _loading = true;
   bool _savingOffers = false;
   bool _savingLocation = false;
+  bool _savingSchedule = false;
   bool _submittingForReview = false;
   bool _publishing = false;
   bool _deleting = false;
@@ -66,6 +67,7 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
   double _photoReportProgress = 0;
   late final TextEditingController _addressController;
   late final TextEditingController _otherDistrictController;
+  late final TextEditingController _plannedProgressController;
   String _district = kTashkentDistricts.first;
   LatLng? _location;
   StreamSubscription<WsEvent>? _wsSub;
@@ -76,6 +78,7 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     super.initState();
     _addressController = TextEditingController();
     _otherDistrictController = TextEditingController();
+    _plannedProgressController = TextEditingController();
     _load();
     _subscribeWs();
   }
@@ -89,6 +92,7 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     _wsClient?.unsubscribeProject(widget.projectId);
     _addressController.dispose();
     _otherDistrictController.dispose();
+    _plannedProgressController.dispose();
     super.dispose();
   }
 
@@ -184,6 +188,8 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
   }
 
   void _syncLocationFromProject(Map<String, dynamic> project) {
+    final planned = (project['plannedProgress'] as num?)?.round();
+    _plannedProgressController.text = planned?.toString() ?? '';
     final lat = (project['lat'] as num?)?.toDouble();
     final lng = (project['lng'] as num?)?.toDouble();
     _location = lat != null && lng != null
@@ -401,6 +407,35 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     }
   }
 
+  /// Records the progress the developer's own schedule promises for today.
+  /// The confirmed figure moves only with photo reports, so this is the one
+  /// half of the buyer-facing comparison a developer types in by hand.
+  Future<void> _saveSchedule() async {
+    final l10n = AppLocalizations.of(context);
+    final raw = _plannedProgressController.text.trim();
+    final planned = raw.isEmpty ? null : int.tryParse(raw);
+    if (raw.isNotEmpty && (planned == null || planned < 0 || planned > 100)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.projectScheduleInvalid)));
+      return;
+    }
+    setState(() => _savingSchedule = true);
+    try {
+      await ref.read(adminApiProvider).updateAdminProject(widget.projectId, {
+        'plannedProgress': planned,
+      });
+      await _load();
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.projectScheduleSaved)));
+      }
+    } finally {
+      if (mounted) setState(() => _savingSchedule = false);
+    }
+  }
+
   Future<void> _addOffer() async {
     final offer = await showDialog<Map<String, dynamic>>(
       context: context,
@@ -528,10 +563,7 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     }
   }
 
-  /// Photo report upload (Track B.4): multipart upload with a live
-  /// send-progress percent, mirroring the Documents API's file-handling
-  /// pattern. [spec] carries the date and optional construction-progress
-  /// percent collected by [_PhotoReportDetailsDialog].
+  /// Multipart photo-report upload with live send progress.
   Future<void> _addPhotoReport() async {
     final result = await FilePicker.pickFiles(
       type: FileType.image,
@@ -743,10 +775,8 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     if (result == null) return;
     final api = ref.read(adminApiProvider);
     var number = result.startingNumber;
-    // One request per unit, so a run can fail part-way through (a duplicate
-    // number, a dropped connection). The units already created are real —
-    // reload and say how far we got rather than letting the error escape and
-    // leave the grid looking as though nothing happened.
+    // One request per unit; on mid-run failure, reload and report progress
+    // instead of surfacing a bare error with a stale grid.
     Object? failure;
     outer:
     for (var floor = result.floorFrom; floor <= result.floorTo; floor++) {
@@ -1021,16 +1051,16 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
         const SizedBox(height: AppSpacing.md),
         if (_analytics != null) _AnalyticsPanel(analytics: _analytics!),
         const SizedBox(height: AppSpacing.xxl),
-        Row(
-          children: [
-            Expanded(child: SectionHeader(title: l10n.projectOffersTitle)),
-            PillButton(
-              label: l10n.projectAddOffer,
-              variant: PillButtonVariant.outline,
-              loading: _savingOffers,
-              onPressed: _savingOffers ? null : _addOffer,
-            ),
-          ],
+        SectionHeader(title: l10n.projectOffersTitle),
+        const SizedBox(height: AppSpacing.md),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: PillButton(
+            label: l10n.projectAddOffer,
+            variant: PillButtonVariant.outline,
+            loading: _savingOffers,
+            onPressed: _savingOffers ? null : _addOffer,
+          ),
         ),
         const SizedBox(height: AppSpacing.md),
         if (_offers.isEmpty)
@@ -1080,21 +1110,23 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
               ),
             ),
         const SizedBox(height: AppSpacing.xxl),
-        Row(
+        SectionHeader(title: l10n.projectUnitsTitle),
+        const SizedBox(height: AppSpacing.md),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Expanded(child: SectionHeader(title: l10n.projectUnitsTitle)),
             PillButton(
               label: l10n.projectAddBuilding,
               variant: PillButtonVariant.outline,
               onPressed: _addBuildingDialog,
             ),
-            const SizedBox(width: AppSpacing.sm),
             PillButton(
               label: l10n.projectBulkAddUnits,
               variant: PillButtonVariant.outline,
               onPressed: () => _bulkAddUnitsDialog(buildings),
             ),
-            const SizedBox(width: AppSpacing.sm),
             IconButton(
               tooltip: _gridView
                   ? l10n.projectViewToggleList
@@ -1292,6 +1324,49 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
             ),
           ),
         const SizedBox(height: AppSpacing.xxl),
+        SectionHeader(title: l10n.projectScheduleSectionTitle),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          l10n.projectScheduleSubtitle,
+          style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _plannedProgressController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(3),
+                ],
+                decoration: InputDecoration(
+                  labelText: l10n.projectPlannedProgressLabel,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _plannedProgressController,
+                builder: (context, value, _) => _ScheduleGapHint(
+                  actual: (project['constructionProgress'] as num?)?.round() ?? 0,
+                  planned: int.tryParse(value.text.trim()),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Align(
+                alignment: Alignment.centerRight,
+                child: PillButton(
+                  label: l10n.projectScheduleSave,
+                  loading: _savingSchedule,
+                  onPressed: _savingSchedule ? null : _saveSchedule,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xxl),
         SectionHeader(title: l10n.projectPhotoReportsTitle),
         const SizedBox(height: AppSpacing.xs),
         Text(
@@ -1339,6 +1414,48 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     );
 
     return body;
+  }
+}
+
+/// Progress gap (planned − actual) that triggers a critical platform alert.
+const int _scheduleAlertGap = 15;
+
+class _ScheduleGapHint extends StatelessWidget {
+  const _ScheduleGapHint({required this.actual, required this.planned});
+
+  final int actual;
+  final int? planned;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context);
+    final planned = this.planned;
+
+    final hint = Text(
+      l10n.projectActualProgressHint(actual),
+      style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+    );
+    if (planned == null || planned < 0 || planned > 100) return hint;
+
+    final gap = planned - actual;
+    final behind = gap > _scheduleAlertGap;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        hint,
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          behind
+              ? l10n.projectScheduleGapAlert(gap)
+              : l10n.projectScheduleGapOk(gap.abs()),
+          style: textTheme.bodySmall?.copyWith(
+            color: behind ? colors.danger : colors.inkMuted,
+          ),
+        ),
+      ],
+    );
   }
 }
 

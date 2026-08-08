@@ -1,8 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-/// Spacing, radii and layout breakpoints. Central place so the whole UI stays
-/// on a consistent rhythm and the "computer view" vs "mobile view" cutoffs live
-/// in one spot.
+/// Spacing scale.
 abstract class AppSpacing {
   static const double xs = 4;
   static const double sm = 8;
@@ -27,8 +25,7 @@ abstract class AppRadii {
   static const double pill = 999;
 }
 
-/// Motion tokens for page/element transitions — a shared, deliberate rhythm so
-/// navigation and micro-interactions feel intentional instead of instant cuts.
+/// Shared motion durations/curves.
 abstract class AppDurations {
   static const Duration fast = Duration(milliseconds: 150);
   static const Duration medium = Duration(milliseconds: 260);
@@ -38,9 +35,7 @@ abstract class AppDurations {
   static const Curve exit = Curves.easeInCubic;
 }
 
-/// Soft, layered shadow tokens for a premium sense of depth (deliberately
-/// gentler than Material's default hard drop-shadow). Callers pass the active
-/// palette's ink tone so shadows stay consistent across light/dark schemes.
+/// Layered shadows; callers pass the active palette ink for light/dark tinting.
 abstract class AppShadows {
   /// Resting elevation for cards and surfaces.
   static List<BoxShadow> soft(Color ink) => [

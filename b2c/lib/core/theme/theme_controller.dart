@@ -19,16 +19,8 @@ import 'color_schemes/sand_scheme.dart';
 import 'color_schemes/sapphire_scheme.dart';
 import 'color_schemes/sunset_scheme.dart';
 
-/// A named palette the app can switch to at runtime. Add new entries here (and
-/// a matching light/dark [AppColors] pair under `color_schemes/`) to expand the
-/// theme catalog. The first entry is the default palette (see
-/// [ThemeState.palette]).
-///
-/// [meridian] is the default as of the competitor-informed refresh: a warm
-/// ivory/graphite neutral base with a deep teal primary and a reserved
-/// brass/gold secondary for premium moments. The remaining 14 palettes give
-/// the user a broad catalog of light + dark schemes to choose from, each built
-/// on the same semantic-token architecture.
+/// Runtime palette ids. Register light/dark [AppColors] pairs under
+/// `color_schemes/`; first entry ([meridian]) is the default.
 enum AppPalette {
   meridian('Meridian', meridianScheme, meridianSchemeDark),
   aurora('Aurora', auroraScheme, auroraSchemeDark),
@@ -74,10 +66,7 @@ class ThemeState {
       );
 }
 
-/// Holds the active palette + theme mode, persisted to local storage (via
-/// [SharedPreferences]) so the choice survives an app restart — mirroring
-/// [LocaleController]. The stored value is restored asynchronously on build;
-/// until it resolves the app renders the default [ThemeState].
+/// Persists palette + theme mode; restores from [SharedPreferences] after build.
 class ThemeController extends Notifier<ThemeState> {
   static const _paletteKey = 'ibuild.theme.palette';
   static const _modeKey = 'ibuild.theme.mode';

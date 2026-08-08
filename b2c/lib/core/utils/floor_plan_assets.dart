@@ -1,9 +1,4 @@
-/// Maps a unit's [rooms]/[layout] to a bundled local floor-plan SVG asset.
-///
-/// Apartments carry [rooms] (1-4); offices carry a [layout] string instead.
-/// Any combination that doesn't match a dedicated diagram (including both
-/// being null) falls back to the generic outline so the caller always has
-/// something sensible to render.
+/// Local floor-plan SVG for [rooms]/[layout]; unknown → [fallbackFloorPlanAsset].
 const String fallbackFloorPlanAsset = 'assets/floorplans/fallback.svg';
 
 String? floorPlanAssetFor({int? rooms, String? layout}) {

@@ -3,10 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'photo_report.freezed.dart';
 part 'photo_report.g.dart';
 
-/// One dated construction-progress photo (plan section 11 / "тrust system")
-/// — see `server`'s `GET /v1/projects/:id/photo-reports` for the matching
-/// backend contract. The B2C construction-progress timeline groups these by
-/// month and overlays [progressPercent] where the uploader logged one.
+/// Dated construction-progress photo, optionally with [progressPercent].
 @freezed
 abstract class PhotoReport with _$PhotoReport {
   const factory PhotoReport({

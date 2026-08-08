@@ -7,20 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
 import 'core/provider_retry.dart';
+import 'core/session_storage.dart';
 import 'core/widgets/error_screen.dart';
 import 'core/widgets/restart_widget.dart';
 
-/// Session restore (secure storage read + `/users/me`) happens inside
-/// [AuthController] once the app is already on screen, behind the animated
-/// splash — `main` no longer blocks the first frame on it, which is what
-/// made cold starts feel laggy.
-///
-/// Everything below `runZonedGuarded` exists so a first-build failure (the
-/// "white screen after refresh, no logs" symptom) is at minimum *visible*
-/// and *recoverable*: uncaught errors are logged instead of silently
-/// swallowed, and any widget that throws during build renders a real
-/// "Something went wrong" screen with a Reload action instead of a blank
-/// grey box.
+/// Session restore runs in [AuthController] behind splash; errors are logged
+/// and surfaced via [ErrorScreen] instead of a blank page.
 void main() {
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
@@ -43,8 +35,9 @@ void main() {
   ErrorWidget.builder = (details) => ErrorScreen(message: '${details.exception}');
 
   runZonedGuarded(
-    () {
+    () async {
       WidgetsFlutterBinding.ensureInitialized();
+      globalSessionStorage = await SessionStorage.open();
       runApp(
         RestartWidget(
           child: const ProviderScope(retry: providerRetry, child: B2bApp()),

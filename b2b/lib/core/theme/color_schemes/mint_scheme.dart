@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Mint" — a soft mint-green primary with a cool slate secondary on a pale
-/// mint canvas. Light and airy; the primary is a deep teal-green so its
-/// foreground stays legible, while surfaces keep the fresh mint feel.
+/// "Mint" — deep teal-green primary, slate secondary, pale mint canvas.
 const AppColors mintScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFEFF7F3),

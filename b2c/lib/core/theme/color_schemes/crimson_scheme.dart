@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Crimson" — a deep, assured crimson primary on a warm bone canvas, paired
-/// with an antique-gold secondary for a heraldic, high-trust feel. The primary
-/// is deliberately darker than the [AppColors.danger] token so the two never
-/// collide. Foregrounds clear WCAG AA on their surfaces.
+/// "Crimson" — deep red primary, gold secondary, warm bone canvas.
+/// Primary is darker than [AppColors.danger] so the two don't collide.
 const AppColors crimsonScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF9F3F1),
@@ -29,8 +27,7 @@ const AppColors crimsonScheme = AppColors(
   unitBlocked: Color(0xFF67595A),
 );
 
-/// Dark variant of [crimsonScheme]: a deep oxblood canvas with a brightened
-/// crimson primary and a warm gold secondary.
+/// Dark [crimsonScheme]: oxblood canvas, brighter crimson + gold.
 const AppColors crimsonSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF130D0D),

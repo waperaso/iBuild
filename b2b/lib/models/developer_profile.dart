@@ -1,13 +1,8 @@
 import 'package:ibuild_core/ibuild_core.dart';
 
-/// The signed-in residence admin's own developer/organization profile
-/// (`GET /developers/me`). Thin wrapper around the shared [Developer] model
-/// (`packages/ibuild_core`) that adds the admin-only fields with no meaning
-/// on the buyer-facing profile (`canPublish`, `subscriptionPriceUsd`).
-///
-/// Drives the "publishing locked" banner and the org profile screen. [raw]
-/// keeps the full payload for fields the org screen reads directly (legal
-/// details, subscription metadata, …).
+/// Signed-in admin's org profile (`GET /developers/me`): shared [Developer]
+/// plus `canPublish` / `subscriptionPriceUsd`. [raw] holds legal/subscription
+/// fields read by the org screen.
 class DeveloperProfile {
   const DeveloperProfile({
     required this.developer,

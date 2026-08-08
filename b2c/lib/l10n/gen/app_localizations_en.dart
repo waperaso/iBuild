@@ -69,7 +69,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get otpCodeHint => '6-digit code';
 
   @override
-  String get otpDevHint => 'Dev mode: use code 123456';
+  String get otpDevHint => 'Test mode';
 
   @override
   String get stepOneOfTwo => 'Step 1 of 2';
@@ -234,6 +234,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get overallProgressTitle => 'Overall construction progress';
+
+  @override
+  String get actualProgressLabel => 'Actual construction progress';
+
+  @override
+  String get plannedProgressLabel => 'Planned construction progress';
+
+  @override
+  String get progressOnSchedule => 'On schedule';
+
+  @override
+  String get progressAheadOfSchedule => 'Ahead of schedule';
+
+  @override
+  String get progressAcceptableDeviation => 'Acceptable deviation';
+
+  @override
+  String get progressBehindSchedule => 'Behind schedule';
+
+  @override
+  String progressDeviation(int percent) {
+    return 'Deviation $percent%';
+  }
+
+  @override
+  String trustIndexLabel(int percent) {
+    return 'Trust index $percent%';
+  }
+
+  @override
+  String get progressComparisonNote =>
+      'A gap of up to 15% is normal on a building site: weather, seasonal work bans and supply delays. Above 15% the platform sends the project for inspection.';
 
   @override
   String get progressEmptyTitle => 'No photo reports yet';
@@ -496,6 +528,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your callback and viewing requests will show up here.';
 
   @override
+  String get inquiriesSignInRequiredTitle => 'Sign in to see your inquiries';
+
+  @override
+  String get inquiriesSignInRequiredBody =>
+      'Sign in to your iBuild account to view callback and viewing requests.';
+
+  @override
   String get savedTitle => 'Saved';
 
   @override
@@ -523,6 +562,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get darkModeLabel => 'Dark mode';
+
+  @override
+  String get lightModeLabel => 'Light mode';
 
   @override
   String get paletteLabel => 'Palette';
@@ -788,6 +830,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get markAllRead => 'Mark all read';
+
+  @override
+  String get notifLeadStatusTitle => 'Inquiry status updated';
+
+  @override
+  String notifLeadStatusBody(String status) {
+    return 'Your inquiry is now “$status”.';
+  }
+
+  @override
+  String get notifNewOfferTitle => 'New offer available';
+
+  @override
+  String get notifNewOfferBody =>
+      'A new offer was added to a project you follow.';
+
+  @override
+  String get notifLeadCreatedTitle => 'Inquiry received';
+
+  @override
+  String get notifLeadCreatedBody =>
+      'We received your inquiry and will be in touch shortly.';
 
   @override
   String get compareModeAction => 'Compare units';

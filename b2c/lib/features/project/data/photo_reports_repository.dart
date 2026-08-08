@@ -6,10 +6,7 @@ import '../../../core/config/env.dart';
 import '../../../core/network/api_client.dart';
 import '../../../models/mock_data.dart';
 
-/// Construction-progress photo reports for one project (plan section 11
-/// "Trust system") — live API or mock fallback (see [ProjectsRepository] for
-/// the same `Env.useMockData` seam). Backs the project page's
-/// construction-progress timeline tab.
+/// Construction photo reports (live API or mock).
 class PhotoReportsRepository {
   PhotoReportsRepository(this._dio);
 

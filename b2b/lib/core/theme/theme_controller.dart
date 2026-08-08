@@ -19,14 +19,8 @@ import 'color_schemes/sand_scheme.dart';
 import 'color_schemes/sapphire_scheme.dart';
 import 'color_schemes/sunset_scheme.dart';
 
-/// A named palette the app can switch to at runtime. Add new entries here (and
-/// a matching [AppColors] light/dark pair under `color_schemes/`) to expand the
-/// theme catalog. The first entry is the default palette (see
-/// [ThemeState.palette]).
-///
-/// [meridian] is the default B2B palette; [aurora] and [lime] remain for
-/// continuity with the earlier catalog, and the remaining twelve mirror the
-/// shared B2C/B2B scheme set so both apps offer the same fifteen choices.
+/// Runtime palette ids. Register light/dark [AppColors] under `color_schemes/`;
+/// first entry ([meridian]) is the default.
 enum AppPalette {
   meridian('Meridian', meridianScheme, meridianSchemeDark),
   aurora('Aurora', auroraScheme, auroraSchemeDark),
@@ -51,8 +45,7 @@ enum AppPalette {
   final AppColors dark;
 }
 
-/// Current palette + brightness selection. UI reads this to build the theme,
-/// and the settings screen mutates it to switch schemes live.
+/// Active palette + [ThemeMode].
 class ThemeState {
   const ThemeState({
     this.palette = AppPalette.meridian,
@@ -75,10 +68,7 @@ class ThemeState {
 const _palettePrefsKey = 'ibuild_b2b.theme.palette';
 const _modePrefsKey = 'ibuild_b2b.theme.mode';
 
-/// Holds the active palette + theme mode and persists both to
-/// [SharedPreferences] so the admin's choice survives a restart. The selection
-/// is restored asynchronously after first build (the default paints instantly,
-/// then swaps to the saved value once the read resolves).
+/// Persists palette + theme mode; restores from [SharedPreferences] after build.
 class ThemeController extends Notifier<ThemeState> {
   @override
   ThemeState build() {

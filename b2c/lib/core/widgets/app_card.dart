@@ -4,8 +4,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import 'pressable_scale.dart';
 
-/// Rounded surface container matching the mockups' soft cards. Gets a
-/// hover-lift + press-scale automatically whenever [onTap] is set.
+/// Rounded surface; press-scale when [onTap] is set.
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
@@ -24,7 +23,7 @@ class AppCard extends StatelessWidget {
   final double radius;
   final bool border;
 
-  /// Adds the shared soft shadow token for a premium, lifted surface.
+  /// Apply [AppShadows.soft] elevation.
   final bool elevated;
   final VoidCallback? onTap;
 

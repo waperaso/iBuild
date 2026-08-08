@@ -8,22 +8,15 @@ import '../../features/auth/providers/auth_providers.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../localization/currency_controller.dart';
 import '../localization/exchange_rate_provider.dart';
-import '../localization/locale_controller.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import '../utils/formatters.dart';
+import 'language_menu.dart';
 import 'nav_destinations.dart';
 import 'pressable_scale.dart';
 import 'shell_tab_scope.dart';
 
-/// Wraps the navigation shell and picks a layout based on width:
-///
-/// * Mobile: floating pill bottom nav with circular icons (as in the mockups).
-/// * Tablet/Desktop: a distinct sidebar *panel* (its own surface tone +
-///   hairline border, not just the page background repeated) plus a slim
-///   persistent top bar and a centered, max-width content column — so the
-///   desktop/web build reads as a real application shell instead of a
-///   stretched-out phone screen.
+/// Width-adaptive shell: pill bottom nav on mobile; sidebar + top bar on desktop.
 class AdaptiveScaffold extends StatelessWidget {
   const AdaptiveScaffold({super.key, required this.navigationShell});
 
@@ -100,10 +93,7 @@ class AdaptiveScaffold extends StatelessWidget {
   }
 }
 
-/// Slim persistent header above the content column on desktop/web: current
-/// section title on the left, a quick link to the profile on the right — the
-/// one piece every proper desktop app has that a "blown-up phone screen"
-/// doesn't.
+/// Desktop top bar: section title + profile link.
 class _DesktopTopBar extends StatelessWidget {
   const _DesktopTopBar({required this.currentIndex});
 
@@ -130,7 +120,7 @@ class _DesktopTopBar extends StatelessWidget {
           const Spacer(),
           const _CurrencyMenu(compact: true),
           const SizedBox(width: AppSpacing.md),
-          const _LanguageMenu(compact: true),
+          const LanguageMenu(compact: true),
           const SizedBox(width: AppSpacing.md),
           PressableScale(
             child: Material(
@@ -297,7 +287,7 @@ class _Sidebar extends StatelessWidget {
           const Spacer(),
           const _CurrencyMenu(),
           const SizedBox(height: AppSpacing.md),
-          const _LanguageMenu(),
+          const LanguageMenu(),
           const SizedBox(height: AppSpacing.md),
           const _SidebarProfileTile(),
         ],
@@ -421,69 +411,6 @@ class _CurrencyMenu extends ConsumerWidget {
   }
 }
 
-/// Language picker shared by the mobile top bar, desktop header, and sidebar.
-class _LanguageMenu extends ConsumerWidget {
-  const _LanguageMenu({this.compact = false});
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
-    final textTheme = Theme.of(context).textTheme;
-    final l10n = AppLocalizations.of(context);
-    final locale = ref.watch(localeControllerProvider);
-    final localeCtrl = ref.read(localeControllerProvider.notifier);
-    final code = locale.languageCode;
-    final label = compact
-        ? (kLanguageShort[code] ?? code.toUpperCase())
-        : (kLanguageNames[code] ?? code);
-
-    return PopupMenuButton<Locale>(
-      tooltip: l10n.languageLabel,
-      initialValue: locale,
-      onSelected: localeCtrl.setLocale,
-      offset: const Offset(0, 40),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadii.md),
-      ),
-      itemBuilder: (context) => [
-        for (final l in kSupportedLocales)
-          CheckedPopupMenuItem<Locale>(
-            value: l,
-            checked: l == locale,
-            child: Text(kLanguageNames[l.languageCode] ?? l.languageCode),
-          ),
-      ],
-      child: Material(
-        color: colors.surfaceAlt,
-        borderRadius: BorderRadius.circular(AppRadii.pill),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: compact ? AppSpacing.md : AppSpacing.lg,
-            vertical: AppSpacing.sm,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.language, size: 16, color: colors.inkMuted),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                label,
-                style: textTheme.labelLarge?.copyWith(color: colors.ink),
-              ),
-              if (!compact) ...[
-                const SizedBox(width: AppSpacing.xs),
-                Icon(Icons.expand_more, size: 18, color: colors.inkMuted),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// Compact header on mobile with the language picker — the main navbar affordance
 /// besides the bottom pill nav.
 class _MobileTopBar extends StatelessWidget {
@@ -519,7 +446,7 @@ class _MobileTopBar extends StatelessWidget {
             const Spacer(),
             const _CurrencyMenu(compact: true),
             const SizedBox(width: AppSpacing.sm),
-            const _LanguageMenu(compact: true),
+            const LanguageMenu(compact: true),
           ],
         ),
       ),
@@ -527,9 +454,7 @@ class _MobileTopBar extends StatelessWidget {
   }
 }
 
-/// Mini profile summary pinned to the bottom of the desktop sidebar — signed
-/// -in name/phone, or a guest prompt — so the rail feels like a proper app
-/// shell rather than just a stack of nav links.
+/// Signed-in profile (or guest prompt) at the bottom of the desktop sidebar.
 class _SidebarProfileTile extends ConsumerWidget {
   const _SidebarProfileTile();
 

@@ -5,16 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/network/ws_client.dart';
 import '../admin/admin_api.dart';
 
-/// Admin notification inbox — every developer-side change that needs a
-/// system admin's attention (new/updated/submitted project, uploaded
-/// verification document). Restored from the server on first watch, then
-/// kept live by `adminNotification` pushes over `/v1/ws` (admin-only — see
-/// `Store.notifyAdmins` on the server), mirroring the B2C app's
-/// `NotificationsController` shape but backed by server-persisted state
-/// instead of client-only synthesis.
-///
-/// Only ever watched from system-admin screens/shell — never built for a
-/// residence admin, whose token can't call `/platform/notifications` anyway.
+/// System-admin notification inbox: REST restore + `adminNotification` WS pushes.
+/// For platform screens only (residence tokens cannot call `/platform/notifications`).
 class AdminNotificationsController
     extends Notifier<AsyncValue<List<Map<String, dynamic>>>> {
   StreamSubscription<WsEvent>? _subscription;
@@ -60,7 +52,7 @@ class AdminNotificationsController
     try {
       await ref.read(adminApiProvider).markNotificationRead(id);
     } catch (_) {
-      // Best-effort — the optimistic local read state already applied.
+      // Optimistic local update already applied.
     }
   }
 
@@ -73,7 +65,7 @@ class AdminNotificationsController
     try {
       await ref.read(adminApiProvider).markAllNotificationsRead();
     } catch (_) {
-      // Best-effort — same rationale as markRead.
+      // Optimistic local update already applied.
     }
   }
 }

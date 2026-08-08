@@ -4,9 +4,7 @@ import 'app_colors.dart';
 import 'app_dimens.dart';
 import 'app_typography.dart';
 
-/// Builds a full [ThemeData] from a semantic [AppColors] token set. This is the
-/// single bridge between our palette tokens and Flutter's Material theming, so
-/// switching palettes flows through here automatically.
+/// Maps [AppColors] tokens onto Flutter [ThemeData].
 ThemeData buildAppTheme(AppColors colors) {
   final isDark = colors.brightness == Brightness.dark;
   final textTheme = AppTypography.textTheme(
@@ -36,8 +34,7 @@ ThemeData buildAppTheme(AppColors colors) {
     textTheme: textTheme,
     // Expose the raw token set to widgets via `context.colors`.
     extensions: <ThemeExtension<dynamic>>[colors],
-    // InkSparkle is expensive on Flutter web (shader + animation per tap).
-    // Plain taps feel snappier with no splash overlay.
+    // InkSparkle is costly on Flutter web; skip splash overlays.
     splashFactory: NoSplash.splashFactory,
     splashColor: Colors.transparent,
     highlightColor: Colors.transparent,

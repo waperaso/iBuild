@@ -5,18 +5,11 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import 'b2b_brand.dart';
 
-/// Decorative left-hand panel shown next to auth/onboarding forms once the
-/// window is wide enough — without it, the wizard was a phone-width card
-/// floating in a sea of empty cream canvas on any desktop monitor. Purely
-/// visual: never carries state or interaction, so every auth screen can drop
-/// it in unconditionally behind a width check.
+/// Decorative left panel for wide auth/onboarding layouts.
 class AuthHeroPanel extends StatelessWidget {
   const AuthHeroPanel({super.key});
 
-  /// Fixed width the panel takes up whenever it's shown; auth screens should
-  /// only render it once `constraints.maxWidth` comfortably exceeds this
-  /// plus a usable form column (see [AppBreakpoints.tablet] usage at call
-  /// sites).
+  /// Panel width; show only when there's room for this plus a form column.
   static const double width = 420;
 
   @override

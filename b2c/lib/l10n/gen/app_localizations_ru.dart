@@ -70,7 +70,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get otpCodeHint => '6-значный код';
 
   @override
-  String get otpDevHint => 'Тестовый режим: используйте код 123456';
+  String get otpDevHint => 'Тестовый режим';
 
   @override
   String get stepOneOfTwo => 'Шаг 1 из 2';
@@ -238,6 +238,38 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get overallProgressTitle => 'Общий ход строительства';
+
+  @override
+  String get actualProgressLabel => 'Фактический ход строительства';
+
+  @override
+  String get plannedProgressLabel => 'Плановый ход строительства';
+
+  @override
+  String get progressOnSchedule => 'Соответствует графику';
+
+  @override
+  String get progressAheadOfSchedule => 'Опережает график';
+
+  @override
+  String get progressAcceptableDeviation => 'Допустимое отклонение';
+
+  @override
+  String get progressBehindSchedule => 'Отставание от графика';
+
+  @override
+  String progressDeviation(int percent) {
+    return 'Расхождение $percent%';
+  }
+
+  @override
+  String trustIndexLabel(int percent) {
+    return 'Индекс доверия $percent%';
+  }
+
+  @override
+  String get progressComparisonNote =>
+      'Отклонение до 15% — обычная часть стройки: погода, сезонные ограничения работ, задержки поставок. Больше 15% — платформа передаёт объект на проверку.';
 
   @override
   String get progressEmptyTitle => 'Пока нет фотоотчётов';
@@ -500,6 +532,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ваши заявки на звонок и просмотр появятся здесь.';
 
   @override
+  String get inquiriesSignInRequiredTitle => 'Войдите, чтобы увидеть заявки';
+
+  @override
+  String get inquiriesSignInRequiredBody =>
+      'Войдите в аккаунт iBuild, чтобы просматривать заявки на звонок и просмотр.';
+
+  @override
   String get savedTitle => 'Сохранённое';
 
   @override
@@ -527,6 +566,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get darkModeLabel => 'Тёмная тема';
+
+  @override
+  String get lightModeLabel => 'Светлая тема';
 
   @override
   String get paletteLabel => 'Палитра';
@@ -792,6 +834,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get markAllRead => 'Прочитать все';
+
+  @override
+  String get notifLeadStatusTitle => 'Статус заявки обновлён';
+
+  @override
+  String notifLeadStatusBody(String status) {
+    return 'Ваша заявка теперь: «$status».';
+  }
+
+  @override
+  String get notifNewOfferTitle => 'Новое предложение';
+
+  @override
+  String get notifNewOfferBody =>
+      'В проекте, за которым вы следите, появилось новое предложение.';
+
+  @override
+  String get notifLeadCreatedTitle => 'Заявка получена';
+
+  @override
+  String get notifLeadCreatedBody =>
+      'Мы получили вашу заявку и скоро свяжемся с вами.';
 
   @override
   String get compareModeAction => 'Сравнить квартиры';

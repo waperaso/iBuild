@@ -308,17 +308,17 @@ from [`Dockerfile`](Dockerfile); `deploy/docker-compose.yml` is the compose
 file that runs on the server. `docker-compose.yml` in this directory is
 unrelated — it is the local-dev PostgreSQL described above.
 
-### Production target: aHOST.uz
+### Production target: airnet.uz
 
-**aHOST-specific notes (cPanel, managed PostgreSQL, shared hosting vs VDS):**
-[`docs/HOSTING_AHOST.md`](../docs/HOSTING_AHOST.md).
+**Airnet-specific notes (cPanel, managed PostgreSQL, shared hosting vs VDS):**
+[`docs/HOSTING_AIRNET.md`](../docs/HOSTING_AIRNET.md).
 
 This dev server stands in for a future production backend on
-[aHOST.uz](https://ahost.uz), an Uzbekistan hosting provider whose shared
+[airnet.uz](https://airnet.uz), an Uzbekistan hosting provider whose shared
 hosting **and** VDS plans both come with cPanel + a managed PostgreSQL 13 —
 the same major version this schema targets. Deploying there is just
 pointing `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD`/`DB_SSL` at
-aHOST's PostgreSQL connection details; no code changes needed. The one
+Airnet's PostgreSQL connection details; no code changes needed. The one
 real decision is **shared hosting vs. VDS** — see below.
 
 #### 1. Create the database (cPanel, same steps on shared hosting or VDS)
@@ -339,10 +339,10 @@ real decision is **shared hosting vs. VDS** — see below.
    let the server apply it automatically on first connect (step 3 below).
 
 cPanel's managed PostgreSQL only accepts connections from **localhost** on
-the same account (no remote `DB_HOST` from off-box, per aHOST's own docs —
+the same account (no remote `DB_HOST` from off-box, per Airnet's own docs —
 enabling remote TCP/IP requires root access to `postgresql.conf`/
 `pg_hba.conf`, which shared hosting doesn't give you). In practice this
-means the server process and the database must run **on the same aHOST
+means the server process and the database must run **on the same Airnet
 box**, which is exactly what VDS gives you and shared hosting doesn't (see
 below) — plan accordingly.
 

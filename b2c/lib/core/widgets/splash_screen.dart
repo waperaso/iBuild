@@ -5,10 +5,7 @@ import '../theme/app_theme_ext.dart';
 import 'app_loading_indicator.dart';
 import 'brand_mark.dart';
 
-/// Shown at `/splash` — the app's single initial-load state — while the
-/// startup bootstrap (cached session token, etc.) resolves, so cold start
-/// shows one deliberate animated screen instead of blocking the very first
-/// frame on it.
+/// `/splash` while bootstrap (token warm-up, etc.) completes.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

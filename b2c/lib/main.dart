@@ -7,10 +7,7 @@ import 'app.dart';
 import 'core/config/env.dart';
 import 'core/provider_retry.dart';
 
-/// The secure-storage token warm-up now runs behind the animated `/splash`
-/// route (see [bootstrapProvider]) instead of blocking here — that read can
-/// be slow (especially on web), and blocking `main` on it is what made cold
-/// starts feel laggy before any UI ever painted.
+/// Token warm-up runs on `/splash` ([bootstrapProvider]), not here.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

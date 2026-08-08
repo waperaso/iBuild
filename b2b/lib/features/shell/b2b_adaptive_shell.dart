@@ -6,7 +6,7 @@ import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/b2b_brand.dart';
 import '../../core/widgets/confirm_dialogs.dart';
-import '../../core/widgets/language_switcher.dart';
+import '../../core/widgets/locale_theme_bar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../auth/account_banned_panel.dart';
@@ -290,7 +290,7 @@ class _DesktopShell extends StatelessWidget {
                         const _NotificationBell(),
                         const SizedBox(width: AppSpacing.sm),
                       ],
-                      const LanguageSwitcher(),
+                      const LocaleThemeBar(),
                       const SizedBox(width: AppSpacing.sm),
                       IconButton(
                         tooltip: AppLocalizations.of(context).navSettings,
@@ -368,7 +368,7 @@ class _MobileShell extends StatelessWidget {
                     const _NotificationBell(),
                     const SizedBox(width: AppSpacing.xs),
                   ],
-                  const LanguageSwitcher(),
+                  const LocaleThemeBar(),
                   const SizedBox(width: AppSpacing.xs),
                   IconButton(
                     tooltip: AppLocalizations.of(context).navSettings,
@@ -528,11 +528,14 @@ class _PillBottomNav extends StatelessWidget {
     final colors = context.colors;
     final bottom = MediaQuery.paddingOf(context).bottom;
 
+    // Many admin tabs need tighter outer padding so icon pills stay tappable.
+    final horizontalInset = items.length > 5 ? AppSpacing.sm : AppSpacing.lg;
+
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        AppSpacing.lg,
+        horizontalInset,
         0,
-        AppSpacing.lg,
+        horizontalInset,
         bottom + AppSpacing.md,
       ),
       child: Material(
@@ -542,13 +545,13 @@ class _PillBottomNav extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.pill),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm,
+            horizontal: AppSpacing.xs,
             vertical: AppSpacing.sm,
           ),
           child: Row(
             children: [
               for (var i = 0; i < items.length; i++) ...[
-                if (i > 0) const SizedBox(width: AppSpacing.xs),
+                if (i > 0) const SizedBox(width: 2),
                 Expanded(
                   child: _NavPill(
                     icon: items[i].icon,
@@ -582,34 +585,31 @@ class _NavPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-        decoration: BoxDecoration(
-          color: selected ? colors.accent : Colors.transparent,
-          borderRadius: BorderRadius.circular(AppRadii.pill),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: selected ? colors.onAccent : colors.inkMuted,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+    // Icon-only: no label Text under the icon (7 admin tabs don't fit).
+    return Tooltip(
+      message: label,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          height: 48,
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected ? colors.accent : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 22,
                 color: selected ? colors.onAccent : colors.inkMuted,
-                fontSize: 10,
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

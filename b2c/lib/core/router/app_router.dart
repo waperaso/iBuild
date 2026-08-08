@@ -26,20 +26,7 @@ import '../widgets/splash_screen.dart';
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _shellKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
-/// Cross-fade + subtle slide-up page transition, tuned to stay light on both
-/// desktop/web and mobile.
-///
-/// The incoming page fades/slides in on its own [animation] while the
-/// outgoing page fades out on [secondaryAnimation] — both driven by the same
-/// underlying route animation, so they always resolve in lockstep. That
-/// synchronization is the actual fix for the old bug here: previously this
-/// used `Duration.zero`, which let the new page's frame land before the
-/// outgoing page's route was actually popped from the Overlay, so for a
-/// frame or two both pages were stacked and the old one lingered behind the
-/// new one instead of disappearing together with it. A short, explicit,
-/// symmetric fade keeps exactly one page visible at a time and still feels
-/// snappy (~260ms, [AppDurations.medium]) rather than the sluggish combos
-/// that made navigation feel laggy before.
+/// Fade + slight slide page transition.
 CustomTransitionPage<void> _fadeSlidePage({
   required GoRouterState state,
   required Widget child,
@@ -62,9 +49,7 @@ CustomTransitionPage<void> _fadeSlidePage({
       );
 
       return FadeTransition(
-        // Fades this page out once a page pushed on top of it starts
-        // entering (no-op while this page is simply entering itself, since
-        // secondaryAnimation sits at 0 until something covers it).
+        // Fade out when a route covers this page (secondaryAnimation > 0).
         opacity: Tween<double>(begin: 1, end: 0).animate(exit),
         child: FadeTransition(
           opacity: enter,

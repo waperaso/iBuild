@@ -234,10 +234,7 @@ class _ProjectMap extends StatelessWidget {
   }
 }
 
-/// Floating vertical zoom slider (plus a +/- pair of buttons for a single
-/// precise step) — an explicit, always-visible way to zoom in/out that
-/// doesn't depend on pinch gestures or a mouse wheel that may be busy
-/// scrolling the page.
+/// Vertical zoom control (+/− and slider).
 class _VerticalZoomSlider extends StatefulWidget {
   const _VerticalZoomSlider({required this.mapController});
 
@@ -392,9 +389,10 @@ class _SearchBarState extends ConsumerState<_SearchBar> {
         Expanded(
           child: Material(
             color: colors.surface,
-            borderRadius: BorderRadius.circular(AppRadii.pill),
             elevation: 2,
             shadowColor: colors.ink.withValues(alpha: 0.1),
+            clipBehavior: Clip.antiAlias,
+            borderRadius: BorderRadius.circular(AppRadii.pill),
             child: TextField(
               controller: _controller,
               onChanged: (v) =>
@@ -402,9 +400,22 @@ class _SearchBarState extends ConsumerState<_SearchBar> {
               decoration: InputDecoration(
                 hintText: l10n.searchByLocations,
                 prefixIcon: Icon(Icons.search, color: colors.inkMuted),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
+                filled: true,
+                fillColor: colors.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.pill),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.pill),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.pill),
+                  borderSide: BorderSide(
+                    color: colors.accent.withValues(alpha: 0.45),
+                  ),
+                ),
               ),
             ),
           ),

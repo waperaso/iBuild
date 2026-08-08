@@ -39,11 +39,7 @@ final developerByIdProvider = Provider.family<DeveloperCatalogEntry?, String>((
   return ref.watch(developerCatalogProvider)[id];
 });
 
-/// A developer's verification documents for the per-document-type breakdown
-/// shown next to the "Verified" badge (plan section 11) — `null` means the
-/// breakdown isn't available (e.g. network error) and the UI should fall
-/// back to just the badge + disclaimer (see
-/// [DocumentsRepository.fetchDeveloperDocuments]).
+/// Verification docs for the badge breakdown; null → badge + disclaimer only.
 final developerDocumentsProvider =
     FutureProvider.autoDispose.family<List<Document>?, String>((ref, id) {
       return ref.watch(documentsRepositoryProvider).fetchDeveloperDocuments(id);

@@ -10,11 +10,7 @@ int responsiveCardColumns(double width) {
   return 4;
 }
 
-/// Lays out cards in a wrapping grid whose cell height is driven by each
-/// card's own intrinsic content, not a fixed extent.
-///
-/// Prefer [ResponsiveCardSliverGrid] inside a [CustomScrollView] — this [Wrap]
-/// builds every child at once and is only appropriate for short lists.
+/// Intrinsic-height wrapping card grid (short lists). Prefer sliver variant in scroll views.
 class ResponsiveCardGrid extends StatelessWidget {
   const ResponsiveCardGrid({
     super.key,

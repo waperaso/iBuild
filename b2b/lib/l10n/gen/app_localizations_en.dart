@@ -63,7 +63,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get otpHint => '000000';
 
   @override
-  String get otpDevHelper => 'Dev: 123456 when Eskiz is not configured';
+  String get otpDevHelper => 'Test mode';
 
   @override
   String get otpVerify => 'Verify';
@@ -332,6 +332,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppearance => 'Appearance';
 
   @override
+  String get settingsLightMode => 'Light';
+
+  @override
+  String get settingsDarkShort => 'Dark';
+
+  @override
   String get settingsDarkMode => 'Dark mode';
 
   @override
@@ -344,8 +350,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get platformTitle => 'Platform administration';
 
   @override
-  String get platformSubtitle =>
-      'Approve companies, moderate projects, track \$299/mo subscriptions.';
+  String get platformSubtitle => 'Administer the platform.';
 
   @override
   String platformAnalyticsError(String error) {
@@ -640,6 +645,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'New projects, edits, and submitted documents will show up here.';
 
   @override
+  String get notificationsCriticalBadge => 'Critical';
+
+  @override
   String get notificationsJustNow => 'Just now';
 
   @override
@@ -655,6 +663,74 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String notificationsDaysAgo(int days) {
     return '${days}d ago';
+  }
+
+  @override
+  String notifDeveloperSubmittedTitle(String name) {
+    return 'Developer application: $name';
+  }
+
+  @override
+  String notifDeveloperSubmittedBody(String name) {
+    return '$name submitted their KYC application for review.';
+  }
+
+  @override
+  String notifDocumentUploadedTitle(String documentType) {
+    return 'Document submitted: $documentType';
+  }
+
+  @override
+  String notifDocumentUploadedBody(String name, String documentType) {
+    return '$name uploaded “$documentType” for review.';
+  }
+
+  @override
+  String notifProjectCreatedTitle(String name) {
+    return 'New project: $name';
+  }
+
+  @override
+  String notifProjectCreatedBody(String name) {
+    return '$name created a new project draft.';
+  }
+
+  @override
+  String get notifProjectCreatedBodyAnonymous =>
+      'A new project draft was created.';
+
+  @override
+  String notifProjectSubmittedTitle(String name) {
+    return 'Project submitted for review: $name';
+  }
+
+  @override
+  String notifProjectSubmittedBody(String name) {
+    return '$name submitted this project for moderation.';
+  }
+
+  @override
+  String get notifProjectSubmittedBodyAnonymous =>
+      'A project was submitted for moderation.';
+
+  @override
+  String notifProjectUpdatedTitle(String name) {
+    return 'Project updated: $name';
+  }
+
+  @override
+  String notifProjectUpdatedBody(String fields) {
+    return 'Changed fields: $fields';
+  }
+
+  @override
+  String notifProgressDeviationTitle(String name) {
+    return 'Construction behind schedule: $name';
+  }
+
+  @override
+  String notifProgressDeviationBody(int actual, int planned, int gap) {
+    return 'Confirmed $actual% vs promised $planned% — gap $gap%. Needs on-site inspection.';
   }
 
   @override
@@ -1522,6 +1598,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get projectUnitsByStatusTitle => 'Units by status';
+
+  @override
+  String get projectScheduleSectionTitle => 'Construction schedule';
+
+  @override
+  String get projectScheduleSubtitle =>
+      'The progress your published schedule promises for today. Buyers see it next to the confirmed figure from your photo reports, so keep it in sync with the real plan.';
+
+  @override
+  String get projectPlannedProgressLabel => 'Planned progress, %';
+
+  @override
+  String get projectScheduleSave => 'Save schedule';
+
+  @override
+  String get projectScheduleSaved => 'Schedule saved';
+
+  @override
+  String get projectScheduleInvalid => 'Enter a whole number from 0 to 100';
+
+  @override
+  String projectActualProgressHint(int percent) {
+    return 'Confirmed progress: $percent%';
+  }
+
+  @override
+  String projectScheduleGapOk(int percent) {
+    return 'Gap $percent% — within the accepted range';
+  }
+
+  @override
+  String projectScheduleGapAlert(int percent) {
+    return 'Gap $percent% — above 15%, the platform flags the project for inspection';
+  }
 
   @override
   String get projectPhotoReportsTitle => 'Construction photo reports';

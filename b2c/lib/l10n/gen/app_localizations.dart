@@ -217,7 +217,7 @@ abstract class AppLocalizations {
   /// No description provided for @otpDevHint.
   ///
   /// In en, this message translates to:
-  /// **'Dev mode: use code 123456'**
+  /// **'Test mode'**
   String get otpDevHint;
 
   /// No description provided for @stepOneOfTwo.
@@ -513,6 +513,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Overall construction progress'**
   String get overallProgressTitle;
+
+  /// No description provided for @actualProgressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual construction progress'**
+  String get actualProgressLabel;
+
+  /// No description provided for @plannedProgressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned construction progress'**
+  String get plannedProgressLabel;
+
+  /// No description provided for @progressOnSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'On schedule'**
+  String get progressOnSchedule;
+
+  /// No description provided for @progressAheadOfSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Ahead of schedule'**
+  String get progressAheadOfSchedule;
+
+  /// No description provided for @progressAcceptableDeviation.
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptable deviation'**
+  String get progressAcceptableDeviation;
+
+  /// No description provided for @progressBehindSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind schedule'**
+  String get progressBehindSchedule;
+
+  /// No description provided for @progressDeviation.
+  ///
+  /// In en, this message translates to:
+  /// **'Deviation {percent}%'**
+  String progressDeviation(int percent);
+
+  /// No description provided for @trustIndexLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust index {percent}%'**
+  String trustIndexLabel(int percent);
+
+  /// No description provided for @progressComparisonNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A gap of up to 15% is normal on a building site: weather, seasonal work bans and supply delays. Above 15% the platform sends the project for inspection.'**
+  String get progressComparisonNote;
 
   /// No description provided for @progressEmptyTitle.
   ///
@@ -970,6 +1024,18 @@ abstract class AppLocalizations {
   /// **'Your callback and viewing requests will show up here.'**
   String get inquiriesEmptySubtitle;
 
+  /// No description provided for @inquiriesSignInRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your inquiries'**
+  String get inquiriesSignInRequiredTitle;
+
+  /// No description provided for @inquiriesSignInRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your iBuild account to view callback and viewing requests.'**
+  String get inquiriesSignInRequiredBody;
+
   /// No description provided for @savedTitle.
   ///
   /// In en, this message translates to:
@@ -1023,6 +1089,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark mode'**
   String get darkModeLabel;
+
+  /// No description provided for @lightModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Light mode'**
+  String get lightModeLabel;
 
   /// No description provided for @paletteLabel.
   ///
@@ -1497,6 +1569,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mark all read'**
   String get markAllRead;
+
+  /// No description provided for @notifLeadStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inquiry status updated'**
+  String get notifLeadStatusTitle;
+
+  /// No description provided for @notifLeadStatusBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your inquiry is now “{status}”.'**
+  String notifLeadStatusBody(String status);
+
+  /// No description provided for @notifNewOfferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New offer available'**
+  String get notifNewOfferTitle;
+
+  /// No description provided for @notifNewOfferBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A new offer was added to a project you follow.'**
+  String get notifNewOfferBody;
+
+  /// No description provided for @notifLeadCreatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inquiry received'**
+  String get notifLeadCreatedTitle;
+
+  /// No description provided for @notifLeadCreatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We received your inquiry and will be in touch shortly.'**
+  String get notifLeadCreatedBody;
 
   /// No description provided for @compareModeAction.
   ///

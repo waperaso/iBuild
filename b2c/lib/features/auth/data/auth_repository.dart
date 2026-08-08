@@ -11,17 +11,13 @@ import '../../../core/network/auth_token_cache.dart';
 import '../../../core/network/api_client.dart';
 import '../../../models/user_role.dart';
 
-/// Secure storage key for the persisted [AuthUser] (JSON-encoded), kept
-/// alongside — but separate from — the token keys in [AuthStorageKeys].
+/// Secure-storage key for the persisted [AuthUser] JSON.
 const _authUserStorageKey = 'auth_user';
 
-/// Dev-mode OTP code the server accepts (mirrors `kDevOtpCode` in
-/// `server/lib/src/store.dart`) — used only to fabricate a realistic mock
-/// response when [Env.useMockData] is true.
+/// Mock OTP accepted when [Env.useMockData] is true (matches server `kDevOtpCode`).
 const kMockOtpCode = '123456';
 
-/// A signed-in user, restored from secure storage or returned by
-/// `/v1/auth/otp/verify`.
+/// Signed-in user from `/v1/auth/otp/verify` or restored session.
 class AuthUser {
   const AuthUser({
     required this.id,
@@ -41,9 +37,7 @@ class AuthUser {
   /// B2C accounts are always [UserRole.ordinaryUser] for now.
   final String role;
 
-  /// Set by a platform admin in iBuild for Business (see
-  /// `Store.banUser`) — surfaced on the Profile screen so the account
-  /// itself always shows why and by whom it was frozen.
+  /// Ban flag/metadata from platform admin (`Store.banUser`).
   final bool banned;
   final String? banReason;
   final String? bannedByName;
@@ -72,9 +66,7 @@ class AuthUser {
   };
 }
 
-/// Phone-OTP auth (plan §5) — live `/v1/auth/otp/*` calls or a mock fallback,
-/// matching the seam used by `LeadsRepository`. Persists the token pair and
-/// the signed-in user to secure storage so a session survives app restarts.
+/// Phone-OTP auth: live `/v1/auth/otp/*` or mock; persists session to secure storage.
 class AuthRepository {
   AuthRepository(this._dio, this._storage);
 
@@ -82,8 +74,7 @@ class AuthRepository {
   final FlutterSecureStorage _storage;
   final _rand = Random();
 
-  /// Requests a code for [phone]; returns the opaque `requestId` the next
-  /// `verifyOtp` call must echo back.
+  /// Sends OTP; returns `requestId` for [verifyOtp].
   Future<String> sendOtp(String phone) async {
     if (Env.useMockData) {
       return 'mock-request-${DateTime.now().millisecondsSinceEpoch}';
@@ -95,18 +86,13 @@ class AuthRepository {
     return response.data!['requestId'] as String;
   }
 
-  /// Verifies [code] for [requestId], persists the resulting session, and
-  /// returns the signed-in [AuthUser].
-  ///
-  /// [phone] is the number the user entered on the login screen — used by the
-  /// dev placeholder OTP so the persisted profile matches what they typed.
+  /// Verifies [code] for [requestId] and persists the session.
+  /// [phone] is used only by the mock OTP path.
   Future<AuthUser> verifyOtp({
     required String requestId,
     required String code,
     String? phone,
   }) async {
-    // Mock seam only — live mode always goes through the server so sessions
-    // land in PostgreSQL with a stable user id + role.
     if (Env.useMockData && code.trim() == kMockOtpCode) {
       return _establishSession(
         accessToken: 'dev-access-${DateTime.now().millisecondsSinceEpoch}',
@@ -140,11 +126,7 @@ class AuthRepository {
     required String refreshToken,
     required AuthUser user,
   }) async {
-    // Best-effort persistence: some web browsers/profiles restrict the
-    // storage backend flutter_secure_storage relies on (e.g. IndexedDB
-    // disabled in a private/locked-down profile). A write failure there
-    // must not surface as "invalid code" — the user *did* verify — it
-    // should just mean the session won't survive a page reload.
+    // Storage write can fail on restricted web profiles; keep the in-memory session.
     try {
       await Future.wait([
         _storage.write(key: AuthStorageKeys.accessToken, value: accessToken),
@@ -162,15 +144,7 @@ class AuthRepository {
     return user;
   }
 
-  /// Re-fetches the signed-in account from `GET /v1/users/me` and refreshes
-  /// the cached copy — used by the Profile screen to pick up a ban applied
-  /// server-side (in iBuild for Business) after this session was
-  /// established. Returns `null` on any failure (including mock mode, which
-  /// has no live account to refresh) so callers can just keep the cached
-  /// [AuthUser] as a fallback.
-  ///
-  /// Also used during [restoreSession] to reject tokens the server no longer
-  /// recognizes (e.g. after a restart in in-memory mode).
+  /// Refreshes cached user from `GET /v1/users/me`. Returns null on failure/mock.
   Future<AuthUser?> fetchMe() async {
     if (Env.useMockData) return null;
     try {
@@ -193,8 +167,7 @@ class AuthRepository {
     }
   }
 
-  /// Restores a previously persisted session, or `null` if the user is a
-  /// guest (never signed in, signed out, or the server rejected the token).
+  /// Restores a persisted session, or null for guests / rejected tokens.
   Future<AuthUser?> restoreSession() async {
     try {
       final token = await _storage.read(key: AuthStorageKeys.accessToken);
@@ -226,9 +199,7 @@ class AuthRepository {
   }
 }
 
-/// Thrown by [AuthRepository.verifyOtp] when the mock seam rejects a code
-/// (mirrors the server's `INVALID_CODE` error in live mode, which surfaces
-/// as a [DioException] instead).
+/// Mock-mode OTP rejection (live mode uses [DioException] / `INVALID_CODE`).
 class AuthException implements Exception {
   const AuthException(this.message);
   final String message;

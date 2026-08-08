@@ -5,10 +5,7 @@ import 'enums.dart';
 part 'document.freezed.dart';
 part 'document.g.dart';
 
-/// A developer verification document (plan section 11 "Trust system") — the
-/// evidence backing the B2C "Verified" badge. See
-/// `server/lib/src/admin_routes.dart`'s `/v1/platform/developers/:id/documents`
-/// and `/v1/developers/me/documents` for the matching backend contract.
+/// Developer verification document for the B2C "Verified" badge.
 @freezed
 abstract class Document with _$Document {
   const factory Document({
@@ -29,8 +26,7 @@ abstract class Document with _$Document {
       _$DocumentFromJson(json);
 }
 
-/// The 4 document types required for a developer to be considered fully
-/// "Verified" (mirrors the server's approve-gating check).
+/// Document types required for developer verification (matches server gate).
 const List<DocumentType> requiredDocumentTypes = [
   DocumentType.license,
   DocumentType.constructionPermit,
@@ -38,9 +34,7 @@ const List<DocumentType> requiredDocumentTypes = [
   DocumentType.projectDeclaration,
 ];
 
-/// Uploadable but never required for approval — kept separate from
-/// [requiredDocumentTypes] so [DocumentListX.isFullyVerified] and the
-/// approval gate stay unaffected by whether these are on file.
+/// Optional uploads; excluded from [requiredDocumentTypes] / approval gate.
 const List<DocumentType> optionalDocumentTypes = [DocumentType.cadastre];
 
 extension DocumentListX on List<Document> {

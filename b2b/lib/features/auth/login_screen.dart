@@ -7,7 +7,7 @@ import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/auth_hero_panel.dart';
 import '../../core/widgets/b2b_brand.dart';
-import '../../core/widgets/language_switcher.dart';
+import '../../core/widgets/locale_theme_bar.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/gen/app_localizations.dart';
 import 'auth.dart';
@@ -140,7 +140,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             const Positioned(
               top: AppSpacing.lg,
               right: AppSpacing.lg,
-              child: LanguageSwitcher(),
+              child: LocaleThemeBar(),
             ),
           ],
         ),

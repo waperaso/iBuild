@@ -508,5 +508,65 @@ void main() {
         expect(response.statusCode, 422);
       },
     );
+
+    test(
+      'a report leaving the project within 15 points of its own schedule '
+      'raises no alert',
+      () async {
+        store.updateProject(projectId, {'plannedProgress': 50});
+        await handler(
+          _post('/v1/admin/projects/$projectId/photo-reports', {
+            'url': 'https://example.com/frame.jpg',
+            'progressPercent': 36,
+          }, token: ownerToken),
+        );
+        expect(
+          store.adminNotifications().where(
+            (n) => n['type'] == 'progress_deviation',
+          ),
+          isEmpty,
+          reason:
+              'a 14-point gap is routine site variance — escalating it would '
+              'bury the alerts that do warrant an inspector',
+        );
+      },
+    );
+
+    test(
+      'a report putting the project more than 15 points behind its own '
+      'schedule raises a critical alert for the platform admin',
+      () async {
+        store.updateProject(projectId, {'plannedProgress': 50});
+        await handler(
+          _post('/v1/admin/projects/$projectId/photo-reports', {
+            'url': 'https://example.com/pit.jpg',
+            'progressPercent': 20,
+          }, token: ownerToken),
+        );
+        final alerts = store
+            .adminNotifications()
+            .where((n) => n['type'] == 'progress_deviation')
+            .toList();
+        expect(alerts.length, 1);
+        expect(alerts.single['severity'], 'critical');
+        expect(alerts.single['projectId'], projectId);
+        expect(alerts.single['body'], contains('30%'));
+      },
+    );
+
+    test('a project with no filed schedule is never flagged', () async {
+      await handler(
+        _post('/v1/admin/projects/$projectId/photo-reports', {
+          'url': 'https://example.com/pit.jpg',
+          'progressPercent': 2,
+        }, token: ownerToken),
+      );
+      expect(
+        store.adminNotifications().where(
+          (n) => n['type'] == 'progress_deviation',
+        ),
+        isEmpty,
+      );
+    });
   });
 }

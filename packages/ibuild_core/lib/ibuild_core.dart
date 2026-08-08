@@ -1,11 +1,4 @@
-/// iBuild shared core — theme tokens, common widgets, networking helpers, and
-/// domain models shared across the iBuild apps.
-///
-/// Import this single barrel to pull in everything:
-///
-/// ```dart
-/// import 'package:ibuild_core/ibuild_core.dart';
-/// ```
+/// Shared theme, widgets, networking helpers, and domain models.
 library;
 
 export 'models/building.dart';

@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Project {
 
- String get id; String get name; ProjectType get type; ProjectStatus get status; String get district; String get address; double get lat; double get lng; Developer? get developer; String? get description; List<String> get amenities; List<String> get tags; double? get priceMin; double? get priceMax; double? get rentMin; double? get rentMax; int? get constructionProgress; DateTime? get completionDate; double get rating; int get availableUnits; int get totalUnits; bool get isFeatured; List<MediaItem> get gallery; List<Building> get buildings; List<Offer> get offers;
+ String get id; String get name; ProjectType get type; ProjectStatus get status; String get district; String get address; double get lat; double get lng; Developer? get developer; String? get description; List<String> get amenities; List<String> get tags; double? get priceMin; double? get priceMax; double? get rentMin; double? get rentMax; int? get constructionProgress;/// Progress the developer's published schedule promises for today. Shown
+/// next to [constructionProgress] so a buyer sees promise against fact
+/// instead of a single unverifiable number.
+ int? get plannedProgress; DateTime? get completionDate; double get rating; int get availableUnits; int get totalUnits; bool get isFeatured; List<MediaItem> get gallery; List<Building> get buildings; List<Offer> get offers;
 /// Create a copy of Project
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +31,16 @@ $ProjectCopyWith<Project> get copyWith => _$ProjectCopyWithImpl<Project>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Project&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.status, status) || other.status == status)&&(identical(other.district, district) || other.district == district)&&(identical(other.address, address) || other.address == address)&&(identical(other.lat, lat) || other.lat == lat)&&(identical(other.lng, lng) || other.lng == lng)&&(identical(other.developer, developer) || other.developer == developer)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.amenities, amenities)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.priceMin, priceMin) || other.priceMin == priceMin)&&(identical(other.priceMax, priceMax) || other.priceMax == priceMax)&&(identical(other.rentMin, rentMin) || other.rentMin == rentMin)&&(identical(other.rentMax, rentMax) || other.rentMax == rentMax)&&(identical(other.constructionProgress, constructionProgress) || other.constructionProgress == constructionProgress)&&(identical(other.completionDate, completionDate) || other.completionDate == completionDate)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.availableUnits, availableUnits) || other.availableUnits == availableUnits)&&(identical(other.totalUnits, totalUnits) || other.totalUnits == totalUnits)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&const DeepCollectionEquality().equals(other.gallery, gallery)&&const DeepCollectionEquality().equals(other.buildings, buildings)&&const DeepCollectionEquality().equals(other.offers, offers));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Project&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.status, status) || other.status == status)&&(identical(other.district, district) || other.district == district)&&(identical(other.address, address) || other.address == address)&&(identical(other.lat, lat) || other.lat == lat)&&(identical(other.lng, lng) || other.lng == lng)&&(identical(other.developer, developer) || other.developer == developer)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.amenities, amenities)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.priceMin, priceMin) || other.priceMin == priceMin)&&(identical(other.priceMax, priceMax) || other.priceMax == priceMax)&&(identical(other.rentMin, rentMin) || other.rentMin == rentMin)&&(identical(other.rentMax, rentMax) || other.rentMax == rentMax)&&(identical(other.constructionProgress, constructionProgress) || other.constructionProgress == constructionProgress)&&(identical(other.plannedProgress, plannedProgress) || other.plannedProgress == plannedProgress)&&(identical(other.completionDate, completionDate) || other.completionDate == completionDate)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.availableUnits, availableUnits) || other.availableUnits == availableUnits)&&(identical(other.totalUnits, totalUnits) || other.totalUnits == totalUnits)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&const DeepCollectionEquality().equals(other.gallery, gallery)&&const DeepCollectionEquality().equals(other.buildings, buildings)&&const DeepCollectionEquality().equals(other.offers, offers));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,name,type,status,district,address,lat,lng,developer,description,const DeepCollectionEquality().hash(amenities),const DeepCollectionEquality().hash(tags),priceMin,priceMax,rentMin,rentMax,constructionProgress,completionDate,rating,availableUnits,totalUnits,isFeatured,const DeepCollectionEquality().hash(gallery),const DeepCollectionEquality().hash(buildings),const DeepCollectionEquality().hash(offers)]);
+int get hashCode => Object.hashAll([runtimeType,id,name,type,status,district,address,lat,lng,developer,description,const DeepCollectionEquality().hash(amenities),const DeepCollectionEquality().hash(tags),priceMin,priceMax,rentMin,rentMax,constructionProgress,plannedProgress,completionDate,rating,availableUnits,totalUnits,isFeatured,const DeepCollectionEquality().hash(gallery),const DeepCollectionEquality().hash(buildings),const DeepCollectionEquality().hash(offers)]);
 
 @override
 String toString() {
-  return 'Project(id: $id, name: $name, type: $type, status: $status, district: $district, address: $address, lat: $lat, lng: $lng, developer: $developer, description: $description, amenities: $amenities, tags: $tags, priceMin: $priceMin, priceMax: $priceMax, rentMin: $rentMin, rentMax: $rentMax, constructionProgress: $constructionProgress, completionDate: $completionDate, rating: $rating, availableUnits: $availableUnits, totalUnits: $totalUnits, isFeatured: $isFeatured, gallery: $gallery, buildings: $buildings, offers: $offers)';
+  return 'Project(id: $id, name: $name, type: $type, status: $status, district: $district, address: $address, lat: $lat, lng: $lng, developer: $developer, description: $description, amenities: $amenities, tags: $tags, priceMin: $priceMin, priceMax: $priceMax, rentMin: $rentMin, rentMax: $rentMax, constructionProgress: $constructionProgress, plannedProgress: $plannedProgress, completionDate: $completionDate, rating: $rating, availableUnits: $availableUnits, totalUnits: $totalUnits, isFeatured: $isFeatured, gallery: $gallery, buildings: $buildings, offers: $offers)';
 }
 
 
@@ -48,7 +51,7 @@ abstract mixin class $ProjectCopyWith<$Res>  {
   factory $ProjectCopyWith(Project value, $Res Function(Project) _then) = _$ProjectCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, ProjectType type, ProjectStatus status, String district, String address, double lat, double lng, Developer? developer, String? description, List<String> amenities, List<String> tags, double? priceMin, double? priceMax, double? rentMin, double? rentMax, int? constructionProgress, DateTime? completionDate, double rating, int availableUnits, int totalUnits, bool isFeatured, List<MediaItem> gallery, List<Building> buildings, List<Offer> offers
+ String id, String name, ProjectType type, ProjectStatus status, String district, String address, double lat, double lng, Developer? developer, String? description, List<String> amenities, List<String> tags, double? priceMin, double? priceMax, double? rentMin, double? rentMax, int? constructionProgress, int? plannedProgress, DateTime? completionDate, double rating, int availableUnits, int totalUnits, bool isFeatured, List<MediaItem> gallery, List<Building> buildings, List<Offer> offers
 });
 
 
@@ -65,7 +68,7 @@ class _$ProjectCopyWithImpl<$Res>
 
 /// Create a copy of Project
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? type = null,Object? status = null,Object? district = null,Object? address = null,Object? lat = null,Object? lng = null,Object? developer = freezed,Object? description = freezed,Object? amenities = null,Object? tags = null,Object? priceMin = freezed,Object? priceMax = freezed,Object? rentMin = freezed,Object? rentMax = freezed,Object? constructionProgress = freezed,Object? completionDate = freezed,Object? rating = null,Object? availableUnits = null,Object? totalUnits = null,Object? isFeatured = null,Object? gallery = null,Object? buildings = null,Object? offers = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? type = null,Object? status = null,Object? district = null,Object? address = null,Object? lat = null,Object? lng = null,Object? developer = freezed,Object? description = freezed,Object? amenities = null,Object? tags = null,Object? priceMin = freezed,Object? priceMax = freezed,Object? rentMin = freezed,Object? rentMax = freezed,Object? constructionProgress = freezed,Object? plannedProgress = freezed,Object? completionDate = freezed,Object? rating = null,Object? availableUnits = null,Object? totalUnits = null,Object? isFeatured = null,Object? gallery = null,Object? buildings = null,Object? offers = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -84,6 +87,7 @@ as double?,priceMax: freezed == priceMax ? _self.priceMax : priceMax // ignore: 
 as double?,rentMin: freezed == rentMin ? _self.rentMin : rentMin // ignore: cast_nullable_to_non_nullable
 as double?,rentMax: freezed == rentMax ? _self.rentMax : rentMax // ignore: cast_nullable_to_non_nullable
 as double?,constructionProgress: freezed == constructionProgress ? _self.constructionProgress : constructionProgress // ignore: cast_nullable_to_non_nullable
+as int?,plannedProgress: freezed == plannedProgress ? _self.plannedProgress : plannedProgress // ignore: cast_nullable_to_non_nullable
 as int?,completionDate: freezed == completionDate ? _self.completionDate : completionDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as double,availableUnits: null == availableUnits ? _self.availableUnits : availableUnits // ignore: cast_nullable_to_non_nullable
@@ -189,10 +193,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  ProjectType type,  ProjectStatus status,  String district,  String address,  double lat,  double lng,  Developer? developer,  String? description,  List<String> amenities,  List<String> tags,  double? priceMin,  double? priceMax,  double? rentMin,  double? rentMax,  int? constructionProgress,  DateTime? completionDate,  double rating,  int availableUnits,  int totalUnits,  bool isFeatured,  List<MediaItem> gallery,  List<Building> buildings,  List<Offer> offers)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  ProjectType type,  ProjectStatus status,  String district,  String address,  double lat,  double lng,  Developer? developer,  String? description,  List<String> amenities,  List<String> tags,  double? priceMin,  double? priceMax,  double? rentMin,  double? rentMax,  int? constructionProgress,  int? plannedProgress,  DateTime? completionDate,  double rating,  int availableUnits,  int totalUnits,  bool isFeatured,  List<MediaItem> gallery,  List<Building> buildings,  List<Offer> offers)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Project() when $default != null:
-return $default(_that.id,_that.name,_that.type,_that.status,_that.district,_that.address,_that.lat,_that.lng,_that.developer,_that.description,_that.amenities,_that.tags,_that.priceMin,_that.priceMax,_that.rentMin,_that.rentMax,_that.constructionProgress,_that.completionDate,_that.rating,_that.availableUnits,_that.totalUnits,_that.isFeatured,_that.gallery,_that.buildings,_that.offers);case _:
+return $default(_that.id,_that.name,_that.type,_that.status,_that.district,_that.address,_that.lat,_that.lng,_that.developer,_that.description,_that.amenities,_that.tags,_that.priceMin,_that.priceMax,_that.rentMin,_that.rentMax,_that.constructionProgress,_that.plannedProgress,_that.completionDate,_that.rating,_that.availableUnits,_that.totalUnits,_that.isFeatured,_that.gallery,_that.buildings,_that.offers);case _:
   return orElse();
 
 }
@@ -210,10 +214,10 @@ return $default(_that.id,_that.name,_that.type,_that.status,_that.district,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  ProjectType type,  ProjectStatus status,  String district,  String address,  double lat,  double lng,  Developer? developer,  String? description,  List<String> amenities,  List<String> tags,  double? priceMin,  double? priceMax,  double? rentMin,  double? rentMax,  int? constructionProgress,  DateTime? completionDate,  double rating,  int availableUnits,  int totalUnits,  bool isFeatured,  List<MediaItem> gallery,  List<Building> buildings,  List<Offer> offers)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  ProjectType type,  ProjectStatus status,  String district,  String address,  double lat,  double lng,  Developer? developer,  String? description,  List<String> amenities,  List<String> tags,  double? priceMin,  double? priceMax,  double? rentMin,  double? rentMax,  int? constructionProgress,  int? plannedProgress,  DateTime? completionDate,  double rating,  int availableUnits,  int totalUnits,  bool isFeatured,  List<MediaItem> gallery,  List<Building> buildings,  List<Offer> offers)  $default,) {final _that = this;
 switch (_that) {
 case _Project():
-return $default(_that.id,_that.name,_that.type,_that.status,_that.district,_that.address,_that.lat,_that.lng,_that.developer,_that.description,_that.amenities,_that.tags,_that.priceMin,_that.priceMax,_that.rentMin,_that.rentMax,_that.constructionProgress,_that.completionDate,_that.rating,_that.availableUnits,_that.totalUnits,_that.isFeatured,_that.gallery,_that.buildings,_that.offers);case _:
+return $default(_that.id,_that.name,_that.type,_that.status,_that.district,_that.address,_that.lat,_that.lng,_that.developer,_that.description,_that.amenities,_that.tags,_that.priceMin,_that.priceMax,_that.rentMin,_that.rentMax,_that.constructionProgress,_that.plannedProgress,_that.completionDate,_that.rating,_that.availableUnits,_that.totalUnits,_that.isFeatured,_that.gallery,_that.buildings,_that.offers);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -230,10 +234,10 @@ return $default(_that.id,_that.name,_that.type,_that.status,_that.district,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  ProjectType type,  ProjectStatus status,  String district,  String address,  double lat,  double lng,  Developer? developer,  String? description,  List<String> amenities,  List<String> tags,  double? priceMin,  double? priceMax,  double? rentMin,  double? rentMax,  int? constructionProgress,  DateTime? completionDate,  double rating,  int availableUnits,  int totalUnits,  bool isFeatured,  List<MediaItem> gallery,  List<Building> buildings,  List<Offer> offers)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  ProjectType type,  ProjectStatus status,  String district,  String address,  double lat,  double lng,  Developer? developer,  String? description,  List<String> amenities,  List<String> tags,  double? priceMin,  double? priceMax,  double? rentMin,  double? rentMax,  int? constructionProgress,  int? plannedProgress,  DateTime? completionDate,  double rating,  int availableUnits,  int totalUnits,  bool isFeatured,  List<MediaItem> gallery,  List<Building> buildings,  List<Offer> offers)?  $default,) {final _that = this;
 switch (_that) {
 case _Project() when $default != null:
-return $default(_that.id,_that.name,_that.type,_that.status,_that.district,_that.address,_that.lat,_that.lng,_that.developer,_that.description,_that.amenities,_that.tags,_that.priceMin,_that.priceMax,_that.rentMin,_that.rentMax,_that.constructionProgress,_that.completionDate,_that.rating,_that.availableUnits,_that.totalUnits,_that.isFeatured,_that.gallery,_that.buildings,_that.offers);case _:
+return $default(_that.id,_that.name,_that.type,_that.status,_that.district,_that.address,_that.lat,_that.lng,_that.developer,_that.description,_that.amenities,_that.tags,_that.priceMin,_that.priceMax,_that.rentMin,_that.rentMax,_that.constructionProgress,_that.plannedProgress,_that.completionDate,_that.rating,_that.availableUnits,_that.totalUnits,_that.isFeatured,_that.gallery,_that.buildings,_that.offers);case _:
   return null;
 
 }
@@ -245,7 +249,7 @@ return $default(_that.id,_that.name,_that.type,_that.status,_that.district,_that
 @JsonSerializable()
 
 class _Project implements Project {
-  const _Project({required this.id, required this.name, required this.type, required this.status, required this.district, required this.address, required this.lat, required this.lng, this.developer, this.description, final  List<String> amenities = const <String>[], final  List<String> tags = const <String>[], this.priceMin, this.priceMax, this.rentMin, this.rentMax, this.constructionProgress, this.completionDate, this.rating = 0, this.availableUnits = 0, this.totalUnits = 0, this.isFeatured = false, final  List<MediaItem> gallery = const <MediaItem>[], final  List<Building> buildings = const <Building>[], final  List<Offer> offers = const <Offer>[]}): _amenities = amenities,_tags = tags,_gallery = gallery,_buildings = buildings,_offers = offers;
+  const _Project({required this.id, required this.name, required this.type, required this.status, required this.district, required this.address, required this.lat, required this.lng, this.developer, this.description, final  List<String> amenities = const <String>[], final  List<String> tags = const <String>[], this.priceMin, this.priceMax, this.rentMin, this.rentMax, this.constructionProgress, this.plannedProgress, this.completionDate, this.rating = 0, this.availableUnits = 0, this.totalUnits = 0, this.isFeatured = false, final  List<MediaItem> gallery = const <MediaItem>[], final  List<Building> buildings = const <Building>[], final  List<Offer> offers = const <Offer>[]}): _amenities = amenities,_tags = tags,_gallery = gallery,_buildings = buildings,_offers = offers;
   factory _Project.fromJson(Map<String, dynamic> json) => _$ProjectFromJson(json);
 
 @override final  String id;
@@ -277,6 +281,10 @@ class _Project implements Project {
 @override final  double? rentMin;
 @override final  double? rentMax;
 @override final  int? constructionProgress;
+/// Progress the developer's published schedule promises for today. Shown
+/// next to [constructionProgress] so a buyer sees promise against fact
+/// instead of a single unverifiable number.
+@override final  int? plannedProgress;
 @override final  DateTime? completionDate;
 @override@JsonKey() final  double rating;
 @override@JsonKey() final  int availableUnits;
@@ -317,16 +325,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Project&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.status, status) || other.status == status)&&(identical(other.district, district) || other.district == district)&&(identical(other.address, address) || other.address == address)&&(identical(other.lat, lat) || other.lat == lat)&&(identical(other.lng, lng) || other.lng == lng)&&(identical(other.developer, developer) || other.developer == developer)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._amenities, _amenities)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.priceMin, priceMin) || other.priceMin == priceMin)&&(identical(other.priceMax, priceMax) || other.priceMax == priceMax)&&(identical(other.rentMin, rentMin) || other.rentMin == rentMin)&&(identical(other.rentMax, rentMax) || other.rentMax == rentMax)&&(identical(other.constructionProgress, constructionProgress) || other.constructionProgress == constructionProgress)&&(identical(other.completionDate, completionDate) || other.completionDate == completionDate)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.availableUnits, availableUnits) || other.availableUnits == availableUnits)&&(identical(other.totalUnits, totalUnits) || other.totalUnits == totalUnits)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&const DeepCollectionEquality().equals(other._gallery, _gallery)&&const DeepCollectionEquality().equals(other._buildings, _buildings)&&const DeepCollectionEquality().equals(other._offers, _offers));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Project&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.status, status) || other.status == status)&&(identical(other.district, district) || other.district == district)&&(identical(other.address, address) || other.address == address)&&(identical(other.lat, lat) || other.lat == lat)&&(identical(other.lng, lng) || other.lng == lng)&&(identical(other.developer, developer) || other.developer == developer)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._amenities, _amenities)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.priceMin, priceMin) || other.priceMin == priceMin)&&(identical(other.priceMax, priceMax) || other.priceMax == priceMax)&&(identical(other.rentMin, rentMin) || other.rentMin == rentMin)&&(identical(other.rentMax, rentMax) || other.rentMax == rentMax)&&(identical(other.constructionProgress, constructionProgress) || other.constructionProgress == constructionProgress)&&(identical(other.plannedProgress, plannedProgress) || other.plannedProgress == plannedProgress)&&(identical(other.completionDate, completionDate) || other.completionDate == completionDate)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.availableUnits, availableUnits) || other.availableUnits == availableUnits)&&(identical(other.totalUnits, totalUnits) || other.totalUnits == totalUnits)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&const DeepCollectionEquality().equals(other._gallery, _gallery)&&const DeepCollectionEquality().equals(other._buildings, _buildings)&&const DeepCollectionEquality().equals(other._offers, _offers));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,name,type,status,district,address,lat,lng,developer,description,const DeepCollectionEquality().hash(_amenities),const DeepCollectionEquality().hash(_tags),priceMin,priceMax,rentMin,rentMax,constructionProgress,completionDate,rating,availableUnits,totalUnits,isFeatured,const DeepCollectionEquality().hash(_gallery),const DeepCollectionEquality().hash(_buildings),const DeepCollectionEquality().hash(_offers)]);
+int get hashCode => Object.hashAll([runtimeType,id,name,type,status,district,address,lat,lng,developer,description,const DeepCollectionEquality().hash(_amenities),const DeepCollectionEquality().hash(_tags),priceMin,priceMax,rentMin,rentMax,constructionProgress,plannedProgress,completionDate,rating,availableUnits,totalUnits,isFeatured,const DeepCollectionEquality().hash(_gallery),const DeepCollectionEquality().hash(_buildings),const DeepCollectionEquality().hash(_offers)]);
 
 @override
 String toString() {
-  return 'Project(id: $id, name: $name, type: $type, status: $status, district: $district, address: $address, lat: $lat, lng: $lng, developer: $developer, description: $description, amenities: $amenities, tags: $tags, priceMin: $priceMin, priceMax: $priceMax, rentMin: $rentMin, rentMax: $rentMax, constructionProgress: $constructionProgress, completionDate: $completionDate, rating: $rating, availableUnits: $availableUnits, totalUnits: $totalUnits, isFeatured: $isFeatured, gallery: $gallery, buildings: $buildings, offers: $offers)';
+  return 'Project(id: $id, name: $name, type: $type, status: $status, district: $district, address: $address, lat: $lat, lng: $lng, developer: $developer, description: $description, amenities: $amenities, tags: $tags, priceMin: $priceMin, priceMax: $priceMax, rentMin: $rentMin, rentMax: $rentMax, constructionProgress: $constructionProgress, plannedProgress: $plannedProgress, completionDate: $completionDate, rating: $rating, availableUnits: $availableUnits, totalUnits: $totalUnits, isFeatured: $isFeatured, gallery: $gallery, buildings: $buildings, offers: $offers)';
 }
 
 
@@ -337,7 +345,7 @@ abstract mixin class _$ProjectCopyWith<$Res> implements $ProjectCopyWith<$Res> {
   factory _$ProjectCopyWith(_Project value, $Res Function(_Project) _then) = __$ProjectCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, ProjectType type, ProjectStatus status, String district, String address, double lat, double lng, Developer? developer, String? description, List<String> amenities, List<String> tags, double? priceMin, double? priceMax, double? rentMin, double? rentMax, int? constructionProgress, DateTime? completionDate, double rating, int availableUnits, int totalUnits, bool isFeatured, List<MediaItem> gallery, List<Building> buildings, List<Offer> offers
+ String id, String name, ProjectType type, ProjectStatus status, String district, String address, double lat, double lng, Developer? developer, String? description, List<String> amenities, List<String> tags, double? priceMin, double? priceMax, double? rentMin, double? rentMax, int? constructionProgress, int? plannedProgress, DateTime? completionDate, double rating, int availableUnits, int totalUnits, bool isFeatured, List<MediaItem> gallery, List<Building> buildings, List<Offer> offers
 });
 
 
@@ -354,7 +362,7 @@ class __$ProjectCopyWithImpl<$Res>
 
 /// Create a copy of Project
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? type = null,Object? status = null,Object? district = null,Object? address = null,Object? lat = null,Object? lng = null,Object? developer = freezed,Object? description = freezed,Object? amenities = null,Object? tags = null,Object? priceMin = freezed,Object? priceMax = freezed,Object? rentMin = freezed,Object? rentMax = freezed,Object? constructionProgress = freezed,Object? completionDate = freezed,Object? rating = null,Object? availableUnits = null,Object? totalUnits = null,Object? isFeatured = null,Object? gallery = null,Object? buildings = null,Object? offers = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? type = null,Object? status = null,Object? district = null,Object? address = null,Object? lat = null,Object? lng = null,Object? developer = freezed,Object? description = freezed,Object? amenities = null,Object? tags = null,Object? priceMin = freezed,Object? priceMax = freezed,Object? rentMin = freezed,Object? rentMax = freezed,Object? constructionProgress = freezed,Object? plannedProgress = freezed,Object? completionDate = freezed,Object? rating = null,Object? availableUnits = null,Object? totalUnits = null,Object? isFeatured = null,Object? gallery = null,Object? buildings = null,Object? offers = null,}) {
   return _then(_Project(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -373,6 +381,7 @@ as double?,priceMax: freezed == priceMax ? _self.priceMax : priceMax // ignore: 
 as double?,rentMin: freezed == rentMin ? _self.rentMin : rentMin // ignore: cast_nullable_to_non_nullable
 as double?,rentMax: freezed == rentMax ? _self.rentMax : rentMax // ignore: cast_nullable_to_non_nullable
 as double?,constructionProgress: freezed == constructionProgress ? _self.constructionProgress : constructionProgress // ignore: cast_nullable_to_non_nullable
+as int?,plannedProgress: freezed == plannedProgress ? _self.plannedProgress : plannedProgress // ignore: cast_nullable_to_non_nullable
 as int?,completionDate: freezed == completionDate ? _self.completionDate : completionDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as double,availableUnits: null == availableUnits ? _self.availableUnits : availableUnits // ignore: cast_nullable_to_non_nullable

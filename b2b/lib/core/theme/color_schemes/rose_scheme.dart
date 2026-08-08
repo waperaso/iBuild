@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Rose" — a refined rose/magenta primary balanced by a charcoal secondary on
-/// a soft pink-tinted canvas. Distinctive but restrained for a business tool.
+/// "Rose" — rose/magenta primary, charcoal secondary, pink-tinted canvas.
 const AppColors roseScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFFBF3F5),

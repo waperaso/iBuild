@@ -73,9 +73,7 @@ class _ChessboardLegend extends StatelessWidget {
   }
 }
 
-/// Room count → corner-accent colour, shared by the cell badge and the
-/// legend. Kept intentionally independent of the light/dark theme palette —
-/// this is a fixed key, not a themed surface colour.
+/// Fixed room-count → accent color (not theme-dependent).
 Color _roomAccentColor(int? rooms) => switch (rooms) {
   null => Colors.transparent,
   1 => const Color(0xFF3B82F6),
@@ -84,8 +82,7 @@ Color _roomAccentColor(int? rooms) => switch (rooms) {
   _ => const Color(0xFF8B5CF6),
 };
 
-/// Secondary colour key mapping room count → the corner dot shown on each
-/// cell — status (fill colour) stays the primary signal; this is secondary.
+/// Legend for room-count corner accents on chessboard cells.
 class _ChessboardRoomLegend extends StatelessWidget {
   const _ChessboardRoomLegend();
 

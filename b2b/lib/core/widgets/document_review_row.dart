@@ -7,10 +7,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import '../../l10n/gen/app_localizations.dart';
 
-/// One document row in a moderation review dialog: type, status, a "View"
-/// link (opens the uploaded file), and accept/reject actions when still
-/// pending. Shared by the KYC review dialog and the project review dialog
-/// so both present documents identically.
+/// Document row for KYC/project moderation (view + accept/reject).
 class DocumentReviewRow extends StatelessWidget {
   const DocumentReviewRow({
     super.key,

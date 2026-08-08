@@ -205,7 +205,7 @@ abstract class AppLocalizations {
   /// No description provided for @otpDevHelper.
   ///
   /// In en, this message translates to:
-  /// **'Dev: 123456 when Eskiz is not configured'**
+  /// **'Test mode'**
   String get otpDevHelper;
 
   /// No description provided for @otpVerify.
@@ -682,6 +682,18 @@ abstract class AppLocalizations {
   /// **'Appearance'**
   String get settingsAppearance;
 
+  /// No description provided for @settingsLightMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsLightMode;
+
+  /// No description provided for @settingsDarkShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsDarkShort;
+
   /// No description provided for @settingsDarkMode.
   ///
   /// In en, this message translates to:
@@ -709,7 +721,7 @@ abstract class AppLocalizations {
   /// No description provided for @platformSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Approve companies, moderate projects, track \$299/mo subscriptions.'**
+  /// **'Administer the platform.'**
   String get platformSubtitle;
 
   /// No description provided for @platformAnalyticsError.
@@ -1216,6 +1228,12 @@ abstract class AppLocalizations {
   /// **'New projects, edits, and submitted documents will show up here.'**
   String get notificationsEmptySubtitle;
 
+  /// No description provided for @notificationsCriticalBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get notificationsCriticalBadge;
+
   /// No description provided for @notificationsJustNow.
   ///
   /// In en, this message translates to:
@@ -1239,6 +1257,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{days}d ago'**
   String notificationsDaysAgo(int days);
+
+  /// No description provided for @notifDeveloperSubmittedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer application: {name}'**
+  String notifDeveloperSubmittedTitle(String name);
+
+  /// No description provided for @notifDeveloperSubmittedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} submitted their KYC application for review.'**
+  String notifDeveloperSubmittedBody(String name);
+
+  /// No description provided for @notifDocumentUploadedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Document submitted: {documentType}'**
+  String notifDocumentUploadedTitle(String documentType);
+
+  /// No description provided for @notifDocumentUploadedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} uploaded “{documentType}” for review.'**
+  String notifDocumentUploadedBody(String name, String documentType);
+
+  /// No description provided for @notifProjectCreatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New project: {name}'**
+  String notifProjectCreatedTitle(String name);
+
+  /// No description provided for @notifProjectCreatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} created a new project draft.'**
+  String notifProjectCreatedBody(String name);
+
+  /// No description provided for @notifProjectCreatedBodyAnonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'A new project draft was created.'**
+  String get notifProjectCreatedBodyAnonymous;
+
+  /// No description provided for @notifProjectSubmittedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project submitted for review: {name}'**
+  String notifProjectSubmittedTitle(String name);
+
+  /// No description provided for @notifProjectSubmittedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} submitted this project for moderation.'**
+  String notifProjectSubmittedBody(String name);
+
+  /// No description provided for @notifProjectSubmittedBodyAnonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'A project was submitted for moderation.'**
+  String get notifProjectSubmittedBodyAnonymous;
+
+  /// No description provided for @notifProjectUpdatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project updated: {name}'**
+  String notifProjectUpdatedTitle(String name);
+
+  /// No description provided for @notifProjectUpdatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed fields: {fields}'**
+  String notifProjectUpdatedBody(String fields);
+
+  /// No description provided for @notifProgressDeviationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Construction behind schedule: {name}'**
+  String notifProgressDeviationTitle(String name);
+
+  /// No description provided for @notifProgressDeviationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed {actual}% vs promised {planned}% — gap {gap}%. Needs on-site inspection.'**
+  String notifProgressDeviationBody(int actual, int planned, int gap);
 
   /// No description provided for @platformUsersSectionTitle.
   ///
@@ -2764,6 +2866,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Units by status'**
   String get projectUnitsByStatusTitle;
+
+  /// No description provided for @projectScheduleSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Construction schedule'**
+  String get projectScheduleSectionTitle;
+
+  /// No description provided for @projectScheduleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The progress your published schedule promises for today. Buyers see it next to the confirmed figure from your photo reports, so keep it in sync with the real plan.'**
+  String get projectScheduleSubtitle;
+
+  /// No description provided for @projectPlannedProgressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned progress, %'**
+  String get projectPlannedProgressLabel;
+
+  /// No description provided for @projectScheduleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save schedule'**
+  String get projectScheduleSave;
+
+  /// No description provided for @projectScheduleSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule saved'**
+  String get projectScheduleSaved;
+
+  /// No description provided for @projectScheduleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number from 0 to 100'**
+  String get projectScheduleInvalid;
+
+  /// No description provided for @projectActualProgressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed progress: {percent}%'**
+  String projectActualProgressHint(int percent);
+
+  /// No description provided for @projectScheduleGapOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Gap {percent}% — within the accepted range'**
+  String projectScheduleGapOk(int percent);
+
+  /// No description provided for @projectScheduleGapAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Gap {percent}% — above 15%, the platform flags the project for inspection'**
+  String projectScheduleGapAlert(int percent);
 
   /// No description provided for @projectPhotoReportsTitle.
   ///

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Emerald" — a rich forest-green primary with a reserved gold secondary on a
-/// warm off-white canvas. Confident and premium without leaning corporate-blue.
+/// "Emerald" — forest-green primary, gold secondary, warm off-white canvas.
 const AppColors emeraldScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF3F7F2),

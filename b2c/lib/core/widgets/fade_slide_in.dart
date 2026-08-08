@@ -1,11 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Staggered fade + slide-up entrance for list/grid items.
-///
-/// On Flutter web the per-item [AnimationController] tax made scrolls and
-/// first paint feel heavy, so the animation is skipped and [child] is shown
-/// immediately.
+/// Staggered fade + slide-up for list/grid items. No-op on web (perf).
 class FadeSlideIn extends StatefulWidget {
   const FadeSlideIn({
     super.key,
@@ -44,7 +40,7 @@ class _FadeSlideInState extends State<FadeSlideIn>
       end: Offset.zero,
     ).animate(_fade!);
 
-    // Cap the stagger so long lists don't leave the last cards waiting ages.
+    // Cap stagger depth on long lists.
     final delay = widget.delayStep * widget.index.clamp(0, 10);
     if (delay == Duration.zero) {
       controller.forward();

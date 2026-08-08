@@ -1,10 +1,5 @@
-/// An owner-submitted secondary rental listing (Konseptsiya §5 "Снять" —
-/// primary AND secondary rent). Unlike [Project], this is always
-/// `dealType: rent` and is moderated before it appears in the public feed.
-///
-/// Plain class (not freezed) since this mirrors the lightweight style used
-/// for other simple server-backed models where a generated union isn't
-/// needed — only `fromJson`/`toJson`.
+/// Owner-submitted secondary rental listing (`dealType: rent`), moderated
+/// before appearing in the public feed.
 class RentalListing {
   const RentalListing({
     required this.id,

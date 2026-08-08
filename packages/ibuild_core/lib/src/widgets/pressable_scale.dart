@@ -1,13 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Wraps [child] with a subtle hover lift (desktop/web) and a press-down
-/// scale (all platforms) — cheap "this is alive" motion for cards, chips
-/// and buttons. Uses a [Listener] rather than a [GestureDetector] so it never
-/// competes with a tap handler (e.g. an [InkWell]) further down the tree.
-///
-/// On Flutter web the per-widget [AnimatedScale] rebuilds made dense UIs feel
-/// laggy, so motion is skipped and [child] is shown as-is (same as B2C).
+/// Hover lift (desktop/web) and press scale. Uses [Listener] so it does not
+/// compete with tap handlers below. Motion skipped on Flutter web (perf).
 class PressableScale extends StatefulWidget {
   const PressableScale({
     super.key,

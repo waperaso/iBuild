@@ -37,11 +37,8 @@ class AsyncValueView<T> extends StatelessWidget {
           _ErrorView(onRetry: onRetry, minHeight: minHeight),
     );
 
-    // Cross-fades skeleton -> content -> error instead of popping between
-    // them, so a refresh/retry never flashes a hard cut. `layoutBuilder`
-    // keeps both children stacked (rather than centered) while they swap,
-    // which avoids the brief blank gap AnimatedSwitcher's default layout
-    // otherwise leaves before the new child's size is known.
+    // Cross-fade async states; stack children top-aligned to avoid a blank
+    // gap while AnimatedSwitcher measures the incoming child.
     return AnimatedSwitcher(
       duration: AppDurations.medium,
       switchInCurve: AppDurations.enter,

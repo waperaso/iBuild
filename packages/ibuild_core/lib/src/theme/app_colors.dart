@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Semantic color tokens for the whole app.
-///
-/// Widgets must NEVER hardcode raw [Color] values. They read colors from this
-/// token set via `context.colors` (see each app's `app_theme_ext.dart`).
-/// Swapping the palette later means providing a different [AppColors] instance
-/// (see each app's `color_schemes/`) — no widget code changes.
-///
-/// Lives in `ibuild_core` so the B2B and B2C apps share exactly one token
-/// contract instead of maintaining two drifting copies.
+/// Semantic color tokens. Widgets use `context.colors`, not raw [Color]s.
+/// Shared by B2B and B2C; swap palette via a different [AppColors] instance.
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
   const AppColors({
@@ -52,16 +45,13 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Foreground drawn on top of [accent].
   final Color onAccent;
 
-  /// Second brand color — pairs with [accent] for variety on promo banners,
-  /// secondary CTAs and badges so the UI isn't monotone.
+  /// Secondary brand color for CTAs and badges.
   final Color accentSecondary;
 
   /// Foreground drawn on top of [accentSecondary].
   final Color onAccentSecondary;
 
-  /// High-contrast "dark card" surface for hero/promo blocks — deliberately
-  /// independent of [brightness] so it reads as a deliberate accent panel in
-  /// both light and dark mode, instead of just another white/gray card.
+  /// Dark hero/promo surface; independent of [brightness] in both modes.
   final Color heroSurface;
 
   /// Foreground drawn on top of [heroSurface].

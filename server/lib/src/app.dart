@@ -30,10 +30,8 @@ const kAllowedLeadStatuses = {
 /// Allowed values for the `mode` query param on `GET /v1/projects`.
 const kAllowedProjectModes = {'buy', 'rent', 'newBuilds'};
 
-/// Canonical construction-stage values for a project. Kept as a fixed
-/// vocabulary rather than derived from whatever the catalogue happens to hold,
-/// so filtering by a legitimate status keeps working even when no project is
-/// currently in that stage.
+/// Fixed construction-stage vocabulary. Not derived from current catalogue
+/// rows, so filters stay valid when no project is in that stage.
 const kAllowedProjectStatuses = {
   'planned',
   'under_construction',
@@ -45,11 +43,8 @@ const kAllowedProjectStatuses = {
 /// cannot ask the server to serialize the entire catalogue.
 const kMaxPageLimit = 100;
 
-/// Whether [project] may be exposed to [req]: it must be published +
-/// moderation-approved, unless the caller is an admin (system/residence).
-/// Applied uniformly across every public project/unit read route so
-/// unpublished/under-moderation inventory can't be scraped via a sub-route
-/// (units/buildings/grid/offers/unit-by-id) — the IDOR gap the plan flags.
+/// True if [project] is published+approved, or the caller is an admin.
+/// Used on every public project/unit read to block IDOR via sub-routes.
 bool _isProjectVisible(Map<String, dynamic> project, Request req) {
   final published =
       (project['isPublished'] as bool? ?? true) &&
@@ -68,9 +63,7 @@ Handler createHandler(
 }) {
   final otpRateLimiter =
       otpLimiter ?? RateLimiter(5, const Duration(minutes: 5));
-  // Verify allows a few more hits than send (a user may retype a wrong
-  // code), while the per-requestId attempt cap (kMaxOtpAttempts) is the real
-  // brute-force guard.
+  // Verify budget is looser than send (retries); kMaxOtpAttempts stops brute force.
   final otpVerifyRateLimiter =
       otpVerifyLimiter ?? RateLimiter(15, const Duration(minutes: 5));
   final refreshRateLimiter =
@@ -78,9 +71,7 @@ Handler createHandler(
   final leadsRateLimiter =
       leadsLimiter ?? RateLimiter(10, const Duration(minutes: 1));
 
-  // Districts are data-driven, so they must be read per request: computing
-  // them once at startup made every project created later (in a district not
-  // present in the seed) unfilterable — `?district=` returned 422.
+  // Districts change with the catalogue; compute per request so new ones aren't 422'd.
   Set<String> allowedDistricts() => store.projects
       .map((p) => (p['district'] as String).toLowerCase())
       .toSet();
@@ -103,12 +94,7 @@ Handler createHandler(
       if (!isOneOf(mode, kAllowedProjectModes)) {
         return jsonError('VALIDATION_ERROR', 'Invalid mode', status: 422);
       }
-      // Konseptsiya §5: "Купить" = только первичка от застройщика (any
-      // segment — ЖК/БЦ/стрит-ритейл — as long as it has sale inventory).
-      // "Снять" = первичка И вторичка, across every segment — never gated
-      // by project type. This mirrors the aggregate priceMin/rentMin
-      // computed per-project in seed_data.dart / addUnit, so it stays
-      // correct as new segments (street retail) are added.
+      // Buy: has sale inventory. Rent: has rent inventory (any segment).
       if (mode == 'buy') {
         items = items
             .where((p) => p['priceMin'] != null || p['priceMax'] != null)
@@ -167,9 +153,7 @@ Handler createHandler(
       items = items.where((p) {
         final min = (p['priceMin'] as num?)?.toDouble();
         final max = (p['priceMax'] as num?)?.toDouble() ?? min;
-        // A project with no sale price cannot satisfy a sale-price range —
-        // excluded, mirroring the rent filter below (it used to be included,
-        // so `?priceMax=…` leaked rent-only projects into "Купить" results).
+        // No sale price → exclude (same rule as rent filter below).
         if (min == null && max == null) return false;
         final low = min ?? max!;
         final high = max ?? min!;
@@ -194,9 +178,7 @@ Handler createHandler(
       }).toList();
     }
 
-    // rooms / areaMin / offplan filter on the flattened unit list — a
-    // project matches if *any* of its units satisfies the constraint
-    // (docs/08-api.md `GET /projects` params).
+    // Match if any unit satisfies rooms / areaMin / offplan.
     final roomsParam = qp['rooms'];
     final areaMin = double.tryParse(qp['areaMin'] ?? '');
     final offplanParam = qp['offplan'];
@@ -339,10 +321,7 @@ Handler createHandler(
 
   // --- Developer verification summary (public, privacy-safe) --------------
 
-  // Buyer-facing counterpart to the moderator-only
-  // `GET /v1/platform/developers/:id/documents`: exposes just enough for the
-  // B2C "Verified" badge breakdown (overall status + per-required-type
-  // status) without leaking fileUrl/rejectReason/reviewer identity.
+  // Public verification summary for the B2C "Verified" badge (no file URLs / reasons).
   router.get('/v1/developers/<id>/verification', (Request req, String id) {
     final developer = store.developerById(id);
     if (developer == null) {
@@ -408,9 +387,7 @@ Handler createHandler(
         status: 422,
       );
     }
-    // Ratings feed the project's aggregate score, so an out-of-range value
-    // would permanently skew it. Reject rather than clamp so the client can
-    // show the user what went wrong.
+    // Reject out-of-range ratings (don't clamp).
     final ratingOverall = (body['ratingOverall'] as num?)?.toInt() ?? 5;
     final subRatings = {
       'ratingLocation': (body['ratingLocation'] as num?)?.toInt(),
@@ -749,10 +726,7 @@ Handler createHandler(
     if (existing == null) {
       return jsonError('NOT_FOUND', 'Lead $id not found', status: 404);
     }
-    // Ownership: the buyer who created the lead, a system admin, or the
-    // residence admin who owns the lead's project. A residence admin must NOT
-    // be able to touch leads belonging to another developer's project
-    // (previously `auth.isAdmin` let *any* residence admin edit *any* lead).
+    // Creator, system admin, or residence admin of the lead's project.
     final ownsLead = existing['userId'] == auth.userId;
     final project = store.projectById(existing['projectId'] as String? ?? '');
     final managesProjectLead =
@@ -793,9 +767,7 @@ Handler createHandler(
     }
     final phone = normalizePhone(rawPhone);
     final requestId = await store.createOtpRequest(phone);
-    // Security: the OTP is NEVER returned in the HTTP response. In dev the
-    // fixed code is logged to stderr by SmsService; production always sends
-    // it over SMS via Eskiz.
+    // OTP is not in the HTTP response. Dev logs it via SmsService; production sends SMS.
     return jsonOk(<String, dynamic>{'requestId': requestId});
   });
 
@@ -841,11 +813,7 @@ Handler createHandler(
 
   mountAdminRoutes(router, store, refreshLimiter: refreshRateLimiter);
 
-  // Live-update WebSocket. Requires a valid Bearer token (via the
-  // `Authorization` header resolved by authMiddleware, or an `access_token`
-  // query param since browsers can't set headers on the WS handshake). The
-  // subscriber's admin status is captured so lead (CRM/PII) events are only
-  // delivered to admins — see Store._broadcast.
+  // WS: Bearer or `access_token` query; lead/PII events go to admins only.
   router.get('/v1/ws', (Request req) {
     var auth = req.auth;
     if (auth == null) {
@@ -876,32 +844,21 @@ Handler createHandler(
   return Pipeline()
       .addMiddleware(corsHeaders())
       .addMiddleware(logRequests())
-      // Outermost handler-side guard: everything below it (auth, ban check,
-      // routes) is guaranteed to answer with the JSON envelope.
+      // Map unhandled errors to the JSON envelope.
       .addMiddleware(errorEnvelopeMiddleware())
       .addMiddleware(authMiddleware(store))
       .addMiddleware(banGuardMiddleware())
       .addHandler(router.call);
 }
 
-/// Whether the process is running inside a container. Docker creates
-/// `/.dockerenv`; Podman creates `/run/.containerenv`.
+/// True if Docker (`/.dockerenv`) or Podman (`/run/.containerenv`) marker exists.
 bool runningInContainer() {
   if (Platform.isWindows) return false;
   return File('/.dockerenv').existsSync() ||
       File('/run/.containerenv').existsSync();
 }
 
-/// Whether the deployment must read the client IP from `X-Forwarded-For`.
-///
-/// True when requests cannot arrive directly: binding loopback puts a reverse
-/// proxy in front, and a container sees the bridge gateway (or, under host
-/// networking, nginx on loopback) instead of the caller. In both cases an
-/// untrusted `X-Forwarded-For` collapses every caller into a single rate-limit
-/// bucket, so the first five OTP requests lock out the whole platform.
-///
-/// Split out from [assertProductionSecrets] so it can be tested without
-/// touching the filesystem or the process environment.
+/// Whether rate limits should trust `X-Forwarded-For` (loopback bind or container).
 bool requiresTrustedProxyHeaders({
   required String bindAddress,
   required bool inContainer,
@@ -909,15 +866,13 @@ bool requiresTrustedProxyHeaders({
   final bind = bindAddress.trim();
   final boundToLoopback =
       bind == '127.0.0.1' || bind == 'localhost' || bind == '::1';
-  // A container binds 0.0.0.0 (the container is itself the boundary), so the
+  // Container binds 0.0.0.0; peer is still the proxy/bridge, not the client.
   // loopback check alone cannot catch it.
   return boundToLoopback || inContainer;
 }
 
-/// Fails fast (throws [StateError]) when `APP_ENV=production` but the secrets
-/// required for a safe production deployment are missing or left at insecure
-/// defaults. Called from `bin/server.dart` before the server starts serving.
-/// A no-op outside production.
+/// Throw [StateError] if production secrets/defaults are missing or insecure.
+/// No-op when not `APP_ENV=production`.
 void assertProductionSecrets({SmsService? sms}) {
   if (!isProduction) return;
   final env = appEnv();
@@ -988,7 +943,7 @@ void assertProductionSecrets({SmsService? sms}) {
     throw StateError(
       'Refusing to start in production (APP_ENV=production): missing or '
       'insecure ${problems.join('; ')}. Configure these via the environment '
-      'or server/.env before deploying. See docs/HOSTING_AHOST.md.',
+      'or server/.env before deploying. See docs/HOSTING_AIRNET.md.',
     );
   }
 }

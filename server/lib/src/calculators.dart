@@ -1,18 +1,12 @@
-/// Stateless mortgage / installment / rental-yield math shared by
-/// `POST /v1/calculators/*` (Konseptsiya §7 "инвестиционные калькуляторы",
-/// §11.C bank referrals). Pure functions — no store, no I/O — so both the
-/// route handler and tests can call them directly.
+/// Mortgage / installment / yield math for `POST /v1/calculators/*`. No I/O.
 library;
 
 import 'dart:math' as math;
 
-/// Longest term any quote will accept, in years. Real mortgage products top
-/// out well below this; the cap exists so a caller cannot ask for a term large
-/// enough to matter computationally or produce meaningless output.
+/// Max quote term (years). Caps compute abuse on unauthenticated calculator routes.
 const kMaxTermYears = 50;
 
-/// Standard amortizing-loan monthly payment (French amortization), the same
-/// formula banks use for mortgage/installment quotes.
+/// Amortizing monthly payment (French).
 double monthlyPayment({
   required double loanAmount,
   required double annualRatePercent,
@@ -21,8 +15,7 @@ double monthlyPayment({
   if (termMonths <= 0) return 0;
   if (annualRatePercent <= 0) return loanAmount / termMonths;
   final monthlyRate = annualRatePercent / 100 / 12;
-  // math.pow is O(1); the hand-rolled loop this replaces ran once per month,
-  // so a large term could pin the isolate from an unauthenticated request.
+  // O(1) pow; a per-month loop could pin the isolate on large terms.
   final factor = math.pow(1 + monthlyRate, termMonths).toDouble();
   return loanAmount * monthlyRate * factor / (factor - 1);
 }

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Graphite" — a disciplined near-monochrome base (graphite ink on a cool
-/// stone canvas) with a single electric-blue accent for interactive moments.
-/// Foregrounds clear WCAG AA on their surfaces.
+/// "Graphite" — near-monochrome stone canvas with an electric-blue accent.
 const AppColors graphiteScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF4F5F6),
@@ -28,8 +26,7 @@ const AppColors graphiteScheme = AppColors(
   unitBlocked: Color(0xFF585B61),
 );
 
-/// Dark variant of [graphiteScheme]: a true charcoal canvas with a brightened
-/// electric blue that pops against the neutral surfaces.
+/// Dark [graphiteScheme]: charcoal canvas, brighter electric blue.
 const AppColors graphiteSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF0D0E10),

@@ -11,10 +11,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 
 const _isometricMapAsset = 'assets/images/isometric_map_hero.png';
 
-/// A "live tracking"-style hero for the project page: a dark isometric map
-/// visual with a pin over the location, and a floating card summarising the
-/// developer contact, construction progress and quick links — inspired by
-/// delivery-tracking UIs, adapted to "tracking your future home".
+/// Project location hero with map pin and summary card.
 class LocationTrackingHero extends StatelessWidget {
   const LocationTrackingHero({super.key, required this.project});
 

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Graphite" — a disciplined monochrome base (near-black primary on a light
-/// gray canvas) with a single electric-blue secondary for accents and CTAs.
-/// Maximum legibility; the blue does all the "pop".
+/// "Graphite" — near-black primary, electric-blue secondary, light gray canvas.
 const AppColors graphiteScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF4F5F6),

@@ -12,10 +12,7 @@ import '../../l10n/gen/app_localizations.dart';
 import 'app_card.dart';
 import 'pill_button.dart';
 
-/// Shows a preview of the picked file (name, size, and an image thumbnail
-/// when applicable) and asks the user to confirm before it's actually sent
-/// to the server — documents are never uploaded the instant a file is
-/// picked; the user always gets a last look first.
+/// Confirm document upload after a file preview.
 Future<bool> confirmDocumentUpload(
   BuildContext context, {
   required String documentTypeLabel,
@@ -99,25 +96,16 @@ const List<String> kRequiredDocumentTypes = [
   'project_declaration',
 ];
 
-/// Uploadable alongside the required 4, but never required for approval —
-/// rendered as its own "optional" row group in [DocumentsUploadCard].
+/// Optional upload types (not required for approval).
 const List<String> kOptionalDocumentTypes = ['cadastre'];
 
-/// Whether [docs] (as returned by `GET /developers/me/documents`) covers
-/// every entry in [kRequiredDocumentTypes] with an actual upload — i.e. every
-/// required type has *some* document on file, regardless of review status.
-/// Used to gate "Submit for review" during registration (Track B.3 follow-up:
-/// documents must be on file before an application can be reviewed, since
-/// platform approval itself requires them accepted).
+/// True when every [kRequiredDocumentTypes] entry has an upload on file.
 bool hasAllRequiredDocuments(List<Map<String, dynamic>> docs) {
   final uploadedTypes = docs.map((d) => d['type']?.toString()).toSet();
   return kRequiredDocumentTypes.every(uploadedTypes.contains);
 }
 
-/// Which of [kRequiredDocumentTypes] have no upload on file yet, in display
-/// order — used to tell the user exactly what's missing (rather than just
-/// disabling the submit button) before they try to send the application for
-/// moderation.
+/// Required document types still missing, in display order (for submit UI copy).
 List<String> missingRequiredDocumentTypes(List<Map<String, dynamic>> docs) {
   final uploadedTypes = docs.map((d) => d['type']?.toString()).toSet();
   return kRequiredDocumentTypes
@@ -125,13 +113,7 @@ List<String> missingRequiredDocumentTypes(List<Map<String, dynamic>> docs) {
       .toList();
 }
 
-/// Verification-documents card (Track B.3, later reused for pre-approval
-/// registration): one row per required document type with its current
-/// review status and an upload/replace action.
-///
-/// Used by both the org profile screen (post-approval) and the developer
-/// apply wizard (pre-approval) — documents must be uploadable before a
-/// platform moderator can approve the application at all.
+/// Required/optional document rows with upload/replace (org profile + apply).
 class DocumentsUploadCard extends StatelessWidget {
   const DocumentsUploadCard({
     super.key,

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// "Emerald" — a rich forest-green primary on a warm parchment canvas, with a
-/// restrained antique-gold secondary for premium accents. Foregrounds clear
-/// WCAG AA on their surfaces.
+/// "Emerald" — forest-green primary, gold secondary, warm parchment canvas.
 const AppColors emeraldScheme = AppColors(
   brightness: Brightness.light,
   background: Color(0xFFF4F6F0),
@@ -28,8 +26,7 @@ const AppColors emeraldScheme = AppColors(
   unitBlocked: Color(0xFF556157),
 );
 
-/// Dark variant of [emeraldScheme]: a deep pine canvas with a brightened
-/// emerald primary and a warmer gold that reads clearly on dark surfaces.
+/// Dark [emeraldScheme]: pine canvas, brighter emerald + gold.
 const AppColors emeraldSchemeDark = AppColors(
   brightness: Brightness.dark,
   background: Color(0xFF0B120E),
