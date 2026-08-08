@@ -30,12 +30,8 @@ class PgPersistence {
     return (count as int) == 0;
   });
 
-  /// True only before first seed (`app_meta.catalogue_seeded`; survives admin wipe).
+  /// True when the projects table is empty (initial seed or after admin wipe).
   Future<bool> needsCatalogueSeed() => _asService((s) async {
-    final flagged = await s.execute(
-      Sql.named("SELECT value FROM app_meta WHERE key = 'catalogue_seeded'"),
-    );
-    if (flagged.isNotEmpty) return false;
     final result = await s.execute('SELECT COUNT(*) FROM projects');
     return (result.first.first as int) == 0;
   });
@@ -140,8 +136,9 @@ class PgPersistence {
 
   // --- Write path (seeding) ------------------------------------------------
 
-  /// Seed catalogue in one transaction; set `catalogue_seeded` so wipes stay wiped.
+  /// Seed catalogue in one transaction; set `catalogue_seeded` marker when non-empty.
   Future<void> seedFrom(List<Map<String, dynamic>> projects) async {
+    if (projects.isEmpty) return;
     await _db.runTx((tx) async {
       await tx.execute(
         "SELECT set_config('app.role', 'service', true), "
