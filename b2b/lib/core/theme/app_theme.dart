@@ -73,6 +73,11 @@ ThemeData buildAppTheme(AppColors colors) {
       // ChoiceChip reads secondarySelectedColor, not selectedColor.
       secondarySelectedColor: colors.accent,
       side: BorderSide(color: colors.outline),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      labelPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
       color: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) return colors.accent;
         return colors.surface;
@@ -80,6 +85,7 @@ ThemeData buildAppTheme(AppColors colors) {
       // WidgetStateColor survives M3's labelStyle merge path; plain Color on
       // labelStyle alone is overwritten and selected chips keep ink (black).
       labelStyle: textTheme.labelLarge?.copyWith(
+        height: 1.25,
         color: WidgetStateColor.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return colors.onAccent;
           return colors.ink;

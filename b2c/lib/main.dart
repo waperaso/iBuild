@@ -20,6 +20,13 @@ Future<void> main() async {
       '--dart-define=USE_MOCK_DATA=false for production.',
     );
   }
+  if (kReleaseMode && !Env.useMockData && !Env.hasValidApiBaseUrl) {
+    throw StateError(
+      'Refusing to start: API_BASE_URL is invalid (${Env.apiBaseUrl}). '
+      'Pass --dart-define=API_BASE_URL=https://host/v1 (or use '
+      'dart_defines.staging.json with a non-empty host).',
+    );
+  }
 
   const sentryDsn = String.fromEnvironment('SENTRY_DSN');
   if (sentryDsn.isNotEmpty) {

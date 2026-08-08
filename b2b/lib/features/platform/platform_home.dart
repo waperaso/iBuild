@@ -381,20 +381,16 @@ class PlatformHome extends ConsumerWidget {
                   )
                 : Column(
                     children: [
-                      for (final u in items)
-                        ListTile(
-                          title: Text(u['phone']?.toString() ?? ''),
-                          subtitle: Row(
-                            children: [
-                              Text(
-                                roleLabel(l10n, u['role']?.toString() ?? ''),
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              _BanStatusChip(user: u),
-                            ],
+                      for (var i = 0; i < items.length; i++) ...[
+                        _UserMobileTile(user: items[i]),
+                        if (i < items.length - 1)
+                          Divider(
+                            height: 1,
+                            indent: AppSpacing.lg,
+                            endIndent: AppSpacing.lg,
+                            color: context.colors.outline.withValues(alpha: 0.35),
                           ),
-                          trailing: _UserActions(user: u),
-                        ),
+                      ],
                     ],
                   ),
           ),
@@ -728,6 +724,52 @@ class _BanStatusChip extends StatelessWidget {
   }
 }
 
+/// Mobile-friendly user row — avoids ListTile trailing squeezing the phone.
+class _UserMobileTile extends StatelessWidget {
+  const _UserMobileTile({required this.user});
+
+  final Map<String, dynamic> user;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            user['phone']?.toString() ?? '',
+            style: textTheme.titleMedium,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                roleLabel(l10n, user['role']?.toString() ?? ''),
+                style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+              ),
+              _BanStatusChip(user: user),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _UserActions(user: user),
+        ],
+      ),
+    );
+  }
+}
+
 /// Set-role menu + ban/unban action for a single row in "Users & roles".
 class _UserActions extends ConsumerWidget {
   const _UserActions({required this.user});
@@ -741,73 +783,79 @@ class _UserActions extends ConsumerWidget {
     final isBanned = user['banned'] == true;
     final isSystemAdmin = user['role'] == 'system_admin';
     final isSelf = user['id'] == ref.watch(authControllerProvider).value?.id;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        PopupMenuButton<String>(
-          tooltip: l10n.platformSetRoleTooltip,
-          onSelected: (role) async {
-            await runPlatformAction(
-              context,
-              ref,
-              action: () => ref
-                  .read(adminApiProvider)
-                  .setUserRole(user['id'] as String, role),
-              onSuccess: () => ref.invalidate(_usersProvider),
-            );
-          },
-          itemBuilder: (_) => [
-            PopupMenuItem(
-              value: 'ordinary_user',
-              child: Text(roleLabel(l10n, 'ordinary_user')),
-            ),
-            PopupMenuItem(
-              value: 'residence_admin',
-              child: Text(roleLabel(l10n, 'residence_admin')),
-            ),
-            PopupMenuItem(
-              value: 'system_admin',
-              child: Text(roleLabel(l10n, 'system_admin')),
-            ),
-          ],
-          child: Text(l10n.platformSetRoleLabel),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        PillButton(
-          label: isBanned ? l10n.platformUnban : l10n.platformBan,
+    final isMobile = context.isMobile;
+
+    final setRole = MenuAnchor(
+      builder: (context, controller, child) {
+        return PillButton(
+          label: l10n.platformSetRoleLabel,
           variant: PillButtonVariant.outline,
-          onPressed: () async {
-            if (isBanned) {
+          onPressed: () {
+            if (controller.isOpen) {
+              controller.close();
+            } else {
+              controller.open();
+            }
+          },
+        );
+      },
+      menuChildren: [
+        for (final role in const [
+          'ordinary_user',
+          'residence_admin',
+          'system_admin',
+        ])
+          MenuItemButton(
+            onPressed: () async {
               await runPlatformAction(
                 context,
                 ref,
                 action: () => ref
                     .read(adminApiProvider)
-                    .unbanUser(user['id'] as String),
+                    .setUserRole(user['id'] as String, role),
                 onSuccess: () => ref.invalidate(_usersProvider),
               );
-              return;
-            }
-            final result = await showDialog<_BanResult>(
-              context: context,
-              builder: (_) => _BanDialog(user: user),
-            );
-            if (result == null || !context.mounted) return;
-            await runPlatformAction(
-              context,
-              ref,
-              action: () => ref.read(adminApiProvider).banUser(
-                user['id'] as String,
-                reason: result.reason,
-                bannedByName: result.bannedByName,
-              ),
-              onSuccess: () => ref.invalidate(_usersProvider),
-            );
-          },
-        ),
-        if (isSystemAdmin) ...[
-          const SizedBox(width: AppSpacing.sm),
-          IconButton(
+            },
+            child: Text(roleLabel(l10n, role)),
+          ),
+      ],
+    );
+
+    final ban = PillButton(
+      label: isBanned ? l10n.platformUnban : l10n.platformBan,
+      variant: PillButtonVariant.outline,
+      onPressed: () async {
+        if (isBanned) {
+          await runPlatformAction(
+            context,
+            ref,
+            action: () => ref
+                .read(adminApiProvider)
+                .unbanUser(user['id'] as String),
+            onSuccess: () => ref.invalidate(_usersProvider),
+          );
+          return;
+        }
+        final result = await showDialog<_BanResult>(
+          context: context,
+          builder: (_) => _BanDialog(user: user),
+        );
+        if (result == null || !context.mounted) return;
+        await runPlatformAction(
+          context,
+          ref,
+          action: () => ref.read(adminApiProvider).banUser(
+            user['id'] as String,
+            reason: result.reason,
+            bannedByName: result.bannedByName,
+          ),
+          onSuccess: () => ref.invalidate(_usersProvider),
+        );
+      },
+    );
+
+    final deleteAdmin = isSystemAdmin
+        ? IconButton(
             icon: Icon(Icons.person_remove_outlined, color: colors.danger),
             tooltip: isSelf
                 ? l10n.platformDeleteAdminSelfHint
@@ -849,7 +897,31 @@ class _UserActions extends ConsumerWidget {
                       onSuccess: () => ref.invalidate(_usersProvider),
                     );
                   },
-          ),
+          )
+        : null;
+
+    if (isMobile) {
+      return Wrap(
+        spacing: AppSpacing.sm,
+        runSpacing: AppSpacing.sm,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          setRole,
+          ban,
+          ?deleteAdmin,
+        ],
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        setRole,
+        const SizedBox(width: AppSpacing.sm),
+        ban,
+        if (deleteAdmin != null) ...[
+          const SizedBox(width: AppSpacing.sm),
+          deleteAdmin,
         ],
       ],
     );

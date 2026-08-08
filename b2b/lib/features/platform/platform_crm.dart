@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/localization/status_labels.dart';
-import '../../core/network/ws_client.dart';import '../../core/theme/app_dimens.dart';
+import '../../core/network/ws_client.dart';
+import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/empty_state.dart';
@@ -142,6 +143,7 @@ class _PlatformCrmState extends ConsumerState<PlatformCrm> {
                 const SizedBox(height: AppSpacing.md),
                 Wrap(
                   spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
                   children: [
                     ChoiceChip(
                       label: Text(l10n.adminProjectsFilterAll),

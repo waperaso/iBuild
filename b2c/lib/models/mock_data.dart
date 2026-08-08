@@ -3,7 +3,7 @@ import 'package:ibuild_core/ibuild_core.dart';
 /// NestOne + Hills Blue for offline/mock mode (`Env.useMockData`).
 abstract class MockData {
   static const _nestonePhoto = '/v1/static/residences/nestone.png';
-  static const _hillsPhoto = '/v1/static/residences/hillsblue.jpg';
+  static const _hillsPhoto = '/v1/static/residences/hillsblue.png';
 
   static const nestoneDeveloper = Developer(
     id: 'dev-nestone',

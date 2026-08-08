@@ -5,6 +5,15 @@ abstract class Env {
     defaultValue: 'https://api.ibuild.uz/v1',
   );
 
+  /// True when [apiBaseUrl] has a scheme and non-empty host (e.g. not `http:///v1`).
+  static bool get hasValidApiBaseUrl {
+    final uri = Uri.tryParse(apiBaseUrl);
+    return uri != null &&
+        uri.hasScheme &&
+        uri.host.isNotEmpty &&
+        !apiBaseUrl.contains(':///');
+  }
+
   static const String wsUrl = String.fromEnvironment(
     'WS_URL',
     defaultValue: 'wss://api.ibuild.uz/v1/ws',

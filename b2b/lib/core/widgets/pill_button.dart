@@ -27,6 +27,13 @@ class PillButton extends StatelessWidget {
   /// Shows a small spinner in place of the label/icon and disables taps.
   final bool loading;
 
+  TextStyle _labelStyle(BuildContext context, Color fg) {
+    return Theme.of(context).textTheme.labelLarge!.copyWith(
+      color: fg,
+      height: 1.25,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -36,54 +43,80 @@ class PillButton extends StatelessWidget {
       PillButtonVariant.outline => (colors.surface, colors.ink, colors.outline),
     };
 
-    return PressableScale(
-      enabled: !loading && onPressed != null,
-      child: SizedBox(
-        width: expand ? double.infinity : null,
-        child: Material(
-          color: bg,
-          borderRadius: BorderRadius.circular(AppRadii.pill),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(AppRadii.pill),
-            onTap: loading ? null : onPressed,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xl,
-                vertical: AppSpacing.lg,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRadii.pill),
-                border: border != null ? Border.all(color: border) : null,
-              ),
-              child: loading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.4,
-                        color: fg,
-                      ),
-                    )
-                  : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (icon != null) ...[
-                          Icon(icon, size: 18, color: fg),
-                          const SizedBox(width: AppSpacing.sm),
-                        ],
-                        Text(
-                          label,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.labelLarge?.copyWith(color: fg),
-                        ),
-                      ],
-                    ),
+    final labelStyle = _labelStyle(context, fg);
+    final content = loading
+        ? SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.4,
+              color: fg,
             ),
+          )
+        : Row(
+            mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18, color: fg),
+                const SizedBox(width: AppSpacing.sm),
+              ],
+              if (expand)
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: labelStyle,
+                    textHeightBehavior: const TextHeightBehavior(
+                      applyHeightToFirstAscent: false,
+                      applyHeightToLastDescent: false,
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  label,
+                  softWrap: false,
+                  style: labelStyle,
+                  textHeightBehavior: const TextHeightBehavior(
+                    applyHeightToFirstAscent: false,
+                    applyHeightToLastDescent: false,
+                  ),
+                ),
+            ],
+          );
+
+    // IntrinsicWidth keeps Wrap from squeezing the label when a row is almost full.
+    final button = Material(
+      color: bg,
+      clipBehavior: Clip.antiAlias,
+      borderRadius: BorderRadius.circular(AppRadii.pill),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadii.pill),
+        onTap: loading ? null : onPressed,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadii.pill),
+            border: border != null ? Border.all(color: border) : null,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            child: content,
           ),
         ),
       ),
+    );
+
+    return PressableScale(
+      enabled: !loading && onPressed != null,
+      child: expand
+          ? SizedBox(width: double.infinity, child: button)
+          : IntrinsicWidth(child: button),
     );
   }
 }

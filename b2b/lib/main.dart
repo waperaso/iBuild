@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'core/env.dart';
 import 'core/provider_retry.dart';
 import 'core/session_storage.dart';
 import 'core/widgets/error_screen.dart';
@@ -37,6 +38,13 @@ void main() {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      if (kReleaseMode && !Env.hasValidApiBaseUrl) {
+        throw StateError(
+          'Refusing to start: API_BASE_URL is invalid (${Env.apiBaseUrl}). '
+          'Pass --dart-define=API_BASE_URL=https://host/v1 (or use '
+          'dart_defines.staging.json with a non-empty host).',
+        );
+      }
       globalSessionStorage = await SessionStorage.open();
       runApp(
         RestartWidget(

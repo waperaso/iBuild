@@ -73,6 +73,7 @@ class CrmOwnerFilterChips extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Wrap(
       spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
       children: [
         ChoiceChip(
           label: Text(l10n.crmOwnerFilterAll),
