@@ -89,7 +89,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       if (user != null) {
         context.go(user.isSystemAdmin ? '/platform' : '/residence');
       }
-    } on DioException catch (error) {
+    } on DioException catch (_) {
       if (!mounted) return;
       setState(() => _error = l10n.otpInvalidError);
     } catch (_) {

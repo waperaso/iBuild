@@ -86,7 +86,8 @@ flutter:
     - assets/images/isometric_map_hero.png
     - assets/images/onboarding_hero.png
     - assets/floorplans/
-    - assets/brand/
+    - assets/brand/ibuild-logo.jpg
+    - assets/brand/ibuild-logo-dark.png
 
   fonts:
     - family: PlusJakartaSans

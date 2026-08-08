@@ -44,7 +44,8 @@ flutter:
 
   # Package assets are not always bundled on Flutter web — declare explicitly.
   assets:
-    - assets/brand/
+    - assets/brand/ibuild-logo.jpg
+    - assets/brand/ibuild-logo-dark.png
 
   fonts:
     - family: PlusJakartaSans

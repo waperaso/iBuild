@@ -26,4 +26,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/brand/
+    - assets/brand/ibuild-logo.jpg
+    - assets/brand/ibuild-logo-dark.png
