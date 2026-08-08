@@ -23,7 +23,7 @@ class B2bBrand extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        BrandMark(size: compact ? 32 : 36),
+        BrandMark(size: compact ? 32 : 36, onDark: onDark),
         SizedBox(width: compact ? AppSpacing.sm : AppSpacing.md),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -42,6 +42,10 @@ flutter:
   # Generates AppLocalizations from lib/l10n/*.arb (see l10n.yaml).
   generate: true
 
+  # Package assets are not always bundled on Flutter web — declare explicitly.
+  assets:
+    - assets/brand/
+
   fonts:
     - family: PlusJakartaSans
       fonts:

@@ -14,15 +14,23 @@ class BrandMark extends StatelessWidget {
   Widget build(BuildContext context) {
     final useDark =
         onDark ?? Theme.of(context).brightness == Brightness.dark;
+    final asset = useDark ? ibuildLogoDarkAsset : ibuildLogoAsset;
     return ClipRRect(
       borderRadius: BorderRadius.circular(size * 0.12),
       child: Image.asset(
-        useDark ? ibuildLogoDarkAsset : ibuildLogoAsset,
+        asset,
         package: 'ibuild_core',
         width: size,
         height: size,
         fit: BoxFit.cover,
         semanticLabel: 'iBuild',
+        errorBuilder: (context, error, stackTrace) => Image.asset(
+          asset,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          semanticLabel: 'iBuild',
+        ),
       ),
     );
   }
