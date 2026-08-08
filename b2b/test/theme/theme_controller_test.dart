@@ -19,11 +19,11 @@ void main() {
 
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('catalog exposes the full set of 15 palettes', () {
-    expect(AppPalette.values.length, 15);
-    // Meridian stays the default/first entry.
-    expect(AppPalette.values.first, AppPalette.meridian);
-    // The twelve new schemes are all present.
+  test('catalog exposes the full set of 16 palettes', () {
+    expect(AppPalette.values.length, 16);
+    // iBuild is the default/first entry.
+    expect(AppPalette.values.first, AppPalette.ibuild);
+    // The twelve named schemes are all present.
     for (final name in const [
       'sapphire',
       'emerald',
@@ -46,11 +46,11 @@ void main() {
     }
   });
 
-  test('defaults to Meridian in light mode', () {
+  test('defaults to iBuild in light mode', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final state = container.read(themeControllerProvider);
-    expect(state.palette, AppPalette.meridian);
+    expect(state.palette, AppPalette.ibuild);
     expect(state.themeMode, ThemeMode.light);
   });
 

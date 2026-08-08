@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:ibuild_b2b/core/session_storage.dart';
 import 'package:ibuild_b2b/core/theme/app_theme.dart';
 import 'package:ibuild_b2b/core/theme/theme_controller.dart';
 import 'package:ibuild_b2b/core/widgets/auth_hero_panel.dart';
@@ -60,7 +61,7 @@ Future<void> _settleApplyScreen(WidgetTester tester) async {
 }
 
 void main() {
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
     // Without this, DeveloperApplyScreen's bootstrap awaits the real
     // (platform-channel/FFI-backed) FlutterSecureStorage, which never
@@ -69,6 +70,11 @@ void main() {
     FlutterSecureStoragePlatform.instance = TestFlutterSecureStoragePlatform(
       {},
     );
+    globalSessionStorage = await SessionStorage.open();
+  });
+
+  tearDown(() {
+    globalSessionStorage = null;
   });
 
   group('desktop auth hero panel', () {

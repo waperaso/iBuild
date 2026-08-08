@@ -80,6 +80,7 @@ class ThemeController extends Notifier<ThemeState> {
 
   Future<void> _restore() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!ref.mounted) return;
     final paletteName = prefs.getString(_palettePrefsKey);
     final modeName = prefs.getString(_modePrefsKey);
 
@@ -104,6 +105,7 @@ class ThemeController extends Notifier<ThemeState> {
         }
       }
     }
+    if (!ref.mounted) return;
     if (next != state) state = next;
   }
 
