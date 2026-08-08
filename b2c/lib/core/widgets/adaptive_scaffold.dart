@@ -11,6 +11,7 @@ import '../localization/exchange_rate_provider.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import '../utils/formatters.dart';
+import 'brand_mark.dart';
 import 'language_menu.dart';
 import 'nav_destinations.dart';
 import 'pressable_scale.dart';
@@ -261,15 +262,7 @@ class _Sidebar extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: colors.ink,
-                    borderRadius: BorderRadius.circular(AppRadii.sm),
-                  ),
-                  child: Icon(Icons.apartment, color: colors.accent, size: 20),
-                ),
+                const BrandMark(size: 36),
                 const SizedBox(width: AppSpacing.md),
                 Text('iBuild', style: Theme.of(context).textTheme.titleLarge),
               ],
@@ -432,15 +425,7 @@ class _MobileTopBar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: colors.ink,
-                borderRadius: BorderRadius.circular(AppRadii.sm),
-              ),
-              child: Icon(Icons.apartment, color: colors.accent, size: 16),
-            ),
+            const BrandMark(size: 28),
             const SizedBox(width: AppSpacing.sm),
             Text('iBuild', style: textTheme.titleMedium),
             const Spacer(),

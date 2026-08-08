@@ -70,6 +70,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       // to diagnose from the UI alone.
       debugPrint('OtpScreen: sign-in failed: $error\n$stack');
       if (!mounted) return;
+      // Successful auth + router dispose must not look like a bad OTP.
+      if (ref.read(authControllerProvider).value != null) return;
       setState(() => _error = l10n.invalidCodeError);
     } finally {
       if (mounted) setState(() => _verifying = false);

@@ -446,32 +446,39 @@ class _SearchAndFilterRowState extends ConsumerState<_SearchAndFilterRow> {
       discoveryFiltersProvider.select((f) => f.hasSheetFilters),
     );
 
+    final pill = BorderRadius.circular(AppRadii.pill);
+
     return Row(
       children: [
         Expanded(
-          child: TextField(
-            controller: _controller,
-            onChanged: _onChanged,
-            decoration: InputDecoration(
-              hintText: l10n.searchHint,
-              prefixIcon: Icon(Icons.search, color: colors.inkMuted),
-              filled: true,
-              fillColor: colors.surface,
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: AppSpacing.md,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.pill),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.pill),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.pill),
-                borderSide: BorderSide(
-                  color: colors.accent.withValues(alpha: 0.45),
+          child: Material(
+            color: colors.surface,
+            borderRadius: pill,
+            clipBehavior: Clip.antiAlias,
+            child: TextField(
+              controller: _controller,
+              onChanged: _onChanged,
+              decoration: InputDecoration(
+                hintText: l10n.searchHint,
+                prefixIcon: Icon(Icons.search, color: colors.inkMuted),
+                filled: true,
+                fillColor: colors.surface,
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.md,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: pill,
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: pill,
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: pill,
+                  borderSide: BorderSide(
+                    color: colors.accent.withValues(alpha: 0.45),
+                  ),
                 ),
               ),
             ),

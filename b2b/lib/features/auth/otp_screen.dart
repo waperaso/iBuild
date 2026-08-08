@@ -84,16 +84,21 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       await ref
           .read(authControllerProvider.notifier)
           .verifyOtp(requestId: _requestId, code: _code.text.trim());
+      // AuthController updates GoRouter's refreshListenable — redirect leaves
+      // /otp. A second context.go here raced the redirect and was caught below
+      // as "invalid code" even when the API returned 200.
       if (!mounted) return;
       final user = ref.read(authControllerProvider).value;
-      if (user != null) {
+      if (user != null && mounted) {
         context.go(user.isSystemAdmin ? '/platform' : '/residence');
       }
     } on DioException catch (_) {
       if (!mounted) return;
       setState(() => _error = l10n.otpInvalidError);
     } catch (_) {
+      // Successful verify + mid-redirect dispose must not look like a bad OTP.
       if (!mounted) return;
+      if (ref.read(authControllerProvider).value != null) return;
       setState(() => _error = l10n.otpInvalidError);
     } finally {
       if (mounted) setState(() => _loading = false);
