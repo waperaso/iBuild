@@ -14,7 +14,7 @@
   "logoutConfirmMessage": "You'll need to sign in again to access your account.",
 
   "loginTitle": "Admin sign in",
-  "loginSubtitle": "Platform and residence (ЖК) administration",
+  "loginSubtitle": "Platform and residence administration",
   "loginPhoneHint": "Phone number",
   "loginSendCode": "Send code",
   "loginSendCodeError": "Could not send code. Try again.",
@@ -648,7 +648,7 @@
   "moderationTitle": "Moderation",
   "moderationSubtitle": "New residence submissions awaiting review, and flagged reviews.",
 
-  "adminProjectsTitle": "ЖК administration",
+  "adminProjectsTitle": "Residence administration",
   "adminProjectsSubtitle": "Every residential complex / business centre on the platform — browse how each one is furnished and attached. A system admin never owns a project.",
   "adminProjectsFilterAll": "All",
   "adminProjectsFilterPending": "Pending",
@@ -660,7 +660,7 @@
   "adminProjectsUnpublished": "Unpublished",
 
   "crmTitle": "CRM",
-  "crmSubtitle": "Every lead across every ЖК — platform-wide demand, not just one project's pipeline.",
+  "crmSubtitle": "Every lead across every residence — platform-wide demand, not just one project's pipeline.",
   "crmKanbanHint": "Drag a card into another column to update its status.",
   "crmSearchHint": "Search by phone, project, or manager",
   "crmEmpty": "No leads match this filter",

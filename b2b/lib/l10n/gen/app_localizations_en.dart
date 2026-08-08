@@ -40,7 +40,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginTitle => 'Admin sign in';
 
   @override
-  String get loginSubtitle => 'Platform and residence (ЖК) administration';
+  String get loginSubtitle => 'Platform and residence administration';
 
   @override
   String get loginPhoneHint => 'Phone number';
@@ -1813,7 +1813,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'New residence submissions awaiting review, and flagged reviews.';
 
   @override
-  String get adminProjectsTitle => 'ЖК administration';
+  String get adminProjectsTitle => 'Residence administration';
 
   @override
   String get adminProjectsSubtitle =>
@@ -1847,7 +1847,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get crmSubtitle =>
-      'Every lead across every ЖК — platform-wide demand, not just one project\'s pipeline.';
+      'Every lead across every residence — platform-wide demand, not just one project\'s pipeline.';
 
   @override
   String get crmKanbanHint =>

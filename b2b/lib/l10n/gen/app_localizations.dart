@@ -163,7 +163,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Platform and residence (ЖК) administration'**
+  /// **'Platform and residence administration'**
   String get loginSubtitle;
 
   /// No description provided for @loginPhoneHint.
@@ -3254,7 +3254,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminProjectsTitle.
   ///
   /// In en, this message translates to:
-  /// **'ЖК administration'**
+  /// **'Residence administration'**
   String get adminProjectsTitle;
 
   /// No description provided for @adminProjectsSubtitle.
@@ -3314,7 +3314,7 @@ abstract class AppLocalizations {
   /// No description provided for @crmSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Every lead across every ЖК — platform-wide demand, not just one project\'s pipeline.'**
+  /// **'Every lead across every residence — platform-wide demand, not just one project\'s pipeline.'**
   String get crmSubtitle;
 
   /// No description provided for @crmKanbanHint.
