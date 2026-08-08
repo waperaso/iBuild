@@ -266,6 +266,9 @@ class Store {
 
       if (await persistence.needsCatalogueSeed()) {
         await persistence.seedFrom(store.projects);
+        store.projects
+          ..clear()
+          ..addAll(await persistence.loadAllProjects());
         for (final lead in store.leads) {
           await persistence.saveLead(lead);
         }
