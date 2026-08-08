@@ -50,8 +50,8 @@ const AppColors ibuildSchemeDark = AppColors(
   unitBlocked: Color(0xFF6C7180),
 );
 
-/// Light-theme logo — navy "IB" on cool gray.
+/// Dark mark for light backgrounds — navy "IB" on cool gray.
 const String ibuildLogoAsset = 'assets/brand/ibuild-logo.jpg';
 
-/// Dark-theme logo — silver "IB" on deep navy.
+/// Light mark for dark backgrounds — silver "IB" on deep navy.
 const String ibuildLogoDarkAsset = 'assets/brand/ibuild-logo-dark.png';

@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:ibuild_core/ibuild_core.dart';
 
-/// Official iBuild logo — light and dark variants from brand assets.
+/// Official iBuild logo — contrast variants from brand assets.
+///
+/// Light theme → dark navy mark ([ibuildLogoAsset]).
+/// Dark theme → light silver mark ([ibuildLogoDarkAsset]).
 class BrandMark extends StatelessWidget {
   const BrandMark({super.key, this.size = 44, this.onDark});
 
   final double size;
 
-  /// When set, forces the dark-logo variant. When null, follows app [ThemeMode].
+  /// When set, forces the variant for a dark (`true`) or light (`false`)
+  /// surface. When null, follows [ThemeData.brightness].
   final bool? onDark;
 
   @override
   Widget build(BuildContext context) {
-    final useDark =
+    final onDarkSurface =
         onDark ?? Theme.of(context).brightness == Brightness.dark;
-    final asset = useDark ? ibuildLogoDarkAsset : ibuildLogoAsset;
+    // Dark surface → light logo; light surface → dark logo.
+    final asset = onDarkSurface ? ibuildLogoDarkAsset : ibuildLogoAsset;
     return ClipRRect(
       borderRadius: BorderRadius.circular(size * 0.12),
-      child: _BrandLogoImage(asset: asset, size: size, onDark: useDark),
+      child: _BrandLogoImage(asset: asset, size: size, onDark: onDarkSurface),
     );
   }
 }
