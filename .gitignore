@@ -68,7 +68,7 @@ PRESENTATION_READINESS.md
 
 # --- Marketing / catalogue assets (optional local only) ----------------------
 /residences-images/
-server/residences-images/
+# Bundled catalogue photos live under server/ and ship in the Docker image.
 
 # --- Local deploy build artifacts --------------------------------------------
 b2c-web.tgz

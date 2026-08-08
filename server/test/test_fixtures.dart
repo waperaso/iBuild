@@ -6,6 +6,9 @@ const testBusinessName = 'Test Business Centre';
 /// In-memory catalogue for server tests — never shipped to production.
 Store createTestStore() {
   final store = Store();
+  store.projects.clear();
+  store.leads.clear();
+  store.developersRegistry.removeWhere((d) => d['id'] != null);
   seedTestCatalogue(store);
   return store;
 }
