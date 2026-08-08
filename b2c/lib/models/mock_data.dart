@@ -1,8 +1,9 @@
 import 'package:ibuild_core/ibuild_core.dart';
 
-/// NestOne sample for offline/mock mode (`Env.useMockData`).
+/// NestOne + Hills Blue for offline/mock mode (`Env.useMockData`).
 abstract class MockData {
-  static const _photo = '/v1/static/residences/nestone.png';
+  static const _nestonePhoto = '/v1/static/residences/nestone.png';
+  static const _hillsPhoto = '/v1/static/residences/hillsblue.jpg';
 
   static const nestoneDeveloper = Developer(
     id: 'dev-nestone',
@@ -14,7 +15,54 @@ abstract class MockData {
     agentPhone: '+998 90 150 10 10',
   );
 
-  static final developers = <Developer>[nestoneDeveloper];
+  static const hillsDeveloper = Developer(
+    id: 'dev-hills-group',
+    name: 'Hills Group',
+    rating: 4.9,
+    projectsCount: 1,
+    phone: '+998 78 120 64 64',
+    agentName: 'Dilshod Karimov',
+    agentPhone: '+998 90 120 64 64',
+  );
+
+  static final developers = <Developer>[nestoneDeveloper, hillsDeveloper];
+
+  static List<Unit> _hillsUnits(String buildingId) {
+    const statuses = [
+      UnitStatus.available,
+      UnitStatus.reserved,
+      UnitStatus.sold,
+      UnitStatus.available,
+      UnitStatus.blocked,
+      UnitStatus.available,
+    ];
+    return List.generate(24, (i) {
+      final floor = (i ~/ 4) + 1;
+      final col = i % 4;
+      final rooms = 1 + (i % 4);
+      final area = 42.0 + (rooms - 1) * 19;
+      final price = 46000 + rooms * 14000;
+      return Unit(
+        id: '$buildingId-u$floor$col',
+        buildingId: buildingId,
+        number: '$floor${(col + 1).toString().padLeft(2, '0')}',
+        kind: UnitKind.apartment,
+        dealType: DealType.sale,
+        status: statuses[i % statuses.length],
+        floor: floor,
+        isOffplan: true,
+        areaTotal: area,
+        areaLiving: area * 0.86,
+        rooms: rooms,
+        price: price,
+        priceM2: price / area,
+        finishing: 'Pre-finish',
+        view: const ['City', 'Courtyard', 'Park', 'Street'][col % 4],
+        planColumn: col,
+        planRow: floor - 1,
+      );
+    });
+  }
 
   static List<Unit> _livingUnits() {
     const statuses = [
@@ -149,7 +197,7 @@ abstract class MockData {
         MediaItem(
           id: 'med-nestone-cover',
           type: MediaType.photo,
-          url: _photo,
+          url: _nestonePhoto,
           isCover: true,
         ),
       ],
@@ -183,6 +231,87 @@ abstract class MockData {
           endsAt: null,
           downPaymentPercent: 0.25,
           termMonths: 30,
+          interestRate: 0.0,
+        ),
+      ],
+    ),
+    Project(
+      id: 'prj-hills-blue',
+      name: 'Hills Blue',
+      type: ProjectType.residentialComplex,
+      status: ProjectStatus.underConstruction,
+      district: 'Yunusabad',
+      address: 'Chingiz Aitmatov ko\'chasi 37B, Badamzar, Tashkent',
+      lat: 41.3528,
+      lng: 69.3012,
+      developer: hillsDeveloper,
+      description:
+          'Premium residential complex by Hills Group in Yunusabad\'s Badamzar '
+          'district: twin 22-storey towers with asymmetric facades, underground '
+          'parking and white-box handover. Completion Q1 2027.',
+      amenities: const [
+        'Underground parking',
+        'Landscaped courtyard',
+        'Gym',
+        '24/7 security',
+        'High-speed elevators',
+        'Concierge',
+        'Smart home systems',
+      ],
+      tags: const ['Premium', 'New build', 'Installments'],
+      priceMin: 60000,
+      priceMax: 102000,
+      constructionProgress: 38,
+      plannedProgress: 42,
+      completionDate: DateTime(2027, 3),
+      rating: 4.9,
+      availableUnits: 28,
+      totalUnits: 48,
+      isFeatured: true,
+      gallery: const [
+        MediaItem(
+          id: 'med-hills-cover',
+          type: MediaType.photo,
+          url: _hillsPhoto,
+          isCover: true,
+        ),
+        MediaItem(
+          id: 'med-hills-banner',
+          type: MediaType.photo,
+          url: '/v1/static/residences/hills-blue-banner.webp',
+          sortOrder: 1,
+        ),
+      ],
+      buildings: [
+        Building(
+          id: 'bld-hills-t1',
+          projectId: 'prj-hills-blue',
+          name: 'Tower 1',
+          floors: 22,
+          constructionProgress: 42,
+          completionDate: DateTime(2027, 3),
+          units: _hillsUnits('bld-hills-t1'),
+        ),
+        Building(
+          id: 'bld-hills-t2',
+          projectId: 'prj-hills-blue',
+          name: 'Tower 2',
+          floors: 22,
+          constructionProgress: 35,
+          completionDate: DateTime(2027, 3),
+          units: _hillsUnits('bld-hills-t2'),
+        ),
+      ],
+      offers: [
+        Offer(
+          id: 'off-hills-installment',
+          projectId: 'prj-hills-blue',
+          type: OfferType.installment,
+          title: 'Flexible installment until handover',
+          description: '30% down payment, balance split monthly until Q1 2027.',
+          endsAt: DateTime(2027, 1),
+          downPaymentPercent: 0.3,
+          termMonths: 24,
           interestRate: 0.0,
         ),
       ],

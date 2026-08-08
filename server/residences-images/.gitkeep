@@ -1,0 +1,4 @@
+# Bundled catalogue photos served at /v1/static/residences/<file>.
+# Also mounted from the host in production (see deploy/docker-compose.yml).
+# Production images create this directory empty; add files here for local dev
+# or mount a volume in Docker.
