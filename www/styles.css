@@ -1724,14 +1724,27 @@ html[data-theme="dark"] .final-cta.theme-band {
   font-size: 15px;
 }
 
-.button-light {
-  color: var(--accent);
-  background: var(--surface);
+.final-cta .button-light {
+  color: #002147;
+  background: #f3f4f6;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
 }
 
-.button-light:hover {
-  background: var(--on-accent);
+.final-cta .button-light:hover {
+  color: #002147;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
   transform: translateY(-3px);
+}
+
+html[data-theme="dark"] .final-cta .button-light {
+  color: #0a1f35;
+  background: #e8eaed;
+}
+
+html[data-theme="dark"] .final-cta .button-light:hover {
+  color: #0a1f35;
+  background: #ffffff;
 }
 
 html[data-theme="dark"] .button-primary {
