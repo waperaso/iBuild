@@ -21,6 +21,14 @@
   <img src="https://img.shields.io/badge/stage-MVP-3366cc" alt="Stage">
 </p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/built%20with-Fable%205-0a1f35" alt="Fable 5">
+  <img src="https://img.shields.io/badge/built%20with-Opus%204.8-0a1f35" alt="Opus 4.8">
+  <img src="https://img.shields.io/badge/built%20with-Opus%205-0a1f35" alt="Opus 5">
+  <img src="https://img.shields.io/badge/built%20with-Sonnet%205-0a1f35" alt="Sonnet 5">
+  <img src="https://img.shields.io/badge/built%20with-GPT%205.6%20Sol-0a1f35" alt="GPT 5.6 Sol">
+</p>
+
 ---
 
 # English
@@ -56,6 +64,7 @@
 | **Apps** | Buyer app (Android, iOS, Web), two admin panels |
 | **Parties** | Buyers, developers, banks, specialists, government |
 | **Stack** | Flutter, Dart (REST & WebSocket), PostgreSQL with row-level isolation |
+| **Engineering** | AI-native: Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol |
 | **AI vendors** | Newo AI, Karmon AI, AI photo-report verification |
 | **Stage** | MVP — end-to-end scenario works |
 | **Revenue** | Developer subscription, promotion, bank verification & referral leads |
@@ -70,7 +79,7 @@
 
 **iBuild** is an independent digital system for monitoring, documenting, and verifying construction progress. It connects developers, buyers, banks, and authorized government bodies. One product covers four offers: ready apartments from the developer, apartments under construction (*off-plan*), office lease in business centres, and street retail on the ground floors of residential complexes.
 
-The system includes a buyer app, a developer panel, a platform admin panel, and a shared API on one database. All parts work with the same data in real time.
+The system includes a buyer app, a developer panel, a platform admin panel, and a shared API on one database. The platform is **AI-native**: the full stack is written with agentic AI models in Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol.
 
 Unlike a classifieds board, iBuild does not publish third-party listings. It maintains a **verified registry of properties** with a traceable construction history and a comparison of promised schedules against actual progress.
 
@@ -196,7 +205,9 @@ Monitoring is two-tier: machine first (metadata and image compare), then a speci
 
 ## 7. Role of artificial intelligence
 
-iBuild does not train its own models — it plugs in vendor solutions. AI is not the product foundation; it is a layer that makes continuous informational monitoring cheaper.
+**Engineering — AI-native.** The codebase is written with agentic AI models in Cursor: **Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol**.
+
+**In the product**, AI is a verification layer on vendor solutions — not a showcase. Own models are not trained; vendor APIs are plugged in so continuous informational monitoring stays affordable.
 
 | Vendor | Role | Status |
 |---|---|---|
@@ -319,6 +330,7 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 | **Приложения** | Клиентское (Android, iOS, Web), две панели администратора |
 | **Стороны** | Клиенты, застройщики, банки, специалисты, госорганы |
 | **Стек** | Flutter, Dart (REST и WebSocket), PostgreSQL с изоляцией на уровне строк |
+| **Инженерия** | AI-native: Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol |
 | **ИИ-вендоры** | Newo AI, Karmon AI, ИИ-верификация фотоотчётов |
 | **Стадия** | MVP, сквозной сценарий работает |
 | **Доход** | Подписка застройщика, продвижение, верификация и реферальные лиды для банков |
@@ -333,7 +345,7 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 
 **iBuild** — независимая цифровая система мониторинга, документирования и верификации сведений о ходе строительства, взаимодействующая с застройщиками, покупателями, банками и уполномоченными государственными органами. В одном продукте объединены четыре предложения: готовые квартиры от застройщика, квартиры на этапе строительства (*off-plan*), аренда офисов в бизнес-центрах и стрит-ритейл на первых этажах жилых комплексов.
 
-Система состоит из клиентского приложения, панели застройщика, административной панели и общего программного интерфейса поверх единой базы данных. Все части работают с одними и теми же данными в реальном времени.
+Система состоит из клиентского приложения, панели застройщика, административной панели и общего программного интерфейса поверх единой базы данных. Платформа **AI-native**: весь стек пишется в связке с агентными ИИ-моделями Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol.
 
 Отличие от классифайда принципиальное: iBuild не публикует чужие объявления, а ведёт **верифицированный реестр объектов** с прослеживаемой историей строительства и сопоставлением заявленных сроков с фактическим ходом работ.
 
@@ -459,7 +471,9 @@ iBuild — **независимая цифровая система** монит
 
 ## 7. Роль искусственного интеллекта
 
-Собственные модели не разрабатываются — подключаются решения вендоров. ИИ не основа продукта, а слой, удешевляющий сплошной информационный мониторинг.
+**Инженерия — AI-native.** Код пишется агентными ИИ-моделями в Cursor: **Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol**.
+
+**В продукте** ИИ — слой верификации на решениях вендоров, а не витрина. Собственные модели не разрабатываются — подключаются API вендоров, чтобы сплошной информационный мониторинг оставался доступным по себестоимости.
 
 | Вендор | Назначение | Статус |
 |---|---|---|

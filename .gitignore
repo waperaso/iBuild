@@ -70,6 +70,9 @@ PRESENTATION_READINESS.md
 /residences-images/
 # Bundled catalogue photos live under server/ and ship in the Docker image.
 
+# Pitch / investor demo site (local only)
+www/pitch/
+
 # --- Local deploy build artifacts --------------------------------------------
 b2c-web.tgz
 b2b-web.tgz
