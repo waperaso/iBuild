@@ -12,6 +12,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import '../utils/formatters.dart';
 import 'brand_mark.dart';
+import 'demo_mode.dart';
 import 'language_menu.dart';
 import 'nav_destinations.dart';
 import 'pressable_scale.dart';
@@ -43,6 +44,7 @@ class AdaptiveScaffold extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
+          const DemoModeStrip(),
           if (!isFullBleed) const _MobileTopBar(),
           Expanded(child: navigationShell),
         ],
@@ -67,26 +69,33 @@ class AdaptiveScaffold extends StatelessWidget {
         children: [
           _Sidebar(currentIndex: navigationShell.currentIndex, onTap: _go),
           Expanded(
-            child: isFullBleed
-                ? navigationShell
-                : Column(
-                    children: [
-                      _DesktopTopBar(
-                        currentIndex: navigationShell.currentIndex,
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxWidth: AppBreakpoints.maxContentWidth,
+            child: Column(
+              children: [
+                const DemoModeStrip(),
+                Expanded(
+                  child: isFullBleed
+                      ? navigationShell
+                      : Column(
+                          children: [
+                            _DesktopTopBar(
+                              currentIndex: navigationShell.currentIndex,
                             ),
-                            child: navigationShell,
-                          ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.topCenter,
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: AppBreakpoints.maxContentWidth,
+                                  ),
+                                  child: navigationShell,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

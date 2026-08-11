@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:ibuild_core/ibuild_core.dart';
 
 import '../../../core/config/env.dart';
 import '../../../core/network/auth_token_cache.dart';
@@ -28,6 +29,7 @@ class AuthUser {
     this.banReason,
     this.bannedByName,
     this.bannedAt,
+    this.isDemo = false,
   });
 
   final String id;
@@ -36,6 +38,9 @@ class AuthUser {
 
   /// B2C accounts are always [UserRole.ordinaryUser] for now.
   final String role;
+
+  /// Awards / reviewer demo — read-only; no DB writes.
+  final bool isDemo;
 
   /// Ban flag/metadata from platform admin (`Store.banUser`).
   final bool banned;
@@ -52,6 +57,7 @@ class AuthUser {
     banReason: json['banReason'] as String?,
     bannedByName: json['bannedByName'] as String?,
     bannedAt: json['bannedAt'] as String?,
+    isDemo: json['isDemo'] as bool? ?? false,
   );
 
   Map<String, dynamic> toJson() => {
@@ -63,6 +69,7 @@ class AuthUser {
     if (banReason != null) 'banReason': banReason,
     if (bannedByName != null) 'bannedByName': bannedByName,
     if (bannedAt != null) 'bannedAt': bannedAt,
+    'isDemo': isDemo,
   };
 }
 
@@ -121,6 +128,36 @@ class AuthRepository {
     );
   }
 
+  /// Read-only reviewer session for awards demos — `POST /v1/auth/demo`.
+  Future<AuthUser> signInAsDemo() async {
+    if (Env.useMockData) {
+      return _establishSession(
+        accessToken: 'demo-access-mock',
+        refreshToken: 'demo-refresh-mock',
+        user: const AuthUser(
+          id: 'demo-user-b2c',
+          phone: '+998900000000',
+          name: 'Demo Reviewer',
+          isDemo: true,
+        ),
+      );
+    }
+    // Drop any restored demo Bearer so the server guard doesn't treat this
+    // re-entry POST as a blocked demo write.
+    DemoSession.deactivate();
+    AuthTokenCache.setAccessToken(null);
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/auth/demo',
+      data: {'profile': 'b2c'},
+    );
+    final data = response.data!;
+    return _establishSession(
+      accessToken: data['accessToken'] as String,
+      refreshToken: data['refreshToken'] as String,
+      user: AuthUser.fromJson(data['user'] as Map<String, dynamic>),
+    );
+  }
+
   Future<AuthUser> _establishSession({
     required String accessToken,
     required String refreshToken,
@@ -141,6 +178,11 @@ class AuthRepository {
       debugPrint('AuthRepository: failed to persist session: $error\n$stack');
     }
     AuthTokenCache.setAccessToken(accessToken);
+    if (user.isDemo) {
+      DemoSession.activate();
+    } else {
+      DemoSession.deactivate();
+    }
     return user;
   }
 
@@ -177,11 +219,28 @@ class AuthRepository {
         return null;
       }
       AuthTokenCache.setAccessToken(token);
+      final user = AuthUser.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+      if (user.isDemo) {
+        DemoSession.activate();
+      } else {
+        DemoSession.deactivate();
+      }
       if (Env.useMockData) {
-        return AuthUser.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+        return user;
       }
       final live = await fetchMe();
-      return live;
+      if (live != null) return live;
+      // fetchMe null = 401 (session cleared) or a transient network error.
+      // If the token is gone, stay signed out and clear any leaked demo flag.
+      final stillHasToken =
+          await _storage.read(key: AuthStorageKeys.accessToken);
+      if (stillHasToken == null || stillHasToken.isEmpty) {
+        DemoSession.deactivate();
+        AuthTokenCache.setAccessToken(null);
+        return null;
+      }
+      // Keep cached session (incl. demo) when /users/me is briefly unreachable.
+      return user;
     } catch (error, stack) {
       debugPrint('AuthRepository: failed to restore session: $error\n$stack');
       AuthTokenCache.setAccessToken(null);
@@ -190,6 +249,7 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
+    DemoSession.deactivate();
     AuthTokenCache.setAccessToken(null);
     await Future.wait([
       _storage.delete(key: AuthStorageKeys.accessToken),

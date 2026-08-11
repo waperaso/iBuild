@@ -183,7 +183,7 @@ class _SavedSearches extends ConsumerWidget {
         .read(discoveryFiltersProvider.notifier)
         .applySnapshot(
           searchText: search.searchText,
-          district: search.district,
+          districtLegacy: search.district,
           status: search.status,
           minPrice: search.minPrice,
           maxPrice: search.maxPrice,

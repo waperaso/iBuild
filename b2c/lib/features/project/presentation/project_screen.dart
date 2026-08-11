@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme_ext.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/async_value_view.dart';
+import '../../../core/widgets/app_chip.dart';
 import '../../../core/widgets/constrained_body.dart';
 import '../../../core/widgets/horizontal_scroll_rail.dart';
 import '../../../core/widgets/pill_button.dart';
@@ -109,30 +110,9 @@ class _ProjectBody extends StatelessWidget {
           _GalleryStrip(project: project),
         ],
         const SizedBox(height: AppSpacing.lg),
-        TabBar(
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
-          tabs: [
-            Tab(text: l10n.tabUnits),
-            Tab(text: l10n.tabFloorPlans),
-            Tab(text: l10n.tabAbout),
-            Tab(text: l10n.tabReviews),
-            Tab(text: l10n.tabProgress),
-          ],
-        ),
+        const _ProjectSectionTabs(),
         const SizedBox(height: AppSpacing.lg),
-        SizedBox(
-          height: context.isMobile ? 340 : 460,
-          child: TabBarView(
-            children: [
-              _UnitsTab(project: project),
-              FloorPlansTab(project: project),
-              _AboutTab(project: project),
-              ReviewsTab(projectId: project.id),
-              ProgressTab(project: project),
-            ],
-          ),
-        ),
+        _ProjectTabPanel(project: project),
         const SizedBox(height: AppSpacing.lg),
         if (project.priceMin != null) ...[
           Wrap(
@@ -173,6 +153,77 @@ class _ProjectBody extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
       ],
+    );
+  }
+}
+
+/// Pill chips for project sections — switches content without a nested scroll
+/// viewport (unlike [TabBarView] inside a fixed-height box).
+class _ProjectSectionTabs extends StatelessWidget {
+  const _ProjectSectionTabs();
+
+  static const _tabs = <(IconData, String Function(AppLocalizations l10n))>[
+    (Icons.door_front_door_outlined, _tabUnits),
+    (Icons.grid_view_rounded, _tabFloorPlans),
+    (Icons.apartment_outlined, _tabAbout),
+    (Icons.reviews_outlined, _tabReviews),
+    (Icons.construction_outlined, _tabProgress),
+  ];
+
+  static String _tabUnits(AppLocalizations l10n) => l10n.tabUnits;
+  static String _tabFloorPlans(AppLocalizations l10n) => l10n.tabFloorPlans;
+  static String _tabAbout(AppLocalizations l10n) => l10n.tabAbout;
+  static String _tabReviews(AppLocalizations l10n) => l10n.tabReviews;
+  static String _tabProgress(AppLocalizations l10n) => l10n.tabProgress;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final tabController = DefaultTabController.of(context);
+
+    return AnimatedBuilder(
+      animation: tabController,
+      builder: (context, _) {
+        return HorizontalScrollRow(
+          height: 44,
+          children: [
+            for (var i = 0; i < _tabs.length; i++)
+              Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.sm),
+                child: AppChip(
+                  label: _tabs[i].$2(l10n),
+                  icon: _tabs[i].$1,
+                  selected: tabController.index == i,
+                  onTap: () => tabController.animateTo(i),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ProjectTabPanel extends StatelessWidget {
+  const _ProjectTabPanel({required this.project});
+
+  final Project project;
+
+  @override
+  Widget build(BuildContext context) {
+    final tabController = DefaultTabController.of(context);
+
+    return AnimatedBuilder(
+      animation: tabController,
+      builder: (context, _) {
+        return switch (tabController.index) {
+          0 => _UnitsTab(project: project),
+          1 => FloorPlansTab(project: project),
+          2 => _AboutTab(project: project),
+          3 => ReviewsTab(projectId: project.id),
+          _ => ProgressTab(project: project),
+        };
+      },
     );
   }
 }
@@ -264,55 +315,62 @@ class _UnitsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final units = project.buildings.expand((b) => b.units).take(6).toList();
-    return ListView.separated(
-      itemCount: units.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-      itemBuilder: (context, index) {
-        final u = units[index];
-        final price = u.dealType == DealType.rent
-            ? Formatters.rentMonthly(u.rentMonthly ?? 0)
-            : Formatters.price(u.price ?? 0);
-        final colors = context.colors;
-        return AppCard(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          onTap: () => context.go('/home/unit/${u.id}?project=${project.id}'),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: colors.accentSecondary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppRadii.sm),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var index = 0; index < units.length; index++) ...[
+          if (index > 0) const SizedBox(height: AppSpacing.sm),
+          Builder(
+            builder: (context) {
+              final u = units[index];
+              final price = u.dealType == DealType.rent
+                  ? Formatters.rentMonthly(u.rentMonthly ?? 0)
+                  : Formatters.price(u.price ?? 0);
+              final colors = context.colors;
+              return AppCard(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                onTap: () =>
+                    context.go('/home/unit/${u.id}?project=${project.id}'),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: colors.accentSecondary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(AppRadii.sm),
+                      ),
+                      child: Icon(
+                        Icons.door_front_door_outlined,
+                        size: 18,
+                        color: colors.accentSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Text(
+                        'No. ${u.number} · ${AppLocalizations.of(context).floorLabel(u.floor)}',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    UnitStatusBadge(status: u.status),
+                    const SizedBox(width: AppSpacing.sm),
+                    Flexible(
+                      child: Text(
+                        price,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                  ],
                 ),
-                child: Icon(
-                  Icons.door_front_door_outlined,
-                  size: 18,
-                  color: colors.accentSecondary,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  'No. ${u.number} · ${AppLocalizations.of(context).floorLabel(u.floor)}',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              UnitStatusBadge(status: u.status),
-              const SizedBox(width: AppSpacing.sm),
-              Flexible(
-                child: Text(
-                  price,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ],
+              );
+            },
           ),
-        );
-      },
+        ],
+      ],
     );
   }
 }
@@ -327,7 +385,9 @@ class _AboutTab extends StatelessWidget {
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context);
-    return ListView(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (project.developer != null) ...[
           _DeveloperCard(developer: project.developer!),

@@ -45,13 +45,14 @@ class FloorPlansTab extends StatelessWidget {
         ),
       );
 
-    return ListView.separated(
-      itemCount: sortedKeys.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-      itemBuilder: (context, index) {
-        final groupUnits = groups[sortedKeys[index]]!;
-        return _LayoutCard(project: project, units: groupUnits);
-      },
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var index = 0; index < sortedKeys.length; index++) ...[
+          if (index > 0) const SizedBox(height: AppSpacing.sm),
+          _LayoutCard(project: project, units: groups[sortedKeys[index]]!),
+        ],
+      ],
     );
   }
 }

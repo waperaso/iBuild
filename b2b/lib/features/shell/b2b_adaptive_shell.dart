@@ -6,6 +6,7 @@ import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/b2b_brand.dart';
 import '../../core/widgets/confirm_dialogs.dart';
+import '../../core/widgets/demo_mode.dart';
 import '../../core/widgets/locale_theme_bar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../l10n/gen/app_localizations.dart';
@@ -309,6 +310,10 @@ class _DesktopShell extends StatelessWidget {
                     ],
                   ),
                 ),
+          Expanded(
+            child: Column(
+              children: [
+                const DemoModeStrip(),
                 Expanded(
                   child: Align(
                     alignment: Alignment.topCenter,
@@ -320,6 +325,9 @@ class _DesktopShell extends StatelessWidget {
                     ),
                   ),
                 ),
+              ],
+            ),
+          ),
               ],
             ),
           ),
@@ -384,6 +392,7 @@ class _MobileShell extends StatelessWidget {
               ),
             ),
           ),
+          const DemoModeStrip(),
           Expanded(child: child),
         ],
       ),

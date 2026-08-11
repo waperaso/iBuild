@@ -52,6 +52,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSendCodeError => 'Could not send code. Try again.';
 
   @override
+  String get signInDemo => 'Sign in (demo)';
+
+  @override
+  String get demoButton => 'Demo';
+
+  @override
+  String get demoModeTitle => 'Demo mode';
+
+  @override
+  String get demoModeMessage =>
+      'You\'re in read-only demo mode. Open every project and screen and fetch live data — edits, publishes, and other changes are blocked and will not be saved.';
+
+  @override
+  String get demoModeGotIt => 'Got it';
+
+  @override
+  String get demoModeBanner => 'Demo mode — view only, changes are not saved';
+
+  @override
+  String get demoWriteBlocked =>
+      'Demo mode is view-only — this action was not saved.';
+
+  @override
   String get otpTitle => 'Enter code';
 
   @override
@@ -140,7 +163,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get applyRoleSubtitle =>
-      'Publish your residential complexes and manage units & buyer leads. If you also build your own projects, check the box below.';
+      'You are registering as a property developer. Check the option below if you also combine the contractor role.';
 
   @override
   String get applyContinue => 'Continue';
@@ -150,7 +173,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get applyKindDeveloperSubtitle =>
-      'You build and sell your own residential complexes — publish projects and manage units & buyer leads.';
+      'You publish residential complexes, units, and buyer leads.';
 
   @override
   String get applyKindConstructionLabel => 'Construction company';
@@ -160,11 +183,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'You build for other developers (contractor) — coordinate on-site work, inventory, and residence access.';
 
   @override
-  String get applyAlsoContractorLabel => 'I also build the projects myself';
+  String get applyAlsoContractorLabel => 'I also act as a contractor';
 
   @override
   String get applyAlsoContractorSubtitle =>
-      'Check this if you\'re a developer who also acts as the contractor on your own sites — you\'ll need a construction license number.';
+      'You carry out construction on your own projects — a construction license number will be required.';
 
   @override
   String get applyDetailsTitle => 'Legal entity details';

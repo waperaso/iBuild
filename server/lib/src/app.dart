@@ -5,6 +5,8 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 
+import 'demo_guard.dart';
+import 'demo_read_isolation.dart';
 import 'admin_routes.dart';
 import 'auth_context.dart';
 import 'calculators.dart';
@@ -123,14 +125,20 @@ Handler createHandler(
     }
     final district = qp['district'];
     if (district != null && district.isNotEmpty) {
-      if (!allowedDistricts().contains(district.toLowerCase())) {
-        return jsonError('VALIDATION_ERROR', 'Invalid district', status: 422);
+      final parts = district
+          .split(',')
+          .map((d) => d.trim().toLowerCase())
+          .where((d) => d.isNotEmpty)
+          .toList();
+      for (final part in parts) {
+        if (!allowedDistricts().contains(part)) {
+          return jsonError('VALIDATION_ERROR', 'Invalid district', status: 422);
+        }
       }
+      final allowed = parts.toSet();
       items = items
           .where(
-            (p) =>
-                (p['district'] as String).toLowerCase() ==
-                district.toLowerCase(),
+            (p) => allowed.contains((p['district'] as String).toLowerCase()),
           )
           .toList();
     }
@@ -811,6 +819,25 @@ Handler createHandler(
     });
   });
 
+  router.post('/v1/auth/demo', (Request req) async {
+    final body = await req.readJson();
+    final profile = (body['profile'] as String?)?.trim();
+    if (profile == null || profile.isEmpty) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'profile is required (b2c, b2b_platform, or b2b_residence)',
+        status: 422,
+      );
+    }
+    final result = store.createDemoSession(profile: profile);
+    return jsonOk({
+      'accessToken': result.accessToken,
+      'refreshToken': result.refreshToken,
+      'user': result.user,
+      'isDemo': true,
+    });
+  });
+
   mountAdminRoutes(router, store, refreshLimiter: refreshRateLimiter);
 
   // WS: Bearer or `access_token` query; lead/PII events go to admins only.
@@ -834,6 +861,7 @@ Handler createHandler(
         status: 401,
       );
     }
+    // Demo admins may subscribe to the same live channels (read-only elsewhere).
     final isAdmin = auth.isAdmin;
     final wsHandler = webSocketHandler((webSocket, protocol) {
       store.addSocket(webSocket, isAdmin: isAdmin);
@@ -848,6 +876,8 @@ Handler createHandler(
       .addMiddleware(errorEnvelopeMiddleware())
       .addMiddleware(authMiddleware(store))
       .addMiddleware(banGuardMiddleware())
+      .addMiddleware(demoReadIsolationMiddleware(store))
+      .addMiddleware(demoGuardMiddleware())
       .addHandler(router.call);
 }
 

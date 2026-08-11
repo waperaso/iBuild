@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ibuild_core/ibuild_core.dart';
 
 import '../../core/localization/status_labels.dart';
 import '../../core/theme/app_dimens.dart';
@@ -784,6 +785,16 @@ class _UserActions extends ConsumerWidget {
     final isSystemAdmin = user['role'] == 'system_admin';
     final isSelf = user['id'] == ref.watch(authControllerProvider).value?.id;
     final isMobile = context.isMobile;
+    final demoMode = DemoSession.isActive;
+
+    if (demoMode) {
+      return Text(
+        l10n.demoModeBanner,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: colors.inkMuted,
+        ),
+      );
+    }
 
     final setRole = MenuAnchor(
       builder: (context, controller, child) {

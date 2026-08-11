@@ -4,6 +4,7 @@ import 'package:ibuild_core/ibuild_core.dart';
 
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_theme_ext.dart';
+import '../../../../core/widgets/pill_button.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_chip.dart';
 import '../../../../l10n/enum_labels.dart';
@@ -72,7 +73,7 @@ class FilterSheet extends ConsumerStatefulWidget {
 }
 
 class _FilterSheetState extends ConsumerState<FilterSheet> {
-  String? _district;
+  late Set<String> _districts;
   ProjectStatus? _status;
   late RangeValues _priceRange;
   Set<int> _rooms = {};
@@ -84,7 +85,7 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
   void initState() {
     super.initState();
     final filters = ref.read(discoveryFiltersProvider);
-    _district = filters.district;
+    _districts = {...filters.districts};
     _status = filters.status;
     _priceRange = RangeValues(
       filters.minPrice ?? kDiscoveryPriceMin,
@@ -108,7 +109,7 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
     ref
         .read(discoveryFiltersProvider.notifier)
         .applySheetFilters(
-          district: _district,
+          districts: _districts,
           status: _status,
           minPrice: _priceRange.start <= kDiscoveryPriceMin
               ? null
@@ -127,12 +128,24 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
     if (!_rooms.remove(n)) _rooms.add(n);
   }
 
+  void _toggleDistrict(String district) {
+    setState(() {
+      if (!_districts.remove(district)) _districts.add(district);
+    });
+  }
+
   void _clear() {
     ref.read(discoveryFiltersProvider.notifier).clearSheetFilters();
     setState(() {
+      _districts = {};
       _rooms = {};
+      _status = null;
       _areaMin = null;
       _offplanOnly = false;
+      _priceRange = const RangeValues(
+        kDiscoveryPriceMin,
+        kDiscoveryPriceMax,
+      );
       _areaController.clear();
     });
     Navigator.of(context).pop();
@@ -155,7 +168,7 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
         DiscoveryMode.rent => l10n.modeRent,
         DiscoveryMode.newBuilds => l10n.modeNewBuilds,
       },
-      ?_district,
+      if (_districts.isNotEmpty) _districts.join(', '),
       if (_status != null) _status!.label(context),
       if (maxPrice != null)
         l10n.savedSearchUnderPrice(Formatters.compact(maxPrice))
@@ -172,7 +185,7 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
             label: parts.join(' · '),
             mode: mode,
             searchText: searchText,
-            district: _district,
+            district: _districts.isEmpty ? null : _districts.join(','),
             status: _status,
             minPrice: minPrice,
             maxPrice: maxPrice,
@@ -223,33 +236,28 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
           Text(l10n.filtersTitle, style: textTheme.headlineSmall),
         ],
         const SizedBox(height: AppSpacing.xl),
-        Text(l10n.districtLabel, style: textTheme.titleMedium),
-        const SizedBox(height: AppSpacing.sm),
-        DropdownButtonFormField<String?>(
-          initialValue: _district,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: colors.surface,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.md,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadii.sm),
-              borderSide: BorderSide.none,
-            ),
+        _FilterSection(
+          title: l10n.districtLabel,
+          subtitle: _districts.isEmpty
+              ? l10n.filterDistrictsHint
+              : l10n.districtsSelectedCount(_districts.length),
+          child: Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final d in kDiscoveryDistricts)
+                AppChip(
+                  label: d,
+                  selected: _districts.contains(d),
+                  onTap: () => _toggleDistrict(d),
+                ),
+            ],
           ),
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.categoryAll)),
-            for (final d in kDiscoveryDistricts)
-              DropdownMenuItem(value: d, child: Text(d)),
-          ],
-          onChanged: (value) => setState(() => _district = value),
         ),
         const SizedBox(height: AppSpacing.xl),
-        Text(l10n.statusLabel, style: textTheme.titleMedium),
-        const SizedBox(height: AppSpacing.sm),
-        Wrap(
+        _FilterSection(
+          title: l10n.statusLabel,
+          child: Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: [
@@ -266,10 +274,11 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
               ),
           ],
         ),
+        ),
         const SizedBox(height: AppSpacing.xl),
-        Text(l10n.roomsLabel, style: textTheme.titleMedium),
-        const SizedBox(height: AppSpacing.sm),
-        Wrap(
+        _FilterSection(
+          title: l10n.roomsLabel,
+          child: Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: [
@@ -286,10 +295,11 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
               ),
           ],
         ),
+        ),
         const SizedBox(height: AppSpacing.xl),
-        Text(l10n.areaMinLabel, style: textTheme.titleMedium),
-        const SizedBox(height: AppSpacing.sm),
-        TextField(
+        _FilterSection(
+          title: l10n.areaMinLabel,
+          child: TextField(
           controller: _areaController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
@@ -307,23 +317,24 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
           ),
           onChanged: (value) =>
               _areaMin = value.isEmpty ? null : double.tryParse(value),
+          ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        SwitchListTile.adaptive(
+        _FilterSection(
+          child: SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
           value: _offplanOnly,
           onChanged: (value) => setState(() => _offplanOnly = value),
           title: Text(l10n.offplanOnlyLabel, style: textTheme.titleMedium),
+          ),
         ),
         const SizedBox(height: AppSpacing.xl),
-        Text(
-          l10n.priceRangeLabel(
+        _FilterSection(
+          title: l10n.priceRangeLabel(
             Formatters.compact(_priceRange.start),
             Formatters.compact(_priceRange.end),
           ),
-          style: textTheme.titleMedium,
-        ),
-        RangeSlider(
+          child: RangeSlider(
           values: _priceRange,
           min: kDiscoveryPriceMin,
           max: kDiscoveryPriceMax,
@@ -333,21 +344,25 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
             Formatters.compact(_priceRange.end),
           ),
           onChanged: (values) => setState(() => _priceRange = values),
+          ),
         ),
         const SizedBox(height: AppSpacing.lg),
         Row(
           children: [
             Expanded(
-              child: OutlinedButton(
+              child: PillButton(
+                label: l10n.clearFilters,
+                variant: PillButtonVariant.outline,
+                expand: true,
                 onPressed: _clear,
-                child: Text(l10n.clearFilters),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
-              child: ElevatedButton(
+              child: PillButton(
+                label: l10n.applyFilters,
+                expand: true,
                 onPressed: _apply,
-                child: Text(l10n.applyFilters),
               ),
             ),
           ],
@@ -389,6 +404,51 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
           ),
         ),
         child: SingleChildScrollView(child: content),
+      ),
+    );
+  }
+}
+
+class _FilterSection extends StatelessWidget {
+  const _FilterSection({
+    required this.child,
+    this.title,
+    this.subtitle,
+  });
+
+  final Widget child;
+  final String? title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        border: Border.all(color: colors.outline.withValues(alpha: 0.6)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (title != null) ...[
+            Text(title!, style: textTheme.titleMedium),
+            if (subtitle != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                subtitle!,
+                style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.md),
+          ],
+          child,
+        ],
       ),
     );
   }

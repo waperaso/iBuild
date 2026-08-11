@@ -137,6 +137,19 @@ final apiClientProvider = Provider<Dio>((ref) {
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) {
+        // Auth session endpoints must stay reachable so demo re-entry /
+        // sign-out are not cancelled by the read-only guard.
+        if (DemoSession.isActive &&
+            _isMutatingMethod(options.method) &&
+            !_isDemoAllowedMutation(options.path)) {
+          return handler.reject(
+            DioException(
+              requestOptions: options,
+              type: DioExceptionType.cancel,
+              message: 'DEMO_READ_ONLY',
+            ),
+          );
+        }
         final token = _accessTokenCache;
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
@@ -185,3 +198,22 @@ final apiClientProvider = Provider<Dio>((ref) {
 
   return dio;
 });
+
+bool _isMutatingMethod(String method) {
+  switch (method.toUpperCase()) {
+    case 'POST':
+    case 'PUT':
+    case 'PATCH':
+    case 'DELETE':
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool _isDemoAllowedMutation(String path) {
+  return path.contains('/auth/demo') ||
+      path.contains('/auth/logout') ||
+      path.contains('/auth/otp/') ||
+      path.contains('/auth/refresh');
+}

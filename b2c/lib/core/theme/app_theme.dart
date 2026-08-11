@@ -64,7 +64,10 @@ ThemeData buildAppTheme(AppColors colors) {
       backgroundColor: colors.surface,
       selectedColor: colors.accent,
       side: BorderSide(color: colors.outline),
-      labelStyle: textTheme.labelLarge,
+      labelStyle: textTheme.labelLarge?.copyWith(color: colors.ink),
+      // ChoiceChip selected state — must contrast with [selectedColor] (navy).
+      secondaryLabelStyle:
+          textTheme.labelLarge?.copyWith(color: colors.onAccent),
       shape: const StadiumBorder(),
       showCheckmark: false,
     ),

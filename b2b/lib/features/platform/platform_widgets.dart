@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/gen/app_localizations.dart';
-
 /// Runs a platform admin action and shows success/error snackbar.
 Future<bool> runPlatformAction(
   BuildContext context,
@@ -73,32 +73,45 @@ class _NoteDialogState extends State<NoteDialog> {
     super.dispose();
   }
 
+  void _confirm() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    Navigator.pop(context, text);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return StatefulBuilder(
       builder: (context, setState) {
-        return AlertDialog(
-          title: Text(widget.title),
-          content: TextField(
-            controller: _controller,
-            autofocus: true,
-            maxLines: 3,
-            decoration: InputDecoration(hintText: widget.hint),
-            onChanged: (_) => setState(() {}),
+        void cancel() => Navigator.pop(context);
+        return CallbackShortcuts(
+          bindings: {
+            const SingleActivator(LogicalKeyboardKey.enter, control: true):
+                _confirm,
+            const SingleActivator(LogicalKeyboardKey.escape): cancel,
+          },
+          child: AlertDialog(
+            title: Text(widget.title),
+            content: TextField(
+              controller: _controller,
+              autofocus: true,
+              maxLines: 3,
+              textInputAction: TextInputAction.newline,
+              decoration: InputDecoration(hintText: widget.hint),
+              onChanged: (_) => setState(() {}),
+            ),
+            actions: [
+              TextButton(
+                onPressed: cancel,
+                child: Text(l10n.commonCancel),
+              ),
+              FilledButton(
+                onPressed: _controller.text.trim().isEmpty ? null : _confirm,
+                child: Text(widget.confirmLabel),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.commonCancel),
-            ),
-            FilledButton(
-              onPressed: _controller.text.trim().isEmpty
-                  ? null
-                  : () => Navigator.pop(context, _controller.text.trim()),
-              child: Text(widget.confirmLabel),
-            ),
-          ],
         );
       },
     );

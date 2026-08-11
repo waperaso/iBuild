@@ -184,6 +184,48 @@ abstract class AppLocalizations {
   /// **'Could not send code. Try again.'**
   String get loginSendCodeError;
 
+  /// No description provided for @signInDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in (demo)'**
+  String get signInDemo;
+
+  /// No description provided for @demoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo'**
+  String get demoButton;
+
+  /// No description provided for @demoModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode'**
+  String get demoModeTitle;
+
+  /// No description provided for @demoModeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re in read-only demo mode. Open every project and screen and fetch live data — edits, publishes, and other changes are blocked and will not be saved.'**
+  String get demoModeMessage;
+
+  /// No description provided for @demoModeGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get demoModeGotIt;
+
+  /// No description provided for @demoModeBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode — view only, changes are not saved'**
+  String get demoModeBanner;
+
+  /// No description provided for @demoWriteBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode is view-only — this action was not saved.'**
+  String get demoWriteBlocked;
+
   /// No description provided for @otpTitle.
   ///
   /// In en, this message translates to:
@@ -337,7 +379,7 @@ abstract class AppLocalizations {
   /// No description provided for @applyRoleSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Publish your residential complexes and manage units & buyer leads. If you also build your own projects, check the box below.'**
+  /// **'You are registering as a property developer. Check the option below if you also combine the contractor role.'**
   String get applyRoleSubtitle;
 
   /// No description provided for @applyContinue.
@@ -355,7 +397,7 @@ abstract class AppLocalizations {
   /// No description provided for @applyKindDeveloperSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'You build and sell your own residential complexes — publish projects and manage units & buyer leads.'**
+  /// **'You publish residential complexes, units, and buyer leads.'**
   String get applyKindDeveloperSubtitle;
 
   /// No description provided for @applyKindConstructionLabel.
@@ -373,13 +415,13 @@ abstract class AppLocalizations {
   /// No description provided for @applyAlsoContractorLabel.
   ///
   /// In en, this message translates to:
-  /// **'I also build the projects myself'**
+  /// **'I also act as a contractor'**
   String get applyAlsoContractorLabel;
 
   /// No description provided for @applyAlsoContractorSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Check this if you\'re a developer who also acts as the contractor on your own sites — you\'ll need a construction license number.'**
+  /// **'You carry out construction on your own projects — a construction license number will be required.'**
   String get applyAlsoContractorSubtitle;
 
   /// No description provided for @applyDetailsTitle.

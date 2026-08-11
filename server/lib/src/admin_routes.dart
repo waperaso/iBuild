@@ -2258,6 +2258,8 @@ Response? _publishDenialFor(Store store, StateError error, String projectId) {
 }
 
 bool _canManageProject(Store store, AuthContext auth, Map project) {
+  // Demo system admins may open every project for read; writes are still
+  // rejected by [demoGuardMiddleware] / the client DemoSession guard.
   if (auth.isSystemAdmin) return true;
   if (!auth.isResidenceAdmin) return false;
   return store.ownsProject(auth.userId, project);

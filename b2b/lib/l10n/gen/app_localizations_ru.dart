@@ -53,6 +53,30 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось отправить код. Попробуйте снова.';
 
   @override
+  String get signInDemo => 'Войти (demo)';
+
+  @override
+  String get demoButton => 'Демо';
+
+  @override
+  String get demoModeTitle => 'Демо-режим';
+
+  @override
+  String get demoModeMessage =>
+      'Вы в режиме «только чтение». Можно открывать все проекты и экраны и загружать реальные данные — правки, публикации и другие изменения заблокированы и не сохранятся.';
+
+  @override
+  String get demoModeGotIt => 'Понятно';
+
+  @override
+  String get demoModeBanner =>
+      'Демо-режим — только просмотр, изменения не сохраняются';
+
+  @override
+  String get demoWriteBlocked =>
+      'Демо-режим только для просмотра — действие не сохранено.';
+
+  @override
   String get otpTitle => 'Введите код';
 
   @override
@@ -141,7 +165,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get applyRoleSubtitle =>
-      'Публикуйте свои жилые комплексы и управляйте юнитами и заявками покупателей. Если вы также ведёте строительство самостоятельно, отметьте это ниже.';
+      'Вы регистрируетесь как застройщик. При необходимости отметьте совмещение ролей ниже.';
 
   @override
   String get applyContinue => 'Продолжить';
@@ -151,7 +175,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get applyKindDeveloperSubtitle =>
-      'Вы строите и продаёте собственные жилые комплексы — публикуйте проекты и управляйте юнитами и заявками покупателей.';
+      'Публикуете ЖК, юниты и заявки покупателей.';
 
   @override
   String get applyKindConstructionLabel => 'Строительная компания';
@@ -161,12 +185,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вы строите для других застройщиков (подрядчик) — координируйте работы на объекте, склад и доступ к ЖК.';
 
   @override
-  String get applyAlsoContractorLabel =>
-      'Также веду строительство самостоятельно';
+  String get applyAlsoContractorLabel => 'Совмещаю роль подрядчика';
 
   @override
   String get applyAlsoContractorSubtitle =>
-      'Отметьте, если вы застройщик, который сам выступает подрядчиком на своих объектах — понадобится номер строительной лицензии.';
+      'Строительные работы на своих объектах ведёте сами — понадобится номер строительной лицензии.';
 
   @override
   String get applyDetailsTitle => 'Данные юридического лица';

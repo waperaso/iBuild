@@ -7,12 +7,18 @@
   "navInquiries": "Murojaatlar",
   "navSettings": "Sozlamalar",
 
-  "onboardingSlogan": "iBuild the dream",
-  "onboardingEyebrow": "Soting. Sarmoya kiriting. Bir ilovada.",
-  "onboardingDescription": "Tayyor kvartiralar, muddatli toʻlov bilan yangi qurilishlar va biznes-markazlardagi ofislar — barchasi bir joyda, real vaqtdagi mavjudlik va bir bosishda soʻrov bilan.",
-  "onboardingTrustBadge": "4.9★ · 500+ mamnun oila",
+  "onboardingEyebrow": "Quruvchidan xavfsiz xarid qiling. Bir ilovada.",
+  "onboardingDescription": "Tekshirilgan yangi qurilishlarni solishtiring, real mavjudlikni koʻring va soʻrovni toʻgʻridan-toʻgʻri quruvchiga yuboring — vositachisiz, taxminsiz.",
   "start": "Boshlash",
+  "startDemo": "Boshlash (demo)",
   "signIn": "Kirish",
+  "signInDemo": "Kirish (demo)",
+  "demoButton": "Demo",
+  "demoModeTitle": "Demo rejim",
+  "demoModeMessage": "Siz iBuild ilovasini faqat ko‘rish rejimida sinab ko‘ryapsiz. Barcha ekran va funksiyalarni oching — hech narsa ma’lumotlar bazasiga saqlanmaydi.",
+  "demoModeGotIt": "Tushundim",
+  "demoModeBanner": "Demo rejim — o‘zgarishlar saqlanmaydi",
+  "demoWriteBlocked": "Demo rejim faqat ko‘rish uchun — amal saqlanmadi.",
 
   "welcomeTitle": "iBuildga xush kelibsiz",
   "welcomeSubtitle": "Telefon raqamingiz orqali kiring",
@@ -304,6 +310,12 @@
   "offplanOnlyLabel": "Faqat qurilayotgan",
   "applyFilters": "Qoʻllash",
   "clearFilters": "Tozalash",
+  "filtersApplied": "Filtrlar qo'llanildi",
+  "filterDistrictsHint": "Bir yoki bir nechta tuman tanlang",
+  "districtsSelectedCount": "Tanlangan tumanlar: {count}",
+  "@districtsSelectedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
 
   "saveThisSearch": "Qidiruvni saqlash",
   "savedSearchSavedSnackbar": "Qidiruv saqlandi",

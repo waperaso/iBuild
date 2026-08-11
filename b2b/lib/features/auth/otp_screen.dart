@@ -12,6 +12,7 @@ import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/auth_hero_panel.dart';
 import '../../core/widgets/b2b_brand.dart';
 import '../../core/widgets/locale_theme_bar.dart';
+import '../../core/widgets/demo_entry_button.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/gen/app_localizations.dart';
 import 'auth.dart';
@@ -172,6 +173,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           controller: _code,
           maxLength: 6,
           keyboardType: TextInputType.number,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) {
+            if (!_loading) _verify();
+          },
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           textAlign: TextAlign.center,
           style: textTheme.headlineSmall?.copyWith(letterSpacing: 8),
@@ -198,6 +203,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           loading: _loading,
           onPressed: _loading ? null : _verify,
         ),
+        const DemoEntrySection(expand: true),
         const SizedBox(height: AppSpacing.lg),
         Wrap(
           alignment: WrapAlignment.center,

@@ -7,12 +7,18 @@
   "navInquiries": "Заявки",
   "navSettings": "Настройки",
 
-  "onboardingSlogan": "iBuild the dream",
-  "onboardingEyebrow": "Продавайте. Инвестируйте. Всё в одном приложении.",
-  "onboardingDescription": "Готовые квартиры, новостройки в рассрочку и офисы в бизнес-центрах — всё в одном месте, с актуальной доступностью и заявкой в один клик.",
-  "onboardingTrustBadge": "4.9★ · 500+ довольных семей",
+  "onboardingEyebrow": "Покупайте у застройщика. Безопасно. В одном приложении.",
+  "onboardingDescription": "Сравнивайте проверенные новостройки, смотрите актуальную доступность и оставляйте заявку напрямую застройщику — без посредников и догадок.",
   "start": "Начать",
+  "startDemo": "Начать (demo)",
   "signIn": "Войти",
+  "signInDemo": "Войти (demo)",
+  "demoButton": "Демо",
+  "demoModeTitle": "Демо-режим",
+  "demoModeMessage": "Вы просматриваете iBuild в режиме «только чтение». Можно открыть любой экран и функцию — ничего не сохранится в базе данных.",
+  "demoModeGotIt": "Понятно",
+  "demoModeBanner": "Демо-режим — изменения не сохраняются",
+  "demoWriteBlocked": "Демо-режим только для просмотра — действие не сохранено.",
 
   "welcomeTitle": "Добро пожаловать в iBuild",
   "welcomeSubtitle": "Войдите по номеру телефона",
@@ -304,6 +310,12 @@
   "offplanOnlyLabel": "Только новостройки",
   "applyFilters": "Применить",
   "clearFilters": "Сбросить",
+  "filtersApplied": "Применены фильтры",
+  "filterDistrictsHint": "Выберите один или несколько районов",
+  "districtsSelectedCount": "Выбрано районов: {count}",
+  "@districtsSelectedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
 
   "saveThisSearch": "Сохранить поиск",
   "savedSearchSavedSnackbar": "Поиск сохранён",

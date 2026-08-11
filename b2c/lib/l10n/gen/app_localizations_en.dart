@@ -24,23 +24,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSettings => 'Settings';
 
   @override
-  String get onboardingSlogan => 'iBuild the dream';
-
-  @override
-  String get onboardingEyebrow => 'Sell. Invest. All in One App.';
+  String get onboardingEyebrow => 'Buy from the developer. Safely. In one app.';
 
   @override
   String get onboardingDescription =>
-      'Browse ready apartments, off-plan new builds and business-centre offices — all in one place, with live availability and one-tap enquiries.';
-
-  @override
-  String get onboardingTrustBadge => '4.9★ · 500+ happy families';
+      'Compare verified new builds, see live availability, and send an enquiry straight to the developer — no middlemen, no guesswork.';
 
   @override
   String get start => 'Start';
 
   @override
+  String get startDemo => 'Start (demo)';
+
+  @override
   String get signIn => 'Sign in';
+
+  @override
+  String get signInDemo => 'Sign in (demo)';
+
+  @override
+  String get demoButton => 'Demo';
+
+  @override
+  String get demoModeTitle => 'Demo mode';
+
+  @override
+  String get demoModeMessage =>
+      'You\'re exploring iBuild in read-only demo mode. Browse every screen and feature — nothing you do will be saved to the database.';
+
+  @override
+  String get demoModeGotIt => 'Got it';
+
+  @override
+  String get demoModeBanner => 'Demo mode — changes are not saved';
+
+  @override
+  String get demoWriteBlocked =>
+      'Demo mode is view-only — this action was not saved.';
 
   @override
   String get welcomeTitle => 'Welcome to iBuild';
@@ -798,6 +818,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearFilters => 'Clear filters';
+
+  @override
+  String get filtersApplied => 'Filters applied';
+
+  @override
+  String get filterDistrictsHint => 'Select one or more districts';
+
+  @override
+  String districtsSelectedCount(int count) {
+    return '$count districts selected';
+  }
 
   @override
   String get saveThisSearch => 'Save this search';

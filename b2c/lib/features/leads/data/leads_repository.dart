@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ibuild_core/ibuild_core.dart';
 
+import 'package:ibuild_core/ibuild_core.dart';
+
 import '../../../core/config/env.dart';
 import '../../../core/network/api_client.dart';
 import '../../../models/mock_data.dart';
@@ -44,7 +46,7 @@ class LeadsRepository {
     /// Required; server rejects POST /v1/leads without true.
     required bool consent,
   }) async {
-    if (Env.useMockData) {
+    if (Env.useMockData || DemoSession.isActive) {
       return Lead(
         id: 'lead-${DateTime.now().millisecondsSinceEpoch}',
         number: 'LD-${100000 + _rand.nextInt(9000)}',

@@ -10,6 +10,7 @@ import '../theme/app_dimens.dart';
 import '../theme/app_theme_ext.dart';
 import '../../l10n/gen/app_localizations.dart';
 import 'app_card.dart';
+import 'confirm_dialogs.dart';
 import 'pill_button.dart';
 
 /// Confirm document upload after a file preview.
@@ -26,57 +27,47 @@ Future<bool> confirmDocumentUpload(
   ).hasMatch(filename);
   final sizeLabel = _formatFileSize(bytes.length);
 
-  final confirmed = await showDialog<bool>(
+  final confirmed = await showConfirmDialog(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(l10n.orgDocumentConfirmTitle),
-      content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.orgDocumentConfirmMessage(documentTypeLabel)),
-            const SizedBox(height: AppSpacing.lg),
-            if (isImage)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadii.md),
-                child: Image.memory(
-                  bytes,
-                  height: 180,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              )
-            else
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(
-                  color: Theme.of(ctx).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(AppRadii.md),
-                ),
-                child: const Icon(Icons.picture_as_pdf_outlined, size: 40),
+    title: Text(l10n.orgDocumentConfirmTitle),
+    content: SizedBox(
+      width: 420,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.orgDocumentConfirmMessage(documentTypeLabel)),
+          const SizedBox(height: AppSpacing.lg),
+          if (isImage)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadii.md),
+              child: Image.memory(
+                bytes,
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              '$filename · $sizeLabel',
-              style: Theme.of(ctx).textTheme.bodySmall,
-              overflow: TextOverflow.ellipsis,
+            )
+          else
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(AppRadii.md),
+              ),
+              child: const Icon(Icons.picture_as_pdf_outlined, size: 40),
             ),
-          ],
-        ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '$filename · $sizeLabel',
+            style: Theme.of(context).textTheme.bodySmall,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, false),
-          child: Text(l10n.commonCancel),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(ctx, true),
-          child: Text(l10n.orgDocumentConfirmSend),
-        ),
-      ],
     ),
+    cancelLabel: l10n.commonCancel,
+    confirmLabel: l10n.orgDocumentConfirmSend,
   );
   return confirmed ?? false;
 }

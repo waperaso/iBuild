@@ -23,49 +23,51 @@ class ProgressTab extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final reportsAsync = ref.watch(photoReportsProvider(project.id));
 
-    return RefreshIndicator(
-      onRefresh: () async =>
-          ref.invalidate(photoReportsProvider(project.id)),
-      child: AsyncValueView(
-        value: reportsAsync,
-        onRetry: () => ref.invalidate(photoReportsProvider(project.id)),
-        builder: (context, reports) {
-          if (reports.isEmpty) {
-            return ListView(
-              children: [
-                _ProgressComparison(project: project),
-                const SizedBox(height: AppSpacing.lg),
-                EmptyState(
-                  compact: true,
-                  icon: Icons.construction_outlined,
-                  title: l10n.progressEmptyTitle,
-                  subtitle: l10n.progressEmptySubtitle,
-                ),
-              ],
-            );
-          }
-
-          final groups = <String, List<PhotoReport>>{};
-          for (final report in reports) {
-            final key =
-                '${report.takenAt.year}-${report.takenAt.month.toString().padLeft(2, '0')}';
-            groups.putIfAbsent(key, () => []).add(report);
-          }
-          final sortedKeys = groups.keys.toList()
-            ..sort((a, b) => b.compareTo(a));
-
-          return ListView(
+    return AsyncValueView(
+      value: reportsAsync,
+      onRetry: () => ref.invalidate(photoReportsProvider(project.id)),
+      builder: (context, reports) {
+        if (reports.isEmpty) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _ProgressComparison(project: project),
               const SizedBox(height: AppSpacing.lg),
-              for (final key in sortedKeys) ...[
-                _MonthSection(month: groups[key]!.first.takenAt, reports: groups[key]!),
-                const SizedBox(height: AppSpacing.lg),
-              ],
+              EmptyState(
+                compact: true,
+                icon: Icons.construction_outlined,
+                title: l10n.progressEmptyTitle,
+                subtitle: l10n.progressEmptySubtitle,
+              ),
             ],
           );
-        },
-      ),
+        }
+
+        final groups = <String, List<PhotoReport>>{};
+        for (final report in reports) {
+          final key =
+              '${report.takenAt.year}-${report.takenAt.month.toString().padLeft(2, '0')}';
+          groups.putIfAbsent(key, () => []).add(report);
+        }
+        final sortedKeys = groups.keys.toList()..sort((a, b) => b.compareTo(a));
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _ProgressComparison(project: project),
+            const SizedBox(height: AppSpacing.lg),
+            for (final key in sortedKeys) ...[
+              _MonthSection(
+                month: groups[key]!.first.takenAt,
+                reports: groups[key]!,
+              ),
+              const SizedBox(height: AppSpacing.lg),
+            ],
+          ],
+        );
+      },
     );
   }
 }

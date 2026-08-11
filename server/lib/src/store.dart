@@ -1229,6 +1229,73 @@ class Store {
     );
   }
 
+  /// Awards / reviewer demo login — in-memory session only; user has
+  /// `isDemo: true` so [demoGuardMiddleware] blocks mutating API calls.
+  /// Reads use the same live handlers as a real admin; nothing is written
+  /// to PostgreSQL from demo sessions.
+  OtpVerifyResult createDemoSession({required String profile}) {
+    final normalized = profile.trim().toLowerCase();
+    final (
+      String phone,
+      String role,
+      String name,
+      String id,
+    ) = switch (normalized) {
+      'b2b' ||
+      'b2b_platform' ||
+      'admin' ||
+      'platform' => (
+        '+998900000001',
+        UserRole.systemAdmin,
+        'Demo Reviewer (Admin)',
+        'demo-user-b2b-platform',
+      ),
+      'b2b_residence' || 'residence' => (
+        '+998900000002',
+        UserRole.residenceAdmin,
+        'Demo Reviewer (Residence)',
+        'demo-user-b2b-residence',
+      ),
+      _ => (
+        '+998900000000',
+        UserRole.ordinaryUser,
+        'Demo Reviewer',
+        'demo-user-b2c',
+      ),
+    };
+
+    final user = <String, dynamic>{
+      'id': id,
+      'phone': phone,
+      'name': name,
+      'role': role,
+      'isDemo': true,
+    };
+    _usersByPhone[phone] = user;
+
+    final now = DateTime.now();
+    final accessExpiry = now.add(_accessTokenTtl);
+    final refreshExpiry = now.add(_refreshTokenTtl);
+    final accessToken = 'demo-at-${_uuid.v4()}';
+    final refreshToken = 'demo-rt-${_uuid.v4()}';
+    _sessionsByToken[accessToken] = _Session(
+      phone,
+      accessExpiry,
+      pairedToken: refreshToken,
+    );
+    _refreshTokens[refreshToken] = _Session(
+      phone,
+      refreshExpiry,
+      pairedToken: accessToken,
+    );
+
+    return OtpVerifyResult.success(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      user: user,
+    );
+  }
+
   // --- Favorites / saved searches ----------------------------------------
 
   List<String> favoritesForUser(String userId) =>

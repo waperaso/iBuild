@@ -132,19 +132,35 @@ class _KindFilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = context.colors;
+    final labelStyle = Theme.of(context).textTheme.labelLarge;
+
+    TextStyle styleFor(bool selected) =>
+        (labelStyle ?? const TextStyle()).copyWith(
+          color: selected ? colors.onAccent : colors.ink,
+        );
+
     return Wrap(
       spacing: AppSpacing.sm,
       runSpacing: AppSpacing.sm,
       children: [
         ChoiceChip(
-          label: Text(l10n.chessboardFilterAll),
+          label: Text(
+            l10n.chessboardFilterAll,
+            style: styleFor(value == null),
+          ),
           selected: value == null,
+          selectedColor: colors.accent,
           onSelected: (_) => onChanged(null),
         ),
         for (final kind in UnitKind.values)
           ChoiceChip(
-            label: Text(kind.label(context)),
+            label: Text(
+              kind.label(context),
+              style: styleFor(value == kind),
+            ),
             selected: value == kind,
+            selectedColor: colors.accent,
             onSelected: (_) => onChanged(kind),
           ),
       ],

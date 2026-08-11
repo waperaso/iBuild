@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../../../core/widgets/brand_mark.dart';
+import '../../../core/widgets/demo_entry_button.dart';
 import '../../../core/widgets/pill_button.dart';
 import '../../../core/widgets/step_indicator.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -154,6 +155,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                     loading: _verifying,
                     onPressed: _verifying ? null : _verify,
                   ),
+                  DemoEntrySection(expand: true, redirect: widget.redirect),
                   const SizedBox(height: AppSpacing.md),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

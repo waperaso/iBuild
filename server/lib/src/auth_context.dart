@@ -20,6 +20,7 @@ class AuthContext {
   bool get isAdmin => isSystemAdmin || isResidenceAdmin;
 
   bool get isBanned => user['banned'] == true;
+  bool get isDemo => user['isDemo'] == true;
   String? get banReason => user['banReason'] as String?;
   String? get bannedByName => user['bannedByName'] as String?;
 }

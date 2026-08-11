@@ -16,6 +16,7 @@ import '../../core/widgets/app_dropdown_field.dart';
 import '../../core/widgets/auth_hero_panel.dart';
 import '../../core/widgets/b2b_brand.dart';
 import '../../core/widgets/confirm_dialogs.dart';
+import '../../core/widgets/demo_entry_button.dart';
 import '../../core/widgets/documents_upload_card.dart';
 import '../../core/widgets/locale_theme_bar.dart';
 import '../../core/widgets/pill_button.dart';
@@ -484,63 +485,80 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
     }
   }
 
+  Future<void> _confirmSignOut() async {
+    final confirmed = await confirmSignOut(context);
+    if (!confirmed || !mounted) return;
+    ref.read(authControllerProvider.notifier).signOut();
+  }
+
   Widget _statusScaffold({required Widget child}) {
     final colors = context.colors;
-    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: colors.background,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        actions: [
-          const Padding(
-            padding: EdgeInsets.only(right: AppSpacing.sm),
-            child: LocaleThemeBar(),
-          ),
-          TextButton(
-            onPressed: () async {
-              final confirmed = await confirmSignOut(context);
-              if (!confirmed || !mounted) return;
-              ref.read(authControllerProvider.notifier).signOut();
-            },
-            child: Text(l10n.commonSignOut),
-          ),
-        ],
-      ),
-      body: _responsiveBody(child),
+      body: _authShell(onSignOut: _confirmSignOut, child: child),
     );
   }
 
-  /// Narrow: centered form. Wide: [AuthHeroPanel] + form.
-  Widget _responsiveBody(Widget child, {double wideMaxWidth = 560}) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final scrollable = SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: child,
-        );
-        if (constraints.maxWidth < AppBreakpoints.tablet) {
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: scrollable,
-            ),
+  /// Auth layout: optional step title + actions live in the right column only
+  /// (same chrome as [LoginScreen], so the title never sits over [AuthHeroPanel]).
+  Widget _authShell({
+    required VoidCallback onSignOut,
+    required Widget child,
+    String? title,
+    bool showBack = false,
+    VoidCallback? onBack,
+    double wideMaxWidth = 560,
+  }) {
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= AppBreakpoints.tablet;
+          final scrollable = SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: child,
           );
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const AuthHeroPanel(),
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: wideMaxWidth),
-                  child: scrollable,
+
+          final panel = Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _AuthFlowHeader(
+                title: title,
+                showBack: showBack,
+                onBack: onBack,
+                onSignOut: onSignOut,
+              ),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: wideMaxWidth),
+                    child: scrollable,
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+
+          if (!wide) {
+            return Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 480,
+                  maxHeight: constraints.maxHeight,
+                ),
+                child: panel,
+              ),
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const AuthHeroPanel(),
+              Expanded(child: panel),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -550,38 +568,19 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
 
     return Scaffold(
       backgroundColor: colors.background,
-      appBar: AppBar(
-        title: Text(_appBarTitle(l10n)),
-        leading: _step == _ApplyStep.onboarding
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => setState(() {
-                  _message = null;
-                  _step = switch (_step) {
-                    _ApplyStep.details => _ApplyStep.role,
-                    _ApplyStep.role => _ApplyStep.onboarding,
-                    _ApplyStep.onboarding => _ApplyStep.onboarding,
-                  };
-                }),
-              ),
-        actions: [
-          const Padding(
-            padding: EdgeInsets.only(right: AppSpacing.sm),
-            child: LocaleThemeBar(),
-          ),
-          TextButton(
-            onPressed: () async {
-              final confirmed = await confirmSignOut(context);
-              if (!confirmed || !mounted) return;
-              ref.read(authControllerProvider.notifier).signOut();
-            },
-            child: Text(l10n.commonSignOut),
-          ),
-        ],
-      ),
-      body: _responsiveBody(
-        Column(
+      body: _authShell(
+        title: _appBarTitle(l10n),
+        showBack: _step != _ApplyStep.onboarding,
+        onBack: () => setState(() {
+          _message = null;
+          _step = switch (_step) {
+            _ApplyStep.details => _ApplyStep.role,
+            _ApplyStep.role => _ApplyStep.onboarding,
+            _ApplyStep.onboarding => _ApplyStep.onboarding,
+          };
+        }),
+        onSignOut: _confirmSignOut,
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _StepDots(step: _step),
@@ -636,6 +635,58 @@ class _DeveloperApplyScreenState extends ConsumerState<DeveloperApplyScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Step title, back control, and locale/theme actions for auth/onboarding flows.
+class _AuthFlowHeader extends StatelessWidget {
+  const _AuthFlowHeader({
+    required this.onSignOut,
+    this.title,
+    this.showBack = false,
+    this.onBack,
+  });
+
+  final String? title;
+  final bool showBack;
+  final VoidCallback? onBack;
+  final VoidCallback onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        AppSpacing.sm,
+      ),
+      child: Row(
+        children: [
+          if (showBack)
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: onBack,
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            ),
+          if (title != null)
+            Expanded(
+              child: Text(
+                title!,
+                style: textTheme.titleLarge,
+                overflow: TextOverflow.ellipsis,
+              ),
+            )
+          else
+            const Spacer(),
+          const LocaleThemeBar(),
+          TextButton(onPressed: onSignOut, child: Text(l10n.commonSignOut)),
+        ],
       ),
     );
   }
@@ -1121,6 +1172,7 @@ class _OnboardingStep extends StatelessWidget {
             variant: PillButtonVariant.outline,
             onPressed: onHaveAccount,
           ),
+          const DemoEntrySection(expand: true),
         ],
       ),
     );
@@ -1200,7 +1252,7 @@ class _RoleStep extends StatelessWidget {
   }
 }
 
-/// Always-selected developer role row.
+/// Fixed developer role — informational, not selectable.
 class _DeveloperRoleCard extends StatelessWidget {
   const _DeveloperRoleCard();
 
@@ -1213,11 +1265,12 @@ class _DeveloperRoleCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: colors.accent.withValues(alpha: 0.35),
+        color: colors.surfaceAlt,
         borderRadius: BorderRadius.circular(AppRadii.md),
-        border: Border.all(color: colors.ink, width: 1.5),
+        border: Border.all(color: colors.outline),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.apartment_outlined, color: colors.ink),
           const SizedBox(width: AppSpacing.md),

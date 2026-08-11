@@ -130,29 +130,17 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get navSettings;
 
-  /// No description provided for @onboardingSlogan.
-  ///
-  /// In en, this message translates to:
-  /// **'iBuild the dream'**
-  String get onboardingSlogan;
-
   /// No description provided for @onboardingEyebrow.
   ///
   /// In en, this message translates to:
-  /// **'Sell. Invest. All in One App.'**
+  /// **'Buy from the developer. Safely. In one app.'**
   String get onboardingEyebrow;
 
   /// No description provided for @onboardingDescription.
   ///
   /// In en, this message translates to:
-  /// **'Browse ready apartments, off-plan new builds and business-centre offices — all in one place, with live availability and one-tap enquiries.'**
+  /// **'Compare verified new builds, see live availability, and send an enquiry straight to the developer — no middlemen, no guesswork.'**
   String get onboardingDescription;
-
-  /// No description provided for @onboardingTrustBadge.
-  ///
-  /// In en, this message translates to:
-  /// **'4.9★ · 500+ happy families'**
-  String get onboardingTrustBadge;
 
   /// No description provided for @start.
   ///
@@ -160,11 +148,59 @@ abstract class AppLocalizations {
   /// **'Start'**
   String get start;
 
+  /// No description provided for @startDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Start (demo)'**
+  String get startDemo;
+
   /// No description provided for @signIn.
   ///
   /// In en, this message translates to:
   /// **'Sign in'**
   String get signIn;
+
+  /// No description provided for @signInDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in (demo)'**
+  String get signInDemo;
+
+  /// No description provided for @demoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo'**
+  String get demoButton;
+
+  /// No description provided for @demoModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode'**
+  String get demoModeTitle;
+
+  /// No description provided for @demoModeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re exploring iBuild in read-only demo mode. Browse every screen and feature — nothing you do will be saved to the database.'**
+  String get demoModeMessage;
+
+  /// No description provided for @demoModeGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get demoModeGotIt;
+
+  /// No description provided for @demoModeBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode — changes are not saved'**
+  String get demoModeBanner;
+
+  /// No description provided for @demoWriteBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode is view-only — this action was not saved.'**
+  String get demoWriteBlocked;
 
   /// No description provided for @welcomeTitle.
   ///
@@ -1515,6 +1551,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear filters'**
   String get clearFilters;
+
+  /// No description provided for @filtersApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters applied'**
+  String get filtersApplied;
+
+  /// No description provided for @filterDistrictsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select one or more districts'**
+  String get filterDistrictsHint;
+
+  /// No description provided for @districtsSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} districts selected'**
+  String districtsSelectedCount(int count);
 
   /// No description provided for @saveThisSearch.
   ///

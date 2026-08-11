@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ibuild_core/ibuild_core.dart';
 
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/auth_hero_panel.dart';
 import '../../core/widgets/b2b_brand.dart';
 import '../../core/widgets/locale_theme_bar.dart';
+import '../../core/widgets/demo_entry_button.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/gen/app_localizations.dart';
 import 'auth.dart';
@@ -22,6 +24,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _phone = TextEditingController(text: '+998 ');
   bool _loading = false;
+  bool _realAuthUnlocked = false;
   String? _error;
 
   @override
@@ -63,7 +66,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const B2bBrand(),
+        AuthUnlockTap(
+          onUnlocked: () => setState(() => _realAuthUnlocked = true),
+          child: const B2bBrand(),
+        ),
         const SizedBox(height: AppSpacing.xxl),
         Text(l10n.loginTitle, style: textTheme.headlineMedium),
         const SizedBox(height: AppSpacing.sm),
@@ -72,31 +78,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           style: textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
         ),
         const SizedBox(height: AppSpacing.xl),
-        TextField(
-          controller: _phone,
-          keyboardType: TextInputType.phone,
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-() ]')),
-            LengthLimitingTextInputFormatter(20),
+        if (_realAuthUnlocked) ...[
+          TextField(
+            controller: _phone,
+            keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) {
+              if (!_loading) _submit();
+            },
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-() ]')),
+              LengthLimitingTextInputFormatter(20),
+            ],
+            decoration: InputDecoration(
+              hintText: l10n.loginPhoneHint,
+              prefixIcon: const Icon(Icons.phone_outlined),
+            ),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              _error!,
+              style: textTheme.bodySmall?.copyWith(color: colors.danger),
+            ),
           ],
-          decoration: InputDecoration(
-            hintText: l10n.loginPhoneHint,
-            prefixIcon: const Icon(Icons.phone_outlined),
+          const SizedBox(height: AppSpacing.xl),
+          PillButton(
+            label: l10n.loginSendCode,
+            expand: true,
+            loading: _loading,
+            onPressed: _loading ? null : _submit,
           ),
-        ),
-        if (_error != null) ...[
           const SizedBox(height: AppSpacing.md),
-          Text(
-            _error!,
-            style: textTheme.bodySmall?.copyWith(color: colors.danger),
-          ),
         ],
-        const SizedBox(height: AppSpacing.xl),
-        PillButton(
-          label: l10n.loginSendCode,
+        DemoEntryButton(
+          label: l10n.signInDemo,
+          icon: Icons.login_rounded,
+          variant: PillButtonVariant.accent,
           expand: true,
-          loading: _loading,
-          onPressed: _loading ? null : _submit,
         ),
       ],
     );

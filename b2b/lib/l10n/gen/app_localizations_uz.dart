@@ -53,6 +53,30 @@ class AppLocalizationsUz extends AppLocalizations {
       'Kodni yuborib boʻlmadi. Qayta urinib koʻring.';
 
   @override
+  String get signInDemo => 'Kirish (demo)';
+
+  @override
+  String get demoButton => 'Demo';
+
+  @override
+  String get demoModeTitle => 'Demo rejim';
+
+  @override
+  String get demoModeMessage =>
+      'Siz faqat ko‘rish rejimidasiz. Barcha loyiha va ekranlarni ochib, jonli ma’lumotlarni yuklashingiz mumkin — tahrir, nashr va boshqa o‘zgarishlar bloklangan va saqlanmaydi.';
+
+  @override
+  String get demoModeGotIt => 'Tushundim';
+
+  @override
+  String get demoModeBanner =>
+      'Demo rejim — faqat ko‘rish, o‘zgarishlar saqlanmaydi';
+
+  @override
+  String get demoWriteBlocked =>
+      'Demo rejim faqat ko‘rish uchun — amal saqlanmadi.';
+
+  @override
   String get otpTitle => 'Kodni kiriting';
 
   @override
@@ -141,17 +165,17 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get applyRoleSubtitle =>
-      'Turar-joy majmualaringizni eʼlon qiling, yunitlar va xaridor murojaatlarini boshqaring. Agar oʻz loyihalaringizni oʻzingiz qursangiz, quyidagi belgini qo\'ying.';
+      'Siz quruvchi sifatida roʻyxatdan oʻtyapsiz. Kerak boʻlsa, quyida rollarni birlashtirishni belgilang.';
 
   @override
   String get applyContinue => 'Davom etish';
 
   @override
-  String get applyKindDeveloperLabel => 'Quruvchi-tashkilot';
+  String get applyKindDeveloperLabel => 'Quruvchi';
 
   @override
   String get applyKindDeveloperSubtitle =>
-      'Siz oʻz turar-joy majmualaringizni quryapsiz va sotasiz — loyihalarni eʼlon qiling, yunitlar va xaridor murojaatlarini boshqaring.';
+      'Turar-joy majmualari, yunitlar va xaridor murojaatlarini eʼlon qilasiz.';
 
   @override
   String get applyKindConstructionLabel => 'Qurilish kompaniyasi';
@@ -161,11 +185,11 @@ class AppLocalizationsUz extends AppLocalizations {
       'Siz boshqa quruvchilar uchun quryapsiz (pudratchi) — obyektdagi ishlar, ombor va ЖКga kirishni muvofiqlashtiring.';
 
   @override
-  String get applyAlsoContractorLabel => 'Men loyihalarni oʻzim ham quraman';
+  String get applyAlsoContractorLabel => 'Pudratchi rolini ham birlashtiraman';
 
   @override
   String get applyAlsoContractorSubtitle =>
-      'Agar siz oʻz obyektlaringizda pudratchi vazifasini ham bajaradigan quruvchi boʻlsangiz, buni belgilang — qurilish litsenziyasi raqami kerak boʻladi.';
+      'Oʻz obyektlaringizda qurilish ishlarini oʻzingiz bajarasiz — qurilish litsenziyasi raqami kerak boʻladi.';
 
   @override
   String get applyDetailsTitle => 'Yuridik shaxs maʼlumotlari';

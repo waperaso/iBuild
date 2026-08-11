@@ -90,6 +90,23 @@ class DistrictCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (selected)
+                  Positioned(
+                    top: AppSpacing.sm,
+                    right: AppSpacing.sm,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: colors.accent,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.check,
+                        size: 14,
+                        color: colors.onAccent,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

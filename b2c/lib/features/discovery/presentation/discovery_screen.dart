@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ibuild_core/ibuild_core.dart';
 
+import '../../../core/utils/formatters.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../../../core/widgets/app_chip.dart';
@@ -18,6 +19,7 @@ import '../../../core/widgets/promo_banner.dart';
 import '../../../core/widgets/responsive_card_grid.dart';
 import '../../../core/widgets/scroll_tuning.dart';
 import '../../../core/widgets/section_header.dart';
+import '../../../l10n/enum_labels.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../notifications/providers/notifications_providers.dart';
 import '../../rentals/data/rental_listings_repository.dart';
@@ -199,6 +201,23 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                       const _SearchAndFilterRow(),
                       const SizedBox(height: AppSpacing.lg),
                       const _CategoryChips(),
+                      const _ActiveFiltersBar(),
+                      ref.watch(districtCatalogueProvider).when(
+                        data: (catalogue) {
+                          if (catalogue.isEmpty) return const SizedBox.shrink();
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: AppSpacing.xl),
+                              SectionHeader(title: l10n.popularDistrictsTitle),
+                              const SizedBox(height: AppSpacing.md),
+                              _PopularDistricts(projects: catalogue),
+                            ],
+                          );
+                        },
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, _) => const SizedBox.shrink(),
+                      ),
                       if (loadedProjects != null &&
                           loadedProjects.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.xl),
@@ -206,10 +225,6 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                           builder: (context) => Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SectionHeader(title: l10n.popularDistrictsTitle),
-                              const SizedBox(height: AppSpacing.md),
-                              _PopularDistricts(projects: loadedProjects),
-                              const SizedBox(height: AppSpacing.xl),
                               SectionHeader(title: l10n.developersTitle),
                               const SizedBox(height: AppSpacing.md),
                               _DevelopersRail(projects: loadedProjects),
@@ -445,6 +460,9 @@ class _SearchAndFilterRowState extends ConsumerState<_SearchAndFilterRow> {
     final hasSheetFilters = ref.watch(
       discoveryFiltersProvider.select((f) => f.hasSheetFilters),
     );
+    final filterCount = ref.watch(
+      discoveryFiltersProvider.select((f) => f.activeSheetFilterCount),
+    );
 
     final pill = BorderRadius.circular(AppRadii.pill);
 
@@ -488,11 +506,15 @@ class _SearchAndFilterRowState extends ConsumerState<_SearchAndFilterRow> {
         Material(
           color: hasSheetFilters ? colors.accent : colors.surface,
           shape: const CircleBorder(),
-          child: IconButton(
-            onPressed: () => showFilterSheet(context),
-            icon: Icon(
-              Icons.tune,
-              color: hasSheetFilters ? colors.onAccent : colors.ink,
+          child: Badge(
+            isLabelVisible: hasSheetFilters && filterCount > 0,
+            label: Text('$filterCount'),
+            child: IconButton(
+              onPressed: () => showFilterSheet(context),
+              icon: Icon(
+                Icons.tune,
+                color: hasSheetFilters ? colors.onAccent : colors.ink,
+              ),
             ),
           ),
         ),
@@ -592,6 +614,139 @@ class _DevelopersRail extends StatelessWidget {
   }
 }
 
+/// Active filter chips + "Filters applied" label below the search row.
+class _ActiveFiltersBar extends ConsumerWidget {
+  const _ActiveFiltersBar();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filters = ref.watch(discoveryFiltersProvider);
+    if (!filters.hasSheetFilters) return const SizedBox.shrink();
+
+    final l10n = AppLocalizations.of(context);
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    final notifier = ref.read(discoveryFiltersProvider.notifier);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.filter_alt, size: 16, color: colors.accent),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                l10n.filtersApplied,
+                style: textTheme.labelLarge?.copyWith(color: colors.accent),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: notifier.clearSheetFilters,
+                child: Text(l10n.clearFilters),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final district in filters.districts)
+                AppChip(
+                  label: district,
+                  selected: true,
+                  icon: Icons.close,
+                  onTap: () => notifier.toggleDistrict(district),
+                ),
+              if (filters.status != null)
+                AppChip(
+                  label: filters.status!.label(context),
+                  selected: true,
+                  icon: Icons.close,
+                  onTap: () => notifier.applySheetFilters(
+                    districts: filters.districts,
+                    status: null,
+                    minPrice: filters.minPrice,
+                    maxPrice: filters.maxPrice,
+                    rooms: filters.rooms,
+                    areaMin: filters.areaMin,
+                    offplanOnly: filters.offplanOnly,
+                  ),
+                ),
+              if (filters.minPrice != null || filters.maxPrice != null)
+                AppChip(
+                  label: l10n.priceRangeLabel(
+                    Formatters.compact(filters.minPrice ?? 0),
+                    Formatters.compact(filters.maxPrice ?? 300000),
+                  ),
+                  selected: true,
+                  icon: Icons.close,
+                  onTap: () => notifier.applySheetFilters(
+                    districts: filters.districts,
+                    status: filters.status,
+                    rooms: filters.rooms,
+                    areaMin: filters.areaMin,
+                    offplanOnly: filters.offplanOnly,
+                  ),
+                ),
+              for (final room in filters.rooms)
+                AppChip(
+                  label: room == 0
+                      ? l10n.roomsStudio
+                      : (room == 4 ? l10n.roomsPlus(room) : '$room'),
+                  selected: true,
+                  icon: Icons.close,
+                  onTap: () {
+                    final next = {...filters.rooms}..remove(room);
+                    notifier.applySheetFilters(
+                      districts: filters.districts,
+                      status: filters.status,
+                      minPrice: filters.minPrice,
+                      maxPrice: filters.maxPrice,
+                      rooms: next,
+                      areaMin: filters.areaMin,
+                      offplanOnly: filters.offplanOnly,
+                    );
+                  },
+                ),
+              if (filters.areaMin != null)
+                AppChip(
+                  label: l10n.areaMinLabel,
+                  selected: true,
+                  icon: Icons.close,
+                  onTap: () => notifier.applySheetFilters(
+                    districts: filters.districts,
+                    status: filters.status,
+                    minPrice: filters.minPrice,
+                    maxPrice: filters.maxPrice,
+                    rooms: filters.rooms,
+                    offplanOnly: filters.offplanOnly,
+                  ),
+                ),
+              if (filters.offplanOnly)
+                AppChip(
+                  label: l10n.offplanOnlyLabel,
+                  selected: true,
+                  icon: Icons.close,
+                  onTap: () => notifier.applySheetFilters(
+                    districts: filters.districts,
+                    status: filters.status,
+                    minPrice: filters.minPrice,
+                    maxPrice: filters.maxPrice,
+                    rooms: filters.rooms,
+                    areaMin: filters.areaMin,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Districts covered by the currently loaded [projects], ranked by listing
 /// count — tapping one narrows the discovery filters to that district.
 class _PopularDistricts extends ConsumerWidget {
@@ -603,7 +758,7 @@ class _PopularDistricts extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final filters = ref.watch(discoveryFiltersProvider);
-    final selectedDistrict = filters.district;
+    final selected = filters.districts;
     final byDistrict = <String, List<Project>>{};
     for (final p in projects) {
       byDistrict.putIfAbsent(p.district, () => []).add(p);
@@ -620,7 +775,7 @@ class _PopularDistricts extends ConsumerWidget {
         final entry = top[index];
         final urls = entry.value.expand((p) => p.gallery).map((m) => m.url);
         final thumbUrl = urls.isEmpty ? null : urls.first;
-        final isSelected = selectedDistrict == entry.key;
+        final isSelected = selected.contains(entry.key);
         return FadeSlideIn(
           index: index,
           child: DistrictCard(
@@ -630,12 +785,7 @@ class _PopularDistricts extends ConsumerWidget {
             selected: isSelected,
             onTap: () => ref
                 .read(discoveryFiltersProvider.notifier)
-                .applySheetFilters(
-                  district: isSelected ? null : entry.key,
-                  status: filters.status,
-                  minPrice: filters.minPrice,
-                  maxPrice: filters.maxPrice,
-                ),
+                .toggleDistrict(entry.key),
           ),
         );
       },

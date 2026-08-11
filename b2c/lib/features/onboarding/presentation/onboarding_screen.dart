@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../../../core/widgets/brand_mark.dart';
+import '../../../core/widgets/demo_entry_button.dart';
 import '../../../core/widgets/fade_slide_in.dart';
 import '../../../core/widgets/language_menu.dart';
 import '../../../core/widgets/pill_button.dart';
@@ -64,105 +66,33 @@ class _BrandLockup extends StatelessWidget {
   }
 }
 
-/// Tagline under the wordmark (part of the brand lockup).
-class _Slogan extends StatelessWidget {
-  const _Slogan({required this.onDark, this.compact = false});
-
-  final bool onDark;
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final l10n = AppLocalizations.of(context);
-    final fg = onDark
-        ? colors.onHeroSurface.withValues(alpha: 0.82)
-        : colors.inkMuted;
-
-    return Text(
-      l10n.onboardingSlogan,
-      style:
-          (compact
-                  ? Theme.of(context).textTheme.titleSmall
-                  : Theme.of(context).textTheme.titleMedium)
-              ?.copyWith(
-                color: fg,
-                fontWeight: FontWeight.w600,
-                fontStyle: FontStyle.italic,
-              ),
-    );
-  }
-}
-
-class _TrustLine extends StatelessWidget {
-  const _TrustLine({required this.onDark});
-
-  final bool onDark;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final l10n = AppLocalizations.of(context);
-    final fg = onDark
-        ? colors.onHeroSurface.withValues(alpha: 0.72)
-        : colors.inkMuted;
-
-    return Row(
-      children: [
-        Icon(Icons.star_rounded, size: 16, color: colors.accentSecondary),
-        const SizedBox(width: AppSpacing.sm),
-        Flexible(
-          child: Text(
-            l10n.onboardingTrustBadge,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: fg),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _PrimaryActions extends StatelessWidget {
+class _PrimaryActions extends ConsumerWidget {
   const _PrimaryActions({this.expand = false, this.onHero = false});
 
   final bool expand;
   final bool onHero;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onDarkSurface = onHero || isDark;
     final l10n = AppLocalizations.of(context);
 
-    final start = PillButton(
-      label: l10n.start,
+    final startDemo = DemoEntryButton(
+      label: l10n.startDemo,
       icon: Icons.arrow_forward,
-      variant: onHero ? PillButtonVariant.hero : PillButtonVariant.accent,
+      variant: onDarkSurface ? PillButtonVariant.hero : PillButtonVariant.accent,
       expand: expand,
-      onPressed: () => context.go('/home'),
-    );
-    final signIn = PillButton(
-      label: l10n.signIn,
-      variant: PillButtonVariant.outline,
-      expand: expand,
-      onPressed: () => context.go('/login'),
     );
 
     if (expand) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          start,
-          const SizedBox(height: AppSpacing.sm),
-          signIn,
-        ],
+        children: [startDemo],
       );
     }
 
-    return Wrap(
-      spacing: AppSpacing.md,
-      runSpacing: AppSpacing.md,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [start, signIn],
-    );
+    return startDemo;
   }
 }
 
@@ -175,9 +105,9 @@ class _QuizLink extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final l10n = AppLocalizations.of(context);
-    final fg = onDark
-        ? colors.onHeroSurface.withValues(alpha: 0.85)
-        : colors.inkMuted;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onDarkSurface = onDark || isDark;
+    final fg = onDarkSurface ? colors.accentSecondary : colors.inkMuted;
 
     return TextButton.icon(
       onPressed: () => context.push('/quiz'),
@@ -248,34 +178,37 @@ class _DesktopHero extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        const _BreathingHeroPhoto(),
-        // Left-side gradient for text contrast over the hero photo.
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                colors.heroSurface.withValues(alpha: 0.94),
-                colors.heroSurface.withValues(alpha: 0.78),
-                colors.heroSurface.withValues(alpha: 0.28),
-                colors.heroSurface.withValues(alpha: 0.0),
-              ],
-              stops: const [0.0, 0.32, 0.58, 0.82],
+        const IgnorePointer(child: _BreathingHeroPhoto()),
+        // Decorative only — must not steal taps from CTAs.
+        IgnorePointer(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  colors.heroSurface.withValues(alpha: 0.94),
+                  colors.heroSurface.withValues(alpha: 0.78),
+                  colors.heroSurface.withValues(alpha: 0.28),
+                  colors.heroSurface.withValues(alpha: 0.0),
+                ],
+                stops: const [0.0, 0.32, 0.58, 0.82],
+              ),
             ),
           ),
         ),
-        // Bottom fade on the hero photo.
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [
-                colors.heroSurface.withValues(alpha: 0.45),
-                colors.heroSurface.withValues(alpha: 0.0),
-              ],
-              stops: const [0.0, 0.35],
+        IgnorePointer(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  colors.heroSurface.withValues(alpha: 0.45),
+                  colors.heroSurface.withValues(alpha: 0.0),
+                ],
+                stops: const [0.0, 0.35],
+              ),
             ),
           ),
         ),
@@ -311,15 +244,9 @@ class _DesktopHero extends StatelessWidget {
                             delayStep: Duration(milliseconds: 70),
                             child: _BrandLockup(onDark: true),
                           ),
-                          const SizedBox(height: AppSpacing.sm),
-                          const FadeSlideIn(
-                            index: 1,
-                            delayStep: Duration(milliseconds: 70),
-                            child: _Slogan(onDark: true),
-                          ),
                           const SizedBox(height: AppSpacing.xl),
                           FadeSlideIn(
-                            index: 2,
+                            index: 1,
                             delayStep: const Duration(milliseconds: 70),
                             child: Text(
                               l10n.onboardingEyebrow,
@@ -333,7 +260,7 @@ class _DesktopHero extends StatelessWidget {
                           ),
                           const SizedBox(height: AppSpacing.xl),
                           FadeSlideIn(
-                            index: 3,
+                            index: 2,
                             delayStep: const Duration(milliseconds: 70),
                             child: Text(
                               l10n.onboardingDescription,
@@ -348,21 +275,15 @@ class _DesktopHero extends StatelessWidget {
                           ),
                           const SizedBox(height: AppSpacing.xxxl),
                           const FadeSlideIn(
-                            index: 4,
+                            index: 3,
                             delayStep: Duration(milliseconds: 70),
                             child: _PrimaryActions(onHero: true),
                           ),
                           const SizedBox(height: AppSpacing.md),
                           const FadeSlideIn(
-                            index: 5,
+                            index: 4,
                             delayStep: Duration(milliseconds: 70),
                             child: _QuizLink(onDark: true),
-                          ),
-                          const SizedBox(height: AppSpacing.xxl),
-                          const FadeSlideIn(
-                            index: 6,
-                            delayStep: Duration(milliseconds: 70),
-                            child: _TrustLine(onDark: true),
                           ),
                         ],
                       ),
@@ -410,14 +331,9 @@ class _MobileHero extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: AppSpacing.xs),
-            const FadeSlideIn(
-              index: 1,
-              child: _Slogan(onDark: false, compact: true),
-            ),
             const SizedBox(height: AppSpacing.lg),
             FadeSlideIn(
-              index: 2,
+              index: 1,
               child: Text(
                 l10n.onboardingEyebrow,
                 style: textTheme.displayMedium?.copyWith(
@@ -430,7 +346,7 @@ class _MobileHero extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             Expanded(
               child: FadeSlideIn(
-                index: 3,
+                index: 2,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(AppRadii.card),
                   child: Stack(
@@ -457,12 +373,12 @@ class _MobileHero extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xl),
             const FadeSlideIn(
-              index: 4,
+              index: 3,
               child: _PrimaryActions(expand: true),
             ),
             const SizedBox(height: AppSpacing.sm),
             const FadeSlideIn(
-              index: 5,
+              index: 4,
               child: Center(child: _QuizLink(onDark: false)),
             ),
           ],

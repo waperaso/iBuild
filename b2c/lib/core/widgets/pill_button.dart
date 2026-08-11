@@ -17,6 +17,8 @@ class PillButton extends StatelessWidget {
     this.variant = PillButtonVariant.accent,
     this.expand = false,
     this.loading = false,
+    this.backgroundColor,
+    this.foregroundColor,
   });
 
   final String label;
@@ -27,22 +29,29 @@ class PillButton extends StatelessWidget {
 
   /// Shows a small spinner in place of the label/icon and disables taps.
   final bool loading;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final (bg, fg, border) = switch (variant) {
+    final (variantBg, variantFg, border) = switch (variant) {
       PillButtonVariant.accent => (colors.accent, colors.onAccent, null),
       PillButtonVariant.ink => (colors.ink, colors.surface, null),
       PillButtonVariant.outline => (colors.surface, colors.ink, colors.outline),
-      // Hero/onboarding: accent matches heroSurface in iBuild light — use the
-      // secondary brand tone so "Start" stays visible on the navy artwork.
       PillButtonVariant.hero => (
-        colors.accentSecondary,
-        colors.onAccentSecondary,
+        Colors.white,
+        colors.heroSurface,
         null,
       ),
     };
+    final bg = backgroundColor ?? variantBg;
+    final fg = foregroundColor ?? variantFg;
+    final labelStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
+      color: fg,
+      fontWeight:
+          variant == PillButtonVariant.hero ? FontWeight.w600 : null,
+    );
 
     return PressableScale(
       enabled: !loading && onPressed != null,
@@ -86,9 +95,7 @@ class PillButton extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.center,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.labelLarge?.copyWith(color: fg),
+                              style: labelStyle,
                             ),
                           )
                         else
@@ -97,9 +104,7 @@ class PillButton extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.labelLarge?.copyWith(color: fg),
+                            style: labelStyle,
                           ),
                       ],
                     ),

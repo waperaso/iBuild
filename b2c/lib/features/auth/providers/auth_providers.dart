@@ -30,6 +30,12 @@ class AuthController extends AsyncNotifier<AuthUser?> {
     state = AsyncData(user);
   }
 
+  /// Read-only demo for awards reviewers — no DB writes.
+  Future<void> signInAsDemo() async {
+    final user = await ref.read(authRepositoryProvider).signInAsDemo();
+    state = AsyncData(user);
+  }
+
   Future<void> signOut() async {
     await ref.read(authRepositoryProvider).signOut();
     state = const AsyncData(null);

@@ -25,43 +25,47 @@ class ReviewsTab extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final reviewsAsync = ref.watch(reviewsProvider(projectId));
 
-    return RefreshIndicator(
-      onRefresh: () async => ref.invalidate(reviewsProvider(projectId)),
-      child: AsyncValueView(
-        value: reviewsAsync,
-        onRetry: () => ref.invalidate(reviewsProvider(projectId)),
-        builder: (context, reviews) {
-          return ListView(
-            children: [
-              Row(
-                children: [
-                  Expanded(child: _RatingSummary(reviews: reviews)),
-                  PillButton(
-                    label: l10n.writeReviewAction,
-                    variant: PillButtonVariant.outline,
-                    onPressed: () => _openWriteReview(context, ref),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              if (reviews.isEmpty)
-                EmptyState(
-                  compact: true,
-                  icon: Icons.reviews_outlined,
-                  title: l10n.noReviewsYet,
-                  subtitle: l10n.reviewsEmptySubtitle,
-                  actionLabel: l10n.writeReviewAction,
-                  onAction: () => _openWriteReview(context, ref),
-                )
-              else
-                for (final review in reviews) ...[
-                  _ReviewCard(review: review, projectId: projectId),
-                  const SizedBox(height: AppSpacing.md),
-                ],
-            ],
-          );
-        },
-      ),
+    return AsyncValueView(
+      value: reviewsAsync,
+      onRetry: () => ref.invalidate(reviewsProvider(projectId)),
+      builder: (context, reviews) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(child: _RatingSummary(reviews: reviews)),
+                IconButton(
+                  tooltip: l10n.retry,
+                  onPressed: () => ref.invalidate(reviewsProvider(projectId)),
+                  icon: const Icon(Icons.refresh, size: 20),
+                ),
+                PillButton(
+                  label: l10n.writeReviewAction,
+                  variant: PillButtonVariant.outline,
+                  onPressed: () => _openWriteReview(context, ref),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            if (reviews.isEmpty)
+              EmptyState(
+                compact: true,
+                icon: Icons.reviews_outlined,
+                title: l10n.noReviewsYet,
+                subtitle: l10n.reviewsEmptySubtitle,
+                actionLabel: l10n.writeReviewAction,
+                onAction: () => _openWriteReview(context, ref),
+              )
+            else
+              for (final review in reviews) ...[
+                _ReviewCard(review: review, projectId: projectId),
+                const SizedBox(height: AppSpacing.md),
+              ],
+          ],
+        );
+      },
     );
   }
 

@@ -24,23 +24,44 @@ class AppLocalizationsUz extends AppLocalizations {
   String get navSettings => 'Sozlamalar';
 
   @override
-  String get onboardingSlogan => 'iBuild the dream';
-
-  @override
-  String get onboardingEyebrow => 'Soting. Sarmoya kiriting. Bir ilovada.';
+  String get onboardingEyebrow =>
+      'Quruvchidan xavfsiz xarid qiling. Bir ilovada.';
 
   @override
   String get onboardingDescription =>
-      'Tayyor kvartiralar, muddatli toʻlov bilan yangi qurilishlar va biznes-markazlardagi ofislar — barchasi bir joyda, real vaqtdagi mavjudlik va bir bosishda soʻrov bilan.';
-
-  @override
-  String get onboardingTrustBadge => '4.9★ · 500+ mamnun oila';
+      'Tekshirilgan yangi qurilishlarni solishtiring, real mavjudlikni koʻring va soʻrovni toʻgʻridan-toʻgʻri quruvchiga yuboring — vositachisiz, taxminsiz.';
 
   @override
   String get start => 'Boshlash';
 
   @override
+  String get startDemo => 'Boshlash (demo)';
+
+  @override
   String get signIn => 'Kirish';
+
+  @override
+  String get signInDemo => 'Kirish (demo)';
+
+  @override
+  String get demoButton => 'Demo';
+
+  @override
+  String get demoModeTitle => 'Demo rejim';
+
+  @override
+  String get demoModeMessage =>
+      'Siz iBuild ilovasini faqat ko‘rish rejimida sinab ko‘ryapsiz. Barcha ekran va funksiyalarni oching — hech narsa ma’lumotlar bazasiga saqlanmaydi.';
+
+  @override
+  String get demoModeGotIt => 'Tushundim';
+
+  @override
+  String get demoModeBanner => 'Demo rejim — o‘zgarishlar saqlanmaydi';
+
+  @override
+  String get demoWriteBlocked =>
+      'Demo rejim faqat ko‘rish uchun — amal saqlanmadi.';
 
   @override
   String get welcomeTitle => 'iBuildga xush kelibsiz';
@@ -801,6 +822,17 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get clearFilters => 'Tozalash';
+
+  @override
+  String get filtersApplied => 'Filtrlar qo\'llanildi';
+
+  @override
+  String get filterDistrictsHint => 'Bir yoki bir nechta tuman tanlang';
+
+  @override
+  String districtsSelectedCount(int count) {
+    return 'Tanlangan tumanlar: $count';
+  }
 
   @override
   String get saveThisSearch => 'Qidiruvni saqlash';

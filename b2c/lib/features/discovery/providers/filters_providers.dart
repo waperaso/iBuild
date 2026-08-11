@@ -7,11 +7,11 @@ import 'package:ibuild_core/ibuild_core.dart';
 enum DiscoveryCategory { all, apartments, offices, streetRetail, newBuilds }
 
 /// Immutable filter state for the discovery screen: free-text search, the
-/// filter-sheet fields (district/status/price range) and the category chips.
+/// filter-sheet fields (districts/status/price range) and the category chips.
 class DiscoveryFilters {
   const DiscoveryFilters({
     this.searchText = '',
-    this.district,
+    this.districts = const {},
     this.status,
     this.minPrice,
     this.maxPrice,
@@ -22,7 +22,7 @@ class DiscoveryFilters {
   });
 
   final String searchText;
-  final String? district;
+  final Set<String> districts;
   final ProjectStatus? status;
   final double? minPrice;
   final double? maxPrice;
@@ -31,11 +31,10 @@ class DiscoveryFilters {
   final bool offplanOnly;
   final DiscoveryCategory category;
 
-  /// Whether any filter-sheet field (district/status/price/rooms/area/off-plan)
-  /// is set — used to badge the filter icon. Search text and category are
-  /// surfaced elsewhere in the UI so they're excluded here.
+  /// Whether any filter-sheet field is set — badges the filter icon and shows
+  /// the active-filters bar. Search text and category are surfaced elsewhere.
   bool get hasSheetFilters =>
-      district != null ||
+      districts.isNotEmpty ||
       status != null ||
       minPrice != null ||
       maxPrice != null ||
@@ -43,10 +42,21 @@ class DiscoveryFilters {
       areaMin != null ||
       offplanOnly;
 
+  /// Count of active sheet filters (for summary labels).
+  int get activeSheetFilterCount {
+    var n = districts.length;
+    if (status != null) n++;
+    if (minPrice != null || maxPrice != null) n++;
+    if (rooms.isNotEmpty) n++;
+    if (areaMin != null) n++;
+    if (offplanOnly) n++;
+    return n;
+  }
+
   DiscoveryFilters copyWith({String? searchText, DiscoveryCategory? category}) {
     return DiscoveryFilters(
       searchText: searchText ?? this.searchText,
-      district: district,
+      districts: districts,
       status: status,
       minPrice: minPrice,
       maxPrice: maxPrice,
@@ -57,10 +67,10 @@ class DiscoveryFilters {
     );
   }
 
-  /// Returns a copy with the filter-sheet fields replaced (nulls/empty clear
-  /// the field), keeping search text and category untouched.
+  /// Returns a copy with the filter-sheet fields replaced, keeping search text
+  /// and category untouched.
   DiscoveryFilters withSheetFilters({
-    String? district,
+    Set<String> districts = const {},
     ProjectStatus? status,
     double? minPrice,
     double? maxPrice,
@@ -70,7 +80,7 @@ class DiscoveryFilters {
   }) {
     return DiscoveryFilters(
       searchText: searchText,
-      district: district,
+      districts: districts,
       status: status,
       minPrice: minPrice,
       maxPrice: maxPrice,
@@ -89,7 +99,8 @@ class DiscoveryFilters {
   bool operator ==(Object other) =>
       other is DiscoveryFilters &&
       other.searchText == searchText &&
-      other.district == district &&
+      other.districts.length == districts.length &&
+      other.districts.containsAll(districts) &&
       other.status == status &&
       other.minPrice == minPrice &&
       other.maxPrice == maxPrice &&
@@ -102,7 +113,7 @@ class DiscoveryFilters {
   @override
   int get hashCode => Object.hash(
     searchText,
-    district,
+    Object.hashAllUnordered(districts),
     status,
     minPrice,
     maxPrice,
@@ -124,7 +135,7 @@ class DiscoveryFiltersController extends Notifier<DiscoveryFilters> {
       state = state.copyWith(category: category);
 
   void applySheetFilters({
-    String? district,
+    Set<String> districts = const {},
     ProjectStatus? status,
     double? minPrice,
     double? maxPrice,
@@ -133,13 +144,27 @@ class DiscoveryFiltersController extends Notifier<DiscoveryFilters> {
     bool offplanOnly = false,
   }) {
     state = state.withSheetFilters(
-      district: district,
+      districts: districts,
       status: status,
       minPrice: minPrice,
       maxPrice: maxPrice,
       rooms: rooms,
       areaMin: areaMin,
       offplanOnly: offplanOnly,
+    );
+  }
+
+  void toggleDistrict(String district) {
+    final next = {...state.districts};
+    if (!next.remove(district)) next.add(district);
+    state = state.withSheetFilters(
+      districts: next,
+      status: state.status,
+      minPrice: state.minPrice,
+      maxPrice: state.maxPrice,
+      rooms: state.rooms,
+      areaMin: state.areaMin,
+      offplanOnly: state.offplanOnly,
     );
   }
 
@@ -150,14 +175,20 @@ class DiscoveryFiltersController extends Notifier<DiscoveryFilters> {
   /// saved searches don't track it.
   void applySnapshot({
     required String searchText,
-    String? district,
+    Set<String> districts = const {},
+    String? districtLegacy,
     ProjectStatus? status,
     double? minPrice,
     double? maxPrice,
   }) {
+    final resolvedDistricts = districts.isNotEmpty
+        ? districts
+        : (districtLegacy == null || districtLegacy.isEmpty)
+        ? const <String>{}
+        : districtLegacy.split(',').map((d) => d.trim()).where((d) => d.isNotEmpty).toSet();
     state = DiscoveryFilters(
       searchText: searchText,
-      district: district,
+      districts: resolvedDistricts,
       status: status,
       minPrice: minPrice,
       maxPrice: maxPrice,

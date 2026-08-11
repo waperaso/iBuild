@@ -24,24 +24,44 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navSettings => 'Настройки';
 
   @override
-  String get onboardingSlogan => 'iBuild the dream';
-
-  @override
   String get onboardingEyebrow =>
-      'Продавайте. Инвестируйте. Всё в одном приложении.';
+      'Покупайте у застройщика. Безопасно. В одном приложении.';
 
   @override
   String get onboardingDescription =>
-      'Готовые квартиры, новостройки в рассрочку и офисы в бизнес-центрах — всё в одном месте, с актуальной доступностью и заявкой в один клик.';
-
-  @override
-  String get onboardingTrustBadge => '4.9★ · 500+ довольных семей';
+      'Сравнивайте проверенные новостройки, смотрите актуальную доступность и оставляйте заявку напрямую застройщику — без посредников и догадок.';
 
   @override
   String get start => 'Начать';
 
   @override
+  String get startDemo => 'Начать (demo)';
+
+  @override
   String get signIn => 'Войти';
+
+  @override
+  String get signInDemo => 'Войти (demo)';
+
+  @override
+  String get demoButton => 'Демо';
+
+  @override
+  String get demoModeTitle => 'Демо-режим';
+
+  @override
+  String get demoModeMessage =>
+      'Вы просматриваете iBuild в режиме «только чтение». Можно открыть любой экран и функцию — ничего не сохранится в базе данных.';
+
+  @override
+  String get demoModeGotIt => 'Понятно';
+
+  @override
+  String get demoModeBanner => 'Демо-режим — изменения не сохраняются';
+
+  @override
+  String get demoWriteBlocked =>
+      'Демо-режим только для просмотра — действие не сохранено.';
 
   @override
   String get welcomeTitle => 'Добро пожаловать в iBuild';
@@ -802,6 +822,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get clearFilters => 'Сбросить';
+
+  @override
+  String get filtersApplied => 'Применены фильтры';
+
+  @override
+  String get filterDistrictsHint => 'Выберите один или несколько районов';
+
+  @override
+  String districtsSelectedCount(int count) {
+    return 'Выбрано районов: $count';
+  }
 
   @override
   String get saveThisSearch => 'Сохранить поиск';

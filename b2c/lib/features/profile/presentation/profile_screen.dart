@@ -10,6 +10,7 @@ import '../../../core/theme/app_theme_ext.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
+import '../../../core/widgets/demo_entry_button.dart';
 import '../../../core/widgets/pill_button.dart';
 import '../../../core/widgets/shell_tab_scope.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -277,6 +278,7 @@ class _GuestHeader extends StatelessWidget {
           expand: true,
           onPressed: () => context.push('/login'),
         ),
+        const DemoEntrySection(expand: true),
       ],
     );
   }

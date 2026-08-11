@@ -66,7 +66,11 @@ class PromoBanner extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-              PillButton(label: actionLabel, onPressed: onAction),
+              PillButton(
+                label: actionLabel,
+                variant: PillButtonVariant.hero,
+                onPressed: onAction,
+              ),
             ],
           ),
         ],

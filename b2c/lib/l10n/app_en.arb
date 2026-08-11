@@ -7,12 +7,18 @@
   "navInquiries": "Inquiries",
   "navSettings": "Settings",
 
-  "onboardingSlogan": "iBuild the dream",
-  "onboardingEyebrow": "Sell. Invest. All in One App.",
-  "onboardingDescription": "Browse ready apartments, off-plan new builds and business-centre offices — all in one place, with live availability and one-tap enquiries.",
-  "onboardingTrustBadge": "4.9★ · 500+ happy families",
+  "onboardingEyebrow": "Buy from the developer. Safely. In one app.",
+  "onboardingDescription": "Compare verified new builds, see live availability, and send an enquiry straight to the developer — no middlemen, no guesswork.",
   "start": "Start",
+  "startDemo": "Start (demo)",
   "signIn": "Sign in",
+  "signInDemo": "Sign in (demo)",
+  "demoButton": "Demo",
+  "demoModeTitle": "Demo mode",
+  "demoModeMessage": "You're exploring iBuild in read-only demo mode. Browse every screen and feature — nothing you do will be saved to the database.",
+  "demoModeGotIt": "Got it",
+  "demoModeBanner": "Demo mode — changes are not saved",
+  "demoWriteBlocked": "Demo mode is view-only — this action was not saved.",
 
   "welcomeTitle": "Welcome to iBuild",
   "welcomeSubtitle": "Sign in with your phone number",
@@ -358,6 +364,12 @@
   "offplanOnlyLabel": "Off-plan only",
   "applyFilters": "Apply filters",
   "clearFilters": "Clear filters",
+  "filtersApplied": "Filters applied",
+  "filterDistrictsHint": "Select one or more districts",
+  "districtsSelectedCount": "{count} districts selected",
+  "@districtsSelectedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
 
   "saveThisSearch": "Save this search",
   "savedSearchSavedSnackbar": "Search saved",

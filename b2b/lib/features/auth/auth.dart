@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ibuild_core/ibuild_core.dart';
 
 import '../../core/api_client.dart';
 import '../../core/session_storage.dart';
@@ -18,6 +19,7 @@ class AdminUser {
     this.banReason,
     this.bannedByName,
     this.bannedAt,
+    this.isDemo = false,
   });
 
   final String id;
@@ -28,6 +30,7 @@ class AdminUser {
   final String? banReason;
   final String? bannedByName;
   final String? bannedAt;
+  final bool isDemo;
 
   bool get isSystemAdmin => role == 'system_admin';
   bool get isResidenceAdmin => role == 'residence_admin';
@@ -41,6 +44,7 @@ class AdminUser {
     banReason: json['banReason'] as String?,
     bannedByName: json['bannedByName'] as String?,
     bannedAt: json['bannedAt'] as String?,
+    isDemo: json['isDemo'] as bool? ?? false,
   );
 
   Map<String, dynamic> toJson() => {
@@ -52,6 +56,7 @@ class AdminUser {
     if (banReason != null) 'banReason': banReason,
     if (bannedByName != null) 'bannedByName': bannedByName,
     if (bannedAt != null) 'bannedAt': bannedAt,
+    'isDemo': isDemo,
   };
 
   AdminUser copyWith({
@@ -144,7 +149,44 @@ class AuthRepository {
       value: jsonEncode(user.toJson()),
     );
     setAccessTokenCache(data['accessToken'] as String);
+    _syncDemoSession(user);
     return user;
+  }
+
+  Future<AdminUser> signInAsDemo() async {
+    // Drop any restored demo Bearer so the server guard doesn't treat this
+    // re-entry POST as a blocked demo write.
+    DemoSession.deactivate();
+    setAccessTokenCache(null);
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/auth/demo',
+      data: {'profile': 'b2b_platform'},
+    );
+    final data = res.data!;
+    final user = AdminUser.fromJson(data['user'] as Map<String, dynamic>);
+    await _storage.write(
+      key: AuthStorageKeys.accessToken,
+      value: data['accessToken'] as String,
+    );
+    await _storage.write(
+      key: AuthStorageKeys.refreshToken,
+      value: data['refreshToken'] as String,
+    );
+    await _storage.write(
+      key: AuthStorageKeys.userJson,
+      value: jsonEncode(user.toJson()),
+    );
+    setAccessTokenCache(data['accessToken'] as String);
+    _syncDemoSession(user);
+    return user;
+  }
+
+  void _syncDemoSession(AdminUser user) {
+    if (user.isDemo) {
+      DemoSession.activate();
+    } else {
+      DemoSession.deactivate();
+    }
   }
 
   Future<AdminUser?> restore() async {
@@ -169,6 +211,7 @@ class AuthRepository {
       key: AuthStorageKeys.userJson,
       value: jsonEncode(user.toJson()),
     );
+    _syncDemoSession(user);
     return user;
   }
 
@@ -176,6 +219,7 @@ class AuthRepository {
     try {
       await _dio.post('/auth/logout');
     } catch (_) {}
+    DemoSession.deactivate();
     await clearStoredSession(_storage);
   }
 }
@@ -245,6 +289,12 @@ class AuthController extends Notifier<AsyncValue<AdminUser?>> {
     final user = await ref
         .read(authRepositoryProvider)
         .verifyOtp(requestId: requestId, code: code);
+    state = AsyncValue.data(user);
+    _scheduleBanPoll();
+  }
+
+  Future<void> signInAsDemo() async {
+    final user = await ref.read(authRepositoryProvider).signInAsDemo();
     state = AsyncValue.data(user);
     _scheduleBanPoll();
   }

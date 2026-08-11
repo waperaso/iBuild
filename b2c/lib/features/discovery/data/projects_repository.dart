@@ -16,7 +16,7 @@ class ProjectFilter {
   const ProjectFilter({
     this.mode,
     this.search,
-    this.district,
+    this.districts = const {},
     this.status,
     this.type,
     this.minPrice,
@@ -30,7 +30,7 @@ class ProjectFilter {
 
   final DiscoveryMode? mode;
   final String? search;
-  final String? district;
+  final Set<String> districts;
   final ProjectStatus? status;
   final ProjectType? type;
   final double? minPrice;
@@ -44,7 +44,7 @@ class ProjectFilter {
   ProjectFilter copyWithPage(int page) => ProjectFilter(
     mode: mode,
     search: search,
-    district: district,
+    districts: districts,
     status: status,
     type: type,
     minPrice: minPrice,
@@ -84,8 +84,8 @@ class ProjectsRepository {
         if (filter.mode != null) 'mode': _modeParam(filter.mode!),
         if (filter.search != null && filter.search!.isNotEmpty)
           'search': filter.search,
-        if (filter.district != null && filter.district!.isNotEmpty)
-          'district': filter.district,
+        if (filter.districts.isNotEmpty)
+          'district': filter.districts.join(','),
         if (filter.status != null) 'status': _statusParam(filter.status!),
         if (filter.type != null) 'type': _typeParam(filter.type!),
         if (filter.minPrice != null) 'priceMin': filter.minPrice,
@@ -147,9 +147,11 @@ class ProjectsRepository {
     ProjectFilter filter,
   ) {
     var result = items;
-    if (filter.district != null && filter.district!.isNotEmpty) {
-      final d = filter.district!.toLowerCase();
-      result = result.where((p) => p.district.toLowerCase() == d).toList();
+    if (filter.districts.isNotEmpty) {
+      final allowed = filter.districts.map((d) => d.toLowerCase()).toSet();
+      result = result
+          .where((p) => allowed.contains(p.district.toLowerCase()))
+          .toList();
     }
     if (filter.search != null && filter.search!.isNotEmpty) {
       final q = filter.search!.toLowerCase();

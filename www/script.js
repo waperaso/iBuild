@@ -16,6 +16,76 @@
     dark: "assets/brand/ibuild-logo-dark.png"
   };
 
+  const resolveAppUrls = () => {
+    const host = window.location.hostname;
+    const protocol = window.location.protocol;
+    const isIp = /^\d+\.\d+\.\d+\.\d+$/.test(host);
+    const isLocal = host === "localhost" || host === "127.0.0.1";
+
+    if (isIp || isLocal) {
+      return {
+        b2c: `${protocol}//${host}:8081/`,
+        b2b: `${protocol}//${host}:8080/`
+      };
+    }
+
+    return {
+      b2c: "https://app.ibuild.uz/",
+      b2b: "https://admin.ibuild.uz/"
+    };
+  };
+
+  let appUrls = resolveAppUrls();
+
+  const appHref = (target) => (target === "b2b" ? appUrls.b2b : appUrls.b2c);
+
+  const wireAppLinks = () => {
+    appUrls = resolveAppUrls();
+    document.querySelectorAll("[data-app-link]").forEach((link) => {
+      const target = link.dataset.appLink;
+      if (target !== "b2c" && target !== "b2b") return;
+      link.setAttribute("href", appHref(target));
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      link.removeAttribute("aria-disabled");
+    });
+
+    document.querySelectorAll(".gateway-url").forEach((el) => {
+      const card = el.closest("[data-app-link]");
+      if (!card) return;
+      const href = appHref(card.dataset.appLink);
+      try {
+        el.textContent = new URL(href).host;
+      } catch (_) {
+        el.textContent = href.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      }
+    });
+  };
+
+  const navigateAppLink = (link) => {
+    const target = link?.dataset?.appLink;
+    if (target !== "b2c" && target !== "b2b") return;
+    const opened = window.open(appHref(target), "_blank");
+    if (opened) opened.opener = null;
+  };
+
+  const initAppLinkNavigation = () => {
+    wireAppLinks();
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest("[data-app-link]");
+      if (!link) return;
+      const target = link.dataset.appLink;
+      if (target !== "b2c" && target !== "b2b") return;
+      const href = link.getAttribute("href");
+      if (!href || href === "#" || href.endsWith("#")) {
+        event.preventDefault();
+        navigateAppLink(link);
+        return;
+      }
+      closeMenu();
+    });
+  };
+
   let currentLang = "en";
   let currentTheme = "light";
   let activeProcess = 0;
@@ -53,6 +123,8 @@
     });
 
     activateProcessStep(activeProcess);
+
+    wireAppLinks();
   };
 
   const applyTheme = (theme) => {
@@ -113,17 +185,21 @@
     document.body.classList.toggle("menu-open", willOpen);
   });
 
-  mobileMenu?.querySelectorAll(".mobile-nav-link, .mobile-app-link").forEach((link) => link.addEventListener("click", closeMenu));
+  mobileMenu?.querySelectorAll(".mobile-nav-link, .mobile-app-link, [data-app-link]").forEach((link) => link.addEventListener("click", closeMenu));
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeMenu();
   });
 
   const revealElements = document.querySelectorAll(".reveal");
+  let revealObserver = null;
 
-  if (reducedMotion || !("IntersectionObserver" in window)) {
-    revealElements.forEach((element) => element.classList.add("is-visible"));
-  } else {
-    const revealObserver = new IntersectionObserver(
+  const initRevealAnimations = () => {
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+      revealElements.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
+
+    revealObserver = new IntersectionObserver(
       (entries, observer) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
@@ -135,7 +211,20 @@
     );
 
     revealElements.forEach((element) => revealObserver.observe(element));
-  }
+  };
+
+  const waitForPageAssets = () => {
+    const fontsReady = document.fonts?.ready ?? Promise.resolve();
+    const images = [...document.querySelectorAll(".site-page img")].map((img) => {
+      if (img.complete) return Promise.resolve();
+      return new Promise((resolve) => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", resolve, { once: true });
+      });
+    });
+
+    return Promise.all([fontsReady, ...images]);
+  };
 
   if ("IntersectionObserver" in window) {
     const sectionObserver = new IntersectionObserver(
@@ -271,24 +360,57 @@
         card.style.transform = "";
       });
     });
-
-    document.querySelectorAll(".magnetic").forEach((element) => {
-      element.addEventListener("pointermove", (event) => {
-        const bounds = element.getBoundingClientRect();
-        const x = event.clientX - bounds.left - bounds.width / 2;
-        const y = event.clientY - bounds.top - bounds.height / 2;
-        element.style.transform = `translate(${x * 0.08}px, ${y * 0.12}px)`;
-      });
-
-      element.addEventListener("pointerleave", () => {
-        element.style.transform = "";
-      });
-    });
   }
+
+  const initPageLoader = () => {
+    const loader = document.querySelector("[data-page-loader]");
+    const sitePage = document.querySelector("[data-site-page]");
+    if (!loader) return;
+
+    const minDisplay = reducedMotion ? 0 : 700;
+    const started = performance.now();
+    let finished = false;
+
+    const finishLoading = () => {
+      if (finished) return;
+      finished = true;
+
+      const wait = Math.max(0, minDisplay - (performance.now() - started));
+
+      window.setTimeout(() => {
+        document.body.classList.remove("is-loading");
+        document.body.classList.add("is-ready");
+        sitePage?.setAttribute("aria-hidden", "false");
+        loader.classList.add("is-hidden");
+        loader.setAttribute("aria-hidden", "true");
+        initRevealAnimations();
+
+        loader.addEventListener(
+          "transitionend",
+          () => {
+            loader.remove();
+          },
+          { once: true }
+        );
+      }, wait);
+    };
+
+    const onWindowLoad = () => {
+      waitForPageAssets().then(finishLoading);
+    };
+
+    if (document.readyState === "complete") {
+      onWindowLoad();
+    } else {
+      window.addEventListener("load", onWindowLoad, { once: true });
+    }
+  };
 
   const year = document.querySelector("[data-year]");
   if (year) year.textContent = String(new Date().getFullYear());
 
+  initPageLoader();
   initPreferences();
+  initAppLinkNavigation();
   activateProcessStep(0);
 })();

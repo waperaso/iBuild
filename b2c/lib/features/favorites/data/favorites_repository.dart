@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:ibuild_core/ibuild_core.dart';
+
 import '../../../core/config/env.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/auth_token_cache.dart';
@@ -19,7 +21,7 @@ class FavoritesRepository {
     final prefs = await SharedPreferences.getInstance();
     final local = prefs.getStringList(_prefsKey)?.toSet() ?? <String>{};
 
-    if (Env.useMockData || AuthTokenCache.accessToken == null) {
+    if (Env.useMockData || DemoSession.isActive || AuthTokenCache.accessToken == null) {
       return local;
     }
     try {

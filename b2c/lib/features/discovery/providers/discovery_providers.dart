@@ -37,7 +37,7 @@ class ProjectsController extends AsyncNotifier<List<Project>> {
     return ProjectFilter(
       mode: mode,
       search: filters.searchText.isEmpty ? null : filters.searchText,
-      district: filters.district,
+      districts: filters.districts,
       status: filters.status,
       type: _typeFor(filters.category),
       minPrice: filters.minPrice,
@@ -82,6 +82,31 @@ final projectsProvider =
     AsyncNotifierProvider<ProjectsController, List<Project>>(
       ProjectsController.new,
     );
+
+ProjectType? _catalogueTypeFor(DiscoveryCategory category) =>
+    switch (category) {
+      DiscoveryCategory.apartments => ProjectType.residentialComplex,
+      DiscoveryCategory.offices => ProjectType.businessCentre,
+      DiscoveryCategory.streetRetail => ProjectType.streetRetail,
+      DiscoveryCategory.all || DiscoveryCategory.newBuilds => null,
+    };
+
+/// Unfiltered-by-district catalogue for the "Popular districts" rail — keeps
+/// all district cards visible while the user toggles multi-select filters.
+final districtCatalogueProvider = FutureProvider<List<Project>>((ref) {
+  final mode = ref.watch(discoveryModeProvider);
+  final category = ref.watch(
+    discoveryFiltersProvider.select((f) => f.category),
+  );
+  final repo = ref.watch(projectsRepositoryProvider);
+  return repo.fetchProjects(
+    ProjectFilter(
+      mode: mode,
+      type: _catalogueTypeFor(category),
+      limit: 50,
+    ),
+  );
+});
 
 /// Map pins reuse the discovery catalogue so switching Home↔Map does not
 /// fire a second identical `GET /projects`. Home `loadMore` can grow the

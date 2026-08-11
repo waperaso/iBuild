@@ -7,6 +7,9 @@ import 'package:ibuild_client/app.dart';
 import 'package:ibuild_client/core/localization/exchange_rate_provider.dart';
 import 'package:ibuild_client/core/localization/locale_controller.dart';
 import 'package:ibuild_client/core/network/auth_token_cache.dart';
+import 'package:ibuild_client/features/auth/data/auth_repository.dart';
+import 'package:ibuild_client/features/auth/providers/auth_providers.dart';
+import 'package:ibuild_core/ibuild_core.dart';
 
 /// The app defaults to Uzbek (see [LocaleController]) so these widget tests
 /// pin the locale to English to keep hardcoded string assertions stable
@@ -16,6 +19,24 @@ class _EnglishLocaleController extends LocaleController {
   Locale build() {
     Intl.defaultLocale = 'en';
     return const Locale('en');
+  }
+}
+
+class _TestAuthController extends AuthController {
+  @override
+  Future<AuthUser?> build() async => null;
+
+  @override
+  Future<void> signInAsDemo() async {
+    DemoSession.activate();
+    state = const AsyncData(
+      AuthUser(
+        id: 'demo-user-b2c',
+        phone: '+998900000000',
+        name: 'Demo Reviewer',
+        isDemo: true,
+      ),
+    );
   }
 }
 
@@ -29,6 +50,7 @@ final _englishLocaleOverrides = [
   localeControllerProvider.overrideWith(_EnglishLocaleController.new),
   exchangeRateProvider.overrideWith((ref) async => kFallbackUsdToUzs),
   bootstrapProvider.overrideWith((ref) async {}),
+  authControllerProvider.overrideWith(_TestAuthController.new),
 ];
 
 /// Advances the fake clock in small steps instead of one big jump, so
@@ -43,6 +65,19 @@ Future<void> _pumpSteps(
   for (var i = 0; i < steps; i++) {
     await tester.pump(step);
   }
+}
+
+/// Taps the onboarding demo CTA and dismisses the one-time demo dialog.
+Future<void> _enterDemoFromOnboarding(WidgetTester tester) async {
+  await tester.tap(find.text('Start (demo)'));
+  await tester.pump();
+  for (var i = 0; i < 20; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+    if (find.text('Got it').evaluate().isNotEmpty) break;
+  }
+  await tester.tap(find.text('Got it'));
+  await tester.pump();
+  await tester.pump();
 }
 
 void main() {
@@ -61,8 +96,11 @@ void main() {
     await tester.pump();
     await _pumpSteps(tester);
 
-    expect(find.text('iBuild the dream'), findsOneWidget);
-    expect(find.text('Start'), findsOneWidget);
+    expect(
+      find.text('Buy from the developer. Safely. In one app.'),
+      findsOneWidget,
+    );
+    expect(find.text('Start (demo)'), findsOneWidget);
   });
 
   testWidgets('Start leads to discovery with mock projects loaded', (
@@ -76,8 +114,9 @@ void main() {
     );
     await tester.pump();
     await tester.pump();
+    await _pumpSteps(tester);
 
-    await tester.tap(find.text('Start'));
+    await _enterDemoFromOnboarding(tester);
     // The projects list is a FutureProvider (mock data resolves on a
     // microtask). Avoid `pumpAndSettle` — the network-image shimmer
     // placeholder animates forever with no real network in tests. Step the
@@ -88,7 +127,7 @@ void main() {
 
     expect(find.text('Explore Properties'), findsOneWidget);
     // At least one bundled mock residential complex should render as a card.
-    expect(find.textContaining('Aaradhya'), findsWidgets);
+    expect(find.textContaining('NestOne'), findsWidgets);
   });
 
   testWidgets('My inquiries lists the bundled mock leads', (
@@ -102,7 +141,8 @@ void main() {
     );
     await tester.pump();
     await tester.pump();
-    await tester.tap(find.text('Start'));
+    await _pumpSteps(tester);
+    await _enterDemoFromOnboarding(tester);
     await tester.pump();
     await _pumpSteps(tester);
 
