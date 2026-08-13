@@ -510,5 +510,397 @@
   },
   "quizDoneAction": "Browse my matches",
   "quizRetakeAction": "Retake quiz",
-  "quizEntryAction": "Take the quiz"
+  "quizEntryAction": "Take the quiz",
+
+  "leadSubjectLabel": "What's this about?",
+  "leadSubjectProject": "A project",
+  "leadSubjectUnit": "A specific unit",
+  "leadSubjectRent": "Renting",
+  "leadSubjectOffice": "An office",
+  "leadSubjectMortgage": "Mortgage consult",
+  "leadSubjectOther": "Something else",
+
+  "aiFabTooltip": "Ask iBuild AI",
+  "aiChatTitle": "iBuild AI",
+  "aiChatInfoTooltip": "About iBuild AI",
+  "aiChatInfoBody": "Ask about the catalogue, a specific complex or unit, or how installments and mortgages work — iBuild AI answers using iBuild's own listings and terms.",
+  "aiChatErrorSnackbar": "Couldn't get a reply. Please try again.",
+  "aiChatQuotaExhaustedTitle": "Daily limit reached",
+  "aiChatQuotaExhaustedBody": "You've used today's iBuild AI messages. Please come back tomorrow.",
+  "aiChatUnavailableTitle": "iBuild AI is taking a break",
+  "aiChatUnavailableBody": "The assistant is temporarily unavailable. Please try again later.",
+  "aiChatEmptyTitle": "Ask iBuild AI anything",
+  "aiChatEmptyBody": "Try \u201cWhich complexes in Chilanzar have installments?\u201d or \u201cWhat's a good mortgage rate for a $60,000 flat?\u201d",
+  "aiChatInputHint": "Message iBuild AI...",
+  "aiChatSendTooltip": "Send",
+
+  "aiBetaNoticeTitle": "iBuild AI is in testing",
+  "aiBetaNoticeBody": "Answers may occasionally be inaccurate — always double-check details like price and availability on the listing itself.",
+  "aiQuotaTitle": "Daily quota",
+  "aiQuotaUsedLabel": "{used} of {limit} messages used today",
+  "@aiQuotaUsedLabel": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "limit": { "type": "int" }
+    }
+  },
+  "aiQuotaResetLabel": "Resets {time}",
+  "@aiQuotaResetLabel": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "aiSearchInfoExamplesTitle": "Try asking",
+
+  "aiSearchInfoTitle": "AI smart search",
+  "aiSearchInfoBody": "Describe what you're looking for in plain language — rooms, budget, district, anything that matters to you — and iBuild AI will parse it into a live search of the catalogue.",
+  "aiSearchExample1": "2-room in Chilanzar under $60k",
+  "aiSearchExample2": "3-bedroom office near the business district, ready now",
+  "aiSearchExample3": "Apartment for rent, not on the first floor, with parking",
+  "aiSearchHint": "Describe what you're looking for...",
+  "aiSearchClearTooltip": "Clear search",
+  "aiSearchSubmitTooltip": "Search",
+  "aiSearchInfoTooltip": "About AI search",
+
+  "aiSearchRateLimitedTitle": "Daily search limit reached",
+  "aiSearchRateLimitedBody": "You have reached the daily AI search limit. Please come back {time}.",
+  "@aiSearchRateLimitedBody": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "aiSearchUnavailableTitle": "AI search is taking a break",
+  "aiSearchUnavailableBody": "Smart search is temporarily unavailable. Please try again later.",
+  "aiSearchGenericErrorTitle": "Couldn't run that search",
+  "aiSearchGenericErrorBody": "Something went wrong. Please try again in a moment.",
+  "aiSearchUnrecognizedNote": "Not sure what you meant by: {terms}",
+  "@aiSearchUnrecognizedNote": {
+    "placeholders": { "terms": { "type": "String" } }
+  },
+  "aiSearchSummary": "{count, plural, =0{No matches} =1{1 match} other{{count} matches}}",
+  "@aiSearchSummary": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiSearchResultsEmptyTitle": "No matches yet",
+  "aiSearchResultsEmptyBody": "Try loosening a constraint — a wider budget or a nearby district often helps.",
+  "aiSearchMatchScoreLabel": "{score}% match",
+  "@aiSearchMatchScoreLabel": {
+    "placeholders": { "score": { "type": "int" } }
+  },
+  "aiSearchStatusStarting": "Getting started...",
+  "aiSearchTabHintTooltip": "Press Tab to accept the suggestion",
+  "aiSearchTabAcceptLabel": "Accept the AI suggestion",
+  "aiSearchClarifyTitle": "Could not understand the query",
+  "aiSearchClarifyBody": "These words are not in the catalogue: {terms}. Rephrase the query or pick one of the suggestions below.",
+  "@aiSearchClarifyBody": {
+    "placeholders": { "terms": { "type": "String" } }
+  },
+  "aiSearchClarifyExamplesHint": "Try one of these instead:",
+  "aiSearchDidYouMean": "Did you mean “{suggestion}”?",
+  "@aiSearchDidYouMean": {
+    "placeholders": { "suggestion": { "type": "String" } }
+  },
+  "aiSearchQuotedTerm": "“{term}”",
+  "@aiSearchQuotedTerm": {
+    "placeholders": { "term": { "type": "String" } }
+  },
+  "aiSearchRelaxConstraint": "Drop: {constraint}",
+  "@aiSearchRelaxConstraint": {
+    "placeholders": { "constraint": { "type": "String" } }
+  },
+
+  "aiStepParsingV1": "Reading your request ({count} details)...",
+  "@aiStepParsingV1": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepParsingV2": "Understanding what you're after ({count} details)...",
+  "@aiStepParsingV2": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepParsingV3": "Parsing {count, plural, =1{1 requirement} other{{count} requirements}}...",
+  "@aiStepParsingV3": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepParsingV4": "Breaking down your request into {count} parts...",
+  "@aiStepParsingV4": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "aiStepScanningDistrictV1": "Scanning {district} ({count} projects)...",
+  "@aiStepScanningDistrictV1": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepScanningDistrictV2": "Looking through {count} projects in {district}...",
+  "@aiStepScanningDistrictV2": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepScanningDistrictV3": "Checking availability in {district} ({count} projects)...",
+  "@aiStepScanningDistrictV3": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepScanningDistrictV4": "Surveying {district} ({count} projects)...",
+  "@aiStepScanningDistrictV4": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "aiStepFoundInDistrictV1": "Found {count} in {district}",
+  "@aiStepFoundInDistrictV1": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepFoundInDistrictV2": "{count} candidates spotted in {district}",
+  "@aiStepFoundInDistrictV2": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepFoundInDistrictV3": "{district}: {count} worth a closer look",
+  "@aiStepFoundInDistrictV3": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepFoundInDistrictV4": "Shortlisted {count} in {district}",
+  "@aiStepFoundInDistrictV4": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "aiStepOpeningProjectV1": "Opening {project} ({index}/{total})...",
+  "@aiStepOpeningProjectV1": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "aiStepOpeningProjectV2": "Looking inside {project} ({index} of {total})...",
+  "@aiStepOpeningProjectV2": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "aiStepOpeningProjectV3": "Checking {project} ({index} of {total})...",
+  "@aiStepOpeningProjectV3": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "aiStepOpeningProjectV4": "Now viewing {project} ({index}/{total})...",
+  "@aiStepOpeningProjectV4": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "aiStepScanningUnitsV1": "Scanning units in {project} ({count})...",
+  "@aiStepScanningUnitsV1": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepScanningUnitsV2": "Checking {count} units in {project}...",
+  "@aiStepScanningUnitsV2": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepScanningUnitsV3": "Going through the floor plans in {project} ({count} units)...",
+  "@aiStepScanningUnitsV3": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepScanningUnitsV4": "{project}: reviewing {count} units...",
+  "@aiStepScanningUnitsV4": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "aiStepFilteringBookedV1": "Filtering out {removed} unavailable, {left} left...",
+  "@aiStepFilteringBookedV1": {
+    "placeholders": {
+      "removed": { "type": "int" },
+      "left": { "type": "int" }
+    }
+  },
+  "aiStepFilteringBookedV2": "Removing {removed} sold and reserved units ({left} remain)...",
+  "@aiStepFilteringBookedV2": {
+    "placeholders": {
+      "removed": { "type": "int" },
+      "left": { "type": "int" }
+    }
+  },
+  "aiStepFilteringBookedV3": "Skipping {removed} already taken, {left} left...",
+  "@aiStepFilteringBookedV3": {
+    "placeholders": {
+      "removed": { "type": "int" },
+      "left": { "type": "int" }
+    }
+  },
+  "aiStepFilteringBookedV4": "Keeping only the {left} available units (removed {removed})...",
+  "@aiStepFilteringBookedV4": {
+    "placeholders": {
+      "removed": { "type": "int" },
+      "left": { "type": "int" }
+    }
+  },
+
+  "aiStepRankingPriceV1": "Ranking {count} by best fit...",
+  "@aiStepRankingPriceV1": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepRankingPriceV2": "Sorting {count} by price and match quality...",
+  "@aiStepRankingPriceV2": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepRankingPriceV3": "Comparing {count} options...",
+  "@aiStepRankingPriceV3": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepRankingPriceV4": "Lining up the best {count} matches...",
+  "@aiStepRankingPriceV4": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "aiStepDoneV1": "Done · {count, plural, =0{no matches} =1{1 match} other{{count} matches}} in {elapsedMs}ms",
+  "@aiStepDoneV1": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "elapsedMs": { "type": "int" }
+    }
+  },
+  "aiStepDoneV2": "All set — {count, plural, =0{nothing quite matched} =1{1 match found} other{{count} matches found}} ({elapsedMs}ms)",
+  "@aiStepDoneV2": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "elapsedMs": { "type": "int" }
+    }
+  },
+  "aiStepDoneV3": "Search complete ({count, plural, =0{0 results} =1{1 result} other{{count} results}}, {elapsedMs}ms)",
+  "@aiStepDoneV3": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "elapsedMs": { "type": "int" }
+    }
+  },
+  "aiStepDoneV4": "Ready — {count, plural, =0{no matches this time} =1{1 strong match} other{{count} strong matches}} ({elapsedMs}ms)",
+  "@aiStepDoneV4": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "elapsedMs": { "type": "int" }
+    }
+  },
+
+  "aiStepNoMatchIntent": "Nothing in the catalogue matches {terms} — stopping here",
+  "@aiStepNoMatchIntent": {
+    "placeholders": { "terms": { "type": "String" } }
+  },
+  "aiStepLowConfidence": "Not fully sure about {terms} — showing broader matches ({count})",
+  "@aiStepLowConfidence": {
+    "placeholders": {
+      "terms": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepAutocorrected": "Read “{from}” as “{to}”",
+  "@aiStepAutocorrected": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
+  "aiStepSoftenedAmenity": "Relaxed the “{amenity}” requirement to find options",
+  "@aiStepSoftenedAmenity": {
+    "placeholders": { "amenity": { "type": "String" } }
+  },
+
+  "aiReasonDistrictMatch": "Right district",
+  "aiReasonRoomsMatch": "Room count matches",
+  "aiReasonPriceFit": "Fits your budget",
+  "aiReasonPriceBelowBudget": "Below budget",
+  "aiReasonAreaFit": "Area matches",
+  "aiReasonFloorPreference": "Floor preference",
+  "aiReasonDealTypeMatch": "Sale/rent matches",
+  "aiReasonKindMatch": "Unit type matches",
+  "aiReasonAvailableNow": "Available now",
+  "aiReasonAmenityMatch": "Has requested amenities",
+  "aiReasonDeveloperMatch": "Requested developer",
+  "aiReasonProjectMatch": "Requested project",
+  "aiReasonHighTrustIndex": "High trust index",
+  "aiReasonReadySoon": "Ready soon",
+  "aiReasonOffplanDiscount": "Off-plan discount",
+
+  "aiChipAreaRange": "{min}–{max} m²",
+  "@aiChipAreaRange": {
+    "placeholders": {
+      "min": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "aiChipAreaUpTo": "up to {max} m²",
+  "@aiChipAreaUpTo": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+  "aiChipAreaFrom": "from {min} m²",
+  "@aiChipAreaFrom": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "aiDealTypeRent": "For rent",
+  "aiDealTypeSale": "For sale",
+  "aiUnitKindApartment": "Apartment",
+  "aiUnitKindCommercial": "Commercial",
+  "aiUnitKindParking": "Parking",
+  "aiChipFloorRange": "Floor {min}–{max}",
+  "@aiChipFloorRange": {
+    "placeholders": {
+      "min": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "aiChipFloorFrom": "Floor {min}+",
+  "@aiChipFloorFrom": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "aiChipFloorUpTo": "Up to floor {max}",
+  "@aiChipFloorUpTo": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+  "aiChipNotFirstFloor": "Not first floor",
+  "aiChipNotLastFloor": "Not last floor",
+  "aiChipAvailableOnly": "Available only",
+  "aiSearchShowAll": "Show all {count}",
+  "@aiSearchShowAll": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiSearchAllResultsTitle": "All results",
+  "aiConstraintWithout": "Without {amenity}",
+  "@aiConstraintWithout": {
+    "placeholders": { "amenity": { "type": "String" } }
+  }
 }

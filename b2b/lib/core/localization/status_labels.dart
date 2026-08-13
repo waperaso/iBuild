@@ -152,3 +152,76 @@ String projectModerationStatusLabel(AppLocalizations l10n, String value) =>
       'rejected' => l10n.projectModerationStatusRejected,
       _ => value,
     };
+
+/// The `aiBand` filter row in a lead workspace — plural forms ("Горячие"),
+/// unlike [leadScoreLabel], which labels a single lead's band.
+String aiBandFilterLabel(AppLocalizations l10n, String value) =>
+    switch (value) {
+      'hot' => l10n.crmBandFilterHot,
+      'warm' => l10n.crmBandFilterWarm,
+      'cold' => l10n.crmBandFilterCold,
+      _ => l10n.crmBandFilterAll,
+    };
+
+/// `aiReasons[]` codes from `GET /ai/crm/leads` / bot `lead` cards (AI layer
+/// plan, Part 3) — full list documented on the server's
+/// `GET /v1/ai/crm/leads` route.
+String aiReasonLabel(AppLocalizations l10n, String value) => switch (value) {
+  'highIntent' => l10n.aiReasonHighIntent,
+  'viewingRequested' => l10n.aiReasonViewingRequested,
+  'specificUnit' => l10n.aiReasonSpecificUnit,
+  'preferredTimeSet' => l10n.aiReasonPreferredTimeSet,
+  'longMessage' => l10n.aiReasonLongMessage,
+  'mortgageInterest' => l10n.aiReasonMortgageInterest,
+  'cashBuyer' => l10n.aiReasonCashBuyer,
+  'urgentKeyword' => l10n.aiReasonUrgentKeyword,
+  'repeatContact' => l10n.aiReasonRepeatContact,
+  'recentActivity' => l10n.aiReasonRecentActivity,
+  'noResponse24h' => l10n.aiReasonNoResponse24h,
+  'noResponse3d' => l10n.aiReasonNoResponse3d,
+  'slaBreach' => l10n.aiReasonSlaBreach,
+  'funnelAdvanced' => l10n.aiReasonFunnelAdvanced,
+  'stalled' => l10n.aiReasonStalled,
+  'hotProject' => l10n.aiReasonHotProject,
+  'unitScarcity' => l10n.aiReasonUnitScarcity,
+  'offplanInterest' => l10n.aiReasonOffplanInterest,
+  'rentIntent' => l10n.aiReasonRentIntent,
+  'lowSpecificity' => l10n.aiReasonLowSpecificity,
+  _ => value,
+};
+
+/// The 8 construction-stage identifiers used by `declaredStage` /
+/// `detectedStage` in the AI readiness check (plan Part 4).
+const List<String> kReadinessStages = [
+  'earthworks',
+  'foundation',
+  'frame_floors',
+  'roofing',
+  'facade',
+  'utilities',
+  'interior_finishing',
+  'landscaping',
+];
+
+String readinessStageLabel(AppLocalizations l10n, String value) =>
+    switch (value) {
+      'earthworks' => l10n.readinessStageEarthworks,
+      'foundation' => l10n.readinessStageFoundation,
+      'frame_floors' => l10n.readinessStageFrameFloors,
+      'roofing' => l10n.readinessStageRoofing,
+      'facade' => l10n.readinessStageFacade,
+      'utilities' => l10n.readinessStageUtilities,
+      'interior_finishing' => l10n.readinessStageInteriorFinishing,
+      'landscaping' => l10n.readinessStageLandscaping,
+      _ => value,
+    };
+
+/// `overall_status` from `POST /photo-reports/analyze` (plan Part 4).
+String readinessStatusLabel(AppLocalizations l10n, String value) =>
+    switch (value) {
+      'confirmed' => l10n.readinessStatusConfirmed,
+      'requires_manual_review' => l10n.readinessStatusRequiresManualReview,
+      'discrepancy_found' => l10n.readinessStatusDiscrepancyFound,
+      'violation_found' => l10n.readinessStatusViolationFound,
+      _ => value,
+    };

@@ -324,7 +324,9 @@ void main() {
       final project = store.projects.firstWhere(
         (p) => p['name'] == testResidentialName,
       );
-      final response = await handler(_get('/v1/projects/${project['id']}/offers'));
+      final response = await handler(
+        _get('/v1/projects/${project['id']}/offers'),
+      );
       final json = await _decode(response);
       final offers = (json['data'] as List).cast<Map<String, dynamic>>();
       final discount = offers.firstWhere((o) => o['type'] == 'discount');
@@ -542,8 +544,9 @@ void main() {
       );
       expect(resubmitted['verificationStatus'], 'draft');
       expect(resubmitted['constructionLicense'], 'LIC-0042');
-      final resubmittedPending =
-          store.submitDeveloperForReview('usr-status-pipeline');
+      final resubmittedPending = store.submitDeveloperForReview(
+        'usr-status-pipeline',
+      );
       expect(resubmittedPending!['verificationStatus'], 'pending');
     });
 
@@ -871,38 +874,34 @@ void main() {
       expect(response.statusCode, 404);
     });
 
-    test(
-      'deleting another platform admin removes the account, revokes their '
-      'session, and is logged',
-      () async {
-        final countBefore = store.systemAdminCount();
+    test('deleting another platform admin removes the account, revokes their '
+        'session, and is logged', () async {
+      final countBefore = store.systemAdminCount();
 
-        final response = await handler(
-          _delete('/v1/platform/users/$secondAdminId', token: adminToken),
-        );
-        expect(response.statusCode, 200);
-        final json = await _decode(response);
-        expect(json['data']['deleted'], isTrue);
+      final response = await handler(
+        _delete('/v1/platform/users/$secondAdminId', token: adminToken),
+      );
+      expect(response.statusCode, 200);
+      final json = await _decode(response);
+      expect(json['data']['deleted'], isTrue);
 
-        // The deleted admin's own (still-live) token no longer resolves.
-        final me = await handler(_get('/v1/users/me', token: secondAdminToken));
-        expect(me.statusCode, 401);
+      // The deleted admin's own (still-live) token no longer resolves.
+      final me = await handler(_get('/v1/users/me', token: secondAdminToken));
+      expect(me.statusCode, 401);
 
-        final users = await _decode(
-          await handler(_get('/v1/platform/users', token: adminToken)),
-        );
-        final ids = (users['data'] as List).map((u) => u['id']).toList();
-        expect(ids, isNot(contains(secondAdminId)));
-        expect(store.systemAdminCount(), countBefore - 1);
+      final users = await _decode(
+        await handler(_get('/v1/platform/users', token: adminToken)),
+      );
+      final ids = (users['data'] as List).map((u) => u['id']).toList();
+      expect(ids, isNot(contains(secondAdminId)));
+      expect(store.systemAdminCount(), countBefore - 1);
 
-        final auditLog = await _decode(
-          await handler(_get('/v1/platform/audit-log', token: adminToken)),
-        );
-        final items = (auditLog['data'] as List)
-            .cast<Map<String, dynamic>>();
-        expect(items.any((e) => e['action'] == 'user.delete'), isTrue);
-      },
-    );
+      final auditLog = await _decode(
+        await handler(_get('/v1/platform/audit-log', token: adminToken)),
+      );
+      final items = (auditLog['data'] as List).cast<Map<String, dynamic>>();
+      expect(items.any((e) => e['action'] == 'user.delete'), isTrue);
+    });
   });
 
   group('rate limiting', () {
@@ -1038,16 +1037,19 @@ void main() {
 
     tearDown(() => store.dispose());
 
-    test('system admin can no longer create a ЖК project of their own', () async {
-      store.ensureUser(phone: '+998901234567', role: 'system_admin');
-      final token = await _signIn(handler);
-      final response = await handler(
-        _post('/v1/developers/me/projects', {
-          'name': 'Admin Own Project',
-        }, token: token),
-      );
-      expect(response.statusCode, 403);
-    });
+    test(
+      'system admin can no longer create a ЖК project of their own',
+      () async {
+        store.ensureUser(phone: '+998901234567', role: 'system_admin');
+        final token = await _signIn(handler);
+        final response = await handler(
+          _post('/v1/developers/me/projects', {
+            'name': 'Admin Own Project',
+          }, token: token),
+        );
+        expect(response.statusCode, 403);
+      },
+    );
 
     test(
       'residence admin without an approved developer profile is still blocked, '
@@ -1083,60 +1085,61 @@ void main() {
     test('GET /v1/platform/leads exposes the platform-wide CRM', () async {
       store.ensureUser(phone: '+998901234567', role: 'system_admin');
       final token = await _signIn(handler);
-      final response = await handler(
-        _get('/v1/platform/leads', token: token),
-      );
+      final response = await handler(_get('/v1/platform/leads', token: token));
       expect(response.statusCode, 200);
       final json = await _decode(response);
       expect(json['meta']['total'], store.leads.length);
     });
 
-    test('a user can open a support ticket and a system admin can triage it', () async {
-      final userToken = await _signIn(handler, phone: '+998907654321');
-      final created = await handler(
-        _post('/v1/support/tickets', {
-          'subject': 'Billing question',
-          'message': 'Why was I charged twice?',
-          'category': 'billing',
-        }, token: userToken),
-      );
-      expect(created.statusCode, 201);
-      final ticketId = (await _decode(created))['data']['id'] as String;
+    test(
+      'a user can open a support ticket and a system admin can triage it',
+      () async {
+        final userToken = await _signIn(handler, phone: '+998907654321');
+        final created = await handler(
+          _post('/v1/support/tickets', {
+            'subject': 'Billing question',
+            'message': 'Why was I charged twice?',
+            'category': 'billing',
+          }, token: userToken),
+        );
+        expect(created.statusCode, 201);
+        final ticketId = (await _decode(created))['data']['id'] as String;
 
-      // The ticket owner sees it in their own list.
-      final mine = await _decode(
-        await handler(_get('/v1/users/me/tickets', token: userToken)),
-      );
-      expect(mine['data'].length, 1);
+        // The ticket owner sees it in their own list.
+        final mine = await _decode(
+          await handler(_get('/v1/users/me/tickets', token: userToken)),
+        );
+        expect(mine['data'].length, 1);
 
-      // A different, non-admin user cannot see or reply to someone else's ticket.
-      final otherToken = await _signIn(handler, phone: '+998901112233');
-      final forbiddenReply = await handler(
-        _post('/v1/support/tickets/$ticketId/replies', {
-          'message': 'nope',
-        }, token: otherToken),
-      );
-      expect(forbiddenReply.statusCode, 403);
+        // A different, non-admin user cannot see or reply to someone else's ticket.
+        final otherToken = await _signIn(handler, phone: '+998901112233');
+        final forbiddenReply = await handler(
+          _post('/v1/support/tickets/$ticketId/replies', {
+            'message': 'nope',
+          }, token: otherToken),
+        );
+        expect(forbiddenReply.statusCode, 403);
 
-      store.ensureUser(phone: '+998901234567', role: 'system_admin');
-      final adminToken = await _signIn(handler);
+        store.ensureUser(phone: '+998901234567', role: 'system_admin');
+        final adminToken = await _signIn(handler);
 
-      final list = await _decode(
-        await handler(_get('/v1/platform/tickets', token: adminToken)),
-      );
-      expect(list['data'].length, 1);
+        final list = await _decode(
+          await handler(_get('/v1/platform/tickets', token: adminToken)),
+        );
+        expect(list['data'].length, 1);
 
-      final replied = await handler(
-        _patch('/v1/platform/tickets/$ticketId', {
-          'reply': 'Refund issued, sorry about that!',
-          'status': 'resolved',
-        }, token: adminToken),
-      );
-      expect(replied.statusCode, 200);
-      final repliedJson = await _decode(replied);
-      expect(repliedJson['data']['status'], 'resolved');
-      expect((repliedJson['data']['replies'] as List).length, 2);
-    });
+        final replied = await handler(
+          _patch('/v1/platform/tickets/$ticketId', {
+            'reply': 'Refund issued, sorry about that!',
+            'status': 'resolved',
+          }, token: adminToken),
+        );
+        expect(replied.statusCode, 200);
+        final repliedJson = await _decode(replied);
+        expect(repliedJson['data']['status'], 'resolved');
+        expect((repliedJson['data']['replies'] as List).length, 2);
+      },
+    );
   });
 
   group('OTP verify hardening', () {
@@ -1197,32 +1200,35 @@ void main() {
       expect(correct.statusCode, 401);
     });
 
-    test('returns 429 once the per-IP verify rate limit is exhausted', () async {
-      final limited = createHandler(
-        store,
-        otpVerifyLimiter: RateLimiter(1, const Duration(minutes: 5)),
-      );
-      final send = await limited(
-        _post('/v1/auth/otp/send', {'phone': '+998901234567'}),
-      );
-      final requestId = (await _decode(send))['data']['requestId'] as String;
+    test(
+      'returns 429 once the per-IP verify rate limit is exhausted',
+      () async {
+        final limited = createHandler(
+          store,
+          otpVerifyLimiter: RateLimiter(1, const Duration(minutes: 5)),
+        );
+        final send = await limited(
+          _post('/v1/auth/otp/send', {'phone': '+998901234567'}),
+        );
+        final requestId = (await _decode(send))['data']['requestId'] as String;
 
-      final r1 = await limited(
-        _post('/v1/auth/otp/verify', {
-          'requestId': requestId,
-          'code': '000000',
-        }),
-      );
-      expect(r1.statusCode, 401);
-      final r2 = await limited(
-        _post('/v1/auth/otp/verify', {
-          'requestId': requestId,
-          'code': '123456',
-        }),
-      );
-      expect(r2.statusCode, 429);
-      expect(r2.headers['Retry-After'], isNotNull);
-    });
+        final r1 = await limited(
+          _post('/v1/auth/otp/verify', {
+            'requestId': requestId,
+            'code': '000000',
+          }),
+        );
+        expect(r1.statusCode, 401);
+        final r2 = await limited(
+          _post('/v1/auth/otp/verify', {
+            'requestId': requestId,
+            'code': '123456',
+          }),
+        );
+        expect(r2.statusCode, 429);
+        expect(r2.headers['Retry-After'], isNotNull);
+      },
+    );
   });
 
   group('token refresh: rotation + rate limiting', () {
@@ -1231,32 +1237,35 @@ void main() {
     setUp(() => store = Store());
     tearDown(() => store.dispose());
 
-    test('rotates tokens and the old refresh token becomes single-use', () async {
-      final handler = createHandler(store);
-      final send = await handler(
-        _post('/v1/auth/otp/send', {'phone': '+998901234567'}),
-      );
-      final requestId = (await _decode(send))['data']['requestId'] as String;
-      final verify = await handler(
-        _post('/v1/auth/otp/verify', {
-          'requestId': requestId,
-          'code': '123456',
-        }),
-      );
-      final refreshToken =
-          (await _decode(verify))['data']['refreshToken'] as String;
+    test(
+      'rotates tokens and the old refresh token becomes single-use',
+      () async {
+        final handler = createHandler(store);
+        final send = await handler(
+          _post('/v1/auth/otp/send', {'phone': '+998901234567'}),
+        );
+        final requestId = (await _decode(send))['data']['requestId'] as String;
+        final verify = await handler(
+          _post('/v1/auth/otp/verify', {
+            'requestId': requestId,
+            'code': '123456',
+          }),
+        );
+        final refreshToken =
+            (await _decode(verify))['data']['refreshToken'] as String;
 
-      final refreshed = await handler(
-        _post('/v1/auth/refresh', {'refreshToken': refreshToken}),
-      );
-      expect(refreshed.statusCode, 200);
+        final refreshed = await handler(
+          _post('/v1/auth/refresh', {'refreshToken': refreshToken}),
+        );
+        expect(refreshed.statusCode, 200);
 
-      // Rotation: reusing the consumed refresh token is rejected.
-      final reuse = await handler(
-        _post('/v1/auth/refresh', {'refreshToken': refreshToken}),
-      );
-      expect(reuse.statusCode, 401);
-    });
+        // Rotation: reusing the consumed refresh token is rejected.
+        final reuse = await handler(
+          _post('/v1/auth/refresh', {'refreshToken': refreshToken}),
+        );
+        expect(reuse.statusCode, 401);
+      },
+    );
 
     test('auth/refresh returns 429 once the rate limit is exhausted', () async {
       final handler = createHandler(

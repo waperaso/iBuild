@@ -20,6 +20,14 @@ abstract class Env {
     defaultValue: 'wss://api.ibuild.uz/v1/ws',
   );
 
+  /// The AI assistant chat is built and tested but parked out of the product
+  /// until it ships: the FAB and its sheet stay off unless a build passes
+  /// `--dart-define=AI_CHAT_ENABLED=true`.
+  static const bool aiChatEnabled = bool.fromEnvironment(
+    'AI_CHAT_ENABLED',
+    defaultValue: false,
+  );
+
   /// Absolute URL for a server-relative path via [apiBaseUrl].
   static String? resolveUrl(String? raw) {
     if (raw == null || raw.isEmpty) return null;

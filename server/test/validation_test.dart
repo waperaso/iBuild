@@ -66,10 +66,7 @@ void main() {
         sanitizeText('<script>alert(1)</script>Nice flat'),
         'alert(1)Nice flat',
       );
-      expect(
-        sanitizeText('<img src=x onerror=alert(1)>Sunny'),
-        'Sunny',
-      );
+      expect(sanitizeText('<img src=x onerror=alert(1)>Sunny'), 'Sunny');
       // `< b >` is consumed as a tag-like span; a trailing lone `<` is
       // stripped as a stray bracket.
       expect(sanitizeText('a < b > c'), 'a  c');
@@ -77,7 +74,10 @@ void main() {
     });
 
     test('removes control characters but keeps tab/newline', () {
-      expect(sanitizeText('line1\nline2\tend\u0000\u0007'), 'line1\nline2\tend');
+      expect(
+        sanitizeText('line1\nline2\tend\u0000\u0007'),
+        'line1\nline2\tend',
+      );
     });
 
     test('is idempotent', () {
@@ -98,10 +98,10 @@ void main() {
     });
 
     test('sanitizes string entries and drops non-strings', () {
-      expect(
-        sanitizeTextList(['<b>pool</b>', 42, 'gym', null]),
-        ['pool', 'gym'],
-      );
+      expect(sanitizeTextList(['<b>pool</b>', 42, 'gym', null]), [
+        'pool',
+        'gym',
+      ]);
     });
   });
 }

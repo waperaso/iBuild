@@ -5,6 +5,7 @@ import 'package:ibuild_core/ibuild_core.dart';
 import '../../core/localization/status_labels.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
+import '../../core/utils/redacted_phone.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/document_review_row.dart';
 import '../../core/widgets/empty_state.dart';
@@ -242,7 +243,7 @@ class PlatformHome extends ConsumerWidget {
                                 Text(
                                   '${l10n.kycInn}: ${d['inn'] ?? '—'} · '
                                   '${d['directorFullName'] ?? ''} · '
-                                  '${d['phone'] ?? ''}',
+                                  '${displayPhone(l10n, d['phone']?.toString())}',
                                   style: textTheme.bodySmall?.copyWith(
                                     color: colors.inkMuted,
                                   ),
@@ -368,7 +369,9 @@ class PlatformHome extends ConsumerWidget {
                       for (final u in items)
                         DataRow(
                           cells: [
-                            DataCell(Text(u['phone']?.toString() ?? '')),
+                            DataCell(
+                              Text(displayPhone(l10n, u['phone']?.toString())),
+                            ),
                             DataCell(
                               Text(
                                 roleLabel(l10n, u['role']?.toString() ?? ''),
@@ -423,14 +426,14 @@ class _AuditLogTile extends StatelessWidget {
         '${entry['detail'] != null ? ' · ${entry['detail']}' : ''}';
 
     final actorName = actor?['name']?.toString().trim();
-    final actorPhone = actor?['phone']?.toString().trim();
+    final actorPhone = displayPhone(l10n, actor?['phone']?.toString());
     final actorRole = actor?['role']?.toString();
     final actorLine = actor == null
         ? l10n.platformAuditLogActorUnknown
         : [
             actorRole != null ? roleLabel(l10n, actorRole) : null,
             (actorName?.isNotEmpty ?? false) ? actorName : null,
-            (actorPhone?.isNotEmpty ?? false) ? actorPhone : null,
+            actorPhone.isNotEmpty ? actorPhone : null,
           ].whereType<String>().join(' · ');
 
     return ListTile(
@@ -745,7 +748,7 @@ class _UserMobileTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            user['phone']?.toString() ?? '',
+            displayPhone(l10n, user['phone']?.toString()),
             style: textTheme.titleMedium,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -879,7 +882,7 @@ class _UserActions extends ConsumerWidget {
                       builder: (ctx) => AlertDialog(
                         title: Text(
                           l10n.platformDeleteAdminConfirmTitle(
-                            user['phone']?.toString() ?? '',
+                            displayPhone(l10n, user['phone']?.toString()),
                           ),
                         ),
                         content: Text(l10n.platformDeleteAdminConfirmBody),
@@ -968,7 +971,7 @@ class _BanDialogState extends ConsumerState<_BanDialog> {
     _nameController = TextEditingController(
       text: admin?.name?.trim().isNotEmpty == true
           ? admin!.name
-          : admin?.phone ?? '',
+          : (isPhoneRedacted(admin?.phone) ? '' : admin?.phone ?? ''),
     );
   }
 
@@ -987,6 +990,7 @@ class _BanDialogState extends ConsumerState<_BanDialog> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final l10n = AppLocalizations.of(context);
+    final shownPhone = displayPhone(l10n, widget.user['phone']?.toString());
     return StatefulBuilder(
       builder: (context, setState) {
         return AlertDialog(
@@ -996,8 +1000,9 @@ class _BanDialogState extends ConsumerState<_BanDialog> {
           ),
           title: Text(
             l10n.platformBanDialogTitle(
-              widget.user['phone']?.toString() ??
-                  l10n.platformBanDialogUserFallback,
+              shownPhone.isNotEmpty
+                  ? shownPhone
+                  : l10n.platformBanDialogUserFallback,
             ),
           ),
           content: SizedBox(

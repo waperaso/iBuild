@@ -78,7 +78,10 @@ class SmsService {
 
     final email = appEnv()['ESKIZ_EMAIL']?.trim();
     final password = appEnv()['ESKIZ_PASSWORD'];
-    if (email == null || email.isEmpty || password == null || password.isEmpty) {
+    if (email == null ||
+        email.isEmpty ||
+        password == null ||
+        password.isEmpty) {
       return null;
     }
     try {
@@ -95,8 +98,7 @@ class SmsService {
         return null;
       }
       final decoded = jsonDecode(body);
-      final token =
-          (decoded is Map && decoded['data'] is Map)
+      final token = (decoded is Map && decoded['data'] is Map)
           ? (decoded['data'] as Map)['token'] as String?
           : null;
       if (token == null || token.isEmpty) {

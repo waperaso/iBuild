@@ -165,148 +165,139 @@ void main() {
 
     tearDown(() => store.dispose());
 
-    test(
-      'every /v1/admin/* route scoped to another developer\'s resources '
-      'returns 403/404, never that developer\'s data',
-      () async {
-        final probes = <String, Future<Response> Function()>{
-          'GET /v1/admin/projects/:id': () async =>
-              handler(_get('/v1/admin/projects/$projectBId', token: ownerAToken)),
-          'PATCH /v1/admin/projects/:id': () async => handler(
-            _patch('/v1/admin/projects/$projectBId', {
-              'name': 'hijacked',
-            }, token: ownerAToken),
+    test('every /v1/admin/* route scoped to another developer\'s resources '
+        'returns 403/404, never that developer\'s data', () async {
+      final probes = <String, Future<Response> Function()>{
+        'GET /v1/admin/projects/:id': () async =>
+            handler(_get('/v1/admin/projects/$projectBId', token: ownerAToken)),
+        'PATCH /v1/admin/projects/:id': () async => handler(
+          _patch('/v1/admin/projects/$projectBId', {
+            'name': 'hijacked',
+          }, token: ownerAToken),
+        ),
+        'DELETE /v1/admin/projects/:id': () async => handler(
+          _delete('/v1/admin/projects/$projectBId', token: ownerAToken),
+        ),
+        'POST /v1/admin/projects/:id/unpublish': () async => handler(
+          _post(
+            '/v1/admin/projects/$projectBId/unpublish',
+            const {},
+            token: ownerAToken,
           ),
-          'DELETE /v1/admin/projects/:id': () async => handler(
-            _delete('/v1/admin/projects/$projectBId', token: ownerAToken),
+        ),
+        'POST /v1/admin/projects/:id/publish': () async => handler(
+          _post(
+            '/v1/admin/projects/$projectBId/publish',
+            const {},
+            token: ownerAToken,
           ),
-          'POST /v1/admin/projects/:id/unpublish': () async => handler(
-            _post(
-              '/v1/admin/projects/$projectBId/unpublish',
-              const {},
-              token: ownerAToken,
-            ),
+        ),
+        'POST /v1/admin/projects/:id/submit-for-review': () async => handler(
+          _post(
+            '/v1/admin/projects/$projectBId/submit-for-review',
+            const {},
+            token: ownerAToken,
           ),
-          'POST /v1/admin/projects/:id/publish': () async => handler(
-            _post(
-              '/v1/admin/projects/$projectBId/publish',
-              const {},
-              token: ownerAToken,
-            ),
+        ),
+        'POST /v1/admin/projects/:id/buildings': () async => handler(
+          _post('/v1/admin/projects/$projectBId/buildings', {
+            'name': 'hijacked block',
+          }, token: ownerAToken),
+        ),
+        'POST /v1/admin/projects/:id/units': () async => handler(
+          _post('/v1/admin/projects/$projectBId/units', {
+            'buildingId': buildingBId,
+          }, token: ownerAToken),
+        ),
+        'PATCH /v1/admin/units/:uid': () async => handler(
+          _patch('/v1/admin/units/$unitBId', {
+            'status': 'sold',
+          }, token: ownerAToken),
+        ),
+        'POST /v1/admin/units/:uid/media': () async => handler(
+          _post('/v1/admin/units/$unitBId/media', {
+            'url': 'https://example.com/hijacked.jpg',
+          }, token: ownerAToken),
+        ),
+        'POST /v1/admin/projects/:id/photo-reports': () async => handler(
+          _post('/v1/admin/projects/$projectBId/photo-reports', {
+            'url': 'https://example.com/hijacked.jpg',
+          }, token: ownerAToken),
+        ),
+        'DELETE /v1/admin/photo-reports/:id': () async => handler(
+          _delete(
+            '/v1/admin/photo-reports/$photoReportBId',
+            token: ownerAToken,
           ),
-          'POST /v1/admin/projects/:id/submit-for-review': () async => handler(
-            _post(
-              '/v1/admin/projects/$projectBId/submit-for-review',
-              const {},
-              token: ownerAToken,
-            ),
-          ),
-          'POST /v1/admin/projects/:id/buildings': () async => handler(
-            _post('/v1/admin/projects/$projectBId/buildings', {
-              'name': 'hijacked block',
-            }, token: ownerAToken),
-          ),
-          'POST /v1/admin/projects/:id/units': () async => handler(
-            _post('/v1/admin/projects/$projectBId/units', {
-              'buildingId': buildingBId,
-            }, token: ownerAToken),
-          ),
-          'PATCH /v1/admin/units/:uid': () async => handler(
-            _patch('/v1/admin/units/$unitBId', {
-              'status': 'sold',
-            }, token: ownerAToken),
-          ),
-          'POST /v1/admin/units/:uid/media': () async => handler(
-            _post('/v1/admin/units/$unitBId/media', {
-              'url': 'https://example.com/hijacked.jpg',
-            }, token: ownerAToken),
-          ),
-          'POST /v1/admin/projects/:id/photo-reports': () async => handler(
-            _post('/v1/admin/projects/$projectBId/photo-reports', {
-              'url': 'https://example.com/hijacked.jpg',
-            }, token: ownerAToken),
-          ),
-          'DELETE /v1/admin/photo-reports/:id': () async => handler(
-            _delete(
-              '/v1/admin/photo-reports/$photoReportBId',
-              token: ownerAToken,
-            ),
-          ),
-          'GET /v1/admin/projects/:id/offers': () async => handler(
-            _get('/v1/admin/projects/$projectBId/offers', token: ownerAToken),
-          ),
-          'PUT /v1/admin/projects/:id/offers': () async => handler(
-            _put('/v1/admin/projects/$projectBId/offers', {
-              'offers': [],
-            }, token: ownerAToken),
-          ),
-          'GET /v1/admin/projects/:id/analytics': () async => handler(
-            _get(
-              '/v1/admin/projects/$projectBId/analytics',
-              token: ownerAToken,
-            ),
-          ),
-          'GET /v1/admin/projects/:id/leads': () async => handler(
-            _get('/v1/admin/projects/$projectBId/leads', token: ownerAToken),
-          ),
-          'PATCH /v1/admin/leads/:lid': () async => handler(
-            _patch('/v1/admin/leads/$leadBId', {
-              'status': 'contacted',
-            }, token: ownerAToken),
-          ),
-          'PATCH /v1/admin/leads/:lid ownerUserId': () async => handler(
-            _patch('/v1/admin/leads/$leadBId', {
-              'ownerUserId': ownerAId,
-            }, token: ownerAToken),
-          ),
-          'POST /v1/admin/leads/:lid/transfer': () async => handler(
-            _post('/v1/admin/leads/$leadBId/transfer', {
-              'toUserId': ownerAId,
-            }, token: ownerAToken),
-          ),
-          'GET /v1/admin/leads/:lid/events': () async => handler(
-            _get('/v1/admin/leads/$leadBId/events', token: ownerAToken),
-          ),
-        };
+        ),
+        'GET /v1/admin/projects/:id/offers': () async => handler(
+          _get('/v1/admin/projects/$projectBId/offers', token: ownerAToken),
+        ),
+        'PUT /v1/admin/projects/:id/offers': () async => handler(
+          _put('/v1/admin/projects/$projectBId/offers', {
+            'offers': [],
+          }, token: ownerAToken),
+        ),
+        'GET /v1/admin/projects/:id/analytics': () async => handler(
+          _get('/v1/admin/projects/$projectBId/analytics', token: ownerAToken),
+        ),
+        'GET /v1/admin/projects/:id/leads': () async => handler(
+          _get('/v1/admin/projects/$projectBId/leads', token: ownerAToken),
+        ),
+        'PATCH /v1/admin/leads/:lid': () async => handler(
+          _patch('/v1/admin/leads/$leadBId', {
+            'status': 'contacted',
+          }, token: ownerAToken),
+        ),
+        'PATCH /v1/admin/leads/:lid ownerUserId': () async => handler(
+          _patch('/v1/admin/leads/$leadBId', {
+            'ownerUserId': ownerAId,
+          }, token: ownerAToken),
+        ),
+        'POST /v1/admin/leads/:lid/transfer': () async => handler(
+          _post('/v1/admin/leads/$leadBId/transfer', {
+            'toUserId': ownerAId,
+          }, token: ownerAToken),
+        ),
+        'GET /v1/admin/leads/:lid/events': () async => handler(
+          _get('/v1/admin/leads/$leadBId/events', token: ownerAToken),
+        ),
+      };
 
-        for (final entry in probes.entries) {
-          final response = await entry.value();
-          expect(
-            response.statusCode == 403 || response.statusCode == 404,
-            isTrue,
-            reason:
-                '${entry.key} should return 403/404 for a cross-developer '
-                'caller, got ${response.statusCode}',
-          );
-          final json = await _decode(response);
-          expect(
-            json['success'],
-            isFalse,
-            reason: '${entry.key} leaked a success envelope cross-developer',
-          );
-        }
-
-        // Ground truth: developer B's data must be completely untouched by
-        // every write attempt above.
-        expect(store.projectById(projectBId)!['name'], 'Devco B Towers');
-        expect(store.unitById(unitBId)!.unit['status'], 'available');
-        expect(store.leadById(leadBId)!['status'], 'new');
-        expect(store.leadById(leadBId)!['ownerUserId'], isNull);
-        expect(store.photoReportById(photoReportBId), isNotNull);
-      },
-    );
-
-    test(
-      'sanity: the same route shapes succeed for the developer\'s own '
-      'project',
-      () async {
-        final response = await handler(
-          _get('/v1/admin/projects/$projectAId', token: ownerAToken),
+      for (final entry in probes.entries) {
+        final response = await entry.value();
+        expect(
+          response.statusCode == 403 || response.statusCode == 404,
+          isTrue,
+          reason:
+              '${entry.key} should return 403/404 for a cross-developer '
+              'caller, got ${response.statusCode}',
         );
-        expect(response.statusCode, 200);
         final json = await _decode(response);
-        expect(json['data']['id'], projectAId);
-      },
-    );
+        expect(
+          json['success'],
+          isFalse,
+          reason: '${entry.key} leaked a success envelope cross-developer',
+        );
+      }
+
+      // Ground truth: developer B's data must be completely untouched by
+      // every write attempt above.
+      expect(store.projectById(projectBId)!['name'], 'Devco B Towers');
+      expect(store.unitById(unitBId)!.unit['status'], 'available');
+      expect(store.leadById(leadBId)!['status'], 'new');
+      expect(store.leadById(leadBId)!['ownerUserId'], isNull);
+      expect(store.photoReportById(photoReportBId), isNotNull);
+    });
+
+    test('sanity: the same route shapes succeed for the developer\'s own '
+        'project', () async {
+      final response = await handler(
+        _get('/v1/admin/projects/$projectAId', token: ownerAToken),
+      );
+      expect(response.statusCode, 200);
+      final json = await _decode(response);
+      expect(json['data']['id'], projectAId);
+    });
   });
 }

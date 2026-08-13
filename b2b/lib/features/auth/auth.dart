@@ -158,6 +158,9 @@ class AuthRepository {
     // re-entry POST as a blocked demo write.
     DemoSession.deactivate();
     setAccessTokenCache(null);
+    // Always land reviewers on the full platform admin workspace (every
+    // section populated from the seeded catalogue) instead of the residence
+    // admin's own-projects view, which is empty for a fresh demo account.
     final res = await _dio.post<Map<String, dynamic>>(
       '/auth/demo',
       data: {'profile': 'b2b_platform'},

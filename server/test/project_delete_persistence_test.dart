@@ -49,8 +49,7 @@ void main() {
     test(
       'deleteProject removes the row; ordinary_user cannot delete published',
       () async {
-        final id =
-            'prj-del-test-${DateTime.now().microsecondsSinceEpoch}';
+        final id = 'prj-del-test-${DateTime.now().microsecondsSinceEpoch}';
         await persistence.setRequestContext(role: 'service');
 
         await persistence.upsertDeveloper({

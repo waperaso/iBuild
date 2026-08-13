@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ibuild_core/ibuild_core.dart';
 
 import '../data/leads_repository.dart';
+import '../domain/lead_subject.dart';
 
 /// Client's submitted leads ("My inquiries"), backed by [LeadsRepository]
 /// (live API or mock fallback — see [ProjectsRepository] for the same seam).
@@ -22,6 +23,7 @@ class LeadsController extends AsyncNotifier<List<Lead>> {
     String? message,
     DateTime? preferredAt,
     required bool consent,
+    LeadSubject? subject,
   }) async {
     final lead = await ref
         .read(leadsRepositoryProvider)
@@ -35,6 +37,7 @@ class LeadsController extends AsyncNotifier<List<Lead>> {
           message: message,
           preferredAt: preferredAt,
           consent: consent,
+          subject: subject,
         );
     state = AsyncData([lead, ...(state.value ?? const [])]);
     return lead;

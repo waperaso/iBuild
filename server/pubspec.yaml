@@ -19,6 +19,12 @@ dependencies:
   web_socket_channel: ^3.0.3
   uuid: ^4.5.1
   postgres: ^3.5.12
+  # Pure-Dart photo analysis for the AI readiness engine (decode, pHash,
+  # EXIF date/GPS) — no native toolchain on the VDS.
+  image: ^4.9.1
+  exif: ^3.3.0
+  # sha256 for the AI quota key (never store a raw client IP).
+  crypto: ^3.0.7
 
 dev_dependencies:
   lints: ^5.1.1

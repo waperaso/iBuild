@@ -77,6 +77,9 @@ class AppLocalizationsUz extends AppLocalizations {
       'Demo rejim faqat ko‘rish uchun — amal saqlanmadi.';
 
   @override
+  String get phoneHidden => 'Yashirilgan';
+
+  @override
   String get otpTitle => 'Kodni kiriting';
 
   @override
@@ -1688,6 +1691,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get projectPhotoReportDateLabel => 'Suratga olingan sana';
 
   @override
+  String get projectPhotoReportDeclaredStageLabel =>
+      'Deklaratsiya qilingan qurilish bosqichi';
+
+  @override
   String get projectPhotoReportProgressLabel =>
       'Qurilish tayyorlik foizi (ixtiyoriy)';
 
@@ -1888,6 +1895,33 @@ class AppLocalizationsUz extends AppLocalizations {
   String get crmEdit => 'Tahrirlash';
 
   @override
+  String get crmAiAssistant => 'AI yordamchi';
+
+  @override
+  String get crmAiInsightsTitle => 'AI tahlili';
+
+  @override
+  String get crmAiInsightsExpand => 'AI tahlilini ko\'rsatish';
+
+  @override
+  String get crmAiInsightsCollapse => 'AI tahlilini yopish';
+
+  @override
+  String get crmBandFilterLabel => 'AI bahosi';
+
+  @override
+  String get crmBandFilterAll => 'Barchasi';
+
+  @override
+  String get crmBandFilterHot => 'Issiq';
+
+  @override
+  String get crmBandFilterWarm => 'Iliq';
+
+  @override
+  String get crmBandFilterCold => 'Sovuq';
+
+  @override
   String crmAssignedTo(String name) {
     return 'Mas\'ul: $name';
   }
@@ -2018,4 +2052,898 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get supportTicketsSubtitle =>
       'Platforma jamoasiga murojaat qiling — to\'lov, moderatsiya yoki texnik muammo.';
+
+  @override
+  String get aiCrmPanelTitle => 'Bugun e\'tibor talab qiladi';
+
+  @override
+  String get aiCrmPanelSubtitle =>
+      'AI tomonidan muhimlik darajasi bo\'yicha saralangan lidlar, har bir baho sababi bilan.';
+
+  @override
+  String get aiCrmOpenBot => 'Yordamchini ochish';
+
+  @override
+  String get aiCrmEmpty => 'Hozircha issiq lidlar yo\'q';
+
+  @override
+  String get aiCrmUnavailable =>
+      'AI yordamchi hozircha ishlamayapti. Keyinroq urinib ko\'ring.';
+
+  @override
+  String get aiMetricLeadVolume => 'Bugungi lidlar / reja';
+
+  @override
+  String get aiMetricHotLeads => 'Issiq lidlar';
+
+  @override
+  String get aiMetricPerManagerAvg => 'Menejerga o\'rtacha';
+
+  @override
+  String get aiMetricResponseSla => 'Javob berish mediani, daq';
+
+  @override
+  String get aiMetricSlaBreaches => 'SLA buzilishlari';
+
+  @override
+  String get aiMetricFunnelWon => 'Yopilgan';
+
+  @override
+  String get aiMetricConversion => 'Konversiya';
+
+  @override
+  String get aiMetricMinutesSuffix => 'daq';
+
+  @override
+  String get aiReasonHighIntent => 'Yuqori qiziqish';
+
+  @override
+  String get aiReasonViewingRequested => 'Ko\'rish so\'ralgan';
+
+  @override
+  String get aiReasonSpecificUnit => 'Aniq xonadon haqida so\'ragan';
+
+  @override
+  String get aiReasonPreferredTimeSet => 'Qulay vaqt ko\'rsatilgan';
+
+  @override
+  String get aiReasonLongMessage => 'Batafsil xabar';
+
+  @override
+  String get aiReasonMortgageInterest => 'Ipotekaga qiziqish';
+
+  @override
+  String get aiReasonCashBuyer => 'Naqd pulga xarid';
+
+  @override
+  String get aiReasonUrgentKeyword => 'Shoshilinch iboralar';
+
+  @override
+  String get aiReasonRepeatContact => 'Qayta murojaat';
+
+  @override
+  String get aiReasonRecentActivity => 'So\'nggi faollik';
+
+  @override
+  String get aiReasonNoResponse24h => '24 soatdan beri javob yo\'q';
+
+  @override
+  String get aiReasonNoResponse3d => '3 kundan beri javob yo\'q';
+
+  @override
+  String get aiReasonSlaBreach => 'SLA buzilgan';
+
+  @override
+  String get aiReasonFunnelAdvanced => 'Voronkada ilgarilagan';
+
+  @override
+  String get aiReasonStalled => 'To\'xtab qolgan';
+
+  @override
+  String get aiReasonHotProject => 'Talab yuqori loyiha';
+
+  @override
+  String get aiReasonUnitScarcity => 'Xonadonlar kam qoldi';
+
+  @override
+  String get aiReasonOffplanInterest =>
+      'Qurilish jarayonidagi xaridga qiziqish';
+
+  @override
+  String get aiReasonRentIntent => 'Ijarani izlamoqda';
+
+  @override
+  String get aiReasonLowSpecificity => 'Past aniqlik';
+
+  @override
+  String get crmBotTitle => 'AI yordamchi';
+
+  @override
+  String get crmBotBack => 'Orqaga';
+
+  @override
+  String get crmBotActionOpenLead => 'Lidni ochish';
+
+  @override
+  String get crmBotActionAssignToMe => 'O\'zimga biriktirish';
+
+  @override
+  String get crmBotActionMarkContacted => 'Aloqa qilindi deb belgilash';
+
+  @override
+  String crmBotProjectMeta(int hot, int open, int units) {
+    return '$hot issiq · $open jarayonda · $units xonadon mavjud';
+  }
+
+  @override
+  String get crmBotMessageRoot => 'Nimani ko\'rmoqchisiz?';
+
+  @override
+  String crmBotMessageHotLeads(int count) {
+    return 'Bugun $count ta issiq lid e\'tibor talab qiladi.';
+  }
+
+  @override
+  String get crmBotMessageByProject => 'Lidlarini ko\'rish uchun ЖКни tanlang.';
+
+  @override
+  String get crmBotMessageByImportance =>
+      'Lidlar muhimlik darajasi bo\'yicha saralangan.';
+
+  @override
+  String get crmBotMessageTodaySummary => 'Bugungi hisobot.';
+
+  @override
+  String get crmBotMessageWhatNext => 'Keyingi qadamlar.';
+
+  @override
+  String get crmBotMessageProjectMenu =>
+      'Ushbu loyiha bo\'yicha nimani tekshirishni tanlang.';
+
+  @override
+  String crmBotMessageProjectHot(int count) {
+    return 'Ushbu loyihada $count ta issiq lid bor.';
+  }
+
+  @override
+  String crmBotMessageProjectNoResponse48h(int count) {
+    return '$count ta lidga 48 soatdan beri javob berilmagan.';
+  }
+
+  @override
+  String crmBotMessageProjectNewToday(int count) {
+    return 'Bugun $count ta yangi lid.';
+  }
+
+  @override
+  String get crmBotMessageProjectFunnel => 'Ushbu loyiha bo\'yicha voronka.';
+
+  @override
+  String get crmBotMessageGeneric => 'Mana nima topildi.';
+
+  @override
+  String crmBotMessageNeedsResponse(int count) {
+    return '$count ta lid hali birinchi javobni kutmoqda.';
+  }
+
+  @override
+  String crmBotMessageUnassigned(int count) {
+    return '$count ta ochiq lidda mas\'ul yo\'q.';
+  }
+
+  @override
+  String crmBotMessageByManager(int count) {
+    return '$count ta menejer bo\'yicha yuklama.';
+  }
+
+  @override
+  String crmBotMessageManagerLeads(String name, int count) {
+    return '${name}da $count ta ochiq lid bor.';
+  }
+
+  @override
+  String get crmBotMessageAnalytics => 'Qaysi hisobotni ko\'rsatay?';
+
+  @override
+  String crmBotMessageWeekSummary(int count) {
+    return 'Oxirgi 7 kunda $count ta lid keldi.';
+  }
+
+  @override
+  String get crmBotMessageConversion =>
+      'Voronka bosqichlari orasidagi konversiya.';
+
+  @override
+  String crmBotMessageDemand(int count) {
+    return 'Xonadon tanlagan $count ta lid bo\'yicha xonalar taqsimoti.';
+  }
+
+  @override
+  String crmBotMessageProjectDemand(String name) {
+    return '«$name» bo\'yicha talab va mavjudlik.';
+  }
+
+  @override
+  String get crmBotMessageExample =>
+      'Hozircha jonli lidlar yo\'q — javob ular kelganda shunday ko\'rinadi.';
+
+  @override
+  String get crmBotOptionHotLeads => 'Issiq lidlar';
+
+  @override
+  String get crmBotOptionByProject => 'ЖК bo\'yicha';
+
+  @override
+  String get crmBotOptionByImportance => 'Muhimlik bo\'yicha';
+
+  @override
+  String get crmBotOptionTodaySummary => 'Bugungi hisobot';
+
+  @override
+  String get crmBotOptionWhatNext => 'Keyin nima qilish kerak';
+
+  @override
+  String get crmBotOptionProjectHot => 'Issiq lidlar';
+
+  @override
+  String get crmBotOptionProjectNoResponse48h => '48 soat javobsiz';
+
+  @override
+  String get crmBotOptionProjectNewToday => 'Bugun yangi';
+
+  @override
+  String get crmBotOptionProjectFunnel => 'Voronka';
+
+  @override
+  String get crmBotOptionBackToRoot => 'Boshiga qaytish';
+
+  @override
+  String get crmBotOptionBackToProjects => 'ЖКларга qaytish';
+
+  @override
+  String get crmBotOptionBackToProjectMenu => 'ЖК menyusiga qaytish';
+
+  @override
+  String get crmBotOptionNeedsResponse => 'Javob kutayotganlar';
+
+  @override
+  String get crmBotOptionUnassigned => 'Mas\'ulsiz';
+
+  @override
+  String get crmBotOptionByManager => 'Menejerlar bo\'yicha';
+
+  @override
+  String get crmBotOptionAnalytics => 'Analitika';
+
+  @override
+  String get crmBotOptionWeekSummary => 'Hafta bo\'yicha';
+
+  @override
+  String get crmBotOptionConversion => 'Konversiya';
+
+  @override
+  String get crmBotOptionDemand => 'Nima so\'ralmoqda';
+
+  @override
+  String get crmBotOptionProjectDemand => 'Talab va mavjudlik';
+
+  @override
+  String get crmBotOptionBackToAnalytics => 'Analitikaga qaytish';
+
+  @override
+  String get crmBotOptionBackToManagers => 'Menejerlarga qaytish';
+
+  @override
+  String get crmBotNodeRoot => 'Yordamchi';
+
+  @override
+  String get crmBotNodeHotLeads => 'Issiq lidlar';
+
+  @override
+  String get crmBotNodeByProject => 'ЖК bo\'yicha';
+
+  @override
+  String get crmBotNodeByImportance => 'Muhimlik bo\'yicha';
+
+  @override
+  String get crmBotNodeTodaySummary => 'Bugun';
+
+  @override
+  String get crmBotNodeWhatNext => 'Keyingi qadamlar';
+
+  @override
+  String get crmBotNodeProjectMenu => 'Loyiha';
+
+  @override
+  String get crmBotNodeProjectHot => 'Issiq';
+
+  @override
+  String get crmBotNodeProjectNoResponse48h => '48soat javobsiz';
+
+  @override
+  String get crmBotNodeProjectNewToday => 'Bugun yangi';
+
+  @override
+  String get crmBotNodeProjectFunnel => 'Voronka';
+
+  @override
+  String get crmBotNodeNeedsResponse => 'Javob kutmoqda';
+
+  @override
+  String get crmBotNodeUnassigned => 'Mas\'ulsiz';
+
+  @override
+  String get crmBotNodeByManager => 'Menejerlar';
+
+  @override
+  String get crmBotNodeManagerLeads => 'Menejer';
+
+  @override
+  String get crmBotNodeAnalytics => 'Analitika';
+
+  @override
+  String get crmBotNodeWeekSummary => 'Hafta';
+
+  @override
+  String get crmBotNodeConversion => 'Konversiya';
+
+  @override
+  String get crmBotNodeDemand => 'Talab';
+
+  @override
+  String get crmBotNodeProjectDemand => 'Talab';
+
+  @override
+  String get crmBotMetricLeadsToday => 'Bugungi lidlar';
+
+  @override
+  String get crmBotMetricHotLeads => 'Qizigan lidlar';
+
+  @override
+  String get crmBotMetricLeadVolume => 'Lidlar hajmi';
+
+  @override
+  String get crmBotMetricByBand => 'Baho darajasi bo\'yicha';
+
+  @override
+  String get crmBotMetricResponseSla => 'Javob SLA';
+
+  @override
+  String get crmBotMetricFunnel => 'Voronka';
+
+  @override
+  String get crmBotMetricConversion => 'Konversiya';
+
+  @override
+  String get crmBotMetricGeneric => 'Ko\'rsatkich';
+
+  @override
+  String get crmBotMetricLeadsWeek => 'Haftalik lidlar';
+
+  @override
+  String get crmBotMetricLeadsPrevWeek => 'O\'tgan hafta';
+
+  @override
+  String get crmBotMetricWonWeek => 'Haftalik bitimlar';
+
+  @override
+  String get crmBotMetricSlaBreached => 'SLA buzilishi';
+
+  @override
+  String crmBotMetricConversionStep(String from, String to) {
+    return '$from → $to';
+  }
+
+  @override
+  String crmBotMetricDemandRooms(int rooms) {
+    return '$rooms xonali so\'rovlar';
+  }
+
+  @override
+  String crmBotMetricAvailableRooms(int rooms) {
+    return '$rooms xonali bo\'sh';
+  }
+
+  @override
+  String get crmBotSubtitle => 'Lidlar, loyihalar va jamoa yuklamasi';
+
+  @override
+  String get crmBotExampleBadge => 'Namuna';
+
+  @override
+  String get crmBotRetry => 'Qayta urinish';
+
+  @override
+  String get crmBotEmptyCards =>
+      'Bu savol bo\'yicha hozircha hech narsa yo\'q.';
+
+  @override
+  String crmBotManagerMeta(int open, int hot) {
+    return '$open ishda · $hot issiq';
+  }
+
+  @override
+  String crmBotManagerAvgResponse(String minutes) {
+    return 'O\'rtacha javob $minutes daq';
+  }
+
+  @override
+  String get b2bAiChatFabTooltip => 'iBuild AI\'dan so\'rash';
+
+  @override
+  String get b2bAiChatFabLabel => 'AI';
+
+  @override
+  String get b2bAiChatTitle => 'iBuild AI';
+
+  @override
+  String get b2bAiChatSubtitle =>
+      'Loyihalar, lidlar va tahlil bo\'yicha savollar';
+
+  @override
+  String b2bAiChatQuotaRemaining(int remaining, int limit) {
+    return 'Bugun $limit tadan $remaining tasi qoldi';
+  }
+
+  @override
+  String b2bAiChatQuotaResetLabel(String time) {
+    return '$time da yangilanadi';
+  }
+
+  @override
+  String get b2bAiChatErrorSnackbar =>
+      'Javob olinmadi. Qaytadan urinib ko\'ring.';
+
+  @override
+  String get b2bAiChatQuotaExhaustedTitle => 'Kunlik limit tugadi';
+
+  @override
+  String get b2bAiChatQuotaExhaustedBody =>
+      'Bugungi AI chat xabarlaridan foydalanib bo\'ldingiz. Ertaga qayting.';
+
+  @override
+  String get b2bAiChatUnavailableTitle => 'AI-yordamchi vaqtincha ishlamayapti';
+
+  @override
+  String get b2bAiChatUnavailableBody =>
+      'Yordamchi vaqtincha mavjud emas. Birozdan keyin qayta urinib ko\'ring.';
+
+  @override
+  String get b2bAiChatForbiddenTitle => 'Ushbu hisob uchun mavjud emas';
+
+  @override
+  String get b2bAiChatForbiddenBody =>
+      'AI chat faqat administratorlar uchun mavjud.';
+
+  @override
+  String get b2bAiChatEmptyTitle =>
+      'AI-yordamchidan xohlagan narsangizni so\'rang';
+
+  @override
+  String get b2bAiChatEmptyBody =>
+      'Loyihalar, lidlar va tahlil bo\'yicha erkin savollar — quyidagi takliflardan birini sinab ko\'ring.';
+
+  @override
+  String get b2bAiChatInputHint => 'AI-yordamchiga yozing...';
+
+  @override
+  String get b2bAiChatSendTooltip => 'Yuborish';
+
+  @override
+  String get b2bAiChatQuickPromptsLabel => 'Tezkor savollar';
+
+  @override
+  String get b2bAiChatQuickSystemSummary => 'Barcha loyihalar bo\'yicha xulosa';
+
+  @override
+  String get b2bAiChatQuickSystemOverdue =>
+      'Lidlarga javob qayerda kechikmoqda?';
+
+  @override
+  String get b2bAiChatQuickSystemAttention =>
+      'Qaysi loyihalar e\'tiborni talab qiladi?';
+
+  @override
+  String get b2bAiChatQuickResidenceSummary =>
+      'Mening loyiham bo\'yicha xulosa';
+
+  @override
+  String get b2bAiChatQuickResidenceHotLeads => 'Qizg\'in lidlarni ko\'rsat';
+
+  @override
+  String get b2bAiChatQuickResidenceWeekChanges => 'Bu hafta nima o\'zgardi?';
+
+  @override
+  String get readinessStageEarthworks => 'Yer qazish ishlari';
+
+  @override
+  String get readinessStageFoundation => 'Poydevor';
+
+  @override
+  String get readinessStageFrameFloors => 'Karkas va qavatlar';
+
+  @override
+  String get readinessStageRoofing => 'Tom yopish';
+
+  @override
+  String get readinessStageFacade => 'Fasad';
+
+  @override
+  String get readinessStageUtilities => 'Muhandislik tarmoqlari';
+
+  @override
+  String get readinessStageInteriorFinishing => 'Ichki pardozlash';
+
+  @override
+  String get readinessStageLandscaping => 'Landshaft ishlari';
+
+  @override
+  String get readinessStatusConfirmed => 'Tasdiqlandi';
+
+  @override
+  String get readinessStatusRequiresManualReview =>
+      'Qo\'lda tekshirish talab qilinadi';
+
+  @override
+  String get readinessStatusDiscrepancyFound => 'Nomuvofiqlik topildi';
+
+  @override
+  String get readinessStatusViolationFound => 'Qoidabuzarlik topildi';
+
+  @override
+  String get readinessCheckDialogTitle => 'AI qurilish tayyorligini tekshirish';
+
+  @override
+  String get readinessAnalyzing => 'Surat AI yordamida tekshirilmoqda…';
+
+  @override
+  String readinessConfidenceLabel(int percent) {
+    return 'Ishonch darajasi: $percent%';
+  }
+
+  @override
+  String get readinessUnavailableTitle => 'AI tekshiruvi mavjud emas';
+
+  @override
+  String get readinessUnavailableMessage =>
+      'Tayyorlik tekshiruvini hozircha bajarib bo\'lmadi. Tekshiruvsiz davom etishingiz mumkin — hisobot odatdagidek yuklanadi.';
+
+  @override
+  String get readinessProceedWithoutCheck => 'Tekshiruvsiz davom etish';
+
+  @override
+  String get readinessAckAndUpload => 'Tushunarli, yuklash';
+
+  @override
+  String get readinessConfirmedProceeding => 'Tasdiqlandi — yuklanmoqda…';
+
+  @override
+  String get readinessReshoot => 'Qayta suratga olish';
+
+  @override
+  String get readinessOverrideUpload => 'Baribir yuklash';
+
+  @override
+  String get readinessOverrideCommentLabel =>
+      'Nega baribir yuklayotganingizni tushuntiring';
+
+  @override
+  String get readinessOverrideCommentHint =>
+      'Majburiy — AI aniqlagan nomuvofiqlikni tavsiflang';
+
+  @override
+  String get readinessDigestTitle => 'Obyektlar bo\'yicha AI konsultant';
+
+  @override
+  String get readinessDigestEmpty =>
+      'Hali AI tomonidan tekshirilgan hisobotlar yo\'q.';
+
+  @override
+  String readinessDigestTrend(int confirmed, int total) {
+    return 'So\'nggi $total tadan $confirmed tasi tasdiqlangan';
+  }
+
+  @override
+  String get readinessDigestOutstandingTitle => 'E\'tibor talab qiladi';
+
+  @override
+  String get verifStage1Ok => 'Rasm yaroqlilik tekshiruvidan o\'tdi.';
+
+  @override
+  String get verifStage1ImageUnreadable =>
+      'Rasmni o\'qib yoki dekodlab bo\'lmadi.';
+
+  @override
+  String verifStage1LowQuality(Object blur, Object exposure) {
+    return 'Rasm sifati past (xiralik $blur, ekspozitsiya $exposure).';
+  }
+
+  @override
+  String get verifStage1MetadataMissing => 'Rasm metama\'lumotlari yo\'q.';
+
+  @override
+  String get verifStage1GeotagMissing => 'Rasmda geolokatsiya belgisi yo\'q.';
+
+  @override
+  String verifStage1GeotagFarFromObject(Object distanceKm, Object radiusKm) {
+    return 'Rasm joylashuvi obyektdan $distanceKm km uzoqlikda (ruxsat etilgan radius $radiusKm km).';
+  }
+
+  @override
+  String verifStage1DateInFuture(String takenAt) {
+    return 'Rasm sanasi ($takenAt) kelajakka tegishli.';
+  }
+
+  @override
+  String verifStage1DateOutsideWindow(String takenAt, int windowDays) {
+    return 'Rasm sanasi ($takenAt) $windowDays kunlik oynadan tashqarida.';
+  }
+
+  @override
+  String get verifInsufficientData =>
+      'Ushbu tekshiruv uchun ma\'lumot yetarli emas.';
+
+  @override
+  String verifStage1EvidenceDecoded(int width, int height, int bytes) {
+    return 'Dekodlandi: $width×${height}px, $bytes bayt.';
+  }
+
+  @override
+  String verifStage1EvidenceExifDate(String takenAt) {
+    return 'EXIF sanasi: $takenAt.';
+  }
+
+  @override
+  String get verifStage1EvidenceNoExif => 'EXIF ma\'lumotlari topilmadi.';
+
+  @override
+  String verifStage1EvidenceGeoDistance(Object distanceKm, Object radiusKm) {
+    return 'Obyektgacha masofa: $distanceKm km (radius $radiusKm km).';
+  }
+
+  @override
+  String verifStage1EvidenceSharpness(Object blur, Object threshold) {
+    return 'Aniqlik ko\'rsatkichi $blur (chegara $threshold).';
+  }
+
+  @override
+  String get verifStage2Ok => 'Oldingi hisobotning dublikati topilmadi.';
+
+  @override
+  String get verifStage2NoPriorReports =>
+      'Solishtirish uchun oldingi hisobotlar yo\'q.';
+
+  @override
+  String verifStage2NearDuplicate(
+    Object distance,
+    String reportId,
+    String takenAt,
+  ) {
+    return '$takenAt sanasidagi $reportId hisobotiga juda o\'xshash (masofa $distance).';
+  }
+
+  @override
+  String verifStage2DuplicateFound(
+    Object distance,
+    String reportId,
+    String takenAt,
+  ) {
+    return '$takenAt sanasidagi $reportId hisobotining dublikati (masofa $distance).';
+  }
+
+  @override
+  String verifStage2EvidenceComparedCount(int count) {
+    return '$count ta oldingi rasm bilan solishtirildi.';
+  }
+
+  @override
+  String verifStage2EvidenceHammingDistance(
+    Object distance,
+    Object threshold,
+    String reportId,
+  ) {
+    return 'Hamming masofasi $distance, chegara $threshold ($reportId hisoboti).';
+  }
+
+  @override
+  String verifStage3Ok(String stage, Object confidence) {
+    return 'Bosqich sifatida aniqlandi: $stage (ishonch $confidence).';
+  }
+
+  @override
+  String verifStage3NotConstructionSite(Object confidence) {
+    return 'Qurilish maydoniga o\'xshamaydi (ishonch $confidence).';
+  }
+
+  @override
+  String verifStage3StageUnclear(Object confidence) {
+    return 'Qurilish bosqichi noaniq (ishonch $confidence).';
+  }
+
+  @override
+  String verifStage3EvidenceClassified(String stage, Object confidence) {
+    return 'Aniqlangan bosqich: $stage ($confidence).';
+  }
+
+  @override
+  String verifStage3EvidenceFeatures(
+    Object skyRatio,
+    Object soilRatio,
+    Object concreteRatio,
+    Object vegetationRatio,
+    Object verticalEdgeDensity,
+    Object openingPeriodicity,
+  ) {
+    return 'Osmon $skyRatio, tuproq $soilRatio, beton $concreteRatio, o\'simlik $vegetationRatio, qirralar $verticalEdgeDensity, ochiqliklar $openingPeriodicity.';
+  }
+
+  @override
+  String verifStage4Ok(String declaredStage) {
+    return 'Deklaratsiya qilingan bosqichga mos keladi ($declaredStage).';
+  }
+
+  @override
+  String get verifStage4NoDeclaredStage =>
+      'Deklaratsiya qilingan bosqich ko\'rsatilmagan.';
+
+  @override
+  String verifStage4AdjacentStageMismatch(
+    String declaredStage,
+    String detectedStage,
+  ) {
+    return '$declaredStage deklaratsiya qilingan, ammo qo\'shni $detectedStage bosqichiga o\'xshaydi.';
+  }
+
+  @override
+  String verifStage4StageMismatch(
+    String declaredStage,
+    String detectedStage,
+    Object distance,
+  ) {
+    return '$declaredStage deklaratsiya qilingan, ammo $detectedStage aniqlandi (masofa $distance).';
+  }
+
+  @override
+  String verifStage4EvidenceComparison(
+    String declaredStage,
+    String detectedStage,
+    int ordinalDistance,
+  ) {
+    return 'Deklaratsiya $declaredStage, aniqlangan $detectedStage ($ordinalDistance bosqich farqi).';
+  }
+
+  @override
+  String verifStage5Ok(String previousTakenAt) {
+    return 'Oldingi hisobotdan ($previousTakenAt) beri o\'zgarish izchil ko\'rinadi.';
+  }
+
+  @override
+  String get verifStage5NoPreviousReport =>
+      'Taraqqiyotni solishtirish uchun oldingi hisobot yo\'q.';
+
+  @override
+  String verifStage5NoVisibleProgress(Object distance, String previousTakenAt) {
+    return '$previousTakenAt dan beri ko\'rinadigan taraqqiyot yo\'q (masofa $distance).';
+  }
+
+  @override
+  String verifStage5RegressionDetected(
+    String previousStage,
+    String detectedStage,
+  ) {
+    return 'Orqaga qaytish kuzatildi: avval $previousStage, endi $detectedStage.';
+  }
+
+  @override
+  String get verifStage5ProgressNotDeclared =>
+      'Taraqqiyot o\'zgargan, ammo deklaratsiya qilinmagan.';
+
+  @override
+  String verifStage5EvidenceSimilarity(
+    Object distance,
+    Object threshold,
+    String previousReportId,
+    String previousTakenAt,
+  ) {
+    return 'O\'xshashlik $distance, chegara $threshold ($previousReportId hisoboti, $previousTakenAt).';
+  }
+
+  @override
+  String verifStage5EvidenceProgressDelta(
+    Object previousPercent,
+    Object currentPercent,
+  ) {
+    return 'Taraqqiyot $previousPercent% → $currentPercent%.';
+  }
+
+  @override
+  String get verifStage5EvidenceDeveloperComment =>
+      'Quruvchi izohi biriktirilgan.';
+
+  @override
+  String get verifStage6Ok =>
+      'Xavfsizlik yoki qoidabuzarlik belgilari topilmadi.';
+
+  @override
+  String get verifStage6SafetyGearAbsent =>
+      'Maydonda himoya vositalari ko\'rinmaydi.';
+
+  @override
+  String verifStage6StructuralDamage(Object ratio) {
+    return 'Konstruktiv shikastlanish ehtimoli aniqlandi ($ratio).';
+  }
+
+  @override
+  String get verifStage6WorkStoppage => 'Ishlarning to\'xtatilgani belgilari.';
+
+  @override
+  String verifStage6DebrisAccumulation(Object score) {
+    return 'Qurilish chiqindilari to\'planishi aniqlandi (baho $score).';
+  }
+
+  @override
+  String verifStage6AmbiguousIndicator(String indicator) {
+    return 'Noaniq indikator: $indicator.';
+  }
+
+  @override
+  String verifStage6EvidenceHiVisRatio(Object ratio, Object threshold) {
+    return 'Signal kiyim ulushi $ratio (chegara $threshold).';
+  }
+
+  @override
+  String verifStage6EvidenceCrackPixels(Object ratio, Object threshold) {
+    return 'Yoriq piksellari ulushi $ratio (chegara $threshold).';
+  }
+
+  @override
+  String get verifStage6EvidenceNoEquipment => 'Kadrda texnika aniqlanmadi.';
+
+  @override
+  String verifStage6EvidenceDebrisTexture(Object score) {
+    return 'Chiqindi teksturasi bahosi $score.';
+  }
+
+  @override
+  String get verifStage7Confirmed =>
+      'Barcha tekshiruvlar o\'tdi — tasdiqlandi.';
+
+  @override
+  String verifStage7ManualReview(int warnings) {
+    return '$warnings ta ogohlantirish — qo\'lda tekshirish talab qilinadi.';
+  }
+
+  @override
+  String verifStage7NotReached(String stoppedAt) {
+    return 'Tekshiruv $stoppedAt bosqichida to\'xtatildi.';
+  }
+
+  @override
+  String verifStage7EvidenceStageSummary(int passed, int warnings, int failed) {
+    return '$passed ta o\'tdi, $warnings ta ogohlantirish, $failed ta o\'tmadi.';
+  }
+
+  @override
+  String verifSummaryConfirmed(String detectedStage, Object progressPercent) {
+    return 'Tasdiqlandi: $detectedStage bosqichi, $progressPercent% taraqqiyot.';
+  }
+
+  @override
+  String verifSummaryManualReview(String stage) {
+    return 'Ushbu $stage bosqichidagi rasm tezkor qo\'lda tekshiruvni talab qiladi.';
+  }
+
+  @override
+  String verifSummaryDiscrepancy(
+    String stage,
+    String declaredStage,
+    String detectedStage,
+  ) {
+    return '$stage tekshiruvida deklaratsiya qilingan $declaredStage aniqlangan $detectedStage bilan mos kelmadi.';
+  }
+
+  @override
+  String verifSummaryViolation(String stage, String indicator) {
+    return '$stage tekshiruvida qoidabuzarlik indikatori topildi: $indicator.';
+  }
 }

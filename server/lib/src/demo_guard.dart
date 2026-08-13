@@ -4,11 +4,20 @@ import 'auth_context.dart';
 import 'http_helpers.dart';
 
 /// Paths demo sessions may still POST to (sign-out / token rotation /
-/// re-enter demo after a page reload that still holds the old Bearer token).
+/// re-enter demo after a page reload that still holds the old Bearer token),
+/// plus the AI query endpoints — `chat`, `search`, `search/suggest` and the
+/// CRM guided bot are POST because they carry a request body, but none of
+/// them persist anything a demo session could "break": they only read the
+/// catalogue/store and return a computed answer.
 const _demoAllowedWritePaths = {
   'v1/auth/logout',
   'v1/auth/refresh',
   'v1/auth/demo',
+  'v1/ai/chat',
+  'v1/ai/search',
+  'v1/ai/search/suggest',
+  'v1/ai/crm/query',
+  'v1/ai/b2b/chat',
 };
 
 /// Blocks mutating API calls for demo reviewer accounts ([AuthContext.isDemo]).

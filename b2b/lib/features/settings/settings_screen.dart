@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/theme/theme_controller.dart';
+import '../../core/utils/redacted_phone.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/confirm_dialogs.dart';
 import '../../l10n/gen/app_localizations.dart';
@@ -113,7 +114,7 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     title: Text(user.role),
-                    subtitle: Text(user.phone),
+                    subtitle: Text(displayPhone(l10n, user.phone)),
                   ),
                 ListTile(
                   contentPadding: EdgeInsets.zero,

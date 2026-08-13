@@ -30,6 +30,14 @@ abstract class Env {
     defaultValue: false,
   );
 
+  /// The AI assistant chat is built and tested but parked out of the product
+  /// until it ships: the FAB and its sheet stay off unless a build passes
+  /// `--dart-define=AI_CHAT_ENABLED=true`.
+  static const bool aiChatEnabled = bool.fromEnvironment(
+    'AI_CHAT_ENABLED',
+    defaultValue: false,
+  );
+
   /// Marketing/sign-up entry point for the iBuild for Business (B2B) app.
   /// Ordinary consumer accounts can never list inventory for sale or rent
   /// from this app — businesses that want to list do so through the

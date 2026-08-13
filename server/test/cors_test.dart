@@ -16,7 +16,10 @@ void main() {
     test('always advertises the allowed methods/headers', () {
       final headers = corsHeadersFor(_withOrigin(null));
       expect(headers['Access-Control-Allow-Methods'], contains('GET'));
-      expect(headers['Access-Control-Allow-Headers'], contains('Authorization'));
+      expect(
+        headers['Access-Control-Allow-Headers'],
+        contains('Authorization'),
+      );
     });
 
     // Dart can't mutate process env; these checks need ALLOWED_ORIGINS unset.
@@ -31,7 +34,10 @@ void main() {
         expect(local['Vary'], 'Origin');
 
         final loopbackIp = corsHeadersFor(_withOrigin('http://127.0.0.1:3000'));
-        expect(loopbackIp['Access-Control-Allow-Origin'], 'http://127.0.0.1:3000');
+        expect(
+          loopbackIp['Access-Control-Allow-Origin'],
+          'http://127.0.0.1:3000',
+        );
       },
       skip: envUnset ? false : 'ALLOWED_ORIGINS is set in this environment',
     );

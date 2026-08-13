@@ -33,12 +33,9 @@ class Database {
     final previous = _gate;
     final done = Completer<void>();
     _gate = done.future;
-    return previous
-        .catchError((_) {})
-        .then((_) => fn())
-        .whenComplete(() {
-          if (!done.isCompleted) done.complete();
-        });
+    return previous.catchError((_) {}).then((_) => fn()).whenComplete(() {
+      if (!done.isCompleted) done.complete();
+    });
   }
 
   Future<void> connect({int maxAttempts = 5}) async {
@@ -62,7 +59,8 @@ class Database {
       } catch (error, stackTrace) {
         lastError = error;
         lastStack = stackTrace;
-        final retryable = attempt < maxAttempts && _isRetryableConnectError(error);
+        final retryable =
+            attempt < maxAttempts && _isRetryableConnectError(error);
         if (!retryable) {
           Error.throwWithStackTrace(error, stackTrace);
         }
@@ -136,9 +134,7 @@ class Database {
   Future<Result> execute(
     Object /* String | Sql */ query, {
     Object? parameters,
-  }) => _serialized(
-    () => connection.execute(query, parameters: parameters),
-  );
+  }) => _serialized(() => connection.execute(query, parameters: parameters));
 
   Future<R> runTx<R>(Future<R> Function(TxSession session) fn) =>
       _serialized(() => connection.runTx(fn));

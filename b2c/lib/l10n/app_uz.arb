@@ -455,5 +455,350 @@
   },
   "quizDoneAction": "Variantlarimni ko‘rish",
   "quizRetakeAction": "Qayta o‘tish",
-  "quizEntryAction": "Viktorinadan o‘tish"
+  "quizEntryAction": "Viktorinadan o‘tish",
+
+  "leadSubjectLabel": "Bu nima haqida?",
+  "leadSubjectProject": "Loyiha haqida",
+  "leadSubjectUnit": "Aniq xonadon haqida",
+  "leadSubjectRent": "Ijara haqida",
+  "leadSubjectOffice": "Ofis haqida",
+  "leadSubjectMortgage": "Ipoteka konsultatsiyasi",
+  "leadSubjectOther": "Boshqa",
+
+  "aiFabTooltip": "iBuild AI'dan so‘rash",
+  "aiChatTitle": "iBuild AI",
+  "aiChatInfoTooltip": "iBuild AI haqida",
+  "aiChatInfoBody": "Katalog, aniq majmua yoki xonadon, muddatli to‘lov va ipoteka haqida so‘rang — iBuild AI iBuild'ning o‘z ma'lumotlari va shartlariga asoslanib javob beradi.",
+  "aiChatErrorSnackbar": "Javob olinmadi. Qaytadan urinib ko‘ring.",
+  "aiChatQuotaExhaustedTitle": "Kunlik limit tugadi",
+  "aiChatQuotaExhaustedBody": "Bugungi iBuild AI xabarlar limitidan foydalandingiz. Ertaga qayting.",
+  "aiChatUnavailableTitle": "iBuild AI vaqtincha ishlamayapti",
+  "aiChatUnavailableBody": "Yordamchi vaqtincha mavjud emas. Birozdan keyin qaytadan urinib ko‘ring.",
+  "aiChatEmptyTitle": "iBuild AI'dan istagan narsani so‘rang",
+  "aiChatEmptyBody": "Masalan: «Chilonzorda qaysi majmualarda muddatli to‘lov bor?» yoki «$60 000 xonadon uchun qanday ipoteka stavkasi maqbul?»",
+  "aiChatInputHint": "iBuild AI'ga yozing...",
+  "aiChatSendTooltip": "Yuborish",
+
+  "aiBetaNoticeTitle": "iBuild AI sinov rejimida",
+  "aiBetaNoticeBody": "Javoblar ba'zan noaniq bo‘lishi mumkin — narx va mavjudlik kabi tafsilotlarni har doim e'lonning o‘zidan tekshiring.",
+  "aiQuotaTitle": "Kunlik limit",
+  "aiQuotaUsedLabel": "Bugun {limit} tadan {used} xabar ishlatildi",
+  "@aiQuotaUsedLabel": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "limit": { "type": "int" }
+    }
+  },
+  "aiQuotaResetLabel": "Yangilanadi: {time}",
+  "@aiQuotaResetLabel": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "aiSearchInfoExamplesTitle": "Shunday so‘rab ko‘ring",
+
+  "aiSearchInfoTitle": "AI aqlli qidiruv",
+  "aiSearchInfoBody": "Nima izlayotganingizni oddiy so‘zlar bilan tasvirlang — xonalar, byudjet, tuman, sizga muhim bo‘lgan har narsa — iBuild AI buni katalogdagi jonli qidiruvga aylantiradi.",
+  "aiSearchExample1": "Chilonzorda $60 000 gacha 2 xonali",
+  "aiSearchExample2": "Biznes markazga yaqin 3 xonali ofis, hozir tayyor",
+  "aiSearchExample3": "Ijaraga xonadon, birinchi qavat emas, parking bilan",
+  "aiSearchHint": "Nima izlayotganingizni yozing...",
+  "aiSearchClearTooltip": "Qidiruvni tozalash",
+  "aiSearchSubmitTooltip": "Qidirish",
+  "aiSearchInfoTooltip": "AI qidiruv haqida",
+
+  "aiSearchRateLimitedTitle": "Kunlik qidiruv limiti tugadi",
+  "aiSearchRateLimitedBody": "Bugungi AI qidiruv limitidan foydalandingiz. {time} qaytib keling.",
+  "@aiSearchRateLimitedBody": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "aiSearchUnavailableTitle": "AI qidiruv vaqtincha ishlamayapti",
+  "aiSearchUnavailableBody": "Aqlli qidiruv vaqtincha mavjud emas. Birozdan keyin qaytadan urinib ko‘ring.",
+  "aiSearchGenericErrorTitle": "Qidiruvni amalga oshirib bo‘lmadi",
+  "aiSearchGenericErrorBody": "Nimadir xato ketdi. Birozdan keyin qaytadan urinib ko‘ring.",
+  "aiSearchUnrecognizedNote": "Aniqlanmadi: {terms}",
+  "@aiSearchUnrecognizedNote": {
+    "placeholders": { "terms": { "type": "String" } }
+  },
+  "aiSearchSummary": "{count, plural, =0{Mos kelmadi} =1{1 mos variant} other{{count} mos variant}}",
+  "@aiSearchSummary": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiSearchResultsEmptyTitle": "Hozircha mos variant yo‘q",
+  "aiSearchResultsEmptyBody": "Shartlardan birini yumshating — byudjetni kengaytiring yoki qo‘shni tumanni ko‘rib chiqing.",
+  "aiSearchMatchScoreLabel": "{score}% mos",
+  "@aiSearchMatchScoreLabel": {
+    "placeholders": { "score": { "type": "int" } }
+  },
+  "aiSearchStatusStarting": "Qidiruv boshlanmoqda...",
+  "aiSearchTabHintTooltip": "Tab — taklifni qabul qilish",
+  "aiSearchTabAcceptLabel": "AI taklifini qabul qilish",
+  "aiSearchClarifyTitle": "So‘rovni tushunolmadim",
+  "aiSearchClarifyBody": "Bu so‘zlar katalogda yo‘q: {terms}. So‘rovni aniqlashtiring yoki quyidagi takliflardan birini tanlang.",
+  "@aiSearchClarifyBody": {
+    "placeholders": { "terms": { "type": "String" } }
+  },
+  "aiSearchClarifyExamplesHint": "Yoki quyidagi misollardan birini sinab ko‘ring:",
+  "aiSearchDidYouMean": "«{suggestion}» demoqchimidingiz?",
+  "@aiSearchDidYouMean": {
+    "placeholders": { "suggestion": { "type": "String" } }
+  },
+  "aiSearchQuotedTerm": "«{term}»",
+  "@aiSearchQuotedTerm": {
+    "placeholders": { "term": { "type": "String" } }
+  },
+  "aiSearchRelaxConstraint": "Shartni olib tashlash: {constraint}",
+  "@aiSearchRelaxConstraint": {
+    "placeholders": { "constraint": { "type": "String" } }
+  },
+
+  "aiStepParsingV1": "So‘rovingiz o‘qilmoqda...",
+  "aiStepParsingV2": "Nima kerakligini aniqlayapman...",
+  "aiStepParsingV3": "{count, plural, =1{1 talab} other{{count} talab}} tahlil qilinmoqda...",
+  "@aiStepParsingV3": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepParsingV4": "So‘rovingiz bo‘laklarga ajratilmoqda...",
+
+  "aiStepScanningDistrictV1": "{district} tumani ko‘rib chiqilmoqda...",
+  "@aiStepScanningDistrictV1": {
+    "placeholders": { "district": { "type": "String" } }
+  },
+  "aiStepScanningDistrictV2": "{district}'dagi {count} loyiha ko‘rib chiqilmoqda...",
+  "@aiStepScanningDistrictV2": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "district": { "type": "String" }
+    }
+  },
+  "aiStepScanningDistrictV3": "{district} tumanidagi mavjudlik tekshirilmoqda...",
+  "@aiStepScanningDistrictV3": {
+    "placeholders": { "district": { "type": "String" } }
+  },
+  "aiStepScanningDistrictV4": "{district} tumani ({count} loyiha) o‘rganilmoqda...",
+  "@aiStepScanningDistrictV4": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "aiStepFoundInDistrictV1": "{district} tumanida {count} ta topildi",
+  "@aiStepFoundInDistrictV1": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "district": { "type": "String" }
+    }
+  },
+  "aiStepFoundInDistrictV2": "{district}'da {count} ta nomzod topildi",
+  "@aiStepFoundInDistrictV2": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "district": { "type": "String" }
+    }
+  },
+  "aiStepFoundInDistrictV3": "{district}: {count} ta e'tiborga loyiq",
+  "@aiStepFoundInDistrictV3": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepFoundInDistrictV4": "{district} tumanida {count} ta tanlandi",
+  "@aiStepFoundInDistrictV4": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "district": { "type": "String" }
+    }
+  },
+
+  "aiStepOpeningProjectV1": "{project} ochilmoqda ({index}/{total})...",
+  "@aiStepOpeningProjectV1": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "aiStepOpeningProjectV2": "{project} ichi ko‘rilmoqda...",
+  "@aiStepOpeningProjectV2": {
+    "placeholders": { "project": { "type": "String" } }
+  },
+  "aiStepOpeningProjectV3": "{project} tekshirilmoqda ({index}/{total})...",
+  "@aiStepOpeningProjectV3": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "aiStepOpeningProjectV4": "Hozir {project} ko‘rilmoqda...",
+  "@aiStepOpeningProjectV4": {
+    "placeholders": { "project": { "type": "String" } }
+  },
+
+  "aiStepScanningUnitsV1": "{project}'dagi xonadonlar skanerlanmoqda ({count})...",
+  "@aiStepScanningUnitsV1": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepScanningUnitsV2": "{project}'dagi {count} ta xonadon tekshirilmoqda...",
+  "@aiStepScanningUnitsV2": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "project": { "type": "String" }
+    }
+  },
+  "aiStepScanningUnitsV3": "{project} tartiblari ko‘rib chiqilmoqda...",
+  "@aiStepScanningUnitsV3": {
+    "placeholders": { "project": { "type": "String" } }
+  },
+  "aiStepScanningUnitsV4": "{project}: {count} ta xonadon ko‘rilmoqda...",
+  "@aiStepScanningUnitsV4": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "aiStepFilteringBookedV1": "{removed} ta band chiqarib tashlanmoqda, {left} ta qoldi...",
+  "@aiStepFilteringBookedV1": {
+    "placeholders": {
+      "removed": { "type": "int" },
+      "left": { "type": "int" }
+    }
+  },
+  "aiStepFilteringBookedV2": "Sotilgan va band qilinganlar chiqarilmoqda ({left} ta qoldi)...",
+  "@aiStepFilteringBookedV2": {
+    "placeholders": { "left": { "type": "int" } }
+  },
+  "aiStepFilteringBookedV3": "{removed} ta band bo‘lgani o‘tkazib yuborilmoqda...",
+  "@aiStepFilteringBookedV3": {
+    "placeholders": { "removed": { "type": "int" } }
+  },
+  "aiStepFilteringBookedV4": "Faqat mavjud xonadonlar qoldirilmoqda ({left})...",
+  "@aiStepFilteringBookedV4": {
+    "placeholders": { "left": { "type": "int" } }
+  },
+
+  "aiStepRankingPriceV1": "{count} ta eng mosligiga ko‘ra tartiblanmoqda...",
+  "@aiStepRankingPriceV1": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepRankingPriceV2": "Narx va moslikka ko‘ra saralanmoqda...",
+  "aiStepRankingPriceV3": "{count} ta variant solishtirilmoqda...",
+  "@aiStepRankingPriceV3": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepRankingPriceV4": "Eng yaxshi {count} ta variant tanlanmoqda...",
+  "@aiStepRankingPriceV4": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "aiStepDoneV1": "Tayyor · {count, plural, =0{mos variant yo‘q} =1{1 mos variant} other{{count} mos variant}}, {elapsedMs} ms ichida",
+  "@aiStepDoneV1": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "elapsedMs": { "type": "int" }
+    }
+  },
+  "aiStepDoneV2": "Tayyor — {count, plural, =0{hech narsa mos kelmadi} =1{1 mos variant topildi} other{{count} mos variant topildi}}",
+  "@aiStepDoneV2": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepDoneV3": "Qidiruv tugadi ({count, plural, =0{0 natija} =1{1 natija} other{{count} natija}})",
+  "@aiStepDoneV3": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepNoMatchIntent": "Katalogda {terms} ga o‘xshash narsa yo‘q — qidiruv shu yerda to‘xtadi",
+  "@aiStepNoMatchIntent": {
+    "placeholders": { "terms": { "type": "String" } }
+  },
+  "aiStepLowConfidence": "{terms} ni to‘liq tushunmadim — kengroq mos variantlar ko‘rsatilmoqda ({count})",
+  "@aiStepLowConfidence": {
+    "placeholders": {
+      "terms": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepAutocorrected": "«{from}» ni «{to}» deb o‘qidim",
+  "@aiStepAutocorrected": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
+  "aiStepSoftenedAmenity": "Variantlar topish uchun «{amenity}» sharti yumshatildi",
+  "@aiStepSoftenedAmenity": {
+    "placeholders": { "amenity": { "type": "String" } }
+  },
+
+  "aiStepDoneV4": "Tayyor — {count, plural, =0{bu safar mos variant yo‘q} =1{1 kuchli mos variant} other{{count} kuchli mos variant}}",
+  "@aiStepDoneV4": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "aiReasonDistrictMatch": "Kerakli tuman",
+  "aiReasonRoomsMatch": "Xonalar soni mos",
+  "aiReasonPriceFit": "Byudjetga mos",
+  "aiReasonPriceBelowBudget": "Byudjetdan past",
+  "aiReasonAreaFit": "Maydon mos",
+  "aiReasonFloorPreference": "Qavat afzalligi",
+  "aiReasonDealTypeMatch": "Sotish/ijara mos",
+  "aiReasonKindMatch": "Xonadon turi mos",
+  "aiReasonAvailableNow": "Hozir mavjud",
+  "aiReasonAmenityMatch": "So‘ralgan qulayliklar bor",
+  "aiReasonDeveloperMatch": "So‘ralgan quruvchi",
+  "aiReasonProjectMatch": "So‘ralgan loyiha",
+  "aiReasonHighTrustIndex": "Yuqori ishonch indeksi",
+  "aiReasonReadySoon": "Tez orada tayyor",
+  "aiReasonOffplanDiscount": "Qurilish bosqichi chegirmasi",
+
+  "aiChipAreaRange": "{min}–{max} m²",
+  "@aiChipAreaRange": {
+    "placeholders": {
+      "min": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "aiChipAreaUpTo": "{max} m² gacha",
+  "@aiChipAreaUpTo": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+  "aiChipAreaFrom": "{min} m² dan",
+  "@aiChipAreaFrom": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "aiDealTypeRent": "Ijaraga",
+  "aiDealTypeSale": "Sotishga",
+  "aiUnitKindApartment": "Kvartira",
+  "aiUnitKindCommercial": "Tijorat maydoni",
+  "aiUnitKindParking": "Parking",
+  "aiChipFloorRange": "{min}–{max} qavat",
+  "@aiChipFloorRange": {
+    "placeholders": {
+      "min": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "aiChipFloorFrom": "{min}+ qavat",
+  "@aiChipFloorFrom": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "aiChipFloorUpTo": "{max} qavatgacha",
+  "@aiChipFloorUpTo": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+  "aiChipNotFirstFloor": "Birinchi qavat emas",
+  "aiChipNotLastFloor": "Oxirgi qavat emas",
+  "aiChipAvailableOnly": "Faqat mavjudlar",
+  "aiSearchShowAll": "Barcha {count} natijani ko‘rish",
+  "@aiSearchShowAll": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiSearchAllResultsTitle": "Barcha natijalar",
+  "aiConstraintWithout": "{amenity}siz",
+  "@aiConstraintWithout": {
+    "placeholders": { "amenity": { "type": "String" } }
+  }
 }

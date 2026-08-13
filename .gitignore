@@ -66,6 +66,9 @@ PRESENTATION_READINESS.md
 # --- Codebase analysis cache (local tooling output) --------------------------
 /graphify-out/
 
+# --- Ad-hoc verification scripts & screenshots (local tooling output) --------
+/.tmp_verify/
+
 # --- Marketing / catalogue assets (optional local only) ----------------------
 /residences-images/
 # Bundled catalogue photos live under server/ and ship in the Docker image.

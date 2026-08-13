@@ -17,6 +17,9 @@ import '../../l10n/gen/app_localizations.dart';
 import '../../models/admin_project.dart';
 import '../../models/developer_profile.dart';
 import '../../repositories/residence_repository.dart';
+import '../ai_crm/ai_crm_bot_sheet.dart';
+import '../ai_crm/ai_crm_providers.dart';
+import '../ai_crm/ai_crm_widgets.dart';
 import '../auth/auth.dart';
 
 final _myProjectsProvider = FutureProvider<List<AdminProject>>((ref) async {
@@ -44,14 +47,16 @@ class ResidenceHome extends ConsumerWidget {
       builder: (ctx) => const _CreateProjectDialog(),
     );
     if (result == null) return;
-    await ref.read(residenceRepositoryProvider).createProject(
-      name: result.name,
-      district: result.district,
-      address: result.address,
-      lat: result.location.latitude,
-      lng: result.location.longitude,
-      type: result.type,
-    );
+    await ref
+        .read(residenceRepositoryProvider)
+        .createProject(
+          name: result.name,
+          district: result.district,
+          address: result.address,
+          lat: result.location.latitude,
+          lng: result.location.longitude,
+          type: result.type,
+        );
     ref.invalidate(_myProjectsProvider);
     if (context.mounted) {
       ScaffoldMessenger.of(
@@ -150,6 +155,13 @@ class ResidenceHome extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: AppSpacing.xl),
+        HotLeadsPanel(
+          scope: const AiCrmScope(limit: 5),
+          condensed: true,
+          showMetrics: false,
+          onOpenBot: () => showAiCrmBotSheet(context),
+        ),
+        const SizedBox(height: AppSpacing.xl),
         SectionHeader(title: l10n.residenceProjectsSectionTitle),
         const SizedBox(height: AppSpacing.md),
         projects.when(
@@ -225,10 +237,7 @@ class ResidenceHome extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  p.name,
-                                  style: textTheme.titleMedium,
-                                ),
+                                Text(p.name, style: textTheme.titleMedium),
                                 const SizedBox(height: AppSpacing.xs),
                                 Text(
                                   l10n.residenceProjectMeta(

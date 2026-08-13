@@ -201,5 +201,9 @@ bool _isDemoAllowedMutation(String path) {
   return path.contains('/auth/demo') ||
       path.contains('/auth/logout') ||
       path.contains('/auth/otp/') ||
-      path.contains('/auth/refresh');
+      path.contains('/auth/refresh') ||
+      // POST /ai/chat and /ai/search don't write any user data — they're
+      // read-only Q&A/search over the catalogue — so the demo read-only
+      // guard shouldn't block them even though they're POST requests.
+      path.contains('/ai/');
 }

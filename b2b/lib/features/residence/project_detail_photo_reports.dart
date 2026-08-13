@@ -2,16 +2,24 @@ part of 'project_detail_admin.dart';
 
 /// Result of [_PhotoReportDetailsDialog]: the date a photo was taken plus an
 /// optional construction-progress percentage to tag onto the upload (Track
-/// B.4, matches the Photo Reports API's `takenAt`/`progressPercent` fields).
+/// B.4, matches the Photo Reports API's `takenAt`/`progressPercent` fields),
+/// plus the declared construction stage the AI readiness check (plan Part 4)
+/// verifies the photo against.
 class _PhotoReportSpec {
-  const _PhotoReportSpec({required this.takenAt, this.progressPercent});
+  const _PhotoReportSpec({
+    required this.takenAt,
+    required this.declaredStage,
+    this.progressPercent,
+  });
 
   final DateTime takenAt;
+  final String declaredStage;
   final int? progressPercent;
 }
 
-/// Collects the date + optional progress percent before the file (already
-/// picked by the caller) is uploaded.
+/// Collects the date, declared construction stage, and optional progress
+/// percent before the file (already picked by the caller) goes through the
+/// AI readiness check and then the upload.
 class _PhotoReportDetailsDialog extends StatefulWidget {
   const _PhotoReportDetailsDialog();
 
@@ -23,6 +31,7 @@ class _PhotoReportDetailsDialog extends StatefulWidget {
 class _PhotoReportDetailsDialogState
     extends State<_PhotoReportDetailsDialog> {
   DateTime _takenAt = DateTime.now();
+  String _declaredStage = kReadinessStages.first;
   final _progress = TextEditingController();
 
   @override
@@ -73,6 +82,23 @@ class _PhotoReportDetailsDialogState
               ),
             ),
             const SizedBox(height: AppSpacing.md),
+            DropdownButtonFormField<String>(
+              initialValue: _declaredStage,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: l10n.projectPhotoReportDeclaredStageLabel,
+              ),
+              items: [
+                for (final stage in kReadinessStages)
+                  DropdownMenuItem(
+                    value: stage,
+                    child: Text(readinessStageLabel(l10n, stage)),
+                  ),
+              ],
+              onChanged: (value) =>
+                  setState(() => _declaredStage = value ?? _declaredStage),
+            ),
+            const SizedBox(height: AppSpacing.md),
             TextField(
               controller: _progress,
               keyboardType: TextInputType.number,
@@ -98,7 +124,11 @@ class _PhotoReportDetailsDialogState
             final progress = int.tryParse(_progress.text.trim())?.clamp(0, 100);
             Navigator.pop(
               context,
-              _PhotoReportSpec(takenAt: _takenAt, progressPercent: progress),
+              _PhotoReportSpec(
+                takenAt: _takenAt,
+                declaredStage: _declaredStage,
+                progressPercent: progress,
+              ),
             );
           },
         ),
@@ -182,6 +212,13 @@ class _PhotoReportTile extends StatelessWidget {
     final progress = (report['progressPercent'] as num?)?.round();
     final takenAt =
         DateTime.tryParse(report['takenAt']?.toString() ?? '') ?? DateTime.now();
+    final verificationStatus = report['verificationStatus']?.toString();
+    final verificationColor = switch (verificationStatus) {
+      'confirmed' => colors.success,
+      'requires_manual_review' => colors.warning,
+      'discrepancy_found' || 'violation_found' => colors.danger,
+      _ => null,
+    };
 
     return SizedBox(
       width: 160,
@@ -252,6 +289,28 @@ class _PhotoReportTile extends StatelessWidget {
                   ),
                 ),
               ),
+              if (verificationColor != null)
+                Positioned(
+                  left: 6,
+                  top: 6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: verificationColor.withValues(alpha: 0.92),
+                      borderRadius: BorderRadius.circular(AppRadii.pill),
+                    ),
+                    child: Text(
+                      readinessStatusLabel(l10n, verificationStatus!),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colors.surface,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),

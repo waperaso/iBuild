@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import 'ai/readiness_engine.dart';
 import 'auth_context.dart';
 import 'env_loader.dart';
 import 'http_helpers.dart';
@@ -42,7 +43,11 @@ const kAdminLeadStatuses = {
 };
 
 /// Registers B2B admin + platform routes on [router].
-void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter}) {
+void mountAdminRoutes(
+  Router router,
+  Store store, {
+  RateLimiter? refreshLimiter,
+}) {
   final refreshRateLimiter =
       refreshLimiter ?? RateLimiter(30, const Duration(minutes: 5));
 
@@ -498,7 +503,8 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       store.notifyAdmins(
         type: 'developer_submitted',
         title: 'Developer application submitted: ${developer['name']}',
-        body: '${developer['name']} submitted their KYC application for review.',
+        body:
+            '${developer['name']} submitted their KYC application for review.',
         payload: {'developerName': developer['name']},
         developerId: developer['id'] as String?,
         targetType: 'developer',
@@ -561,7 +567,8 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       store.notifyAdmins(
         type: 'document_uploaded',
         title: 'Document submitted: ${doc['type']}',
-        body: '${developer['name']} uploaded a "${doc['type']}" document for review.',
+        body:
+            '${developer['name']} uploaded a "${doc['type']}" document for review.',
         payload: {
           'documentType': doc['type'],
           'developerName': developer['name'],
@@ -599,10 +606,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       type: 'document_uploaded',
       title: 'Document submitted: $type',
       body: '${developer['name']} uploaded a "$type" document for review.',
-      payload: {
-        'documentType': type,
-        'developerName': developer['name'],
-      },
+      payload: {'documentType': type, 'developerName': developer['name']},
       developerId: developerId,
       targetType: 'document',
       targetId: doc['id'] as String?,
@@ -695,8 +699,10 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
         status: 422,
       );
     }
-    final rejectReason = capString(body['rejectReason'] as String?, 500)
-        ?.trim();
+    final rejectReason = capString(
+      body['rejectReason'] as String?,
+      500,
+    )?.trim();
     if (status == 'rejected' &&
         (rejectReason == null || rejectReason.isEmpty)) {
       return jsonError(
@@ -1226,6 +1232,8 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     String? takenAtRaw;
     int? progressPercent;
     String? buildingId;
+    String? declaredStage;
+    Uint8List? imageBytes;
 
     final contentType = req.headers['content-type'] ?? '';
     if (contentType.contains('multipart/form-data')) {
@@ -1237,12 +1245,19 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       takenAtRaw = parsed.takenAt;
       progressPercent = parsed.progressPercent;
       buildingId = parsed.buildingId;
+      imageBytes = parsed.imageBytes;
+      declaredStage = parsed.declaredStage;
     } else {
       final body = await req.readJson();
       url = body['url'] as String?;
       takenAtRaw = body['takenAt'] as String?;
       progressPercent = (body['progressPercent'] as num?)?.toInt();
       buildingId = body['buildingId'] as String?;
+      declaredStage = body['declaredStage'] as String?;
+      // Best effort only: a `url` here is usually external/already-uploaded
+      // and we don't fetch over the network for this route — verification
+      // just won't run for a JSON-path submission with no local bytes.
+      imageBytes = await _tryReadLocalUploadBytes(url);
     }
 
     if (url == null || url.isEmpty) {
@@ -1278,6 +1293,54 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
         status: 422,
       );
     }
+    if (declaredStage != null && !kDeclaredStages.contains(declaredStage)) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'declaredStage must be one of ${kDeclaredStages.join(', ')}',
+        status: 422,
+      );
+    }
+
+    // Best-effort readiness check on publish (plan Part 4): never blocks or
+    // fails the upload — any error here just leaves the verification fields
+    // null, same as before this existed.
+    ReadinessResult? verification;
+    if (imageBytes != null) {
+      try {
+        final priorReports = store
+            .photoReportsForProject(id)
+            .where((r) => r['phash'] != null)
+            .map(_toPriorReportForAdmin)
+            .toList();
+        final lastConfirmed = store
+            .photoReportsForProject(id)
+            .where(
+              (r) =>
+                  r['verificationStatus'] == 'confirmed' &&
+                  r['phash'] != null &&
+                  (buildingId == null || r['buildingId'] == buildingId),
+            )
+            .map(_toPriorReportForAdmin)
+            .firstOrNull;
+        verification = await const ReadinessEngine().analyze(
+          imageBytes: imageBytes,
+          objectId: id,
+          reportId: 'phr-pending',
+          userLanguage: 'en',
+          declaredStage: declaredStage,
+          buildingId: buildingId,
+          progressPercent: progressPercent,
+          projectLat: (project['lat'] as num?)?.toDouble(),
+          projectLng: (project['lng'] as num?)?.toDouble(),
+          priorReports: priorReports,
+          lastConfirmedReport: lastConfirmed,
+        );
+      } catch (error) {
+        stderr.writeln(
+          '[AdminRoutes] Readiness check failed for photo-report upload on project $id: $error',
+        );
+      }
+    }
 
     final report = store.addPhotoReport(
       projectId: id,
@@ -1287,6 +1350,15 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
       takenAtIsManual: takenAtIsManual,
       progressPercent: progressPercent,
       uploadedBy: auth.userId,
+      phash: verification?.phash,
+      verificationStatus: verification?.overallStatus,
+      verificationConfidence: verification?.confidence,
+      verification: verification?.json,
+      exifTakenAt: verification?.exifTakenAt,
+      exifLat: verification?.exifLat,
+      exifLng: verification?.exifLng,
+      detectedStage: verification?.detectedStage,
+      declaredStage: declaredStage,
     );
     return jsonOk(report, status: 201);
   });
@@ -1479,11 +1551,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     final body = await req.readJson();
     final toUserId = (body['toUserId'] as String?)?.trim();
     if (toUserId == null || toUserId.isEmpty) {
-      return jsonError(
-        'VALIDATION_ERROR',
-        'toUserId is required',
-        status: 422,
-      );
+      return jsonError('VALIDATION_ERROR', 'toUserId is required', status: 422);
     }
     if (!_canUserManageProject(store, toUserId, project)) {
       return jsonError(
@@ -1982,13 +2050,13 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     final unreadOnly =
         req.url.queryParameters['unreadOnly']?.toLowerCase() == 'true';
     final limit = int.tryParse(req.url.queryParameters['limit'] ?? '') ?? 200;
-    final items = store.adminNotifications(unreadOnly: unreadOnly, limit: limit);
+    final items = store.adminNotifications(
+      unreadOnly: unreadOnly,
+      limit: limit,
+    );
     return jsonOk(
       items,
-      meta: {
-        'total': items.length,
-        'unread': store.unreadNotificationCount(),
-      },
+      meta: {'total': items.length, 'unread': store.unreadNotificationCount()},
     );
   });
 
@@ -1998,10 +2066,7 @@ void mountAdminRoutes(Router router, Store store, {RateLimiter? refreshLimiter})
     return jsonOk({'count': store.unreadNotificationCount()});
   });
 
-  router.post('/v1/platform/notifications/<id>/read', (
-    Request req,
-    String id,
-  ) {
+  router.post('/v1/platform/notifications/<id>/read', (Request req, String id) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
     final n = store.markNotificationRead(id);
@@ -2324,9 +2389,18 @@ Future<Map<String, dynamic>?> _handleMultipartDocument(
   );
 }
 
-/// Multipart photo-report upload; returns URL plus raw fields for JSON-path validation.
+/// Multipart photo-report upload; returns URL plus raw fields for JSON-path
+/// validation, plus the raw bytes/declaredStage so the caller can run the
+/// readiness engine on the same image without re-reading it from disk.
 Future<
-  ({String url, String? takenAt, int? progressPercent, String? buildingId})?
+  ({
+    String url,
+    String? takenAt,
+    int? progressPercent,
+    String? buildingId,
+    Uint8List imageBytes,
+    String? declaredStage,
+  })?
 >
 _handleMultipartPhotoReport(Request req) async {
   final parts = await _readMultipartParts(req);
@@ -2350,7 +2424,66 @@ _handleMultipartPhotoReport(Request req) async {
     takenAt: field('takenAt'),
     progressPercent: progressRaw == null ? null : int.tryParse(progressRaw),
     buildingId: field('buildingId'),
+    imageBytes: filePart.data,
+    declaredStage: field('declaredStage'),
   );
+}
+
+PriorReport _toPriorReportForAdmin(Map<String, dynamic> report) {
+  Map<String, double>? features;
+  final verification = report['verification'];
+  if (verification is Map) {
+    final checks = verification['checks'];
+    if (checks is List) {
+      for (final entry in checks) {
+        if (entry is Map && entry['stage'] == 'stage_3') {
+          final evidenceParams = entry['evidenceParams'];
+          if (evidenceParams is Map) {
+            features = evidenceParams.map(
+              (k, v) => MapEntry(k.toString(), (v as num?)?.toDouble() ?? 0),
+            );
+          }
+        }
+      }
+    }
+  }
+  final takenAtRaw =
+      report['exifTakenAt'] as String? ?? report['takenAt'] as String?;
+  return PriorReport(
+    id: report['id'] as String,
+    phash: report['phash'] as String? ?? '',
+    takenAt: takenAtRaw == null ? null : DateTime.tryParse(takenAtRaw),
+    verificationStatus: report['verificationStatus'] as String?,
+    declaredStage: report['declaredStage'] as String?,
+    progressPercent: report['progressPercent'] as int?,
+    featureVector: features,
+  );
+}
+
+/// Reads bytes for a photo-report `url` that points at our own upload
+/// storage (`/v1/static/uploads/<file>` or `/v1/static/residences/<file>`)
+/// so the readiness engine can run on a JSON-path submission too. Any other
+/// URL (external hosts) is left alone — this never fetches over the network.
+Future<Uint8List?> _tryReadLocalUploadBytes(String? url) async {
+  if (url == null || url.isEmpty) return null;
+  final segments =
+      Uri.tryParse(url)?.pathSegments ??
+      url.split('/').where((s) => s.isNotEmpty).toList();
+  if (segments.isEmpty) return null;
+  final filename = segments.last;
+  if (!isSafeUploadFilename(filename)) return null;
+  final isResidence = segments.contains('residences');
+  if (!isResidence && !segments.contains('uploads')) return null;
+  final dir = isResidence
+      ? '${Directory.current.path}${Platform.pathSeparator}residences-images'
+      : kUploadsRoot;
+  final file = File('$dir${Platform.pathSeparator}$filename');
+  if (!await file.exists()) return null;
+  try {
+    return await file.readAsBytes();
+  } catch (_) {
+    return null;
+  }
 }
 
 /// Split multipart body into parts. Cap enforced during read to avoid OOM.

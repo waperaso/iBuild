@@ -15,6 +15,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../../discovery/providers/discovery_providers.dart';
 import '../../units/providers/units_providers.dart';
+import '../domain/lead_subject.dart';
 import '../providers/leads_providers.dart';
 
 /// Lead form (viewing / callback / off-plan / rent). No payment.
@@ -41,6 +42,14 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
     (i) => i.name == widget.initialIntent,
     orElse: () => LeadIntent.viewing,
   );
+  // Plan Part 3: defaults to the more specific selection when the caller
+  // already knows it (arrived via a project/unit detail page); otherwise the
+  // selector starts unselected and the user picks.
+  late LeadSubject? _subject = widget.unitId != null
+      ? LeadSubject.unit
+      : widget.projectId != null
+      ? LeadSubject.project
+      : null;
   final _phone = TextEditingController(text: '+998 ');
   final _message = TextEditingController();
   bool _submitting = false;
@@ -90,6 +99,7 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
             contactPhone: _phone.text,
             message: _message.text.isEmpty ? null : _message.text,
             consent: _consent,
+            subject: _subject,
           );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -155,6 +165,21 @@ class _LeadFormScreenState extends ConsumerState<LeadFormScreen> {
                           label: intent.label(context),
                           selected: _intent == intent,
                           onTap: () => setState(() => _intent = intent),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Text(l10n.leadSubjectLabel, style: textTheme.titleMedium),
+                  const SizedBox(height: AppSpacing.md),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      for (final subject in LeadSubject.values)
+                        AppChip(
+                          label: subject.label(context),
+                          selected: _subject == subject,
+                          onTap: () => setState(() => _subject = subject),
                         ),
                     ],
                   ),

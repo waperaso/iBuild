@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:intl/intl.dart';
 
+import '../../features/ai/presentation/widgets/ai_fab.dart';
+import '../../features/ai/providers/ai_fab_visibility_provider.dart';
 import '../../features/auth/providers/auth_providers.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../localization/currency_controller.dart';
@@ -19,7 +21,7 @@ import 'pressable_scale.dart';
 import 'shell_tab_scope.dart';
 
 /// Width-adaptive shell: pill bottom nav on mobile; sidebar + top bar on desktop.
-class AdaptiveScaffold extends StatelessWidget {
+class AdaptiveScaffold extends ConsumerWidget {
   const AdaptiveScaffold({super.key, required this.navigationShell});
 
   /// Current index + branch navigation, provided by go_router's stateful shell.
@@ -31,22 +33,43 @@ class AdaptiveScaffold extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ShellTabScope(
       currentIndex: navigationShell.currentIndex,
-      child: context.isMobile ? _buildMobile(context) : _buildDesktop(context),
+      child: context.isMobile
+          ? _buildMobile(context, ref)
+          : _buildDesktop(context, ref),
     );
   }
 
-  Widget _buildMobile(BuildContext context) {
+  Widget _buildMobile(BuildContext context, WidgetRef ref) {
     final isFullBleed = GoRouterState.of(context).uri.path.startsWith('/map');
 
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          const DemoModeStrip(),
-          if (!isFullBleed) const _MobileTopBar(),
-          Expanded(child: navigationShell),
+          Column(
+            children: [
+              const DemoModeStrip(),
+              if (!isFullBleed) const _MobileTopBar(),
+              Expanded(
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    ref
+                        .read(aiFabCollapsedProvider.notifier)
+                        .handleScroll(notification);
+                    return false;
+                  },
+                  child: navigationShell,
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            right: AppSpacing.lg,
+            bottom: MediaQuery.paddingOf(context).bottom + 88,
+            child: const AiAssistantFab(),
+          ),
         ],
       ),
       extendBody: true,
@@ -57,7 +80,7 @@ class AdaptiveScaffold extends StatelessWidget {
     );
   }
 
-  Widget _buildDesktop(BuildContext context) {
+  Widget _buildDesktop(BuildContext context, WidgetRef ref) {
     // Map/search is a full-bleed surface — capping it (and stacking a top
     // bar above it) leaves huge side gutters and eats into the map, so it
     // keeps rendering edge-to-edge with no top bar.
@@ -73,26 +96,36 @@ class AdaptiveScaffold extends StatelessWidget {
               children: [
                 const DemoModeStrip(),
                 Expanded(
-                  child: isFullBleed
-                      ? navigationShell
-                      : Column(
-                          children: [
-                            _DesktopTopBar(
-                              currentIndex: navigationShell.currentIndex,
-                            ),
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.topCenter,
-                                child: ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    maxWidth: AppBreakpoints.maxContentWidth,
-                                  ),
-                                  child: navigationShell,
+                  child: Stack(
+                    children: [
+                      isFullBleed
+                          ? navigationShell
+                          : Column(
+                              children: [
+                                _DesktopTopBar(
+                                  currentIndex: navigationShell.currentIndex,
                                 ),
-                              ),
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.topCenter,
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxWidth:
+                                            AppBreakpoints.maxContentWidth,
+                                      ),
+                                      child: navigationShell,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                      const Positioned(
+                        right: AppSpacing.xl,
+                        bottom: AppSpacing.xl,
+                        child: AiAssistantFab(),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -1153,4 +1153,533 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quizEntryAction => 'Take the quiz';
+
+  @override
+  String get leadSubjectLabel => 'What\'s this about?';
+
+  @override
+  String get leadSubjectProject => 'A project';
+
+  @override
+  String get leadSubjectUnit => 'A specific unit';
+
+  @override
+  String get leadSubjectRent => 'Renting';
+
+  @override
+  String get leadSubjectOffice => 'An office';
+
+  @override
+  String get leadSubjectMortgage => 'Mortgage consult';
+
+  @override
+  String get leadSubjectOther => 'Something else';
+
+  @override
+  String get aiFabTooltip => 'Ask iBuild AI';
+
+  @override
+  String get aiChatTitle => 'iBuild AI';
+
+  @override
+  String get aiChatInfoTooltip => 'About iBuild AI';
+
+  @override
+  String get aiChatInfoBody =>
+      'Ask about the catalogue, a specific complex or unit, or how installments and mortgages work — iBuild AI answers using iBuild\'s own listings and terms.';
+
+  @override
+  String get aiChatErrorSnackbar => 'Couldn\'t get a reply. Please try again.';
+
+  @override
+  String get aiChatQuotaExhaustedTitle => 'Daily limit reached';
+
+  @override
+  String get aiChatQuotaExhaustedBody =>
+      'You\'ve used today\'s iBuild AI messages. Please come back tomorrow.';
+
+  @override
+  String get aiChatUnavailableTitle => 'iBuild AI is taking a break';
+
+  @override
+  String get aiChatUnavailableBody =>
+      'The assistant is temporarily unavailable. Please try again later.';
+
+  @override
+  String get aiChatEmptyTitle => 'Ask iBuild AI anything';
+
+  @override
+  String get aiChatEmptyBody =>
+      'Try “Which complexes in Chilanzar have installments?” or “What\'s a good mortgage rate for a \$60,000 flat?”';
+
+  @override
+  String get aiChatInputHint => 'Message iBuild AI...';
+
+  @override
+  String get aiChatSendTooltip => 'Send';
+
+  @override
+  String get aiBetaNoticeTitle => 'iBuild AI is in testing';
+
+  @override
+  String get aiBetaNoticeBody =>
+      'Answers may occasionally be inaccurate — always double-check details like price and availability on the listing itself.';
+
+  @override
+  String get aiQuotaTitle => 'Daily quota';
+
+  @override
+  String aiQuotaUsedLabel(int used, int limit) {
+    return '$used of $limit messages used today';
+  }
+
+  @override
+  String aiQuotaResetLabel(String time) {
+    return 'Resets $time';
+  }
+
+  @override
+  String get aiSearchInfoExamplesTitle => 'Try asking';
+
+  @override
+  String get aiSearchInfoTitle => 'AI smart search';
+
+  @override
+  String get aiSearchInfoBody =>
+      'Describe what you\'re looking for in plain language — rooms, budget, district, anything that matters to you — and iBuild AI will parse it into a live search of the catalogue.';
+
+  @override
+  String get aiSearchExample1 => '2-room in Chilanzar under \$60k';
+
+  @override
+  String get aiSearchExample2 =>
+      '3-bedroom office near the business district, ready now';
+
+  @override
+  String get aiSearchExample3 =>
+      'Apartment for rent, not on the first floor, with parking';
+
+  @override
+  String get aiSearchHint => 'Describe what you\'re looking for...';
+
+  @override
+  String get aiSearchClearTooltip => 'Clear search';
+
+  @override
+  String get aiSearchSubmitTooltip => 'Search';
+
+  @override
+  String get aiSearchInfoTooltip => 'About AI search';
+
+  @override
+  String get aiSearchRateLimitedTitle => 'Daily search limit reached';
+
+  @override
+  String aiSearchRateLimitedBody(String time) {
+    return 'You have reached the daily AI search limit. Please come back $time.';
+  }
+
+  @override
+  String get aiSearchUnavailableTitle => 'AI search is taking a break';
+
+  @override
+  String get aiSearchUnavailableBody =>
+      'Smart search is temporarily unavailable. Please try again later.';
+
+  @override
+  String get aiSearchGenericErrorTitle => 'Couldn\'t run that search';
+
+  @override
+  String get aiSearchGenericErrorBody =>
+      'Something went wrong. Please try again in a moment.';
+
+  @override
+  String aiSearchUnrecognizedNote(String terms) {
+    return 'Not sure what you meant by: $terms';
+  }
+
+  @override
+  String aiSearchSummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matches',
+      one: '1 match',
+      zero: 'No matches',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiSearchResultsEmptyTitle => 'No matches yet';
+
+  @override
+  String get aiSearchResultsEmptyBody =>
+      'Try loosening a constraint — a wider budget or a nearby district often helps.';
+
+  @override
+  String aiSearchMatchScoreLabel(int score) {
+    return '$score% match';
+  }
+
+  @override
+  String get aiSearchStatusStarting => 'Getting started...';
+
+  @override
+  String get aiSearchTabHintTooltip => 'Press Tab to accept the suggestion';
+
+  @override
+  String get aiSearchTabAcceptLabel => 'Accept the AI suggestion';
+
+  @override
+  String get aiSearchClarifyTitle => 'Could not understand the query';
+
+  @override
+  String aiSearchClarifyBody(String terms) {
+    return 'These words are not in the catalogue: $terms. Rephrase the query or pick one of the suggestions below.';
+  }
+
+  @override
+  String get aiSearchClarifyExamplesHint => 'Try one of these instead:';
+
+  @override
+  String aiSearchDidYouMean(String suggestion) {
+    return 'Did you mean “$suggestion”?';
+  }
+
+  @override
+  String aiSearchQuotedTerm(String term) {
+    return '“$term”';
+  }
+
+  @override
+  String aiSearchRelaxConstraint(String constraint) {
+    return 'Drop: $constraint';
+  }
+
+  @override
+  String aiStepParsingV1(int count) {
+    return 'Reading your request ($count details)...';
+  }
+
+  @override
+  String aiStepParsingV2(int count) {
+    return 'Understanding what you\'re after ($count details)...';
+  }
+
+  @override
+  String aiStepParsingV3(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count requirements',
+      one: '1 requirement',
+    );
+    return 'Parsing $_temp0...';
+  }
+
+  @override
+  String aiStepParsingV4(int count) {
+    return 'Breaking down your request into $count parts...';
+  }
+
+  @override
+  String aiStepScanningDistrictV1(String district, int count) {
+    return 'Scanning $district ($count projects)...';
+  }
+
+  @override
+  String aiStepScanningDistrictV2(String district, int count) {
+    return 'Looking through $count projects in $district...';
+  }
+
+  @override
+  String aiStepScanningDistrictV3(String district, int count) {
+    return 'Checking availability in $district ($count projects)...';
+  }
+
+  @override
+  String aiStepScanningDistrictV4(String district, int count) {
+    return 'Surveying $district ($count projects)...';
+  }
+
+  @override
+  String aiStepFoundInDistrictV1(String district, int count) {
+    return 'Found $count in $district';
+  }
+
+  @override
+  String aiStepFoundInDistrictV2(String district, int count) {
+    return '$count candidates spotted in $district';
+  }
+
+  @override
+  String aiStepFoundInDistrictV3(String district, int count) {
+    return '$district: $count worth a closer look';
+  }
+
+  @override
+  String aiStepFoundInDistrictV4(String district, int count) {
+    return 'Shortlisted $count in $district';
+  }
+
+  @override
+  String aiStepOpeningProjectV1(String project, int index, int total) {
+    return 'Opening $project ($index/$total)...';
+  }
+
+  @override
+  String aiStepOpeningProjectV2(String project, int index, int total) {
+    return 'Looking inside $project ($index of $total)...';
+  }
+
+  @override
+  String aiStepOpeningProjectV3(String project, int index, int total) {
+    return 'Checking $project ($index of $total)...';
+  }
+
+  @override
+  String aiStepOpeningProjectV4(String project, int index, int total) {
+    return 'Now viewing $project ($index/$total)...';
+  }
+
+  @override
+  String aiStepScanningUnitsV1(String project, int count) {
+    return 'Scanning units in $project ($count)...';
+  }
+
+  @override
+  String aiStepScanningUnitsV2(String project, int count) {
+    return 'Checking $count units in $project...';
+  }
+
+  @override
+  String aiStepScanningUnitsV3(String project, int count) {
+    return 'Going through the floor plans in $project ($count units)...';
+  }
+
+  @override
+  String aiStepScanningUnitsV4(String project, int count) {
+    return '$project: reviewing $count units...';
+  }
+
+  @override
+  String aiStepFilteringBookedV1(int removed, int left) {
+    return 'Filtering out $removed unavailable, $left left...';
+  }
+
+  @override
+  String aiStepFilteringBookedV2(int removed, int left) {
+    return 'Removing $removed sold and reserved units ($left remain)...';
+  }
+
+  @override
+  String aiStepFilteringBookedV3(int removed, int left) {
+    return 'Skipping $removed already taken, $left left...';
+  }
+
+  @override
+  String aiStepFilteringBookedV4(int removed, int left) {
+    return 'Keeping only the $left available units (removed $removed)...';
+  }
+
+  @override
+  String aiStepRankingPriceV1(int count) {
+    return 'Ranking $count by best fit...';
+  }
+
+  @override
+  String aiStepRankingPriceV2(int count) {
+    return 'Sorting $count by price and match quality...';
+  }
+
+  @override
+  String aiStepRankingPriceV3(int count) {
+    return 'Comparing $count options...';
+  }
+
+  @override
+  String aiStepRankingPriceV4(int count) {
+    return 'Lining up the best $count matches...';
+  }
+
+  @override
+  String aiStepDoneV1(int count, int elapsedMs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matches',
+      one: '1 match',
+      zero: 'no matches',
+    );
+    return 'Done · $_temp0 in ${elapsedMs}ms';
+  }
+
+  @override
+  String aiStepDoneV2(int count, int elapsedMs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matches found',
+      one: '1 match found',
+      zero: 'nothing quite matched',
+    );
+    return 'All set — $_temp0 (${elapsedMs}ms)';
+  }
+
+  @override
+  String aiStepDoneV3(int count, int elapsedMs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+      zero: '0 results',
+    );
+    return 'Search complete ($_temp0, ${elapsedMs}ms)';
+  }
+
+  @override
+  String aiStepDoneV4(int count, int elapsedMs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count strong matches',
+      one: '1 strong match',
+      zero: 'no matches this time',
+    );
+    return 'Ready — $_temp0 (${elapsedMs}ms)';
+  }
+
+  @override
+  String aiStepNoMatchIntent(String terms) {
+    return 'Nothing in the catalogue matches $terms — stopping here';
+  }
+
+  @override
+  String aiStepLowConfidence(String terms, int count) {
+    return 'Not fully sure about $terms — showing broader matches ($count)';
+  }
+
+  @override
+  String aiStepAutocorrected(String from, String to) {
+    return 'Read “$from” as “$to”';
+  }
+
+  @override
+  String aiStepSoftenedAmenity(String amenity) {
+    return 'Relaxed the “$amenity” requirement to find options';
+  }
+
+  @override
+  String get aiReasonDistrictMatch => 'Right district';
+
+  @override
+  String get aiReasonRoomsMatch => 'Room count matches';
+
+  @override
+  String get aiReasonPriceFit => 'Fits your budget';
+
+  @override
+  String get aiReasonPriceBelowBudget => 'Below budget';
+
+  @override
+  String get aiReasonAreaFit => 'Area matches';
+
+  @override
+  String get aiReasonFloorPreference => 'Floor preference';
+
+  @override
+  String get aiReasonDealTypeMatch => 'Sale/rent matches';
+
+  @override
+  String get aiReasonKindMatch => 'Unit type matches';
+
+  @override
+  String get aiReasonAvailableNow => 'Available now';
+
+  @override
+  String get aiReasonAmenityMatch => 'Has requested amenities';
+
+  @override
+  String get aiReasonDeveloperMatch => 'Requested developer';
+
+  @override
+  String get aiReasonProjectMatch => 'Requested project';
+
+  @override
+  String get aiReasonHighTrustIndex => 'High trust index';
+
+  @override
+  String get aiReasonReadySoon => 'Ready soon';
+
+  @override
+  String get aiReasonOffplanDiscount => 'Off-plan discount';
+
+  @override
+  String aiChipAreaRange(int min, int max) {
+    return '$min–$max m²';
+  }
+
+  @override
+  String aiChipAreaUpTo(int max) {
+    return 'up to $max m²';
+  }
+
+  @override
+  String aiChipAreaFrom(int min) {
+    return 'from $min m²';
+  }
+
+  @override
+  String get aiDealTypeRent => 'For rent';
+
+  @override
+  String get aiDealTypeSale => 'For sale';
+
+  @override
+  String get aiUnitKindApartment => 'Apartment';
+
+  @override
+  String get aiUnitKindCommercial => 'Commercial';
+
+  @override
+  String get aiUnitKindParking => 'Parking';
+
+  @override
+  String aiChipFloorRange(int min, int max) {
+    return 'Floor $min–$max';
+  }
+
+  @override
+  String aiChipFloorFrom(int min) {
+    return 'Floor $min+';
+  }
+
+  @override
+  String aiChipFloorUpTo(int max) {
+    return 'Up to floor $max';
+  }
+
+  @override
+  String get aiChipNotFirstFloor => 'Not first floor';
+
+  @override
+  String get aiChipNotLastFloor => 'Not last floor';
+
+  @override
+  String get aiChipAvailableOnly => 'Available only';
+
+  @override
+  String aiSearchShowAll(int count) {
+    return 'Show all $count';
+  }
+
+  @override
+  String get aiSearchAllResultsTitle => 'All results';
+
+  @override
+  String aiConstraintWithout(String amenity) {
+    return 'Without $amenity';
+  }
 }

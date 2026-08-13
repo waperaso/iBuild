@@ -226,6 +226,12 @@ abstract class AppLocalizations {
   /// **'Demo mode is view-only — this action was not saved.'**
   String get demoWriteBlocked;
 
+  /// No description provided for @phoneHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get phoneHidden;
+
   /// No description provided for @otpTitle.
   ///
   /// In en, this message translates to:
@@ -3011,6 +3017,12 @@ abstract class AppLocalizations {
   /// **'Date taken'**
   String get projectPhotoReportDateLabel;
 
+  /// No description provided for @projectPhotoReportDeclaredStageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Declared construction stage'**
+  String get projectPhotoReportDeclaredStageLabel;
+
   /// No description provided for @projectPhotoReportProgressLabel.
   ///
   /// In en, this message translates to:
@@ -3383,6 +3395,60 @@ abstract class AppLocalizations {
   /// **'Edit'**
   String get crmEdit;
 
+  /// No description provided for @crmAiAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant'**
+  String get crmAiAssistant;
+
+  /// No description provided for @crmAiInsightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI insights'**
+  String get crmAiInsightsTitle;
+
+  /// No description provided for @crmAiInsightsExpand.
+  ///
+  /// In en, this message translates to:
+  /// **'Show AI insights'**
+  String get crmAiInsightsExpand;
+
+  /// No description provided for @crmAiInsightsCollapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide AI insights'**
+  String get crmAiInsightsCollapse;
+
+  /// No description provided for @crmBandFilterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI score'**
+  String get crmBandFilterLabel;
+
+  /// No description provided for @crmBandFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get crmBandFilterAll;
+
+  /// No description provided for @crmBandFilterHot.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot'**
+  String get crmBandFilterHot;
+
+  /// No description provided for @crmBandFilterWarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm'**
+  String get crmBandFilterWarm;
+
+  /// No description provided for @crmBandFilterCold.
+  ///
+  /// In en, this message translates to:
+  /// **'Cold'**
+  String get crmBandFilterCold;
+
   /// No description provided for @crmAssignedTo.
   ///
   /// In en, this message translates to:
@@ -3634,6 +3700,1443 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reach the platform team — billing, moderation, or a technical issue.'**
   String get supportTicketsSubtitle;
+
+  /// No description provided for @aiCrmPanelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention today'**
+  String get aiCrmPanelTitle;
+
+  /// No description provided for @aiCrmPanelSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-ranked leads by urgency, with the reasons behind each score.'**
+  String get aiCrmPanelSubtitle;
+
+  /// No description provided for @aiCrmOpenBot.
+  ///
+  /// In en, this message translates to:
+  /// **'Open assistant'**
+  String get aiCrmOpenBot;
+
+  /// No description provided for @aiCrmEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No hot leads right now'**
+  String get aiCrmEmpty;
+
+  /// No description provided for @aiCrmUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI assistant isn\'t available right now. Try again later.'**
+  String get aiCrmUnavailable;
+
+  /// No description provided for @aiMetricLeadVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Leads today / plan'**
+  String get aiMetricLeadVolume;
+
+  /// No description provided for @aiMetricHotLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot leads'**
+  String get aiMetricHotLeads;
+
+  /// No description provided for @aiMetricPerManagerAvg.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. per manager'**
+  String get aiMetricPerManagerAvg;
+
+  /// No description provided for @aiMetricResponseSla.
+  ///
+  /// In en, this message translates to:
+  /// **'Median response, min'**
+  String get aiMetricResponseSla;
+
+  /// No description provided for @aiMetricSlaBreaches.
+  ///
+  /// In en, this message translates to:
+  /// **'SLA breaches'**
+  String get aiMetricSlaBreaches;
+
+  /// No description provided for @aiMetricFunnelWon.
+  ///
+  /// In en, this message translates to:
+  /// **'Won'**
+  String get aiMetricFunnelWon;
+
+  /// No description provided for @aiMetricConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion'**
+  String get aiMetricConversion;
+
+  /// No description provided for @aiMetricMinutesSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get aiMetricMinutesSuffix;
+
+  /// No description provided for @aiReasonHighIntent.
+  ///
+  /// In en, this message translates to:
+  /// **'High intent'**
+  String get aiReasonHighIntent;
+
+  /// No description provided for @aiReasonViewingRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewing requested'**
+  String get aiReasonViewingRequested;
+
+  /// No description provided for @aiReasonSpecificUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked about a specific unit'**
+  String get aiReasonSpecificUnit;
+
+  /// No description provided for @aiReasonPreferredTimeSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred contact time set'**
+  String get aiReasonPreferredTimeSet;
+
+  /// No description provided for @aiReasonLongMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed message'**
+  String get aiReasonLongMessage;
+
+  /// No description provided for @aiReasonMortgageInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Mortgage interest'**
+  String get aiReasonMortgageInterest;
+
+  /// No description provided for @aiReasonCashBuyer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash buyer'**
+  String get aiReasonCashBuyer;
+
+  /// No description provided for @aiReasonUrgentKeyword.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent wording'**
+  String get aiReasonUrgentKeyword;
+
+  /// No description provided for @aiReasonRepeatContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat contact'**
+  String get aiReasonRepeatContact;
+
+  /// No description provided for @aiReasonRecentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get aiReasonRecentActivity;
+
+  /// No description provided for @aiReasonNoResponse24h.
+  ///
+  /// In en, this message translates to:
+  /// **'No response in 24h'**
+  String get aiReasonNoResponse24h;
+
+  /// No description provided for @aiReasonNoResponse3d.
+  ///
+  /// In en, this message translates to:
+  /// **'No response in 3 days'**
+  String get aiReasonNoResponse3d;
+
+  /// No description provided for @aiReasonSlaBreach.
+  ///
+  /// In en, this message translates to:
+  /// **'SLA breached'**
+  String get aiReasonSlaBreach;
+
+  /// No description provided for @aiReasonFunnelAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced in funnel'**
+  String get aiReasonFunnelAdvanced;
+
+  /// No description provided for @aiReasonStalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Stalled'**
+  String get aiReasonStalled;
+
+  /// No description provided for @aiReasonHotProject.
+  ///
+  /// In en, this message translates to:
+  /// **'In-demand project'**
+  String get aiReasonHotProject;
+
+  /// No description provided for @aiReasonUnitScarcity.
+  ///
+  /// In en, this message translates to:
+  /// **'Few units left'**
+  String get aiReasonUnitScarcity;
+
+  /// No description provided for @aiReasonOffplanInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Off-plan interest'**
+  String get aiReasonOffplanInterest;
+
+  /// No description provided for @aiReasonRentIntent.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking to rent'**
+  String get aiReasonRentIntent;
+
+  /// No description provided for @aiReasonLowSpecificity.
+  ///
+  /// In en, this message translates to:
+  /// **'Low specificity'**
+  String get aiReasonLowSpecificity;
+
+  /// No description provided for @crmBotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant'**
+  String get crmBotTitle;
+
+  /// No description provided for @crmBotBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get crmBotBack;
+
+  /// No description provided for @crmBotActionOpenLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Open lead'**
+  String get crmBotActionOpenLead;
+
+  /// No description provided for @crmBotActionAssignToMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign to me'**
+  String get crmBotActionAssignToMe;
+
+  /// No description provided for @crmBotActionMarkContacted.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark contacted'**
+  String get crmBotActionMarkContacted;
+
+  /// No description provided for @crmBotProjectMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{hot} hot · {open} open · {units} units available'**
+  String crmBotProjectMeta(int hot, int open, int units);
+
+  /// No description provided for @crmBotMessageRoot.
+  ///
+  /// In en, this message translates to:
+  /// **'What would you like to see?'**
+  String get crmBotMessageRoot;
+
+  /// No description provided for @crmBotMessageHotLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hot leads need attention today.'**
+  String crmBotMessageHotLeads(int count);
+
+  /// No description provided for @crmBotMessageByProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a residence to drill into its leads.'**
+  String get crmBotMessageByProject;
+
+  /// No description provided for @crmBotMessageByImportance.
+  ///
+  /// In en, this message translates to:
+  /// **'Leads ranked by importance.'**
+  String get crmBotMessageByImportance;
+
+  /// No description provided for @crmBotMessageTodaySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s today\'s summary.'**
+  String get crmBotMessageTodaySummary;
+
+  /// No description provided for @crmBotMessageWhatNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s what to do next.'**
+  String get crmBotMessageWhatNext;
+
+  /// No description provided for @crmBotMessageProjectMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what to check for this project.'**
+  String get crmBotMessageProjectMenu;
+
+  /// No description provided for @crmBotMessageProjectHot.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hot leads on this project.'**
+  String crmBotMessageProjectHot(int count);
+
+  /// No description provided for @crmBotMessageProjectNoResponse48h.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} leads with no response in 48h.'**
+  String crmBotMessageProjectNoResponse48h(int count);
+
+  /// No description provided for @crmBotMessageProjectNewToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} new leads today.'**
+  String crmBotMessageProjectNewToday(int count);
+
+  /// No description provided for @crmBotMessageProjectFunnel.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s the funnel for this project.'**
+  String get crmBotMessageProjectFunnel;
+
+  /// No description provided for @crmBotMessageGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s what I found.'**
+  String get crmBotMessageGeneric;
+
+  /// No description provided for @crmBotMessageNeedsResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} leads are still waiting for a first reply.'**
+  String crmBotMessageNeedsResponse(int count);
+
+  /// No description provided for @crmBotMessageUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} open leads have no owner yet.'**
+  String crmBotMessageUnassigned(int count);
+
+  /// No description provided for @crmBotMessageByManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Workload across {count} managers.'**
+  String crmBotMessageByManager(int count);
+
+  /// No description provided for @crmBotMessageManagerLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has {count} open leads.'**
+  String crmBotMessageManagerLeads(String name, int count);
+
+  /// No description provided for @crmBotMessageAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Which report should I pull?'**
+  String get crmBotMessageAnalytics;
+
+  /// No description provided for @crmBotMessageWeekSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} leads came in over the last 7 days.'**
+  String crmBotMessageWeekSummary(int count);
+
+  /// No description provided for @crmBotMessageConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage-to-stage conversion across the funnel.'**
+  String get crmBotMessageConversion;
+
+  /// No description provided for @crmBotMessageDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'Room mix behind {count} leads that named a home.'**
+  String crmBotMessageDemand(int count);
+
+  /// No description provided for @crmBotMessageProjectDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'Demand and availability in {name}.'**
+  String crmBotMessageProjectDemand(String name);
+
+  /// No description provided for @crmBotMessageExample.
+  ///
+  /// In en, this message translates to:
+  /// **'No live leads here yet — this is how the answer looks once they start coming in.'**
+  String get crmBotMessageExample;
+
+  /// No description provided for @crmBotOptionHotLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot leads'**
+  String get crmBotOptionHotLeads;
+
+  /// No description provided for @crmBotOptionByProject.
+  ///
+  /// In en, this message translates to:
+  /// **'By project'**
+  String get crmBotOptionByProject;
+
+  /// No description provided for @crmBotOptionByImportance.
+  ///
+  /// In en, this message translates to:
+  /// **'By importance'**
+  String get crmBotOptionByImportance;
+
+  /// No description provided for @crmBotOptionTodaySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s summary'**
+  String get crmBotOptionTodaySummary;
+
+  /// No description provided for @crmBotOptionWhatNext.
+  ///
+  /// In en, this message translates to:
+  /// **'What to do next'**
+  String get crmBotOptionWhatNext;
+
+  /// No description provided for @crmBotOptionProjectHot.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot leads'**
+  String get crmBotOptionProjectHot;
+
+  /// No description provided for @crmBotOptionProjectNoResponse48h.
+  ///
+  /// In en, this message translates to:
+  /// **'No response in 48h'**
+  String get crmBotOptionProjectNoResponse48h;
+
+  /// No description provided for @crmBotOptionProjectNewToday.
+  ///
+  /// In en, this message translates to:
+  /// **'New today'**
+  String get crmBotOptionProjectNewToday;
+
+  /// No description provided for @crmBotOptionProjectFunnel.
+  ///
+  /// In en, this message translates to:
+  /// **'Funnel'**
+  String get crmBotOptionProjectFunnel;
+
+  /// No description provided for @crmBotOptionBackToRoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to start'**
+  String get crmBotOptionBackToRoot;
+
+  /// No description provided for @crmBotOptionBackToProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to residences'**
+  String get crmBotOptionBackToProjects;
+
+  /// No description provided for @crmBotOptionBackToProjectMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to residence menu'**
+  String get crmBotOptionBackToProjectMenu;
+
+  /// No description provided for @crmBotOptionNeedsResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a reply'**
+  String get crmBotOptionNeedsResponse;
+
+  /// No description provided for @crmBotOptionUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Without an owner'**
+  String get crmBotOptionUnassigned;
+
+  /// No description provided for @crmBotOptionByManager.
+  ///
+  /// In en, this message translates to:
+  /// **'By manager'**
+  String get crmBotOptionByManager;
+
+  /// No description provided for @crmBotOptionAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get crmBotOptionAnalytics;
+
+  /// No description provided for @crmBotOptionWeekSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get crmBotOptionWeekSummary;
+
+  /// No description provided for @crmBotOptionConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion'**
+  String get crmBotOptionConversion;
+
+  /// No description provided for @crmBotOptionDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'What buyers ask for'**
+  String get crmBotOptionDemand;
+
+  /// No description provided for @crmBotOptionProjectDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'Demand vs availability'**
+  String get crmBotOptionProjectDemand;
+
+  /// No description provided for @crmBotOptionBackToAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to analytics'**
+  String get crmBotOptionBackToAnalytics;
+
+  /// No description provided for @crmBotOptionBackToManagers.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to managers'**
+  String get crmBotOptionBackToManagers;
+
+  /// No description provided for @crmBotNodeRoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant'**
+  String get crmBotNodeRoot;
+
+  /// No description provided for @crmBotNodeHotLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot leads'**
+  String get crmBotNodeHotLeads;
+
+  /// No description provided for @crmBotNodeByProject.
+  ///
+  /// In en, this message translates to:
+  /// **'By project'**
+  String get crmBotNodeByProject;
+
+  /// No description provided for @crmBotNodeByImportance.
+  ///
+  /// In en, this message translates to:
+  /// **'By importance'**
+  String get crmBotNodeByImportance;
+
+  /// No description provided for @crmBotNodeTodaySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get crmBotNodeTodaySummary;
+
+  /// No description provided for @crmBotNodeWhatNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next steps'**
+  String get crmBotNodeWhatNext;
+
+  /// No description provided for @crmBotNodeProjectMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get crmBotNodeProjectMenu;
+
+  /// No description provided for @crmBotNodeProjectHot.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot'**
+  String get crmBotNodeProjectHot;
+
+  /// No description provided for @crmBotNodeProjectNoResponse48h.
+  ///
+  /// In en, this message translates to:
+  /// **'No response 48h'**
+  String get crmBotNodeProjectNoResponse48h;
+
+  /// No description provided for @crmBotNodeProjectNewToday.
+  ///
+  /// In en, this message translates to:
+  /// **'New today'**
+  String get crmBotNodeProjectNewToday;
+
+  /// No description provided for @crmBotNodeProjectFunnel.
+  ///
+  /// In en, this message translates to:
+  /// **'Funnel'**
+  String get crmBotNodeProjectFunnel;
+
+  /// No description provided for @crmBotNodeNeedsResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get crmBotNodeNeedsResponse;
+
+  /// No description provided for @crmBotNodeUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Without an owner'**
+  String get crmBotNodeUnassigned;
+
+  /// No description provided for @crmBotNodeByManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Managers'**
+  String get crmBotNodeByManager;
+
+  /// No description provided for @crmBotNodeManagerLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager'**
+  String get crmBotNodeManagerLeads;
+
+  /// No description provided for @crmBotNodeAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get crmBotNodeAnalytics;
+
+  /// No description provided for @crmBotNodeWeekSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get crmBotNodeWeekSummary;
+
+  /// No description provided for @crmBotNodeConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion'**
+  String get crmBotNodeConversion;
+
+  /// No description provided for @crmBotNodeDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'Demand'**
+  String get crmBotNodeDemand;
+
+  /// No description provided for @crmBotNodeProjectDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'Demand'**
+  String get crmBotNodeProjectDemand;
+
+  /// No description provided for @crmBotMetricLeadsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Leads today'**
+  String get crmBotMetricLeadsToday;
+
+  /// No description provided for @crmBotMetricHotLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot leads'**
+  String get crmBotMetricHotLeads;
+
+  /// No description provided for @crmBotMetricLeadVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Lead volume'**
+  String get crmBotMetricLeadVolume;
+
+  /// No description provided for @crmBotMetricByBand.
+  ///
+  /// In en, this message translates to:
+  /// **'By score band'**
+  String get crmBotMetricByBand;
+
+  /// No description provided for @crmBotMetricResponseSla.
+  ///
+  /// In en, this message translates to:
+  /// **'Response SLA'**
+  String get crmBotMetricResponseSla;
+
+  /// No description provided for @crmBotMetricFunnel.
+  ///
+  /// In en, this message translates to:
+  /// **'Funnel'**
+  String get crmBotMetricFunnel;
+
+  /// No description provided for @crmBotMetricConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion'**
+  String get crmBotMetricConversion;
+
+  /// No description provided for @crmBotMetricGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Metric'**
+  String get crmBotMetricGeneric;
+
+  /// No description provided for @crmBotMetricLeadsWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Leads this week'**
+  String get crmBotMetricLeadsWeek;
+
+  /// No description provided for @crmBotMetricLeadsPrevWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week before'**
+  String get crmBotMetricLeadsPrevWeek;
+
+  /// No description provided for @crmBotMetricWonWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Won this week'**
+  String get crmBotMetricWonWeek;
+
+  /// No description provided for @crmBotMetricSlaBreached.
+  ///
+  /// In en, this message translates to:
+  /// **'SLA breaches'**
+  String get crmBotMetricSlaBreached;
+
+  /// No description provided for @crmBotMetricConversionStep.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} → {to}'**
+  String crmBotMetricConversionStep(String from, String to);
+
+  /// No description provided for @crmBotMetricDemandRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'{rooms}-room requests'**
+  String crmBotMetricDemandRooms(int rooms);
+
+  /// No description provided for @crmBotMetricAvailableRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'{rooms}-room available'**
+  String crmBotMetricAvailableRooms(int rooms);
+
+  /// No description provided for @crmBotSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leads, projects and team workload'**
+  String get crmBotSubtitle;
+
+  /// No description provided for @crmBotExampleBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get crmBotExampleBadge;
+
+  /// No description provided for @crmBotRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get crmBotRetry;
+
+  /// No description provided for @crmBotEmptyCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches this question right now.'**
+  String get crmBotEmptyCards;
+
+  /// No description provided for @crmBotManagerMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{open} open · {hot} hot'**
+  String crmBotManagerMeta(int open, int hot);
+
+  /// No description provided for @crmBotManagerAvgResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg reply {minutes} min'**
+  String crmBotManagerAvgResponse(String minutes);
+
+  /// No description provided for @b2bAiChatFabTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask iBuild AI'**
+  String get b2bAiChatFabTooltip;
+
+  /// No description provided for @b2bAiChatFabLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get b2bAiChatFabLabel;
+
+  /// No description provided for @b2bAiChatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'iBuild AI'**
+  String get b2bAiChatTitle;
+
+  /// No description provided for @b2bAiChatSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about projects, leads and analytics'**
+  String get b2bAiChatSubtitle;
+
+  /// No description provided for @b2bAiChatQuotaRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{remaining} of {limit} left today'**
+  String b2bAiChatQuotaRemaining(int remaining, int limit);
+
+  /// No description provided for @b2bAiChatQuotaResetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Resets {time}'**
+  String b2bAiChatQuotaResetLabel(String time);
+
+  /// No description provided for @b2bAiChatErrorSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get a reply. Please try again.'**
+  String get b2bAiChatErrorSnackbar;
+
+  /// No description provided for @b2bAiChatQuotaExhaustedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit reached'**
+  String get b2bAiChatQuotaExhaustedTitle;
+
+  /// No description provided for @b2bAiChatQuotaExhaustedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used today\'s AI chat messages. Please come back tomorrow.'**
+  String get b2bAiChatQuotaExhaustedBody;
+
+  /// No description provided for @b2bAiChatUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant is taking a break'**
+  String get b2bAiChatUnavailableTitle;
+
+  /// No description provided for @b2bAiChatUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant is temporarily unavailable. Please try again later.'**
+  String get b2bAiChatUnavailableBody;
+
+  /// No description provided for @b2bAiChatForbiddenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available for this account'**
+  String get b2bAiChatForbiddenTitle;
+
+  /// No description provided for @b2bAiChatForbiddenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'AI chat is available to admin accounts only.'**
+  String get b2bAiChatForbiddenBody;
+
+  /// No description provided for @b2bAiChatEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the AI assistant anything'**
+  String get b2bAiChatEmptyTitle;
+
+  /// No description provided for @b2bAiChatEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Free-form questions about your projects, leads and analytics — try one of the prompts below.'**
+  String get b2bAiChatEmptyBody;
+
+  /// No description provided for @b2bAiChatInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message the AI assistant...'**
+  String get b2bAiChatInputHint;
+
+  /// No description provided for @b2bAiChatSendTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get b2bAiChatSendTooltip;
+
+  /// No description provided for @b2bAiChatQuickPromptsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick prompts'**
+  String get b2bAiChatQuickPromptsLabel;
+
+  /// No description provided for @b2bAiChatQuickSystemSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary across all projects'**
+  String get b2bAiChatQuickSystemSummary;
+
+  /// No description provided for @b2bAiChatQuickSystemOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Where are lead responses overdue?'**
+  String get b2bAiChatQuickSystemOverdue;
+
+  /// No description provided for @b2bAiChatQuickSystemAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Which projects need attention?'**
+  String get b2bAiChatQuickSystemAttention;
+
+  /// No description provided for @b2bAiChatQuickResidenceSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary of my project'**
+  String get b2bAiChatQuickResidenceSummary;
+
+  /// No description provided for @b2bAiChatQuickResidenceHotLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Show me hot leads'**
+  String get b2bAiChatQuickResidenceHotLeads;
+
+  /// No description provided for @b2bAiChatQuickResidenceWeekChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'What changed this week?'**
+  String get b2bAiChatQuickResidenceWeekChanges;
+
+  /// No description provided for @readinessStageEarthworks.
+  ///
+  /// In en, this message translates to:
+  /// **'Earthworks'**
+  String get readinessStageEarthworks;
+
+  /// No description provided for @readinessStageFoundation.
+  ///
+  /// In en, this message translates to:
+  /// **'Foundation'**
+  String get readinessStageFoundation;
+
+  /// No description provided for @readinessStageFrameFloors.
+  ///
+  /// In en, this message translates to:
+  /// **'Frame & floors'**
+  String get readinessStageFrameFloors;
+
+  /// No description provided for @readinessStageRoofing.
+  ///
+  /// In en, this message translates to:
+  /// **'Roofing'**
+  String get readinessStageRoofing;
+
+  /// No description provided for @readinessStageFacade.
+  ///
+  /// In en, this message translates to:
+  /// **'Facade'**
+  String get readinessStageFacade;
+
+  /// No description provided for @readinessStageUtilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Utilities'**
+  String get readinessStageUtilities;
+
+  /// No description provided for @readinessStageInteriorFinishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Interior finishing'**
+  String get readinessStageInteriorFinishing;
+
+  /// No description provided for @readinessStageLandscaping.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscaping'**
+  String get readinessStageLandscaping;
+
+  /// No description provided for @readinessStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get readinessStatusConfirmed;
+
+  /// No description provided for @readinessStatusRequiresManualReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs manual review'**
+  String get readinessStatusRequiresManualReview;
+
+  /// No description provided for @readinessStatusDiscrepancyFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Discrepancy found'**
+  String get readinessStatusDiscrepancyFound;
+
+  /// No description provided for @readinessStatusViolationFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Violation found'**
+  String get readinessStatusViolationFound;
+
+  /// No description provided for @readinessCheckDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI construction readiness check'**
+  String get readinessCheckDialogTitle;
+
+  /// No description provided for @readinessAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the photo with AI…'**
+  String get readinessAnalyzing;
+
+  /// No description provided for @readinessConfidenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence: {percent}%'**
+  String readinessConfidenceLabel(int percent);
+
+  /// No description provided for @readinessUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI check unavailable'**
+  String get readinessUnavailableTitle;
+
+  /// No description provided for @readinessUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The readiness check couldn\'t run right now. You can proceed without it — the report will upload as usual.'**
+  String get readinessUnavailableMessage;
+
+  /// No description provided for @readinessProceedWithoutCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed without check'**
+  String get readinessProceedWithoutCheck;
+
+  /// No description provided for @readinessAckAndUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Understood, upload'**
+  String get readinessAckAndUpload;
+
+  /// No description provided for @readinessConfirmedProceeding.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed — uploading…'**
+  String get readinessConfirmedProceeding;
+
+  /// No description provided for @readinessReshoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Retake photo'**
+  String get readinessReshoot;
+
+  /// No description provided for @readinessOverrideUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload anyway'**
+  String get readinessOverrideUpload;
+
+  /// No description provided for @readinessOverrideCommentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain why you\'re uploading anyway'**
+  String get readinessOverrideCommentLabel;
+
+  /// No description provided for @readinessOverrideCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Required — describe the discrepancy the AI flagged'**
+  String get readinessOverrideCommentHint;
+
+  /// No description provided for @readinessDigestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI consultant on objects'**
+  String get readinessDigestTitle;
+
+  /// No description provided for @readinessDigestEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No AI-verified reports yet.'**
+  String get readinessDigestEmpty;
+
+  /// No description provided for @readinessDigestTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'{confirmed} of the last {total} reports confirmed'**
+  String readinessDigestTrend(int confirmed, int total);
+
+  /// No description provided for @readinessDigestOutstandingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get readinessDigestOutstandingTitle;
+
+  /// No description provided for @verifStage1Ok.
+  ///
+  /// In en, this message translates to:
+  /// **'Image passed validity checks.'**
+  String get verifStage1Ok;
+
+  /// No description provided for @verifStage1ImageUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'The image couldn\'t be read or decoded.'**
+  String get verifStage1ImageUnreadable;
+
+  /// No description provided for @verifStage1LowQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Image quality too low (blur {blur}, exposure {exposure}).'**
+  String verifStage1LowQuality(Object blur, Object exposure);
+
+  /// No description provided for @verifStage1MetadataMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo metadata is missing.'**
+  String get verifStage1MetadataMissing;
+
+  /// No description provided for @verifStage1GeotagMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo has no location tag.'**
+  String get verifStage1GeotagMissing;
+
+  /// No description provided for @verifStage1GeotagFarFromObject.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo location is {distanceKm} km from the site (allowed radius {radiusKm} km).'**
+  String verifStage1GeotagFarFromObject(Object distanceKm, Object radiusKm);
+
+  /// No description provided for @verifStage1DateInFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo date ({takenAt}) is in the future.'**
+  String verifStage1DateInFuture(String takenAt);
+
+  /// No description provided for @verifStage1DateOutsideWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo date ({takenAt}) is outside the {windowDays}-day window.'**
+  String verifStage1DateOutsideWindow(String takenAt, int windowDays);
+
+  /// No description provided for @verifInsufficientData.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data to complete this check.'**
+  String get verifInsufficientData;
+
+  /// No description provided for @verifStage1EvidenceDecoded.
+  ///
+  /// In en, this message translates to:
+  /// **'Decoded {width}×{height}px, {bytes} bytes.'**
+  String verifStage1EvidenceDecoded(int width, int height, int bytes);
+
+  /// No description provided for @verifStage1EvidenceExifDate.
+  ///
+  /// In en, this message translates to:
+  /// **'EXIF date: {takenAt}.'**
+  String verifStage1EvidenceExifDate(String takenAt);
+
+  /// No description provided for @verifStage1EvidenceNoExif.
+  ///
+  /// In en, this message translates to:
+  /// **'No EXIF data found.'**
+  String get verifStage1EvidenceNoExif;
+
+  /// No description provided for @verifStage1EvidenceGeoDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance to site: {distanceKm} km (radius {radiusKm} km).'**
+  String verifStage1EvidenceGeoDistance(Object distanceKm, Object radiusKm);
+
+  /// No description provided for @verifStage1EvidenceSharpness.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharpness score {blur} (threshold {threshold}).'**
+  String verifStage1EvidenceSharpness(Object blur, Object threshold);
+
+  /// No description provided for @verifStage2Ok.
+  ///
+  /// In en, this message translates to:
+  /// **'No duplicate of a previous report found.'**
+  String get verifStage2Ok;
+
+  /// No description provided for @verifStage2NoPriorReports.
+  ///
+  /// In en, this message translates to:
+  /// **'No previous reports to compare against.'**
+  String get verifStage2NoPriorReports;
+
+  /// No description provided for @verifStage2NearDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Very similar to report {reportId} from {takenAt} (distance {distance}).'**
+  String verifStage2NearDuplicate(
+    Object distance,
+    String reportId,
+    String takenAt,
+  );
+
+  /// No description provided for @verifStage2DuplicateFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate of report {reportId} from {takenAt} (distance {distance}).'**
+  String verifStage2DuplicateFound(
+    Object distance,
+    String reportId,
+    String takenAt,
+  );
+
+  /// No description provided for @verifStage2EvidenceComparedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared against {count} previous photos.'**
+  String verifStage2EvidenceComparedCount(int count);
+
+  /// No description provided for @verifStage2EvidenceHammingDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Hamming distance {distance} vs threshold {threshold} (report {reportId}).'**
+  String verifStage2EvidenceHammingDistance(
+    Object distance,
+    Object threshold,
+    String reportId,
+  );
+
+  /// No description provided for @verifStage3Ok.
+  ///
+  /// In en, this message translates to:
+  /// **'Classified as {stage} ({confidence} confidence).'**
+  String verifStage3Ok(String stage, Object confidence);
+
+  /// No description provided for @verifStage3NotConstructionSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t look like a construction site ({confidence} confidence).'**
+  String verifStage3NotConstructionSite(Object confidence);
+
+  /// No description provided for @verifStage3StageUnclear.
+  ///
+  /// In en, this message translates to:
+  /// **'Construction stage unclear ({confidence} confidence).'**
+  String verifStage3StageUnclear(Object confidence);
+
+  /// No description provided for @verifStage3EvidenceClassified.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected stage: {stage} ({confidence}).'**
+  String verifStage3EvidenceClassified(String stage, Object confidence);
+
+  /// No description provided for @verifStage3EvidenceFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Sky {skyRatio}, soil {soilRatio}, concrete {concreteRatio}, vegetation {vegetationRatio}, edges {verticalEdgeDensity}, openings {openingPeriodicity}.'**
+  String verifStage3EvidenceFeatures(
+    Object skyRatio,
+    Object soilRatio,
+    Object concreteRatio,
+    Object vegetationRatio,
+    Object verticalEdgeDensity,
+    Object openingPeriodicity,
+  );
+
+  /// No description provided for @verifStage4Ok.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches the declared stage ({declaredStage}).'**
+  String verifStage4Ok(String declaredStage);
+
+  /// No description provided for @verifStage4NoDeclaredStage.
+  ///
+  /// In en, this message translates to:
+  /// **'No declared stage was provided.'**
+  String get verifStage4NoDeclaredStage;
+
+  /// No description provided for @verifStage4AdjacentStageMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Declared {declaredStage}, but looks like the adjacent stage {detectedStage}.'**
+  String verifStage4AdjacentStageMismatch(
+    String declaredStage,
+    String detectedStage,
+  );
+
+  /// No description provided for @verifStage4StageMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Declared {declaredStage}, but detected {detectedStage} (distance {distance}).'**
+  String verifStage4StageMismatch(
+    String declaredStage,
+    String detectedStage,
+    Object distance,
+  );
+
+  /// No description provided for @verifStage4EvidenceComparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Declared {declaredStage} vs detected {detectedStage} ({ordinalDistance} stages apart).'**
+  String verifStage4EvidenceComparison(
+    String declaredStage,
+    String detectedStage,
+    int ordinalDistance,
+  );
+
+  /// No description provided for @verifStage5Ok.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress since the previous report ({previousTakenAt}) looks consistent.'**
+  String verifStage5Ok(String previousTakenAt);
+
+  /// No description provided for @verifStage5NoPreviousReport.
+  ///
+  /// In en, this message translates to:
+  /// **'No previous report to compare progress against.'**
+  String get verifStage5NoPreviousReport;
+
+  /// No description provided for @verifStage5NoVisibleProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'No visible progress since {previousTakenAt} (distance {distance}).'**
+  String verifStage5NoVisibleProgress(Object distance, String previousTakenAt);
+
+  /// No description provided for @verifStage5RegressionDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks like a regression: was {previousStage}, now {detectedStage}.'**
+  String verifStage5RegressionDetected(
+    String previousStage,
+    String detectedStage,
+  );
+
+  /// No description provided for @verifStage5ProgressNotDeclared.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress changed but wasn\'t declared.'**
+  String get verifStage5ProgressNotDeclared;
+
+  /// No description provided for @verifStage5EvidenceSimilarity.
+  ///
+  /// In en, this message translates to:
+  /// **'Similarity {distance} vs threshold {threshold} (report {previousReportId}, {previousTakenAt}).'**
+  String verifStage5EvidenceSimilarity(
+    Object distance,
+    Object threshold,
+    String previousReportId,
+    String previousTakenAt,
+  );
+
+  /// No description provided for @verifStage5EvidenceProgressDelta.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress {previousPercent}% → {currentPercent}%.'**
+  String verifStage5EvidenceProgressDelta(
+    Object previousPercent,
+    Object currentPercent,
+  );
+
+  /// No description provided for @verifStage5EvidenceDeveloperComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer comment attached.'**
+  String get verifStage5EvidenceDeveloperComment;
+
+  /// No description provided for @verifStage6Ok.
+  ///
+  /// In en, this message translates to:
+  /// **'No safety or violation indicators found.'**
+  String get verifStage6Ok;
+
+  /// No description provided for @verifStage6SafetyGearAbsent.
+  ///
+  /// In en, this message translates to:
+  /// **'No safety gear visible on site.'**
+  String get verifStage6SafetyGearAbsent;
+
+  /// No description provided for @verifStage6StructuralDamage.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible structural damage detected ({ratio}).'**
+  String verifStage6StructuralDamage(Object ratio);
+
+  /// No description provided for @verifStage6WorkStoppage.
+  ///
+  /// In en, this message translates to:
+  /// **'Signs of a work stoppage.'**
+  String get verifStage6WorkStoppage;
+
+  /// No description provided for @verifStage6DebrisAccumulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Debris accumulation detected (score {score}).'**
+  String verifStage6DebrisAccumulation(Object score);
+
+  /// No description provided for @verifStage6AmbiguousIndicator.
+  ///
+  /// In en, this message translates to:
+  /// **'Ambiguous indicator: {indicator}.'**
+  String verifStage6AmbiguousIndicator(String indicator);
+
+  /// No description provided for @verifStage6EvidenceHiVisRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi-vis gear ratio {ratio} (threshold {threshold}).'**
+  String verifStage6EvidenceHiVisRatio(Object ratio, Object threshold);
+
+  /// No description provided for @verifStage6EvidenceCrackPixels.
+  ///
+  /// In en, this message translates to:
+  /// **'Crack pixel ratio {ratio} (threshold {threshold}).'**
+  String verifStage6EvidenceCrackPixels(Object ratio, Object threshold);
+
+  /// No description provided for @verifStage6EvidenceNoEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'No equipment detected in frame.'**
+  String get verifStage6EvidenceNoEquipment;
+
+  /// No description provided for @verifStage6EvidenceDebrisTexture.
+  ///
+  /// In en, this message translates to:
+  /// **'Debris texture score {score}.'**
+  String verifStage6EvidenceDebrisTexture(Object score);
+
+  /// No description provided for @verifStage7Confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'All checks passed — confirmed.'**
+  String get verifStage7Confirmed;
+
+  /// No description provided for @verifStage7ManualReview.
+  ///
+  /// In en, this message translates to:
+  /// **'{warnings} warning(s) — needs manual review.'**
+  String verifStage7ManualReview(int warnings);
+
+  /// No description provided for @verifStage7NotReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks stopped at {stoppedAt}.'**
+  String verifStage7NotReached(String stoppedAt);
+
+  /// No description provided for @verifStage7EvidenceStageSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{passed} passed, {warnings} warnings, {failed} failed.'**
+  String verifStage7EvidenceStageSummary(int passed, int warnings, int failed);
+
+  /// No description provided for @verifSummaryConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed: {detectedStage} stage, {progressPercent}% progress.'**
+  String verifSummaryConfirmed(String detectedStage, Object progressPercent);
+
+  /// No description provided for @verifSummaryManualReview.
+  ///
+  /// In en, this message translates to:
+  /// **'This {stage} photo needs a quick manual review.'**
+  String verifSummaryManualReview(String stage);
+
+  /// No description provided for @verifSummaryDiscrepancy.
+  ///
+  /// In en, this message translates to:
+  /// **'At the {stage} check, declared {declaredStage} doesn\'t match detected {detectedStage}.'**
+  String verifSummaryDiscrepancy(
+    String stage,
+    String declaredStage,
+    String detectedStage,
+  );
+
+  /// No description provided for @verifSummaryViolation.
+  ///
+  /// In en, this message translates to:
+  /// **'At the {stage} check, a violation indicator was found: {indicator}.'**
+  String verifSummaryViolation(String stage, String indicator);
 }
 
 class _AppLocalizationsDelegate

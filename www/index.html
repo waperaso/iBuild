@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#E4E7EB">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow">
   <meta name="description" content="iBuild is Uzbekistan's independent digital system for monitoring, documenting, and verifying construction progress.">
   <meta property="og:title" content="iBuild — Trust, built into every square metre">
   <meta property="og:description" content="Verified construction progress for buyers, developers, banks, and government.">
@@ -19,7 +21,7 @@
   <link rel="icon" href="assets/brand/ibuild-logo.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
   <script>
     (function () {
       var theme = localStorage.getItem("ibuild-theme");
@@ -28,7 +30,7 @@
       if (lang === "en" || lang === "ru" || lang === "uz") document.documentElement.setAttribute("lang", lang);
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=27">
   <style>
     body.is-loading { overflow: hidden; }
 
@@ -62,8 +64,9 @@
       background: #0a1f35;
     }
   </style>
-  <script src="i18n.js?v=6" defer></script>
+  <script src="i18n.js?v=17" defer></script>
   <script src="script.js?v=10" defer></script>
+  <script src="ai-motion.js?v=10" defer></script>
 </head>
 <body class="is-loading">
   <div class="page-loader" data-page-loader role="status" aria-live="polite" data-i18n-aria="a11y.loader">
@@ -161,6 +164,12 @@
     <section class="hero" id="top">
       <div class="hero-copy">
         <div class="eyebrow reveal" data-i18n="hero.eyebrow">Construction intelligence · Uzbekistan</div>
+        <a class="hero-signal reveal" href="#built" data-i18n-aria="a11y.heroSignal">
+          <span class="hero-signal-dot" aria-hidden="true"></span>
+          <span class="hero-signal-badge" data-i18n="hero.signalBadge">NEW</span>
+          <span data-i18n="hero.signal">Escrow-account law in parliament — banks will need to verify real progress</span>
+          <svg class="hero-signal-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
         <h1 class="reveal" data-delay="1" data-i18n-html="hero.title">
           Trust, built into<br>
           every <span>square metre.</span>
@@ -178,7 +187,7 @@
             <span data-i18n="cta.openConsole">Open console (b2b)</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M9 5h10v10"/></svg>
           </a>
-          <a class="text-link" href="#system">
+          <a class="text-link" href="#ai">
             <span class="text-link-label" data-i18n="cta.howItWorks">See how it works</span>
             <span class="text-link-icon" aria-hidden="true">↓</span>
           </a>
@@ -215,9 +224,257 @@
         </article>
       </div>
 
-      <a class="scroll-cue" href="#vision" data-i18n-aria="a11y.scrollVision">
+      <a class="scroll-cue" href="#ai" data-i18n-aria="a11y.scrollAi">
         <span></span>
       </a>
+    </section>
+
+    <section class="ai-showcase section" id="ai" aria-labelledby="ai-showcase-title">
+      <div class="section-label reveal">
+        <span class="section-num">AI</span>
+        <span data-i18n="ai.label">Connected intelligence</span>
+      </div>
+
+      <div class="ai-showcase-head">
+        <div class="section-heading">
+          <div class="eyebrow reveal" data-i18n="ai.eyebrow">One intelligence layer · two products</div>
+          <h2 class="reveal" id="ai-showcase-title" data-i18n-html="ai.title">Meet the AI that connects <span>every decision.</span></h2>
+        </div>
+        <div class="ai-showcase-intro reveal">
+          <p data-i18n="ai.lead">Natural-language discovery for buyers and live project, readiness, and lead analysis for teams—grounded in the same authorized platform data.</p>
+          <div class="ai-feature-chips" aria-label="iBuild AI capabilities" data-i18n-aria="ai.chipsAria">
+            <span><i aria-hidden="true"></i><span data-i18n="ai.chipSearch">Smart search & buyer assistant</span></span>
+            <span><i aria-hidden="true"></i><span data-i18n="ai.chipCrm">CRM scoring & guided analysis</span></span>
+            <span><i aria-hidden="true"></i><span data-i18n="ai.chipGrounded">Grounded in live platform data</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-showcase-canvas reveal" role="img" data-i18n-aria="ai.canvasAria">
+        <div class="ai-motion" id="aiMotion" data-scene="search">
+          <div class="ai-motion-bg" aria-hidden="true">
+            <span class="ai-motion-glow"></span>
+            <span class="ai-motion-glow side"></span>
+            <span class="ai-motion-grid"></span>
+          </div>
+
+          <div class="ai-motion-hud">
+            <p class="ai-motion-kicker" data-ai-hud-kicker></p>
+            <p class="ai-motion-title" data-ai-hud-title></p>
+          </div>
+
+          <svg class="fl-icons" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <symbol id="fl-ico-tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 8l4 4-4 4"/><path d="M15 12H3"/><path d="M19 5v14"/>
+            </symbol>
+            <symbol id="fl-ico-forward" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h12"/><path d="M13 7l5 5-5 5"/>
+            </symbol>
+            <symbol id="fl-ico-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>
+            </symbol>
+            <symbol id="fl-ico-place" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 21s6-5.197 6-10a6 6 0 1 0-12 0c0 4.803 6 10 6 10z"/><circle cx="12" cy="11" r="2.5"/>
+            </symbol>
+            <symbol id="fl-ico-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 6l12 12"/><path d="M18 6L6 18"/>
+            </symbol>
+            <symbol id="fl-ico-spark" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15.5l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15.5z"/>
+            </symbol>
+            <symbol id="fl-ico-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 17l6-6 4 4 7-7"/><path d="M14 7h7v7"/>
+            </symbol>
+            <symbol id="fl-ico-flat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12h13"/><path d="M14 8l4 4-4 4"/>
+            </symbol>
+            <symbol id="fl-ico-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6"/>
+            </symbol>
+          </svg>
+
+          <div class="ai-motion-stage">
+            <div class="ai-motion-rig">
+              <article class="ai-device ai-device-b2c">
+                <div class="fl-search-row" data-ai-search>
+                  <div class="fl-search-pill">
+                    <span class="fl-ai-badge">AI</span>
+                    <div class="fl-search-field">
+                      <span class="fl-hint" data-i18n="ai.visual.searchHint">Describe what you're looking for...</span>
+                      <span data-ai-query></span><span class="ai-ghost" data-ai-ghost></span><i class="ai-caret" data-ai-caret></i>
+                    </div>
+                    <span class="fl-tab" data-ai-tab aria-hidden="true">
+                      <svg class="fl-ico"><use href="#fl-ico-tab"/></svg>
+                    </span>
+                    <span class="fl-icon-btn" aria-hidden="true">
+                      <svg class="fl-ico"><use href="#fl-ico-forward"/></svg>
+                    </span>
+                  </div>
+                  <span class="fl-icon-btn fl-icon-round" aria-hidden="true">
+                    <svg class="fl-ico"><use href="#fl-ico-info"/></svg>
+                  </span>
+                </div>
+
+                <div class="fl-status">
+                  <div class="fl-status-row">
+                    <span class="fl-ai-badge">AI</span>
+                    <span class="fl-status-text" data-i18n="ai.visual.statusSearching">Matching live units…</span>
+                    <span class="fl-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                  </div>
+                  <span class="fl-progress"><i></i></span>
+                </div>
+
+                <div class="ai-chips">
+                  <span class="ai-chip is-on">
+                    <svg class="fl-ico"><use href="#fl-ico-close"/></svg>
+                    <span data-ai-field="chip1">3 rooms</span>
+                  </span>
+                  <span class="ai-chip is-on">
+                    <svg class="fl-ico"><use href="#fl-ico-close"/></svg>
+                    <span data-ai-field="chip2">near a park</span>
+                  </span>
+                  <span class="ai-chip is-on">
+                    <svg class="fl-ico"><use href="#fl-ico-close"/></svg>
+                    <span data-ai-field="chip3">up to $90k</span>
+                  </span>
+                </div>
+
+                <p class="ai-meta" data-ai-field="matches">3 matches</p>
+
+                <div class="ai-result">
+                  <img class="fl-thumb" src="assets/images/hills-blue-banner.png" alt="Hills Blue" width="96" height="96">
+                  <div class="ai-result-copy">
+                    <div class="ai-result-top">
+                      <strong data-ai-field="result1.name">Hills Blue</strong>
+                      <span class="ai-match" data-ai-field="result1.match">96% match</span>
+                    </div>
+                    <span class="fl-price" data-ai-field="result1.price">from $84,000</span>
+                    <span class="fl-place">
+                      <svg class="fl-ico"><use href="#fl-ico-place"/></svg>
+                      <span data-ai-field="result1.district">Yunusabad</span>
+                    </span>
+                    <span class="fl-summary" data-ai-field="result1.summary">3 rooms · 78 m² · 7/16</span>
+                    <div class="fl-reasons">
+                      <span data-ai-field="result1.reason1">3 rooms</span>
+                      <span data-ai-field="result1.reason2">near a park</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ai-result">
+                  <img class="fl-thumb" src="assets/images/nestone.png" alt="NestOne" width="96" height="96">
+                  <div class="ai-result-copy">
+                    <div class="ai-result-top">
+                      <strong data-ai-field="result2.name">NestOne</strong>
+                      <span class="ai-match" data-ai-field="result2.match">91% match</span>
+                    </div>
+                    <span class="fl-price" data-ai-field="result2.price">from $72,000</span>
+                    <span class="fl-place">
+                      <svg class="fl-ico"><use href="#fl-ico-place"/></svg>
+                      <span data-ai-field="result2.district">Mirabad</span>
+                    </span>
+                    <span class="fl-summary" data-ai-field="result2.summary">2 rooms · 54 m² · 12/16</span>
+                    <div class="fl-reasons">
+                      <span data-ai-field="result2.reason1">up to $90k</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ai-show-all">
+                  <span data-ai-field="showAll">Show all 12</span>
+                  <svg class="fl-ico" aria-hidden="true"><use href="#fl-ico-expand"/></svg>
+                </div>
+              </article>
+
+              <article class="ai-device ai-device-b2b">
+                <header class="fl-sheet-head">
+                  <span class="fl-avatar" aria-hidden="true">
+                    <svg class="fl-ico"><use href="#fl-ico-spark"/></svg>
+                  </span>
+                  <div>
+                    <strong data-i18n="ai.visual.botTitle">AI assistant</strong>
+                    <span data-i18n="ai.visual.botSubtitle">Leads, projects and team workload</span>
+                  </div>
+                  <span class="fl-icon-btn" aria-hidden="true">
+                    <svg class="fl-ico"><use href="#fl-ico-close"/></svg>
+                  </span>
+                </header>
+                <i class="fl-sheet-rule"></i>
+
+                <div class="fl-msg">
+                  <span class="fl-avatar sm" aria-hidden="true">
+                    <svg class="fl-ico"><use href="#fl-ico-spark"/></svg>
+                  </span>
+                  <p data-ai-field="crm.message">3 leads need attention.</p>
+                </div>
+
+                <div class="ai-metrics">
+                  <div class="ai-metric">
+                    <span class="ai-metric-label" data-ai-field="crm.metric1">Hot leads</span>
+                    <span class="ai-metric-value">
+                      <b data-ai-hot>12</b>
+                      <svg class="fl-ico fl-trend up" aria-hidden="true"><use href="#fl-ico-up"/></svg>
+                    </span>
+                  </div>
+                  <div class="ai-metric">
+                    <span class="ai-metric-label" data-ai-field="crm.metric2">Warm</span>
+                    <span class="ai-metric-value">
+                      <b data-ai-warm>28</b>
+                      <svg class="fl-ico fl-trend flat" aria-hidden="true"><use href="#fl-ico-flat"/></svg>
+                    </span>
+                  </div>
+                  <div class="ai-metric">
+                    <span class="ai-metric-label" data-ai-field="crm.metric3">Readiness</span>
+                    <span class="ai-metric-value">
+                      <b data-ai-ready>69%</b>
+                      <svg class="fl-ico fl-trend up" aria-hidden="true"><use href="#fl-ico-up"/></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="ai-lead is-hot" data-ai-lead>
+                  <div class="ai-lead-top">
+                    <strong data-ai-field="crm.lead1.title">L-1042 · Hills Blue</strong>
+                    <span class="fl-score" data-ai-lead-score="primary">86</span>
+                    <em class="ai-band hot" data-i18n="ai.visual.hotLabel">HOT</em>
+                  </div>
+                  <span class="ai-lead-phone">+998 90 123-45-67</span>
+                  <div class="fl-reasons">
+                    <span data-ai-field="crm.lead1.reason1">High interest</span>
+                    <span data-ai-field="crm.lead1.reason2">SLA breached</span>
+                  </div>
+                </div>
+
+                <div class="ai-lead">
+                  <div class="ai-lead-top">
+                    <strong data-ai-field="crm.lead2.title">L-1048 · NestOne</strong>
+                    <span class="fl-score" data-ai-lead-score="secondary">58</span>
+                    <em class="ai-band warm" data-i18n="ai.visual.warmLabel">WARM</em>
+                  </div>
+                  <span class="ai-lead-phone">+998 93 210-09-11</span>
+                  <div class="fl-reasons">
+                    <span data-ai-field="crm.lead2.reason1">Asked about a unit</span>
+                  </div>
+                </div>
+
+                <div class="ai-lead">
+                  <div class="ai-lead-top">
+                    <strong data-ai-field="crm.lead3.title">L-1051 · Verda Park</strong>
+                    <span class="fl-score" data-ai-lead-score="tertiary">31</span>
+                    <em class="ai-band cold" data-i18n="ai.visual.coldLabel">COLD</em>
+                  </div>
+                  <span class="ai-lead-phone">+998 97 044-18-22</span>
+                  <div class="fl-reasons">
+                    <span data-ai-field="crm.lead3.reason1">No response in 24h</span>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="ai-cursor" data-ai-cursor aria-hidden="true"><i></i></div>
+        </div>
+      </div>
     </section>
 
     <section class="vision section" id="vision">
@@ -402,7 +659,7 @@
       </div>
     </section>
 
-    <section class="built-here section theme-band">
+    <section class="built-here section theme-band" id="built">
       <div class="built-layout">
         <div class="built-copy">
           <div class="eyebrow reveal" data-i18n="built.eyebrow">Built in Uzbekistan</div>
@@ -410,6 +667,11 @@
           <p class="reveal" data-i18n="built.lead">Uzbekistan's primary real-estate sector is expanding quickly across Tashkent and New Tashkent. iBuild gives that growth a documented, verifiable foundation.</p>
         </div>
         <div class="market-facts reveal">
+          <article class="fact-card fact-card-highlight">
+            <span class="fact-label" data-i18n="fact0.label">Regulatory tailwind</span>
+            <strong data-i18n="fact0.title">Escrow accounts are coming</strong>
+            <p data-i18n="fact0.desc">A law moving through parliament will route buyer funds through a bank escrow, released to the developer only against confirmed progress—the verification iBuild is already built to provide.</p>
+          </article>
           <article class="fact-card">
             <span class="fact-label" data-i18n="fact1.label">Coverage</span>
             <strong data-i18n="fact1.title">Tashkent & New Tashkent</strong>

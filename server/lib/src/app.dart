@@ -8,6 +8,7 @@ import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'demo_guard.dart';
 import 'demo_read_isolation.dart';
 import 'admin_routes.dart';
+import 'ai/ai_routes.dart';
 import 'auth_context.dart';
 import 'calculators.dart';
 import 'env_loader.dart';
@@ -29,6 +30,18 @@ const kAllowedLeadStatuses = {
   'lost',
 };
 
+/// What the lead relates to (plan `lead-subject`) — distinct from `intent`
+/// (buy/rent/viewing/callback), a scoring input on its own. Optional: older
+/// clients that don't send it yet keep working.
+const kAllowedLeadSubjects = {
+  'project',
+  'unit',
+  'rent',
+  'office',
+  'mortgage',
+  'other',
+};
+
 /// Allowed values for the `mode` query param on `GET /v1/projects`.
 const kAllowedProjectModes = {'buy', 'rent', 'newBuilds'};
 
@@ -44,6 +57,26 @@ const kAllowedProjectStatuses = {
 /// Upper bound on `?limit=` for paginated list routes, so a single request
 /// cannot ask the server to serialize the entire catalogue.
 const kMaxPageLimit = 100;
+
+/// Buyer-safe view of a photo report: the readiness engine (`ai_routes.dart`)
+/// populates `phash`, `exifLat`/`exifLng`/`exifTakenAt`, and the full
+/// `verification` blob on this same map — none of that is for a buyer's eyes
+/// (device/location metadata, raw hash). Buyers get a status, not evidence.
+Map<String, dynamic> publicPhotoReport(Map<String, dynamic> report) {
+  final copy = Map<String, dynamic>.from(report);
+  copy.remove('phash');
+  copy.remove('exifLat');
+  copy.remove('exifLng');
+  copy.remove('exifTakenAt');
+  copy.remove('verification');
+  final confidence = copy['verificationConfidence'] as num?;
+  // Coarse on purpose: exact 0-100 confidence plus status lets a buyer
+  // infer more about the underlying check than intended.
+  copy['verificationConfidence'] = confidence == null
+      ? null
+      : (confidence / 10).round() * 10;
+  return copy;
+}
 
 /// True if [project] is published+approved, or the caller is an admin.
 /// Used on every public project/unit read to block IDOR via sub-routes.
@@ -353,7 +386,15 @@ Handler createHandler(
       return jsonError('NOT_FOUND', 'Project $id not found', status: 404);
     }
     final items = store.photoReportsForProject(id);
-    return jsonOk(items, meta: {'total': items.length});
+    // Admins (this route doubles as the b2b listing — there is no separate
+    // admin GET) see the full row; everyone else gets the buyer-safe subset
+    // (the readiness engine populates phash/exif/verification_json, which
+    // must never reach an anonymous or non-admin caller — see the AI-layer
+    // phase report).
+    final serialized = req.auth?.isAdmin == true
+        ? items
+        : items.map(publicPhotoReport).toList();
+    return jsonOk(serialized, meta: {'total': serialized.length});
   });
 
   // --- Reviews (Konseptsiya §9) -------------------------------------------
@@ -707,6 +748,14 @@ Handler createHandler(
         status: 422,
       );
     }
+    final subject = body['subject'] as String?;
+    if (subject != null && !isOneOf(subject, kAllowedLeadSubjects)) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'subject must be one of ${kAllowedLeadSubjects.join(', ')}',
+        status: 422,
+      );
+    }
 
     final lead = store.createLead(body, userId: auth.userId);
     return jsonOk(lead, status: 201);
@@ -840,6 +889,8 @@ Handler createHandler(
 
   mountAdminRoutes(router, store, refreshLimiter: refreshRateLimiter);
 
+  mountAiRoutes(router, store);
+
   // WS: Bearer or `access_token` query; lead/PII events go to admins only.
   router.get('/v1/ws', (Request req) {
     var auth = req.auth;
@@ -920,9 +971,7 @@ void assertProductionSecrets({SmsService? sms}) {
   }
   if (bootstrapAdminEnabled) {
     final secret = env['BOOTSTRAP_ADMIN_SECRET']?.trim();
-    if (secret == null ||
-        secret.isEmpty ||
-        secret == kDefaultBootstrapSecret) {
+    if (secret == null || secret.isEmpty || secret == kDefaultBootstrapSecret) {
       problems.add(
         'a strong BOOTSTRAP_ADMIN_SECRET (bootstrap-admin is enabled)',
       );

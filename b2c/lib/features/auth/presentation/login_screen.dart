@@ -6,7 +6,6 @@ import 'package:ibuild_core/ibuild_core.dart';
 
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_theme_ext.dart';
-import '../../../core/widgets/brand_mark.dart';
 import '../../../core/widgets/demo_entry_button.dart';
 import '../../../core/widgets/pill_button.dart';
 import '../../../core/widgets/step_indicator.dart';

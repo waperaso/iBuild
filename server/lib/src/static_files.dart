@@ -35,9 +35,7 @@ Future<String> saveUploadBytes(
   String? subdir,
 }) async {
   final sep = Platform.pathSeparator;
-  final dirPath = subdir == null
-      ? kUploadsRoot
-      : '$kUploadsRoot$sep$subdir';
+  final dirPath = subdir == null ? kUploadsRoot : '$kUploadsRoot$sep$subdir';
   final dir = Directory(dirPath);
   if (!dir.existsSync()) {
     dir.createSync(recursive: true);

@@ -758,7 +758,10 @@ class PgPersistence {
             Type.text,
             ticket['category'] as String? ?? 'other',
           ),
-          'status': TypedValue(Type.text, ticket['status'] as String? ?? 'open'),
+          'status': TypedValue(
+            Type.text,
+            ticket['status'] as String? ?? 'open',
+          ),
           'assignedToName': TypedValue(
             Type.text,
             ticket['assignedToName'] as String?,
@@ -783,12 +786,12 @@ class PgPersistence {
           id, number, project_id, project_name, unit_id, unit_label, intent,
           status, contact_phone, message, preferred_at, created_at,
           user_id, owner_user_id, assigned_manager, notes, tags, score,
-          last_contact_at
+          last_contact_at, subject, ai_score, ai_band, ai_reasons, ai_scored_at
         ) VALUES (
           @id, @number, @projectId, @projectName, @unitId, @unitLabel, @intent,
           @status, @contactPhone, @message, @preferredAt, @createdAt,
           @userId, @ownerUserId, @assignedManager, @notes, @tags, @score,
-          @lastContactAt
+          @lastContactAt, @subject, @aiScore, @aiBand, @aiReasons, @aiScoredAt
         )
         ON CONFLICT (id) DO UPDATE SET
           number = EXCLUDED.number,
@@ -808,7 +811,12 @@ class PgPersistence {
           notes = EXCLUDED.notes,
           tags = EXCLUDED.tags,
           score = EXCLUDED.score,
-          last_contact_at = EXCLUDED.last_contact_at
+          last_contact_at = EXCLUDED.last_contact_at,
+          subject = EXCLUDED.subject,
+          ai_score = EXCLUDED.ai_score,
+          ai_band = EXCLUDED.ai_band,
+          ai_reasons = EXCLUDED.ai_reasons,
+          ai_scored_at = EXCLUDED.ai_scored_at
       '''),
       parameters: {
         'id': TypedValue(Type.text, lead['id'] as String),
@@ -844,6 +852,17 @@ class PgPersistence {
         'lastContactAt': TypedValue(
           Type.timestampTz,
           _parseDate(lead['lastContactAt']),
+        ),
+        'subject': TypedValue(Type.text, lead['subject'] as String?),
+        'aiScore': TypedValue(Type.integer, (lead['aiScore'] as num?)?.round()),
+        'aiBand': TypedValue(Type.text, lead['aiBand'] as String?),
+        'aiReasons': TypedValue(
+          Type.textArray,
+          (lead['aiReasons'] as List?)?.cast<String>() ?? const <String>[],
+        ),
+        'aiScoredAt': TypedValue(
+          Type.timestampTz,
+          _parseDate(lead['aiScoredAt']),
         ),
       },
     ),
@@ -1054,30 +1073,64 @@ class PgPersistence {
     return rows.map((r) => _photoReportFromRow(r.toColumnMap())).toList();
   }
 
-  Map<String, dynamic> _photoReportFromRow(Map<String, dynamic> m) => {
-    'id': m['id'],
-    'projectId': m['project_id'],
-    'buildingId': m['building_id'],
-    'photoUrl': m['photo_url'],
-    'takenAt': (m['taken_at'] as DateTime).toIso8601String().split('T').first,
-    'takenAtIsManual': m['taken_at_is_manual'] ?? false,
-    'progressPercent': m['progress_percent'],
-    'uploadedBy': m['uploaded_by'],
-    'createdAt': (m['created_at'] as DateTime).toIso8601String(),
-  };
+  Map<String, dynamic> _photoReportFromRow(Map<String, dynamic> m) {
+    final rawVerification = m['verification_json'];
+    Map<String, dynamic>? verification;
+    if (rawVerification is Map) {
+      verification = Map<String, dynamic>.from(rawVerification);
+    } else if (rawVerification is String && rawVerification.isNotEmpty) {
+      final decoded = jsonDecode(rawVerification);
+      if (decoded is Map) verification = Map<String, dynamic>.from(decoded);
+    }
+    return {
+      'id': m['id'],
+      'projectId': m['project_id'],
+      'buildingId': m['building_id'],
+      'photoUrl': m['photo_url'],
+      'takenAt': (m['taken_at'] as DateTime).toIso8601String().split('T').first,
+      'takenAtIsManual': m['taken_at_is_manual'] ?? false,
+      'progressPercent': m['progress_percent'],
+      'uploadedBy': m['uploaded_by'],
+      'createdAt': (m['created_at'] as DateTime).toIso8601String(),
+      'phash': m['phash'],
+      'verificationStatus': m['verification_status'],
+      'verificationConfidence': m['verification_confidence'],
+      if (verification != null) 'verification': verification,
+      'exifTakenAt': (m['exif_taken_at'] as DateTime?)?.toIso8601String(),
+      'exifLat': m['exif_lat'],
+      'exifLng': m['exif_lng'],
+      'detectedStage': m['detected_stage'],
+      'declaredStage': m['declared_stage'],
+    };
+  }
 
   Future<void> savePhotoReport(Map<String, dynamic> report) async {
     await _db.execute(
       Sql.named('''
         INSERT INTO photo_reports (
           id, project_id, building_id, photo_url, taken_at,
-          taken_at_is_manual, progress_percent, uploaded_by, created_at
+          taken_at_is_manual, progress_percent, uploaded_by, created_at,
+          phash, verification_status, verification_confidence,
+          verification_json, exif_taken_at, exif_lat, exif_lng,
+          detected_stage, declared_stage
         ) VALUES (
           @id, @projectId, @buildingId, @photoUrl, @takenAt::date,
           @takenAtIsManual, @progressPercent, @uploadedBy,
-          COALESCE(@createdAt::timestamptz, now())
+          COALESCE(@createdAt::timestamptz, now()),
+          @phash, @verificationStatus, @verificationConfidence,
+          @verificationJson::jsonb, @exifTakenAt, @exifLat, @exifLng,
+          @detectedStage, @declaredStage
         )
-        ON CONFLICT (id) DO NOTHING
+        ON CONFLICT (id) DO UPDATE SET
+          phash = EXCLUDED.phash,
+          verification_status = EXCLUDED.verification_status,
+          verification_confidence = EXCLUDED.verification_confidence,
+          verification_json = EXCLUDED.verification_json,
+          exif_taken_at = EXCLUDED.exif_taken_at,
+          exif_lat = EXCLUDED.exif_lat,
+          exif_lng = EXCLUDED.exif_lng,
+          detected_stage = EXCLUDED.detected_stage,
+          declared_stage = EXCLUDED.declared_stage
       '''),
       parameters: {
         'id': TypedValue(Type.text, report['id'] as String),
@@ -1095,6 +1148,41 @@ class PgPersistence {
         ),
         'uploadedBy': TypedValue(Type.text, report['uploadedBy'] as String?),
         'createdAt': TypedValue(Type.text, report['createdAt'] as String?),
+        'phash': TypedValue(Type.text, report['phash'] as String?),
+        'verificationStatus': TypedValue(
+          Type.text,
+          report['verificationStatus'] as String?,
+        ),
+        'verificationConfidence': TypedValue(
+          Type.integer,
+          (report['verificationConfidence'] as num?)?.round(),
+        ),
+        'verificationJson': TypedValue(
+          Type.text,
+          report['verification'] == null
+              ? null
+              : jsonEncode(report['verification']),
+        ),
+        'exifTakenAt': TypedValue(
+          Type.timestampTz,
+          _parseDate(report['exifTakenAt']),
+        ),
+        'exifLat': TypedValue(
+          Type.double,
+          (report['exifLat'] as num?)?.toDouble(),
+        ),
+        'exifLng': TypedValue(
+          Type.double,
+          (report['exifLng'] as num?)?.toDouble(),
+        ),
+        'detectedStage': TypedValue(
+          Type.text,
+          report['detectedStage'] as String?,
+        ),
+        'declaredStage': TypedValue(
+          Type.text,
+          report['declaredStage'] as String?,
+        ),
       },
     );
   }
@@ -1105,6 +1193,57 @@ class PgPersistence {
       parameters: {'id': TypedValue(Type.text, id)},
     );
   }
+
+  // --- AI usage ledger (quota that survives a deploy) ----------------------
+
+  /// Increment one `(key, day, kind)` bucket and return the new count. [key] is
+  /// already hashed by the caller — a raw IP must never reach this table.
+  /// Via `service` so an anonymous request can still record its own usage.
+  Future<int> bumpAiUsage({
+    required String key,
+    required String day,
+    required String kind,
+    int by = 1,
+  }) => _asService((s) async {
+    final result = await s.execute(
+      Sql.named('''
+        INSERT INTO ai_usage (ip_hash, day, kind, count, updated_at)
+        VALUES (@key, @day::date, @kind, @by, now())
+        ON CONFLICT (ip_hash, day, kind) DO UPDATE SET
+          count = ai_usage.count + EXCLUDED.count,
+          updated_at = now()
+        RETURNING count
+      '''),
+      parameters: {
+        'key': TypedValue(Type.text, key),
+        'day': TypedValue(Type.text, day),
+        'kind': TypedValue(Type.text, kind),
+        'by': TypedValue(Type.integer, by),
+      },
+    );
+    return result.first.first as int;
+  });
+
+  /// Current count for one bucket without consuming; 0 when absent.
+  Future<int> readAiUsage({
+    required String key,
+    required String day,
+    required String kind,
+  }) => _asService((s) async {
+    final result = await s.execute(
+      Sql.named(
+        'SELECT count FROM ai_usage '
+        'WHERE ip_hash = @key AND day = @day::date AND kind = @kind',
+      ),
+      parameters: {
+        'key': TypedValue(Type.text, key),
+        'day': TypedValue(Type.text, day),
+        'kind': TypedValue(Type.text, kind),
+      },
+    );
+    if (result.isEmpty) return 0;
+    return (result.first.first as int?) ?? 0;
+  });
 
   // --- Row <-> JSON-shaped map helpers -------------------------------------
 
@@ -1241,6 +1380,12 @@ class PgPersistence {
     'tags': (row['tags'] as List?)?.cast<String>() ?? const <String>[],
     'score': row['score'],
     'lastContactAt': (row['last_contact_at'] as DateTime?)?.toIso8601String(),
+    'subject': row['subject'],
+    'aiScore': row['ai_score'],
+    'aiBand': row['ai_band'],
+    'aiReasons':
+        (row['ai_reasons'] as List?)?.cast<String>() ?? const <String>[],
+    'aiScoredAt': (row['ai_scored_at'] as DateTime?)?.toIso8601String(),
   };
 
   // --- Upsert helpers shared by seedFrom and the write-through methods -----
@@ -1521,7 +1666,10 @@ class PgPersistence {
           (unit['planColumn'] as num?)?.toInt(),
         ),
         'planRow': TypedValue(Type.integer, (unit['planRow'] as num?)?.toInt()),
-        'version': TypedValue(Type.integer, (unit['version'] as num?)?.toInt() ?? 1),
+        'version': TypedValue(
+          Type.integer,
+          (unit['version'] as num?)?.toInt() ?? 1,
+        ),
         'sortOrder': TypedValue(Type.integer, sortOrder),
       },
     );

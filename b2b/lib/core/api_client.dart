@@ -215,5 +215,17 @@ bool _isDemoAllowedMutation(String path) {
   return path.contains('/auth/demo') ||
       path.contains('/auth/logout') ||
       path.contains('/auth/otp/') ||
-      path.contains('/auth/refresh');
+      path.contains('/auth/refresh') ||
+      // The AI endpoints are POSTs that only read: the assistant answers
+      // questions about existing data and stores nothing. Blocking them left
+      // the demo staring at "the assistant is unavailable" — the server-side
+      // guard (`demo_guard.dart`) already allows exactly these paths.
+      _isReadOnlyAiPost(path);
+}
+
+/// AI routes that compute an answer instead of changing anything.
+bool _isReadOnlyAiPost(String path) {
+  return path.contains('/ai/crm/query') ||
+      path.contains('/ai/b2b/chat') ||
+      path.contains('/ai/search');
 }

@@ -120,8 +120,10 @@ extension RequestJson on Request {
     try {
       decoded = jsonDecode(body);
     } on FormatException catch (error) {
-      throw InvalidJsonBodyException('Request body is not valid JSON: '
-          '${error.message}');
+      throw InvalidJsonBodyException(
+        'Request body is not valid JSON: '
+        '${error.message}',
+      );
     }
     if (decoded is! Map<String, dynamic>) {
       throw const InvalidJsonBodyException(

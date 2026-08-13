@@ -513,6 +513,14 @@ class AdminApi {
   // --- Photo reports (construction progress) ----------------------------
 
   /// Multipart site photo upload; optional [progressPercent] updates construction %.
+  ///
+  /// [declaredStage] and [comment] are additive fields for the AI readiness
+  /// check (plan Part 4): [declaredStage] mirrors what was sent to
+  /// [analyzePhotoReport] so the stored report keeps it even without a
+  /// separate linking step, and [comment] carries the required explanation
+  /// when a developer overrides a blocked (`discrepancy_found` /
+  /// `violation_found`) upload. Both are optional and additive — omitted
+  /// when not applicable so this stays compatible with the pre-AI contract.
   Future<Map<String, dynamic>> uploadPhotoReport(
     String projectId, {
     required List<int> bytes,
@@ -520,12 +528,16 @@ class AdminApi {
     required DateTime takenAt,
     int? progressPercent,
     String? buildingId,
+    String? declaredStage,
+    String? comment,
     void Function(int sent, int total)? onSendProgress,
   }) async {
     final form = FormData.fromMap({
       'takenAt': takenAt.toIso8601String().split('T').first,
       'progressPercent': ?progressPercent,
       'buildingId': ?buildingId,
+      'declaredStage': ?declaredStage,
+      'comment': ?comment,
       'file': MultipartFile.fromBytes(bytes, filename: filename),
     });
     final res = await _dio.post<Map<String, dynamic>>(
@@ -548,6 +560,34 @@ class AdminApi {
 
   Future<void> deletePhotoReport(String id) =>
       _dio.delete('/admin/photo-reports/$id');
+
+  /// Runs the AI readiness check on a photo before it is published (plan
+  /// Part 4). Not saved as a report yet — the caller decides whether to
+  /// follow up with [uploadPhotoReport] based on `overall_status`.
+  Future<Map<String, dynamic>> analyzePhotoReport(
+    String projectId, {
+    required List<int> bytes,
+    required String filename,
+    required String declaredStage,
+    String? buildingId,
+    int? progressPercent,
+    String? comment,
+    required String userLanguage,
+  }) async {
+    final form = FormData.fromMap({
+      'declaredStage': declaredStage,
+      'buildingId': ?buildingId,
+      'progressPercent': ?progressPercent,
+      'comment': ?comment,
+      'user_language': userLanguage,
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
+    });
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/admin/projects/$projectId/photo-reports/analyze',
+      data: form,
+    );
+    return res.data!;
+  }
 
   // --- Admin notifications (developer changes / submitted docs) ---------
 
@@ -572,6 +612,47 @@ class AdminApi {
 
   Future<void> markAllNotificationsRead() =>
       _dio.post('/platform/notifications/read-all');
+
+  // --- AI CRM (plan Part 3) ---------------------------------------------
+  //
+  // Frozen contract (see `server/lib/src/ai/ai_routes.dart`'s doc comments):
+  // computed lead scoring + a guided (not free-text) assistant. Both routes
+  // 501 until the server sibling ships the scoring engine — callers must
+  // treat that (and any other error) as "AI not available yet", never crash.
+
+  /// `GET /v1/ai/crm/leads` — ranked leads + aggregate metrics for the panel.
+  Future<Map<String, dynamic>> aiCrmLeads({
+    String? projectId,
+    String? band,
+    String? owner,
+    int limit = 20,
+  }) async {
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/ai/crm/leads',
+      queryParameters: {
+        'projectId': ?projectId,
+        'band': ?band,
+        'owner': ?owner,
+        'limit': limit,
+      },
+    );
+    return res.data!;
+  }
+
+  /// `POST /v1/ai/crm/query` — one step of the guided bot tree. [node] is
+  /// `root` to open, otherwise the `id` of the tapped option; [params] is
+  /// that option's `params` echoed back verbatim.
+  Future<Map<String, dynamic>> aiCrmQuery({
+    required String node,
+    Map<String, dynamic> params = const {},
+    required String userLanguage,
+  }) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/ai/crm/query',
+      data: {'node': node, 'params': params, 'user_language': userLanguage},
+    );
+    return res.data!;
+  }
 }
 
 final adminApiProvider = Provider(

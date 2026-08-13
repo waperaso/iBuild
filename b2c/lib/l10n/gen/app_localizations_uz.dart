@@ -1157,4 +1157,534 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get quizEntryAction => 'Viktorinadan o‘tish';
+
+  @override
+  String get leadSubjectLabel => 'Bu nima haqida?';
+
+  @override
+  String get leadSubjectProject => 'Loyiha haqida';
+
+  @override
+  String get leadSubjectUnit => 'Aniq xonadon haqida';
+
+  @override
+  String get leadSubjectRent => 'Ijara haqida';
+
+  @override
+  String get leadSubjectOffice => 'Ofis haqida';
+
+  @override
+  String get leadSubjectMortgage => 'Ipoteka konsultatsiyasi';
+
+  @override
+  String get leadSubjectOther => 'Boshqa';
+
+  @override
+  String get aiFabTooltip => 'iBuild AI\'dan so‘rash';
+
+  @override
+  String get aiChatTitle => 'iBuild AI';
+
+  @override
+  String get aiChatInfoTooltip => 'iBuild AI haqida';
+
+  @override
+  String get aiChatInfoBody =>
+      'Katalog, aniq majmua yoki xonadon, muddatli to‘lov va ipoteka haqida so‘rang — iBuild AI iBuild\'ning o‘z ma\'lumotlari va shartlariga asoslanib javob beradi.';
+
+  @override
+  String get aiChatErrorSnackbar => 'Javob olinmadi. Qaytadan urinib ko‘ring.';
+
+  @override
+  String get aiChatQuotaExhaustedTitle => 'Kunlik limit tugadi';
+
+  @override
+  String get aiChatQuotaExhaustedBody =>
+      'Bugungi iBuild AI xabarlar limitidan foydalandingiz. Ertaga qayting.';
+
+  @override
+  String get aiChatUnavailableTitle => 'iBuild AI vaqtincha ishlamayapti';
+
+  @override
+  String get aiChatUnavailableBody =>
+      'Yordamchi vaqtincha mavjud emas. Birozdan keyin qaytadan urinib ko‘ring.';
+
+  @override
+  String get aiChatEmptyTitle => 'iBuild AI\'dan istagan narsani so‘rang';
+
+  @override
+  String get aiChatEmptyBody =>
+      'Masalan: «Chilonzorda qaysi majmualarda muddatli to‘lov bor?» yoki «\$60 000 xonadon uchun qanday ipoteka stavkasi maqbul?»';
+
+  @override
+  String get aiChatInputHint => 'iBuild AI\'ga yozing...';
+
+  @override
+  String get aiChatSendTooltip => 'Yuborish';
+
+  @override
+  String get aiBetaNoticeTitle => 'iBuild AI sinov rejimida';
+
+  @override
+  String get aiBetaNoticeBody =>
+      'Javoblar ba\'zan noaniq bo‘lishi mumkin — narx va mavjudlik kabi tafsilotlarni har doim e\'lonning o‘zidan tekshiring.';
+
+  @override
+  String get aiQuotaTitle => 'Kunlik limit';
+
+  @override
+  String aiQuotaUsedLabel(int used, int limit) {
+    return 'Bugun $limit tadan $used xabar ishlatildi';
+  }
+
+  @override
+  String aiQuotaResetLabel(String time) {
+    return 'Yangilanadi: $time';
+  }
+
+  @override
+  String get aiSearchInfoExamplesTitle => 'Shunday so‘rab ko‘ring';
+
+  @override
+  String get aiSearchInfoTitle => 'AI aqlli qidiruv';
+
+  @override
+  String get aiSearchInfoBody =>
+      'Nima izlayotganingizni oddiy so‘zlar bilan tasvirlang — xonalar, byudjet, tuman, sizga muhim bo‘lgan har narsa — iBuild AI buni katalogdagi jonli qidiruvga aylantiradi.';
+
+  @override
+  String get aiSearchExample1 => 'Chilonzorda \$60 000 gacha 2 xonali';
+
+  @override
+  String get aiSearchExample2 =>
+      'Biznes markazga yaqin 3 xonali ofis, hozir tayyor';
+
+  @override
+  String get aiSearchExample3 =>
+      'Ijaraga xonadon, birinchi qavat emas, parking bilan';
+
+  @override
+  String get aiSearchHint => 'Nima izlayotganingizni yozing...';
+
+  @override
+  String get aiSearchClearTooltip => 'Qidiruvni tozalash';
+
+  @override
+  String get aiSearchSubmitTooltip => 'Qidirish';
+
+  @override
+  String get aiSearchInfoTooltip => 'AI qidiruv haqida';
+
+  @override
+  String get aiSearchRateLimitedTitle => 'Kunlik qidiruv limiti tugadi';
+
+  @override
+  String aiSearchRateLimitedBody(String time) {
+    return 'Bugungi AI qidiruv limitidan foydalandingiz. $time qaytib keling.';
+  }
+
+  @override
+  String get aiSearchUnavailableTitle => 'AI qidiruv vaqtincha ishlamayapti';
+
+  @override
+  String get aiSearchUnavailableBody =>
+      'Aqlli qidiruv vaqtincha mavjud emas. Birozdan keyin qaytadan urinib ko‘ring.';
+
+  @override
+  String get aiSearchGenericErrorTitle => 'Qidiruvni amalga oshirib bo‘lmadi';
+
+  @override
+  String get aiSearchGenericErrorBody =>
+      'Nimadir xato ketdi. Birozdan keyin qaytadan urinib ko‘ring.';
+
+  @override
+  String aiSearchUnrecognizedNote(String terms) {
+    return 'Aniqlanmadi: $terms';
+  }
+
+  @override
+  String aiSearchSummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mos variant',
+      one: '1 mos variant',
+      zero: 'Mos kelmadi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiSearchResultsEmptyTitle => 'Hozircha mos variant yo‘q';
+
+  @override
+  String get aiSearchResultsEmptyBody =>
+      'Shartlardan birini yumshating — byudjetni kengaytiring yoki qo‘shni tumanni ko‘rib chiqing.';
+
+  @override
+  String aiSearchMatchScoreLabel(int score) {
+    return '$score% mos';
+  }
+
+  @override
+  String get aiSearchStatusStarting => 'Qidiruv boshlanmoqda...';
+
+  @override
+  String get aiSearchTabHintTooltip => 'Tab — taklifni qabul qilish';
+
+  @override
+  String get aiSearchTabAcceptLabel => 'AI taklifini qabul qilish';
+
+  @override
+  String get aiSearchClarifyTitle => 'So‘rovni tushunolmadim';
+
+  @override
+  String aiSearchClarifyBody(String terms) {
+    return 'Bu so‘zlar katalogda yo‘q: $terms. So‘rovni aniqlashtiring yoki quyidagi takliflardan birini tanlang.';
+  }
+
+  @override
+  String get aiSearchClarifyExamplesHint =>
+      'Yoki quyidagi misollardan birini sinab ko‘ring:';
+
+  @override
+  String aiSearchDidYouMean(String suggestion) {
+    return '«$suggestion» demoqchimidingiz?';
+  }
+
+  @override
+  String aiSearchQuotedTerm(String term) {
+    return '«$term»';
+  }
+
+  @override
+  String aiSearchRelaxConstraint(String constraint) {
+    return 'Shartni olib tashlash: $constraint';
+  }
+
+  @override
+  String aiStepParsingV1(int count) {
+    return 'So‘rovingiz o‘qilmoqda...';
+  }
+
+  @override
+  String aiStepParsingV2(int count) {
+    return 'Nima kerakligini aniqlayapman...';
+  }
+
+  @override
+  String aiStepParsingV3(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count talab',
+      one: '1 talab',
+    );
+    return '$_temp0 tahlil qilinmoqda...';
+  }
+
+  @override
+  String aiStepParsingV4(int count) {
+    return 'So‘rovingiz bo‘laklarga ajratilmoqda...';
+  }
+
+  @override
+  String aiStepScanningDistrictV1(String district, int count) {
+    return '$district tumani ko‘rib chiqilmoqda...';
+  }
+
+  @override
+  String aiStepScanningDistrictV2(String district, int count) {
+    return '$district\'dagi $count loyiha ko‘rib chiqilmoqda...';
+  }
+
+  @override
+  String aiStepScanningDistrictV3(String district, int count) {
+    return '$district tumanidagi mavjudlik tekshirilmoqda...';
+  }
+
+  @override
+  String aiStepScanningDistrictV4(String district, int count) {
+    return '$district tumani ($count loyiha) o‘rganilmoqda...';
+  }
+
+  @override
+  String aiStepFoundInDistrictV1(String district, int count) {
+    return '$district tumanida $count ta topildi';
+  }
+
+  @override
+  String aiStepFoundInDistrictV2(String district, int count) {
+    return '$district\'da $count ta nomzod topildi';
+  }
+
+  @override
+  String aiStepFoundInDistrictV3(String district, int count) {
+    return '$district: $count ta e\'tiborga loyiq';
+  }
+
+  @override
+  String aiStepFoundInDistrictV4(String district, int count) {
+    return '$district tumanida $count ta tanlandi';
+  }
+
+  @override
+  String aiStepOpeningProjectV1(String project, int index, int total) {
+    return '$project ochilmoqda ($index/$total)...';
+  }
+
+  @override
+  String aiStepOpeningProjectV2(String project, int index, int total) {
+    return '$project ichi ko‘rilmoqda...';
+  }
+
+  @override
+  String aiStepOpeningProjectV3(String project, int index, int total) {
+    return '$project tekshirilmoqda ($index/$total)...';
+  }
+
+  @override
+  String aiStepOpeningProjectV4(String project, int index, int total) {
+    return 'Hozir $project ko‘rilmoqda...';
+  }
+
+  @override
+  String aiStepScanningUnitsV1(String project, int count) {
+    return '$project\'dagi xonadonlar skanerlanmoqda ($count)...';
+  }
+
+  @override
+  String aiStepScanningUnitsV2(String project, int count) {
+    return '$project\'dagi $count ta xonadon tekshirilmoqda...';
+  }
+
+  @override
+  String aiStepScanningUnitsV3(String project, int count) {
+    return '$project tartiblari ko‘rib chiqilmoqda...';
+  }
+
+  @override
+  String aiStepScanningUnitsV4(String project, int count) {
+    return '$project: $count ta xonadon ko‘rilmoqda...';
+  }
+
+  @override
+  String aiStepFilteringBookedV1(int removed, int left) {
+    return '$removed ta band chiqarib tashlanmoqda, $left ta qoldi...';
+  }
+
+  @override
+  String aiStepFilteringBookedV2(int removed, int left) {
+    return 'Sotilgan va band qilinganlar chiqarilmoqda ($left ta qoldi)...';
+  }
+
+  @override
+  String aiStepFilteringBookedV3(int removed, int left) {
+    return '$removed ta band bo‘lgani o‘tkazib yuborilmoqda...';
+  }
+
+  @override
+  String aiStepFilteringBookedV4(int removed, int left) {
+    return 'Faqat mavjud xonadonlar qoldirilmoqda ($left)...';
+  }
+
+  @override
+  String aiStepRankingPriceV1(int count) {
+    return '$count ta eng mosligiga ko‘ra tartiblanmoqda...';
+  }
+
+  @override
+  String aiStepRankingPriceV2(int count) {
+    return 'Narx va moslikka ko‘ra saralanmoqda...';
+  }
+
+  @override
+  String aiStepRankingPriceV3(int count) {
+    return '$count ta variant solishtirilmoqda...';
+  }
+
+  @override
+  String aiStepRankingPriceV4(int count) {
+    return 'Eng yaxshi $count ta variant tanlanmoqda...';
+  }
+
+  @override
+  String aiStepDoneV1(int count, int elapsedMs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mos variant',
+      one: '1 mos variant',
+      zero: 'mos variant yo‘q',
+    );
+    return 'Tayyor · $_temp0, $elapsedMs ms ichida';
+  }
+
+  @override
+  String aiStepDoneV2(int count, int elapsedMs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mos variant topildi',
+      one: '1 mos variant topildi',
+      zero: 'hech narsa mos kelmadi',
+    );
+    return 'Tayyor — $_temp0';
+  }
+
+  @override
+  String aiStepDoneV3(int count, int elapsedMs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count natija',
+      one: '1 natija',
+      zero: '0 natija',
+    );
+    return 'Qidiruv tugadi ($_temp0)';
+  }
+
+  @override
+  String aiStepDoneV4(int count, int elapsedMs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kuchli mos variant',
+      one: '1 kuchli mos variant',
+      zero: 'bu safar mos variant yo‘q',
+    );
+    return 'Tayyor — $_temp0';
+  }
+
+  @override
+  String aiStepNoMatchIntent(String terms) {
+    return 'Katalogda $terms ga o‘xshash narsa yo‘q — qidiruv shu yerda to‘xtadi';
+  }
+
+  @override
+  String aiStepLowConfidence(String terms, int count) {
+    return '$terms ni to‘liq tushunmadim — kengroq mos variantlar ko‘rsatilmoqda ($count)';
+  }
+
+  @override
+  String aiStepAutocorrected(String from, String to) {
+    return '«$from» ni «$to» deb o‘qidim';
+  }
+
+  @override
+  String aiStepSoftenedAmenity(String amenity) {
+    return 'Variantlar topish uchun «$amenity» sharti yumshatildi';
+  }
+
+  @override
+  String get aiReasonDistrictMatch => 'Kerakli tuman';
+
+  @override
+  String get aiReasonRoomsMatch => 'Xonalar soni mos';
+
+  @override
+  String get aiReasonPriceFit => 'Byudjetga mos';
+
+  @override
+  String get aiReasonPriceBelowBudget => 'Byudjetdan past';
+
+  @override
+  String get aiReasonAreaFit => 'Maydon mos';
+
+  @override
+  String get aiReasonFloorPreference => 'Qavat afzalligi';
+
+  @override
+  String get aiReasonDealTypeMatch => 'Sotish/ijara mos';
+
+  @override
+  String get aiReasonKindMatch => 'Xonadon turi mos';
+
+  @override
+  String get aiReasonAvailableNow => 'Hozir mavjud';
+
+  @override
+  String get aiReasonAmenityMatch => 'So‘ralgan qulayliklar bor';
+
+  @override
+  String get aiReasonDeveloperMatch => 'So‘ralgan quruvchi';
+
+  @override
+  String get aiReasonProjectMatch => 'So‘ralgan loyiha';
+
+  @override
+  String get aiReasonHighTrustIndex => 'Yuqori ishonch indeksi';
+
+  @override
+  String get aiReasonReadySoon => 'Tez orada tayyor';
+
+  @override
+  String get aiReasonOffplanDiscount => 'Qurilish bosqichi chegirmasi';
+
+  @override
+  String aiChipAreaRange(int min, int max) {
+    return '$min–$max m²';
+  }
+
+  @override
+  String aiChipAreaUpTo(int max) {
+    return '$max m² gacha';
+  }
+
+  @override
+  String aiChipAreaFrom(int min) {
+    return '$min m² dan';
+  }
+
+  @override
+  String get aiDealTypeRent => 'Ijaraga';
+
+  @override
+  String get aiDealTypeSale => 'Sotishga';
+
+  @override
+  String get aiUnitKindApartment => 'Kvartira';
+
+  @override
+  String get aiUnitKindCommercial => 'Tijorat maydoni';
+
+  @override
+  String get aiUnitKindParking => 'Parking';
+
+  @override
+  String aiChipFloorRange(int min, int max) {
+    return '$min–$max qavat';
+  }
+
+  @override
+  String aiChipFloorFrom(int min) {
+    return '$min+ qavat';
+  }
+
+  @override
+  String aiChipFloorUpTo(int max) {
+    return '$max qavatgacha';
+  }
+
+  @override
+  String get aiChipNotFirstFloor => 'Birinchi qavat emas';
+
+  @override
+  String get aiChipNotLastFloor => 'Oxirgi qavat emas';
+
+  @override
+  String get aiChipAvailableOnly => 'Faqat mavjudlar';
+
+  @override
+  String aiSearchShowAll(int count) {
+    return 'Barcha $count natijani ko‘rish';
+  }
+
+  @override
+  String get aiSearchAllResultsTitle => 'Barcha natijalar';
+
+  @override
+  String aiConstraintWithout(String amenity) {
+    return '${amenity}siz';
+  }
 }

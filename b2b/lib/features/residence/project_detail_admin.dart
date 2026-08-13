@@ -13,7 +13,9 @@ import 'package:latlong2/latlong.dart';
 
 import '../../core/constants/districts.dart';
 import '../../core/env.dart';
+import '../../core/localization/locale_controller.dart';
 import '../../core/localization/status_labels.dart';
+import '../../core/localization/verification_codes.dart';
 import '../../core/network/ws_client.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
@@ -26,6 +28,10 @@ import '../../core/widgets/pill_button.dart';
 import '../../core/widgets/section_header.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../admin/admin_api.dart';
+import '../ai_crm/ai_crm_bot_sheet.dart';
+import '../ai_crm/ai_crm_pills.dart';
+import '../ai_crm/ai_crm_providers.dart';
+import '../ai_crm/ai_crm_widgets.dart';
 import '../auth/auth.dart';
 import '../crm/crm_shared.dart';
 
@@ -37,6 +43,7 @@ part 'project_detail_analytics.dart';
 part 'project_detail_chessboard.dart';
 part 'project_detail_dialogs.dart';
 part 'project_detail_photo_reports.dart';
+part 'project_detail_readiness.dart';
 
 class ProjectDetailAdmin extends ConsumerStatefulWidget {
   const ProjectDetailAdmin({super.key, required this.projectId});
@@ -51,6 +58,7 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
   Map<String, dynamic>? _project;
   List<Map<String, dynamic>> _leads = [];
   String _leadOwnerFilter = 'all';
+  String _leadBandFilter = 'all';
   List<Map<String, dynamic>> _offers = [];
   List<Map<String, dynamic>> _photoReports = [];
   Map<String, dynamic>? _analytics;
@@ -118,20 +126,30 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
         );
       case WsEventType.leadCreated:
         _upsertLead(payload);
+        _refreshAiInsights();
       case WsEventType.leadStatusChanged:
         _patchLeadStatus(
           payload['leadId'] as String?,
           payload['status'] as String?,
         );
+        _refreshAiInsights();
       case WsEventType.leadOwnerChanged:
         _patchLeadOwner(
           payload['leadId'] as String?,
           ownerUserId: payload['ownerUserId'] as String?,
           assignedManager: payload['assignedManager'] as String?,
         );
+        _refreshAiInsights();
       default:
         break;
     }
+  }
+
+  /// The AI half of the lead workspace fetches its own ranked list
+  /// (`/ai/crm/leads`), so it is dropped whenever the board's leads change —
+  /// otherwise the two halves of the same section disagree.
+  void _refreshAiInsights() {
+    if (mounted) ref.invalidate(aiCrmLeadsProvider);
   }
 
   void _patchUnitStatus(String? unitId, String? status) {
@@ -490,6 +508,7 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
       result: result,
     );
     await _load();
+    _refreshAiInsights();
   }
 
   Future<void> _setUnitStatus(String unitId, String status) async {
@@ -546,6 +565,7 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
       await ref
           .read(adminApiProvider)
           .updateLeadStatus(lead['id'] as String, status);
+      _refreshAiInsights();
     } catch (e) {
       // Roll back the optimistic move and surface the failure.
       setState(() {
@@ -564,7 +584,10 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     }
   }
 
-  /// Multipart photo-report upload with live send progress.
+  /// Multipart photo-report upload with live send progress. Before the real
+  /// upload, the picked photo goes through the AI readiness check (plan
+  /// Part 4, `POST /photo-reports/analyze`) via [_runReadinessCheck], which
+  /// gates whether/how the upload proceeds based on `overall_status`.
   Future<void> _addPhotoReport() async {
     final result = await FilePicker.pickFiles(
       type: FileType.image,
@@ -581,6 +604,13 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     );
     if (spec == null || !mounted) return;
 
+    final outcome = await _runReadinessCheck(
+      bytes: bytes,
+      filename: picked.name,
+      spec: spec,
+    );
+    if (outcome == null || !mounted) return;
+
     setState(() {
       _uploadingPhotoReport = true;
       _photoReportProgress = 0;
@@ -594,6 +624,8 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
             filename: picked.name,
             takenAt: spec.takenAt,
             progressPercent: spec.progressPercent,
+            declaredStage: spec.declaredStage,
+            comment: outcome.comment,
             onSendProgress: (sent, total) {
               if (total <= 0 || !mounted) return;
               setState(() => _photoReportProgress = sent / total);
@@ -616,6 +648,63 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
     } finally {
       if (mounted) setState(() => _uploadingPhotoReport = false);
     }
+  }
+
+  /// Runs the AI readiness check (plan Part 4) on the picked photo before
+  /// the real upload. Returns `null` when the flow should stop entirely
+  /// (user cancelled, or chose "Переснять" after a block) — otherwise a
+  /// [_ReadinessOutcome] carrying the optional override comment to send with
+  /// the real upload. Never blocks the core workflow when the AI engine
+  /// itself is unavailable (still 501 until the sibling ships it): the
+  /// analyze call's own failure surfaces an "unavailable" choice to proceed
+  /// without a check rather than a crash or dead end.
+  Future<_ReadinessOutcome?> _runReadinessCheck({
+    required List<int> bytes,
+    required String filename,
+    required _PhotoReportSpec spec,
+  }) async {
+    final language = ref.read(localeControllerProvider).languageCode;
+    Map<String, dynamic>? analysis;
+    Object? error;
+    unawaited(
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const _AnalyzingDialog(),
+      ),
+    );
+    try {
+      analysis = await ref
+          .read(adminApiProvider)
+          .analyzePhotoReport(
+            widget.projectId,
+            bytes: bytes,
+            filename: filename,
+            declaredStage: spec.declaredStage,
+            progressPercent: spec.progressPercent,
+            userLanguage: language,
+          );
+    } catch (e) {
+      error = e;
+    }
+    if (!mounted) return null;
+    Navigator.of(context, rootNavigator: true).pop();
+    if (!mounted) return null;
+
+    if (error != null || analysis == null) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (_) => const _ReadinessUnavailableDialog(),
+      );
+      return proceed == true ? const _ReadinessOutcome(comment: null) : null;
+    }
+
+    if (!mounted) return null;
+    return showDialog<_ReadinessOutcome>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _VerificationResultDialog(analysis: analysis!),
+    );
   }
 
   Future<void> _deletePhotoReport(String id) async {
@@ -886,6 +975,14 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
         project['isPublished'] == true ||
         project['isPublished']?.toString() == 'true';
     final canTogglePublish = moderationStatus == 'approved';
+    final visibleLeads =
+        _leads
+            .where(
+              (lead) =>
+                  _leadBandFilter == 'all' || lead['aiBand'] == _leadBandFilter,
+            )
+            .toList()
+          ..sort(compareLeadsByAiUrgency);
 
     final body = ListView(
       padding: EdgeInsets.fromLTRB(
@@ -1284,11 +1381,30 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
               ),
           const SizedBox(height: AppSpacing.lg),
         ],
-        SectionHeader(title: l10n.projectLeadCrmTitle),
+        const SizedBox(height: AppSpacing.xxl),
+        Row(
+          children: [
+            Expanded(child: SectionHeader(title: l10n.projectLeadCrmTitle)),
+            const SizedBox(width: AppSpacing.md),
+            PillButton(
+              label: l10n.crmAiAssistant,
+              icon: Icons.assistant_outlined,
+              variant: PillButtonVariant.outline,
+              onPressed: () =>
+                  showAiCrmBotSheet(context, projectId: widget.projectId),
+            ),
+          ],
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           l10n.projectKanbanHint,
           style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        AiInsightsSection(
+          scope: AiCrmScope(projectId: widget.projectId, limit: 5),
+          initiallyExpanded: isWide,
+          showMetrics: false,
         ),
         const SizedBox(height: AppSpacing.md),
         CrmOwnerFilterChips(
@@ -1299,7 +1415,12 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
           },
         ),
         const SizedBox(height: AppSpacing.md),
-        if (_leads.isEmpty)
+        AiBandFilterChips(
+          selected: _leadBandFilter,
+          onChanged: (v) => setState(() => _leadBandFilter = v),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        if (visibleLeads.isEmpty)
           EmptyState(
             compact: true,
             icon: Icons.inbox_outlined,
@@ -1307,7 +1428,7 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
           )
         else
           LeadKanbanBoard(
-            leads: _leads,
+            leads: visibleLeads,
             statuses: const [
               'new',
               'contacted',
@@ -1374,6 +1495,8 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
           l10n.projectPhotoReportsSubtitle,
           style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
         ),
+        const SizedBox(height: AppSpacing.md),
+        _ReadinessDigest(reports: _photoReports),
         const SizedBox(height: AppSpacing.md),
         Align(
           alignment: Alignment.centerLeft,
@@ -1474,6 +1597,19 @@ class _LeadKanbanCard extends StatelessWidget {
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context);
+    final band = lead['aiBand']?.toString();
+    final reasons = (lead['aiReasons'] as List? ?? const [])
+        .map((r) => r.toString())
+        .take(2);
+    // The AI band supersedes the manually set score — two hot/warm/cold
+    // pills on one card would just contradict each other.
+    final chips = <Widget>[
+      if (band == null && lead['score'] != null)
+        _ScoreChip(score: lead['score'].toString()),
+      for (final code in reasons) AiReasonChip(code: code),
+      for (final tag in (lead['tags'] as List? ?? []))
+        _MetaChip(label: tag.toString()),
+    ];
 
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -1490,6 +1626,10 @@ class _LeadKanbanCard extends StatelessWidget {
                   style: textTheme.titleSmall,
                 ),
               ),
+              if (band != null) ...[
+                AiBandPill(band: band),
+                const SizedBox(width: AppSpacing.xs),
+              ],
               IconButton(
                 tooltip: l10n.projectTagsScoreTooltip,
                 iconSize: 18,
@@ -1510,17 +1650,12 @@ class _LeadKanbanCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
           ),
-          if (lead['score'] != null || (lead['tags'] as List?)?.isNotEmpty == true) ...[
+          if (chips.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
             Wrap(
               spacing: AppSpacing.xs,
               runSpacing: AppSpacing.xs,
-              children: [
-                if (lead['score'] != null)
-                  _ScoreChip(score: lead['score'].toString()),
-                for (final tag in (lead['tags'] as List? ?? []))
-                  _MetaChip(label: tag.toString()),
-              ],
+              children: chips,
             ),
           ],
           const SizedBox(height: AppSpacing.xs),

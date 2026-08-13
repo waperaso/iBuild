@@ -4,12 +4,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
+import '../../core/utils/redacted_phone.dart';
 import '../../core/widgets/b2b_brand.dart';
 import '../../core/widgets/confirm_dialogs.dart';
 import '../../core/widgets/demo_mode.dart';
 import '../../core/widgets/locale_theme_bar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../ai_chat/presentation/widgets/ai_chat_fab.dart';
+import '../ai_chat/providers/ai_chat_fab_visibility_provider.dart';
 import '../auth/account_banned_panel.dart';
 import '../auth/auth.dart';
 import '../platform/notifications_providers.dart';
@@ -210,7 +213,7 @@ class _NotificationBell extends ConsumerWidget {
   }
 }
 
-class _DesktopShell extends StatelessWidget {
+class _DesktopShell extends ConsumerWidget {
   const _DesktopShell({
     required this.items,
     required this.currentIndex,
@@ -226,7 +229,7 @@ class _DesktopShell extends StatelessWidget {
   final VoidCallback onSignOut;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
     final title = currentIndex >= 0 && currentIndex < items.length
@@ -301,7 +304,7 @@ class _DesktopShell extends StatelessWidget {
                       if (user != null) ...[
                         const SizedBox(width: AppSpacing.lg),
                         Text(
-                          user!.phone,
+                          displayPhone(AppLocalizations.of(context), user!.phone),
                           style: textTheme.labelMedium?.copyWith(
                             color: colors.inkMuted,
                           ),
@@ -315,14 +318,31 @@ class _DesktopShell extends StatelessWidget {
               children: [
                 const DemoModeStrip(),
                 Expanded(
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: AppBreakpoints.maxContentWidth,
+                  child: Stack(
+                    children: [
+                      NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          ref
+                              .read(aiChatFabCollapsedProvider.notifier)
+                              .handleScroll(notification);
+                          return false;
+                        },
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxWidth: AppBreakpoints.maxContentWidth,
+                            ),
+                            child: child,
+                          ),
+                        ),
                       ),
-                      child: child,
-                    ),
+                      const Positioned(
+                        right: AppSpacing.xl,
+                        bottom: AppSpacing.xl,
+                        child: AiChatFab(),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -337,7 +357,7 @@ class _DesktopShell extends StatelessWidget {
   }
 }
 
-class _MobileShell extends StatelessWidget {
+class _MobileShell extends ConsumerWidget {
   const _MobileShell({
     required this.items,
     required this.currentIndex,
@@ -353,47 +373,68 @@ class _MobileShell extends StatelessWidget {
   final VoidCallback onSignOut;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
 
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          SafeArea(
-            bottom: false,
-            child: Container(
-              height: 56,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              decoration: BoxDecoration(
-                color: colors.background,
-                border: Border(bottom: BorderSide(color: colors.outline)),
-              ),
-              child: Row(
-                children: [
-                  const B2bBrand(compact: true),
-                  const Spacer(),
-                  if (user?.isSystemAdmin == true) ...[
-                    const _NotificationBell(),
-                    const SizedBox(width: AppSpacing.xs),
-                  ],
-                  const LocaleThemeBar(),
-                  const SizedBox(width: AppSpacing.xs),
-                  IconButton(
-                    tooltip: AppLocalizations.of(context).navSettings,
-                    onPressed: () => context.go('/settings'),
-                    icon: const Icon(Icons.settings_outlined, size: 20),
+          Column(
+            children: [
+              SafeArea(
+                bottom: false,
+                child: Container(
+                  height: 56,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
                   ),
-                  IconButton(
-                    tooltip: AppLocalizations.of(context).commonSignOut,
-                    onPressed: onSignOut,
-                    icon: const Icon(Icons.logout, size: 20),
+                  decoration: BoxDecoration(
+                    color: colors.background,
+                    border: Border(bottom: BorderSide(color: colors.outline)),
                   ),
-                ],
+                  child: Row(
+                    children: [
+                      const B2bBrand(compact: true),
+                      const Spacer(),
+                      if (user?.isSystemAdmin == true) ...[
+                        const _NotificationBell(),
+                        const SizedBox(width: AppSpacing.xs),
+                      ],
+                      const LocaleThemeBar(),
+                      const SizedBox(width: AppSpacing.xs),
+                      IconButton(
+                        tooltip: AppLocalizations.of(context).navSettings,
+                        onPressed: () => context.go('/settings'),
+                        icon: const Icon(Icons.settings_outlined, size: 20),
+                      ),
+                      IconButton(
+                        tooltip: AppLocalizations.of(context).commonSignOut,
+                        onPressed: onSignOut,
+                        icon: const Icon(Icons.logout, size: 20),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              const DemoModeStrip(),
+              Expanded(
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    ref
+                        .read(aiChatFabCollapsedProvider.notifier)
+                        .handleScroll(notification);
+                    return false;
+                  },
+                  child: child,
+                ),
+              ),
+            ],
           ),
-          const DemoModeStrip(),
-          Expanded(child: child),
+          Positioned(
+            right: AppSpacing.lg,
+            bottom: MediaQuery.paddingOf(context).bottom + 96,
+            child: const AiChatFab(),
+          ),
         ],
       ),
       bottomNavigationBar: _PillBottomNav(
@@ -501,7 +542,7 @@ class _ProfileTile extends StatelessWidget {
                         style: textTheme.labelLarge,
                       ),
                       Text(
-                        user?.phone ?? '',
+                        displayPhone(AppLocalizations.of(context), user?.phone),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: textTheme.labelSmall?.copyWith(

@@ -100,51 +100,45 @@ void main() {
 
     tearDown(() => store.dispose());
 
-    test(
-      'a pending applicant (not yet residence_admin) can upload documents '
-      'against their own application',
-      () async {
-        final response = await handler(
-          _post('/v1/developers/me/documents', {
-            'type': 'license',
-            'fileUrl': 'https://example.com/license.pdf',
-          }, token: ownerToken),
-        );
-        expect(
-          response.statusCode,
-          201,
-          reason:
-              'document upload must work before approval — approval itself '
-              'requires all 4 documents already accepted, so gating upload '
-              'on residence_admin would make approval impossible',
-        );
-      },
-    );
+    test('a pending applicant (not yet residence_admin) can upload documents '
+        'against their own application', () async {
+      final response = await handler(
+        _post('/v1/developers/me/documents', {
+          'type': 'license',
+          'fileUrl': 'https://example.com/license.pdf',
+        }, token: ownerToken),
+      );
+      expect(
+        response.statusCode,
+        201,
+        reason:
+            'document upload must work before approval — approval itself '
+            'requires all 4 documents already accepted, so gating upload '
+            'on residence_admin would make approval impossible',
+      );
+    });
 
-    test(
-      'POST /v1/developers/me/documents uploads a document, and it shows '
-      'up in GET /v1/developers/me/documents',
-      () async {
-        final response = await handler(
-          _post('/v1/developers/me/documents', {
-            'type': 'license',
-            'fileUrl': 'https://example.com/license.pdf',
-          }, token: ownerToken),
-        );
-        expect(response.statusCode, 201);
-        final json = await _decode(response);
-        expect(json['data']['type'], 'license');
-        expect(json['data']['fileUrl'], 'https://example.com/license.pdf');
-        expect(json['data']['status'], 'pending');
+    test('POST /v1/developers/me/documents uploads a document, and it shows '
+        'up in GET /v1/developers/me/documents', () async {
+      final response = await handler(
+        _post('/v1/developers/me/documents', {
+          'type': 'license',
+          'fileUrl': 'https://example.com/license.pdf',
+        }, token: ownerToken),
+      );
+      expect(response.statusCode, 201);
+      final json = await _decode(response);
+      expect(json['data']['type'], 'license');
+      expect(json['data']['fileUrl'], 'https://example.com/license.pdf');
+      expect(json['data']['status'], 'pending');
 
-        final list = await handler(
-          _get('/v1/developers/me/documents', token: ownerToken),
-        );
-        expect(list.statusCode, 200);
-        final listJson = await _decode(list);
-        expect((listJson['data'] as List).length, 1);
-      },
-    );
+      final list = await handler(
+        _get('/v1/developers/me/documents', token: ownerToken),
+      );
+      expect(list.statusCode, 200);
+      final listJson = await _decode(list);
+      expect((listJson['data'] as List).length, 1);
+    });
 
     test('POST /v1/developers/me/documents rejects an invalid type', () async {
       final response = await handler(
@@ -156,113 +150,81 @@ void main() {
       expect(response.statusCode, 422);
     });
 
-    test(
-      'GET /v1/platform/developers/:id/documents lets a moderator view a '
-      'specific developer\'s documents',
-      () async {
-        await handler(
-          _post('/v1/developers/me/documents', {
-            'type': 'license',
-            'fileUrl': 'https://example.com/license.pdf',
-          }, token: ownerToken),
-        );
-        final response = await handler(
-          _get(
-            '/v1/platform/developers/$developerId/documents',
-            token: adminToken,
-          ),
-        );
-        expect(response.statusCode, 200);
-        final json = await _decode(response);
-        expect((json['data'] as List).length, 1);
-      },
-    );
+    test('GET /v1/platform/developers/:id/documents lets a moderator view a '
+        'specific developer\'s documents', () async {
+      await handler(
+        _post('/v1/developers/me/documents', {
+          'type': 'license',
+          'fileUrl': 'https://example.com/license.pdf',
+        }, token: ownerToken),
+      );
+      final response = await handler(
+        _get(
+          '/v1/platform/developers/$developerId/documents',
+          token: adminToken,
+        ),
+      );
+      expect(response.statusCode, 200);
+      final json = await _decode(response);
+      expect((json['data'] as List).length, 1);
+    });
 
-    test(
-      'PATCH /v1/platform/documents/:id lets a moderator accept or reject, '
-      'and requires rejectReason when rejecting',
-      () async {
+    test('PATCH /v1/platform/documents/:id lets a moderator accept or reject, '
+        'and requires rejectReason when rejecting', () async {
+      final upload = await handler(
+        _post('/v1/developers/me/documents', {
+          'type': 'license',
+          'fileUrl': 'https://example.com/license.pdf',
+        }, token: ownerToken),
+      );
+      final docId = (await _decode(upload))['data']['id'] as String;
+
+      final missingReason = await handler(
+        _patch('/v1/platform/documents/$docId', {
+          'status': 'rejected',
+        }, token: adminToken),
+      );
+      expect(missingReason.statusCode, 422);
+
+      final rejected = await handler(
+        _patch('/v1/platform/documents/$docId', {
+          'status': 'rejected',
+          'rejectReason': 'Blurry scan',
+        }, token: adminToken),
+      );
+      expect(rejected.statusCode, 200);
+      final rejectedJson = await _decode(rejected);
+      expect(rejectedJson['data']['status'], 'rejected');
+      expect(rejectedJson['data']['rejectReason'], 'Blurry scan');
+
+      final accepted = await handler(
+        _patch('/v1/platform/documents/$docId', {
+          'status': 'accepted',
+        }, token: adminToken),
+      );
+      expect(accepted.statusCode, 200);
+      expect((await _decode(accepted))['data']['status'], 'accepted');
+    });
+
+    test('PATCH /v1/platform/developers/:id/approve is gated on all 4 '
+        'required document types being accepted', () async {
+      // No documents at all yet — must fail.
+      final noDocs = await handler(
+        _patch(
+          '/v1/platform/developers/$developerId/approve',
+          const {},
+          token: adminToken,
+        ),
+      );
+      expect(noDocs.statusCode, 422);
+
+      // Upload + accept 3 of the 4 required types — still must fail.
+      final threeOfFour = kRequiredDocumentTypes.take(3);
+      for (final type in threeOfFour) {
         final upload = await handler(
           _post('/v1/developers/me/documents', {
-            'type': 'license',
-            'fileUrl': 'https://example.com/license.pdf',
-          }, token: ownerToken),
-        );
-        final docId = (await _decode(upload))['data']['id'] as String;
-
-        final missingReason = await handler(
-          _patch('/v1/platform/documents/$docId', {
-            'status': 'rejected',
-          }, token: adminToken),
-        );
-        expect(missingReason.statusCode, 422);
-
-        final rejected = await handler(
-          _patch('/v1/platform/documents/$docId', {
-            'status': 'rejected',
-            'rejectReason': 'Blurry scan',
-          }, token: adminToken),
-        );
-        expect(rejected.statusCode, 200);
-        final rejectedJson = await _decode(rejected);
-        expect(rejectedJson['data']['status'], 'rejected');
-        expect(rejectedJson['data']['rejectReason'], 'Blurry scan');
-
-        final accepted = await handler(
-          _patch('/v1/platform/documents/$docId', {
-            'status': 'accepted',
-          }, token: adminToken),
-        );
-        expect(accepted.statusCode, 200);
-        expect((await _decode(accepted))['data']['status'], 'accepted');
-      },
-    );
-
-    test(
-      'PATCH /v1/platform/developers/:id/approve is gated on all 4 '
-      'required document types being accepted',
-      () async {
-        // No documents at all yet — must fail.
-        final noDocs = await handler(
-          _patch(
-            '/v1/platform/developers/$developerId/approve',
-            const {},
-            token: adminToken,
-          ),
-        );
-        expect(noDocs.statusCode, 422);
-
-        // Upload + accept 3 of the 4 required types — still must fail.
-        final threeOfFour = kRequiredDocumentTypes.take(3);
-        for (final type in threeOfFour) {
-          final upload = await handler(
-            _post('/v1/developers/me/documents', {
-              'type': type,
-              'fileUrl': 'https://example.com/$type.pdf',
-            }, token: ownerToken),
-          );
-          final docId = (await _decode(upload))['data']['id'] as String;
-          await handler(
-            _patch('/v1/platform/documents/$docId', {
-              'status': 'accepted',
-            }, token: adminToken),
-          );
-        }
-        final stillMissing = await handler(
-          _patch(
-            '/v1/platform/developers/$developerId/approve',
-            const {},
-            token: adminToken,
-          ),
-        );
-        expect(stillMissing.statusCode, 422);
-
-        // Accept the 4th required type — approval must now succeed.
-        final lastType = kRequiredDocumentTypes.last;
-        final upload = await handler(
-          _post('/v1/developers/me/documents', {
-            'type': lastType,
-            'fileUrl': 'https://example.com/$lastType.pdf',
+            'type': type,
+            'fileUrl': 'https://example.com/$type.pdf',
           }, token: ownerToken),
         );
         final docId = (await _decode(upload))['data']['id'] as String;
@@ -271,107 +233,119 @@ void main() {
             'status': 'accepted',
           }, token: adminToken),
         );
+      }
+      final stillMissing = await handler(
+        _patch(
+          '/v1/platform/developers/$developerId/approve',
+          const {},
+          token: adminToken,
+        ),
+      );
+      expect(stillMissing.statusCode, 422);
 
-        final approve = await handler(
-          _patch(
-            '/v1/platform/developers/$developerId/approve',
-            const {},
-            token: adminToken,
-          ),
-        );
-        expect(approve.statusCode, 200);
-        final approveJson = await _decode(approve);
-        expect(approveJson['data']['verificationStatus'], 'approved');
-      },
-    );
+      // Accept the 4th required type — approval must now succeed.
+      final lastType = kRequiredDocumentTypes.last;
+      final upload = await handler(
+        _post('/v1/developers/me/documents', {
+          'type': lastType,
+          'fileUrl': 'https://example.com/$lastType.pdf',
+        }, token: ownerToken),
+      );
+      final docId = (await _decode(upload))['data']['id'] as String;
+      await handler(
+        _patch('/v1/platform/documents/$docId', {
+          'status': 'accepted',
+        }, token: adminToken),
+      );
 
-    test(
-      'GET /v1/developers/:id/verification is public and reports '
-      '"missing" for required types with no uploaded document yet',
-      () async {
-        // No auth header at all — must still succeed.
-        final response = await handler(
-          _get('/v1/developers/$developerId/verification'),
-        );
-        expect(response.statusCode, 200);
-        final json = await _decode(response);
-        expect(json['data']['developerId'], developerId);
-        expect(json['data']['verificationStatus'], isNotNull);
+      final approve = await handler(
+        _patch(
+          '/v1/platform/developers/$developerId/approve',
+          const {},
+          token: adminToken,
+        ),
+      );
+      expect(approve.statusCode, 200);
+      final approveJson = await _decode(approve);
+      expect(approveJson['data']['verificationStatus'], 'approved');
+    });
 
-        final docs = (json['data']['documents'] as List)
-            .cast<Map<String, dynamic>>();
-        expect(docs.length, kRequiredDocumentTypes.length);
-        expect(
-          docs.map((d) => d['type']).toSet(),
-          kRequiredDocumentTypes,
-        );
-        for (final d in docs) {
-          expect(d['status'], 'missing');
-        }
-      },
-    );
+    test('GET /v1/developers/:id/verification is public and reports '
+        '"missing" for required types with no uploaded document yet', () async {
+      // No auth header at all — must still succeed.
+      final response = await handler(
+        _get('/v1/developers/$developerId/verification'),
+      );
+      expect(response.statusCode, 200);
+      final json = await _decode(response);
+      expect(json['data']['developerId'], developerId);
+      expect(json['data']['verificationStatus'], isNotNull);
 
-    test(
-      'GET /v1/developers/:id/verification reflects real per-document '
-      'statuses without leaking fileUrl or rejectReason',
-      () async {
-        final licenseUpload = await handler(
-          _post('/v1/developers/me/documents', {
-            'type': 'license',
-            'fileUrl': 'https://example.com/license.pdf',
-          }, token: ownerToken),
-        );
-        final licenseId = (await _decode(licenseUpload))['data']['id']
-            as String;
-        await handler(
-          _patch('/v1/platform/documents/$licenseId', {
-            'status': 'accepted',
-          }, token: adminToken),
-        );
+      final docs = (json['data']['documents'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(docs.length, kRequiredDocumentTypes.length);
+      expect(docs.map((d) => d['type']).toSet(), kRequiredDocumentTypes);
+      for (final d in docs) {
+        expect(d['status'], 'missing');
+      }
+    });
 
-        final permitUpload = await handler(
-          _post('/v1/developers/me/documents', {
-            'type': 'construction_permit',
-            'fileUrl': 'https://example.com/permit.pdf',
-          }, token: ownerToken),
-        );
-        final permitId = (await _decode(permitUpload))['data']['id']
-            as String;
-        await handler(
-          _patch('/v1/platform/documents/$permitId', {
-            'status': 'rejected',
-            'rejectReason': 'Blurry scan',
-          }, token: adminToken),
-        );
+    test('GET /v1/developers/:id/verification reflects real per-document '
+        'statuses without leaking fileUrl or rejectReason', () async {
+      final licenseUpload = await handler(
+        _post('/v1/developers/me/documents', {
+          'type': 'license',
+          'fileUrl': 'https://example.com/license.pdf',
+        }, token: ownerToken),
+      );
+      final licenseId = (await _decode(licenseUpload))['data']['id'] as String;
+      await handler(
+        _patch('/v1/platform/documents/$licenseId', {
+          'status': 'accepted',
+        }, token: adminToken),
+      );
 
-        final response = await handler(
-          _get('/v1/developers/$developerId/verification'),
-        );
-        expect(response.statusCode, 200);
-        final body = await response.readAsString();
-        // Neither the rejected file's URL nor its reject reason may leak
-        // into the public summary.
-        expect(body.contains('license.pdf'), isFalse);
-        expect(body.contains('permit.pdf'), isFalse);
-        expect(body.contains('Blurry scan'), isFalse);
-        expect(body.contains('fileUrl'), isFalse);
-        expect(body.contains('rejectReason'), isFalse);
-        expect(body.contains('uploadedBy'), isFalse);
+      final permitUpload = await handler(
+        _post('/v1/developers/me/documents', {
+          'type': 'construction_permit',
+          'fileUrl': 'https://example.com/permit.pdf',
+        }, token: ownerToken),
+      );
+      final permitId = (await _decode(permitUpload))['data']['id'] as String;
+      await handler(
+        _patch('/v1/platform/documents/$permitId', {
+          'status': 'rejected',
+          'rejectReason': 'Blurry scan',
+        }, token: adminToken),
+      );
 
-        final json = jsonDecode(body) as Map<String, dynamic>;
-        final docs = (json['data']['documents'] as List)
-            .cast<Map<String, dynamic>>();
-        final byType = {for (final d in docs) d['type'] as String: d};
-        expect(byType['license']?['status'], 'accepted');
-        expect(byType['construction_permit']?['status'], 'rejected');
-        expect(byType['land_rights']?['status'], 'missing');
-        expect(byType['project_declaration']?['status'], 'missing');
-        expect(byType.length, 4);
-        for (final d in docs) {
-          expect(d.keys.toSet(), {'type', 'status'});
-        }
-      },
-    );
+      final response = await handler(
+        _get('/v1/developers/$developerId/verification'),
+      );
+      expect(response.statusCode, 200);
+      final body = await response.readAsString();
+      // Neither the rejected file's URL nor its reject reason may leak
+      // into the public summary.
+      expect(body.contains('license.pdf'), isFalse);
+      expect(body.contains('permit.pdf'), isFalse);
+      expect(body.contains('Blurry scan'), isFalse);
+      expect(body.contains('fileUrl'), isFalse);
+      expect(body.contains('rejectReason'), isFalse);
+      expect(body.contains('uploadedBy'), isFalse);
+
+      final json = jsonDecode(body) as Map<String, dynamic>;
+      final docs = (json['data']['documents'] as List)
+          .cast<Map<String, dynamic>>();
+      final byType = {for (final d in docs) d['type'] as String: d};
+      expect(byType['license']?['status'], 'accepted');
+      expect(byType['construction_permit']?['status'], 'rejected');
+      expect(byType['land_rights']?['status'], 'missing');
+      expect(byType['project_declaration']?['status'], 'missing');
+      expect(byType.length, 4);
+      for (final d in docs) {
+        expect(d.keys.toSet(), {'type', 'status'});
+      }
+    });
   });
 
   group('Photo Reports API', () {
@@ -468,10 +442,11 @@ void main() {
         final json = await _decode(response);
         final items = (json['data'] as List).cast<Map<String, dynamic>>();
         expect(items.length, 3);
-        expect(
-          items.map((r) => r['takenAt']),
-          ['2026-03-01', '2026-02-01', '2026-01-01'],
-        );
+        expect(items.map((r) => r['takenAt']), [
+          '2026-03-01',
+          '2026-02-01',
+          '2026-01-01',
+        ]);
       },
     );
 
@@ -509,48 +484,104 @@ void main() {
       },
     );
 
-    test(
-      'a report leaving the project within 15 points of its own schedule '
-      'raises no alert',
-      () async {
-        store.updateProject(projectId, {'plannedProgress': 50});
-        await handler(
-          _post('/v1/admin/projects/$projectId/photo-reports', {
-            'url': 'https://example.com/frame.jpg',
-            'progressPercent': 36,
-          }, token: ownerToken),
-        );
-        expect(
-          store.adminNotifications().where(
-            (n) => n['type'] == 'progress_deviation',
-          ),
-          isEmpty,
-          reason:
-              'a 14-point gap is routine site variance — escalating it would '
-              'bury the alerts that do warrant an inspector',
-        );
-      },
-    );
+    test('a report leaving the project within 15 points of its own schedule '
+        'raises no alert', () async {
+      store.updateProject(projectId, {'plannedProgress': 50});
+      await handler(
+        _post('/v1/admin/projects/$projectId/photo-reports', {
+          'url': 'https://example.com/frame.jpg',
+          'progressPercent': 36,
+        }, token: ownerToken),
+      );
+      expect(
+        store.adminNotifications().where(
+          (n) => n['type'] == 'progress_deviation',
+        ),
+        isEmpty,
+        reason:
+            'a 14-point gap is routine site variance — escalating it would '
+            'bury the alerts that do warrant an inspector',
+      );
+    });
+
+    test('a report putting the project more than 15 points behind its own '
+        'schedule raises a critical alert for the platform admin', () async {
+      store.updateProject(projectId, {'plannedProgress': 50});
+      await handler(
+        _post('/v1/admin/projects/$projectId/photo-reports', {
+          'url': 'https://example.com/pit.jpg',
+          'progressPercent': 20,
+        }, token: ownerToken),
+      );
+      final alerts = store
+          .adminNotifications()
+          .where((n) => n['type'] == 'progress_deviation')
+          .toList();
+      expect(alerts.length, 1);
+      expect(alerts.single['severity'], 'critical');
+      expect(alerts.single['projectId'], projectId);
+      expect(alerts.single['body'], contains('30%'));
+    });
 
     test(
-      'a report putting the project more than 15 points behind its own '
-      'schedule raises a critical alert for the platform admin',
+      'GET /v1/projects/:id/photo-reports hides sensitive verification '
+      'fields from a non-admin caller but keeps them for an admin one',
       () async {
-        store.updateProject(projectId, {'plannedProgress': 50});
-        await handler(
+        final upload = await handler(
           _post('/v1/admin/projects/$projectId/photo-reports', {
-            'url': 'https://example.com/pit.jpg',
-            'progressPercent': 20,
+            'url': 'https://example.com/facade.jpg',
           }, token: ownerToken),
         );
-        final alerts = store
-            .adminNotifications()
-            .where((n) => n['type'] == 'progress_deviation')
-            .toList();
-        expect(alerts.length, 1);
-        expect(alerts.single['severity'], 'critical');
-        expect(alerts.single['projectId'], projectId);
-        expect(alerts.single['body'], contains('30%'));
+        final reportId = (await _decode(upload))['data']['id'] as String;
+
+        // The upload above went through the JSON path with an external URL
+        // (no local bytes), so the readiness engine never ran — inject
+        // verification fields directly to exercise the serializer as if it
+        // had.
+        final report = store.photoReports.firstWhere(
+          (r) => r['id'] == reportId,
+        );
+        report['phash'] = 'abc123abc123abc1';
+        report['verificationStatus'] = 'confirmed';
+        report['verificationConfidence'] = 82;
+        report['verification'] = {'overall_status': 'confirmed'};
+        report['exifLat'] = 41.31;
+        report['exifLng'] = 69.28;
+        report['exifTakenAt'] = '2026-01-15T10:00:00.000Z';
+        report['detectedStage'] = 'facade';
+
+        // The public route only exposes reports for a visible project;
+        // `createProjectForOwner` starts a project as an unpublished draft.
+        final project = store.projectById(projectId)!;
+        project['isPublished'] = true;
+        project['moderationStatus'] = 'approved';
+
+        final anonResponse = await handler(
+          _get('/v1/projects/$projectId/photo-reports'),
+        );
+        expect(anonResponse.statusCode, 200);
+        final anonBody = await anonResponse.readAsString();
+        expect(anonBody.contains('phash'), isFalse);
+        expect(anonBody.contains('exifLat'), isFalse);
+        expect(anonBody.contains('exifLng'), isFalse);
+        expect(anonBody.contains('exifTakenAt'), isFalse);
+        expect(anonBody.contains('overall_status'), isFalse);
+        final anonJson = jsonDecode(anonBody) as Map<String, dynamic>;
+        final anonItem =
+            (anonJson['data'] as List).first as Map<String, dynamic>;
+        expect(anonItem['verificationStatus'], 'confirmed');
+        expect(anonItem['detectedStage'], 'facade');
+        expect(anonItem['verificationConfidence'], 80); // rounded coarse
+
+        final adminResponse = await handler(
+          _get('/v1/projects/$projectId/photo-reports', token: ownerToken),
+        );
+        final adminJson = await _decode(adminResponse);
+        final adminItem =
+            (adminJson['data'] as List).first as Map<String, dynamic>;
+        expect(adminItem['phash'], 'abc123abc123abc1');
+        expect(adminItem['exifLat'], 41.31);
+        expect(adminItem['verification'], {'overall_status': 'confirmed'});
       },
     );
 

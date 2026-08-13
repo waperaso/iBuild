@@ -65,74 +65,87 @@ void main() {
 
     tearDown(() => store.dispose());
 
-    test('approve moves project to published list with developer name', () async {
-      final ownerToken = await _signIn(handler, '+998907009999');
-      final ownerMe = await handler(_get('/v1/users/me', token: ownerToken));
-      final ownerJson = await _decode(ownerMe);
-      final ownerUserId = ownerJson['data']['id'] as String;
+    test(
+      'approve moves project to published list with developer name',
+      () async {
+        final ownerToken = await _signIn(handler, '+998907009999');
+        final ownerMe = await handler(_get('/v1/users/me', token: ownerToken));
+        final ownerJson = await _decode(ownerMe);
+        final ownerUserId = ownerJson['data']['id'] as String;
 
-      final developer = store.registerDeveloper(
-        ownerUserId: ownerUserId,
-        name: 'Pipeline Builder',
-        legalName: 'OOO Pipeline Builder',
-        inn: '301234599',
-        phone: '+998907009999',
-        accountKind: 'property_developer',
-        legalForm: 'ooo',
-        legalAddress: 'Tashkent',
-        directorFullName: 'Director',
-        directorPinfl: '30101123456799',
-        uboDeclared: true,
-      );
-      store.submitDeveloperForReview(ownerUserId);
-      store.setDeveloperVerification(developer['id'] as String, 'approved');
+        final developer = store.registerDeveloper(
+          ownerUserId: ownerUserId,
+          name: 'Pipeline Builder',
+          legalName: 'OOO Pipeline Builder',
+          inn: '301234599',
+          phone: '+998907009999',
+          accountKind: 'property_developer',
+          legalForm: 'ooo',
+          legalAddress: 'Tashkent',
+          directorFullName: 'Director',
+          directorPinfl: '30101123456799',
+          uboDeclared: true,
+        );
+        store.submitDeveloperForReview(ownerUserId);
+        store.setDeveloperVerification(developer['id'] as String, 'approved');
 
-      final created = store.createProjectForOwner(
-        ownerUserId: ownerUserId,
-        input: {'name': 'Pipeline Towers', 'district': 'Yunusabad'},
-      );
-      expect(created, isNotNull);
-      final projectId = created!['id'] as String;
+        final created = store.createProjectForOwner(
+          ownerUserId: ownerUserId,
+          input: {'name': 'Pipeline Towers', 'district': 'Yunusabad'},
+        );
+        expect(created, isNotNull);
+        final projectId = created!['id'] as String;
 
-      store.submitProjectForReview(projectId);
-      expect(store.pendingProjects().map((p) => p['id']), contains(projectId));
-      expect(store.publishedProjects.map((p) => p['id']), isNot(contains(projectId)));
+        store.submitProjectForReview(projectId);
+        expect(
+          store.pendingProjects().map((p) => p['id']),
+          contains(projectId),
+        );
+        expect(
+          store.publishedProjects.map((p) => p['id']),
+          isNot(contains(projectId)),
+        );
 
-      final moderate = await handler(
-        _patch('/v1/platform/projects/$projectId/moderate', {
-          'decision': 'approve',
-        }, token: adminToken),
-      );
-      expect(moderate.statusCode, 200);
-      final moderateJson = await _decode(moderate);
-      expect(moderateJson['data']['moderationStatus'], 'approved');
-      expect(moderateJson['data']['isPublished'], isTrue);
-      expect(
-        (moderateJson['data']['developer'] as Map)['name'],
-        'Pipeline Builder',
-      );
+        final moderate = await handler(
+          _patch('/v1/platform/projects/$projectId/moderate', {
+            'decision': 'approve',
+          }, token: adminToken),
+        );
+        expect(moderate.statusCode, 200);
+        final moderateJson = await _decode(moderate);
+        expect(moderateJson['data']['moderationStatus'], 'approved');
+        expect(moderateJson['data']['isPublished'], isTrue);
+        expect(
+          (moderateJson['data']['developer'] as Map)['name'],
+          'Pipeline Builder',
+        );
 
-      final published = await handler(
-        _get('/v1/platform/projects/published', token: adminToken),
-      );
-      final publishedJson = await _decode(published);
-      final items = (publishedJson['data'] as List).cast<Map<String, dynamic>>();
-      expect(items.map((p) => p['id']), contains(projectId));
-      final row = items.firstWhere((p) => p['id'] == projectId);
-      expect(row['isPublished'], isTrue);
-      expect((row['developer'] as Map)['name'], 'Pipeline Builder');
+        final published = await handler(
+          _get('/v1/platform/projects/published', token: adminToken),
+        );
+        final publishedJson = await _decode(published);
+        final items = (publishedJson['data'] as List)
+            .cast<Map<String, dynamic>>();
+        expect(items.map((p) => p['id']), contains(projectId));
+        final row = items.firstWhere((p) => p['id'] == projectId);
+        expect(row['isPublished'], isTrue);
+        expect((row['developer'] as Map)['name'], 'Pipeline Builder');
 
-      final ownerProjects = await handler(
-        _get('/v1/developers/me/projects', token: ownerToken),
-      );
-      expect(ownerProjects.statusCode, 200);
-      final ownerProjectsJson = await _decode(ownerProjects);
-      final ownerItems =
-          (ownerProjectsJson['data'] as List).cast<Map<String, dynamic>>();
-      expect(ownerItems, isNotEmpty);
-      expect(ownerItems.first['isPublished'], isTrue);
-      expect((ownerItems.first['developer'] as Map)['name'], 'Pipeline Builder');
-    });
+        final ownerProjects = await handler(
+          _get('/v1/developers/me/projects', token: ownerToken),
+        );
+        expect(ownerProjects.statusCode, 200);
+        final ownerProjectsJson = await _decode(ownerProjects);
+        final ownerItems = (ownerProjectsJson['data'] as List)
+            .cast<Map<String, dynamic>>();
+        expect(ownerItems, isNotEmpty);
+        expect(ownerItems.first['isPublished'], isTrue);
+        expect(
+          (ownerItems.first['developer'] as Map)['name'],
+          'Pipeline Builder',
+        );
+      },
+    );
 
     test('owner can unpublish, republish, and delete own project', () async {
       final ownerToken = await _signIn(handler, '+998907007777');
@@ -228,7 +241,10 @@ void main() {
         final projectId = created!['id'] as String;
         expect(created['priceMin'], isNull);
 
-        final building = store.addBuilding(projectId, {'name': 'A', 'floors': 5});
+        final building = store.addBuilding(projectId, {
+          'name': 'A',
+          'floors': 5,
+        });
         final unit = store.addUnit(projectId, {
           'buildingId': building['id'],
           'number': '101',
@@ -283,7 +299,11 @@ void main() {
       );
       expect(project, isNotNull);
 
-      store.setDeveloperVerification(originalId, 'rejected', rejectionReason: 'fix');
+      store.setDeveloperVerification(
+        originalId,
+        'rejected',
+        rejectionReason: 'fix',
+      );
       final updated = store.registerDeveloper(
         ownerUserId: 'usr-resubmit',
         name: 'Updated Name',

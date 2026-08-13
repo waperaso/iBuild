@@ -75,6 +75,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Demo mode is view-only — this action was not saved.';
 
   @override
+  String get phoneHidden => 'Hidden';
+
+  @override
   String get otpTitle => 'Enter code';
 
   @override
@@ -1686,6 +1689,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get projectPhotoReportDateLabel => 'Date taken';
 
   @override
+  String get projectPhotoReportDeclaredStageLabel =>
+      'Declared construction stage';
+
+  @override
   String get projectPhotoReportProgressLabel =>
       'Construction progress % (optional)';
 
@@ -1886,6 +1893,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get crmEdit => 'Edit';
 
   @override
+  String get crmAiAssistant => 'AI assistant';
+
+  @override
+  String get crmAiInsightsTitle => 'AI insights';
+
+  @override
+  String get crmAiInsightsExpand => 'Show AI insights';
+
+  @override
+  String get crmAiInsightsCollapse => 'Hide AI insights';
+
+  @override
+  String get crmBandFilterLabel => 'AI score';
+
+  @override
+  String get crmBandFilterAll => 'All';
+
+  @override
+  String get crmBandFilterHot => 'Hot';
+
+  @override
+  String get crmBandFilterWarm => 'Warm';
+
+  @override
+  String get crmBandFilterCold => 'Cold';
+
+  @override
   String crmAssignedTo(String name) {
     return 'Assigned to $name';
   }
@@ -2016,4 +2050,886 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get supportTicketsSubtitle =>
       'Reach the platform team — billing, moderation, or a technical issue.';
+
+  @override
+  String get aiCrmPanelTitle => 'Needs attention today';
+
+  @override
+  String get aiCrmPanelSubtitle =>
+      'AI-ranked leads by urgency, with the reasons behind each score.';
+
+  @override
+  String get aiCrmOpenBot => 'Open assistant';
+
+  @override
+  String get aiCrmEmpty => 'No hot leads right now';
+
+  @override
+  String get aiCrmUnavailable =>
+      'The AI assistant isn\'t available right now. Try again later.';
+
+  @override
+  String get aiMetricLeadVolume => 'Leads today / plan';
+
+  @override
+  String get aiMetricHotLeads => 'Hot leads';
+
+  @override
+  String get aiMetricPerManagerAvg => 'Avg. per manager';
+
+  @override
+  String get aiMetricResponseSla => 'Median response, min';
+
+  @override
+  String get aiMetricSlaBreaches => 'SLA breaches';
+
+  @override
+  String get aiMetricFunnelWon => 'Won';
+
+  @override
+  String get aiMetricConversion => 'Conversion';
+
+  @override
+  String get aiMetricMinutesSuffix => 'min';
+
+  @override
+  String get aiReasonHighIntent => 'High intent';
+
+  @override
+  String get aiReasonViewingRequested => 'Viewing requested';
+
+  @override
+  String get aiReasonSpecificUnit => 'Asked about a specific unit';
+
+  @override
+  String get aiReasonPreferredTimeSet => 'Preferred contact time set';
+
+  @override
+  String get aiReasonLongMessage => 'Detailed message';
+
+  @override
+  String get aiReasonMortgageInterest => 'Mortgage interest';
+
+  @override
+  String get aiReasonCashBuyer => 'Cash buyer';
+
+  @override
+  String get aiReasonUrgentKeyword => 'Urgent wording';
+
+  @override
+  String get aiReasonRepeatContact => 'Repeat contact';
+
+  @override
+  String get aiReasonRecentActivity => 'Recent activity';
+
+  @override
+  String get aiReasonNoResponse24h => 'No response in 24h';
+
+  @override
+  String get aiReasonNoResponse3d => 'No response in 3 days';
+
+  @override
+  String get aiReasonSlaBreach => 'SLA breached';
+
+  @override
+  String get aiReasonFunnelAdvanced => 'Advanced in funnel';
+
+  @override
+  String get aiReasonStalled => 'Stalled';
+
+  @override
+  String get aiReasonHotProject => 'In-demand project';
+
+  @override
+  String get aiReasonUnitScarcity => 'Few units left';
+
+  @override
+  String get aiReasonOffplanInterest => 'Off-plan interest';
+
+  @override
+  String get aiReasonRentIntent => 'Looking to rent';
+
+  @override
+  String get aiReasonLowSpecificity => 'Low specificity';
+
+  @override
+  String get crmBotTitle => 'AI assistant';
+
+  @override
+  String get crmBotBack => 'Back';
+
+  @override
+  String get crmBotActionOpenLead => 'Open lead';
+
+  @override
+  String get crmBotActionAssignToMe => 'Assign to me';
+
+  @override
+  String get crmBotActionMarkContacted => 'Mark contacted';
+
+  @override
+  String crmBotProjectMeta(int hot, int open, int units) {
+    return '$hot hot · $open open · $units units available';
+  }
+
+  @override
+  String get crmBotMessageRoot => 'What would you like to see?';
+
+  @override
+  String crmBotMessageHotLeads(int count) {
+    return '$count hot leads need attention today.';
+  }
+
+  @override
+  String get crmBotMessageByProject =>
+      'Pick a residence to drill into its leads.';
+
+  @override
+  String get crmBotMessageByImportance => 'Leads ranked by importance.';
+
+  @override
+  String get crmBotMessageTodaySummary => 'Here\'s today\'s summary.';
+
+  @override
+  String get crmBotMessageWhatNext => 'Here\'s what to do next.';
+
+  @override
+  String get crmBotMessageProjectMenu =>
+      'Choose what to check for this project.';
+
+  @override
+  String crmBotMessageProjectHot(int count) {
+    return '$count hot leads on this project.';
+  }
+
+  @override
+  String crmBotMessageProjectNoResponse48h(int count) {
+    return '$count leads with no response in 48h.';
+  }
+
+  @override
+  String crmBotMessageProjectNewToday(int count) {
+    return '$count new leads today.';
+  }
+
+  @override
+  String get crmBotMessageProjectFunnel =>
+      'Here\'s the funnel for this project.';
+
+  @override
+  String get crmBotMessageGeneric => 'Here\'s what I found.';
+
+  @override
+  String crmBotMessageNeedsResponse(int count) {
+    return '$count leads are still waiting for a first reply.';
+  }
+
+  @override
+  String crmBotMessageUnassigned(int count) {
+    return '$count open leads have no owner yet.';
+  }
+
+  @override
+  String crmBotMessageByManager(int count) {
+    return 'Workload across $count managers.';
+  }
+
+  @override
+  String crmBotMessageManagerLeads(String name, int count) {
+    return '$name has $count open leads.';
+  }
+
+  @override
+  String get crmBotMessageAnalytics => 'Which report should I pull?';
+
+  @override
+  String crmBotMessageWeekSummary(int count) {
+    return '$count leads came in over the last 7 days.';
+  }
+
+  @override
+  String get crmBotMessageConversion =>
+      'Stage-to-stage conversion across the funnel.';
+
+  @override
+  String crmBotMessageDemand(int count) {
+    return 'Room mix behind $count leads that named a home.';
+  }
+
+  @override
+  String crmBotMessageProjectDemand(String name) {
+    return 'Demand and availability in $name.';
+  }
+
+  @override
+  String get crmBotMessageExample =>
+      'No live leads here yet — this is how the answer looks once they start coming in.';
+
+  @override
+  String get crmBotOptionHotLeads => 'Hot leads';
+
+  @override
+  String get crmBotOptionByProject => 'By project';
+
+  @override
+  String get crmBotOptionByImportance => 'By importance';
+
+  @override
+  String get crmBotOptionTodaySummary => 'Today\'s summary';
+
+  @override
+  String get crmBotOptionWhatNext => 'What to do next';
+
+  @override
+  String get crmBotOptionProjectHot => 'Hot leads';
+
+  @override
+  String get crmBotOptionProjectNoResponse48h => 'No response in 48h';
+
+  @override
+  String get crmBotOptionProjectNewToday => 'New today';
+
+  @override
+  String get crmBotOptionProjectFunnel => 'Funnel';
+
+  @override
+  String get crmBotOptionBackToRoot => 'Back to start';
+
+  @override
+  String get crmBotOptionBackToProjects => 'Back to residences';
+
+  @override
+  String get crmBotOptionBackToProjectMenu => 'Back to residence menu';
+
+  @override
+  String get crmBotOptionNeedsResponse => 'Waiting for a reply';
+
+  @override
+  String get crmBotOptionUnassigned => 'Without an owner';
+
+  @override
+  String get crmBotOptionByManager => 'By manager';
+
+  @override
+  String get crmBotOptionAnalytics => 'Analytics';
+
+  @override
+  String get crmBotOptionWeekSummary => 'This week';
+
+  @override
+  String get crmBotOptionConversion => 'Conversion';
+
+  @override
+  String get crmBotOptionDemand => 'What buyers ask for';
+
+  @override
+  String get crmBotOptionProjectDemand => 'Demand vs availability';
+
+  @override
+  String get crmBotOptionBackToAnalytics => 'Back to analytics';
+
+  @override
+  String get crmBotOptionBackToManagers => 'Back to managers';
+
+  @override
+  String get crmBotNodeRoot => 'Assistant';
+
+  @override
+  String get crmBotNodeHotLeads => 'Hot leads';
+
+  @override
+  String get crmBotNodeByProject => 'By project';
+
+  @override
+  String get crmBotNodeByImportance => 'By importance';
+
+  @override
+  String get crmBotNodeTodaySummary => 'Today';
+
+  @override
+  String get crmBotNodeWhatNext => 'Next steps';
+
+  @override
+  String get crmBotNodeProjectMenu => 'Project';
+
+  @override
+  String get crmBotNodeProjectHot => 'Hot';
+
+  @override
+  String get crmBotNodeProjectNoResponse48h => 'No response 48h';
+
+  @override
+  String get crmBotNodeProjectNewToday => 'New today';
+
+  @override
+  String get crmBotNodeProjectFunnel => 'Funnel';
+
+  @override
+  String get crmBotNodeNeedsResponse => 'Waiting';
+
+  @override
+  String get crmBotNodeUnassigned => 'Without an owner';
+
+  @override
+  String get crmBotNodeByManager => 'Managers';
+
+  @override
+  String get crmBotNodeManagerLeads => 'Manager';
+
+  @override
+  String get crmBotNodeAnalytics => 'Analytics';
+
+  @override
+  String get crmBotNodeWeekSummary => 'This week';
+
+  @override
+  String get crmBotNodeConversion => 'Conversion';
+
+  @override
+  String get crmBotNodeDemand => 'Demand';
+
+  @override
+  String get crmBotNodeProjectDemand => 'Demand';
+
+  @override
+  String get crmBotMetricLeadsToday => 'Leads today';
+
+  @override
+  String get crmBotMetricHotLeads => 'Hot leads';
+
+  @override
+  String get crmBotMetricLeadVolume => 'Lead volume';
+
+  @override
+  String get crmBotMetricByBand => 'By score band';
+
+  @override
+  String get crmBotMetricResponseSla => 'Response SLA';
+
+  @override
+  String get crmBotMetricFunnel => 'Funnel';
+
+  @override
+  String get crmBotMetricConversion => 'Conversion';
+
+  @override
+  String get crmBotMetricGeneric => 'Metric';
+
+  @override
+  String get crmBotMetricLeadsWeek => 'Leads this week';
+
+  @override
+  String get crmBotMetricLeadsPrevWeek => 'Week before';
+
+  @override
+  String get crmBotMetricWonWeek => 'Won this week';
+
+  @override
+  String get crmBotMetricSlaBreached => 'SLA breaches';
+
+  @override
+  String crmBotMetricConversionStep(String from, String to) {
+    return '$from → $to';
+  }
+
+  @override
+  String crmBotMetricDemandRooms(int rooms) {
+    return '$rooms-room requests';
+  }
+
+  @override
+  String crmBotMetricAvailableRooms(int rooms) {
+    return '$rooms-room available';
+  }
+
+  @override
+  String get crmBotSubtitle => 'Leads, projects and team workload';
+
+  @override
+  String get crmBotExampleBadge => 'Example';
+
+  @override
+  String get crmBotRetry => 'Try again';
+
+  @override
+  String get crmBotEmptyCards => 'Nothing matches this question right now.';
+
+  @override
+  String crmBotManagerMeta(int open, int hot) {
+    return '$open open · $hot hot';
+  }
+
+  @override
+  String crmBotManagerAvgResponse(String minutes) {
+    return 'Avg reply $minutes min';
+  }
+
+  @override
+  String get b2bAiChatFabTooltip => 'Ask iBuild AI';
+
+  @override
+  String get b2bAiChatFabLabel => 'AI';
+
+  @override
+  String get b2bAiChatTitle => 'iBuild AI';
+
+  @override
+  String get b2bAiChatSubtitle => 'Ask about projects, leads and analytics';
+
+  @override
+  String b2bAiChatQuotaRemaining(int remaining, int limit) {
+    return '$remaining of $limit left today';
+  }
+
+  @override
+  String b2bAiChatQuotaResetLabel(String time) {
+    return 'Resets $time';
+  }
+
+  @override
+  String get b2bAiChatErrorSnackbar =>
+      'Couldn\'t get a reply. Please try again.';
+
+  @override
+  String get b2bAiChatQuotaExhaustedTitle => 'Daily limit reached';
+
+  @override
+  String get b2bAiChatQuotaExhaustedBody =>
+      'You\'ve used today\'s AI chat messages. Please come back tomorrow.';
+
+  @override
+  String get b2bAiChatUnavailableTitle => 'AI assistant is taking a break';
+
+  @override
+  String get b2bAiChatUnavailableBody =>
+      'The assistant is temporarily unavailable. Please try again later.';
+
+  @override
+  String get b2bAiChatForbiddenTitle => 'Not available for this account';
+
+  @override
+  String get b2bAiChatForbiddenBody =>
+      'AI chat is available to admin accounts only.';
+
+  @override
+  String get b2bAiChatEmptyTitle => 'Ask the AI assistant anything';
+
+  @override
+  String get b2bAiChatEmptyBody =>
+      'Free-form questions about your projects, leads and analytics — try one of the prompts below.';
+
+  @override
+  String get b2bAiChatInputHint => 'Message the AI assistant...';
+
+  @override
+  String get b2bAiChatSendTooltip => 'Send';
+
+  @override
+  String get b2bAiChatQuickPromptsLabel => 'Quick prompts';
+
+  @override
+  String get b2bAiChatQuickSystemSummary => 'Summary across all projects';
+
+  @override
+  String get b2bAiChatQuickSystemOverdue => 'Where are lead responses overdue?';
+
+  @override
+  String get b2bAiChatQuickSystemAttention => 'Which projects need attention?';
+
+  @override
+  String get b2bAiChatQuickResidenceSummary => 'Summary of my project';
+
+  @override
+  String get b2bAiChatQuickResidenceHotLeads => 'Show me hot leads';
+
+  @override
+  String get b2bAiChatQuickResidenceWeekChanges => 'What changed this week?';
+
+  @override
+  String get readinessStageEarthworks => 'Earthworks';
+
+  @override
+  String get readinessStageFoundation => 'Foundation';
+
+  @override
+  String get readinessStageFrameFloors => 'Frame & floors';
+
+  @override
+  String get readinessStageRoofing => 'Roofing';
+
+  @override
+  String get readinessStageFacade => 'Facade';
+
+  @override
+  String get readinessStageUtilities => 'Utilities';
+
+  @override
+  String get readinessStageInteriorFinishing => 'Interior finishing';
+
+  @override
+  String get readinessStageLandscaping => 'Landscaping';
+
+  @override
+  String get readinessStatusConfirmed => 'Confirmed';
+
+  @override
+  String get readinessStatusRequiresManualReview => 'Needs manual review';
+
+  @override
+  String get readinessStatusDiscrepancyFound => 'Discrepancy found';
+
+  @override
+  String get readinessStatusViolationFound => 'Violation found';
+
+  @override
+  String get readinessCheckDialogTitle => 'AI construction readiness check';
+
+  @override
+  String get readinessAnalyzing => 'Checking the photo with AI…';
+
+  @override
+  String readinessConfidenceLabel(int percent) {
+    return 'Confidence: $percent%';
+  }
+
+  @override
+  String get readinessUnavailableTitle => 'AI check unavailable';
+
+  @override
+  String get readinessUnavailableMessage =>
+      'The readiness check couldn\'t run right now. You can proceed without it — the report will upload as usual.';
+
+  @override
+  String get readinessProceedWithoutCheck => 'Proceed without check';
+
+  @override
+  String get readinessAckAndUpload => 'Understood, upload';
+
+  @override
+  String get readinessConfirmedProceeding => 'Confirmed — uploading…';
+
+  @override
+  String get readinessReshoot => 'Retake photo';
+
+  @override
+  String get readinessOverrideUpload => 'Upload anyway';
+
+  @override
+  String get readinessOverrideCommentLabel =>
+      'Explain why you\'re uploading anyway';
+
+  @override
+  String get readinessOverrideCommentHint =>
+      'Required — describe the discrepancy the AI flagged';
+
+  @override
+  String get readinessDigestTitle => 'AI consultant on objects';
+
+  @override
+  String get readinessDigestEmpty => 'No AI-verified reports yet.';
+
+  @override
+  String readinessDigestTrend(int confirmed, int total) {
+    return '$confirmed of the last $total reports confirmed';
+  }
+
+  @override
+  String get readinessDigestOutstandingTitle => 'Needs attention';
+
+  @override
+  String get verifStage1Ok => 'Image passed validity checks.';
+
+  @override
+  String get verifStage1ImageUnreadable =>
+      'The image couldn\'t be read or decoded.';
+
+  @override
+  String verifStage1LowQuality(Object blur, Object exposure) {
+    return 'Image quality too low (blur $blur, exposure $exposure).';
+  }
+
+  @override
+  String get verifStage1MetadataMissing => 'Photo metadata is missing.';
+
+  @override
+  String get verifStage1GeotagMissing => 'Photo has no location tag.';
+
+  @override
+  String verifStage1GeotagFarFromObject(Object distanceKm, Object radiusKm) {
+    return 'Photo location is $distanceKm km from the site (allowed radius $radiusKm km).';
+  }
+
+  @override
+  String verifStage1DateInFuture(String takenAt) {
+    return 'Photo date ($takenAt) is in the future.';
+  }
+
+  @override
+  String verifStage1DateOutsideWindow(String takenAt, int windowDays) {
+    return 'Photo date ($takenAt) is outside the $windowDays-day window.';
+  }
+
+  @override
+  String get verifInsufficientData => 'Not enough data to complete this check.';
+
+  @override
+  String verifStage1EvidenceDecoded(int width, int height, int bytes) {
+    return 'Decoded $width×${height}px, $bytes bytes.';
+  }
+
+  @override
+  String verifStage1EvidenceExifDate(String takenAt) {
+    return 'EXIF date: $takenAt.';
+  }
+
+  @override
+  String get verifStage1EvidenceNoExif => 'No EXIF data found.';
+
+  @override
+  String verifStage1EvidenceGeoDistance(Object distanceKm, Object radiusKm) {
+    return 'Distance to site: $distanceKm km (radius $radiusKm km).';
+  }
+
+  @override
+  String verifStage1EvidenceSharpness(Object blur, Object threshold) {
+    return 'Sharpness score $blur (threshold $threshold).';
+  }
+
+  @override
+  String get verifStage2Ok => 'No duplicate of a previous report found.';
+
+  @override
+  String get verifStage2NoPriorReports =>
+      'No previous reports to compare against.';
+
+  @override
+  String verifStage2NearDuplicate(
+    Object distance,
+    String reportId,
+    String takenAt,
+  ) {
+    return 'Very similar to report $reportId from $takenAt (distance $distance).';
+  }
+
+  @override
+  String verifStage2DuplicateFound(
+    Object distance,
+    String reportId,
+    String takenAt,
+  ) {
+    return 'Duplicate of report $reportId from $takenAt (distance $distance).';
+  }
+
+  @override
+  String verifStage2EvidenceComparedCount(int count) {
+    return 'Compared against $count previous photos.';
+  }
+
+  @override
+  String verifStage2EvidenceHammingDistance(
+    Object distance,
+    Object threshold,
+    String reportId,
+  ) {
+    return 'Hamming distance $distance vs threshold $threshold (report $reportId).';
+  }
+
+  @override
+  String verifStage3Ok(String stage, Object confidence) {
+    return 'Classified as $stage ($confidence confidence).';
+  }
+
+  @override
+  String verifStage3NotConstructionSite(Object confidence) {
+    return 'Doesn\'t look like a construction site ($confidence confidence).';
+  }
+
+  @override
+  String verifStage3StageUnclear(Object confidence) {
+    return 'Construction stage unclear ($confidence confidence).';
+  }
+
+  @override
+  String verifStage3EvidenceClassified(String stage, Object confidence) {
+    return 'Detected stage: $stage ($confidence).';
+  }
+
+  @override
+  String verifStage3EvidenceFeatures(
+    Object skyRatio,
+    Object soilRatio,
+    Object concreteRatio,
+    Object vegetationRatio,
+    Object verticalEdgeDensity,
+    Object openingPeriodicity,
+  ) {
+    return 'Sky $skyRatio, soil $soilRatio, concrete $concreteRatio, vegetation $vegetationRatio, edges $verticalEdgeDensity, openings $openingPeriodicity.';
+  }
+
+  @override
+  String verifStage4Ok(String declaredStage) {
+    return 'Matches the declared stage ($declaredStage).';
+  }
+
+  @override
+  String get verifStage4NoDeclaredStage => 'No declared stage was provided.';
+
+  @override
+  String verifStage4AdjacentStageMismatch(
+    String declaredStage,
+    String detectedStage,
+  ) {
+    return 'Declared $declaredStage, but looks like the adjacent stage $detectedStage.';
+  }
+
+  @override
+  String verifStage4StageMismatch(
+    String declaredStage,
+    String detectedStage,
+    Object distance,
+  ) {
+    return 'Declared $declaredStage, but detected $detectedStage (distance $distance).';
+  }
+
+  @override
+  String verifStage4EvidenceComparison(
+    String declaredStage,
+    String detectedStage,
+    int ordinalDistance,
+  ) {
+    return 'Declared $declaredStage vs detected $detectedStage ($ordinalDistance stages apart).';
+  }
+
+  @override
+  String verifStage5Ok(String previousTakenAt) {
+    return 'Progress since the previous report ($previousTakenAt) looks consistent.';
+  }
+
+  @override
+  String get verifStage5NoPreviousReport =>
+      'No previous report to compare progress against.';
+
+  @override
+  String verifStage5NoVisibleProgress(Object distance, String previousTakenAt) {
+    return 'No visible progress since $previousTakenAt (distance $distance).';
+  }
+
+  @override
+  String verifStage5RegressionDetected(
+    String previousStage,
+    String detectedStage,
+  ) {
+    return 'Looks like a regression: was $previousStage, now $detectedStage.';
+  }
+
+  @override
+  String get verifStage5ProgressNotDeclared =>
+      'Progress changed but wasn\'t declared.';
+
+  @override
+  String verifStage5EvidenceSimilarity(
+    Object distance,
+    Object threshold,
+    String previousReportId,
+    String previousTakenAt,
+  ) {
+    return 'Similarity $distance vs threshold $threshold (report $previousReportId, $previousTakenAt).';
+  }
+
+  @override
+  String verifStage5EvidenceProgressDelta(
+    Object previousPercent,
+    Object currentPercent,
+  ) {
+    return 'Progress $previousPercent% → $currentPercent%.';
+  }
+
+  @override
+  String get verifStage5EvidenceDeveloperComment =>
+      'Developer comment attached.';
+
+  @override
+  String get verifStage6Ok => 'No safety or violation indicators found.';
+
+  @override
+  String get verifStage6SafetyGearAbsent => 'No safety gear visible on site.';
+
+  @override
+  String verifStage6StructuralDamage(Object ratio) {
+    return 'Possible structural damage detected ($ratio).';
+  }
+
+  @override
+  String get verifStage6WorkStoppage => 'Signs of a work stoppage.';
+
+  @override
+  String verifStage6DebrisAccumulation(Object score) {
+    return 'Debris accumulation detected (score $score).';
+  }
+
+  @override
+  String verifStage6AmbiguousIndicator(String indicator) {
+    return 'Ambiguous indicator: $indicator.';
+  }
+
+  @override
+  String verifStage6EvidenceHiVisRatio(Object ratio, Object threshold) {
+    return 'Hi-vis gear ratio $ratio (threshold $threshold).';
+  }
+
+  @override
+  String verifStage6EvidenceCrackPixels(Object ratio, Object threshold) {
+    return 'Crack pixel ratio $ratio (threshold $threshold).';
+  }
+
+  @override
+  String get verifStage6EvidenceNoEquipment =>
+      'No equipment detected in frame.';
+
+  @override
+  String verifStage6EvidenceDebrisTexture(Object score) {
+    return 'Debris texture score $score.';
+  }
+
+  @override
+  String get verifStage7Confirmed => 'All checks passed — confirmed.';
+
+  @override
+  String verifStage7ManualReview(int warnings) {
+    return '$warnings warning(s) — needs manual review.';
+  }
+
+  @override
+  String verifStage7NotReached(String stoppedAt) {
+    return 'Checks stopped at $stoppedAt.';
+  }
+
+  @override
+  String verifStage7EvidenceStageSummary(int passed, int warnings, int failed) {
+    return '$passed passed, $warnings warnings, $failed failed.';
+  }
+
+  @override
+  String verifSummaryConfirmed(String detectedStage, Object progressPercent) {
+    return 'Confirmed: $detectedStage stage, $progressPercent% progress.';
+  }
+
+  @override
+  String verifSummaryManualReview(String stage) {
+    return 'This $stage photo needs a quick manual review.';
+  }
+
+  @override
+  String verifSummaryDiscrepancy(
+    String stage,
+    String declaredStage,
+    String detectedStage,
+  ) {
+    return 'At the $stage check, declared $declaredStage doesn\'t match detected $detectedStage.';
+  }
+
+  @override
+  String verifSummaryViolation(String stage, String indicator) {
+    return 'At the $stage check, a violation indicator was found: $indicator.';
+  }
 }

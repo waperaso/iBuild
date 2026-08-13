@@ -225,6 +225,24 @@ class Store {
   Timer? _ticker;
   Timer? _offerTicker;
 
+  /// Set by `mountAiRoutes` to the lead-scoring engine's `score()` call.
+  /// Kept as an injected hook (rather than an import of `ai/`) so `store.dart`
+  /// has no dependency on the AI module; runs on create/status-change per the
+  /// plan, mutating `aiScore`/`aiBand`/`aiReasons`/`aiScoredAt` in place.
+  void Function(Map<String, dynamic> lead, Store store)? aiLeadScorer;
+
+  void _runAiScoring(Map<String, dynamic> lead) {
+    final scorer = aiLeadScorer;
+    if (scorer == null) return;
+    try {
+      scorer(lead, this);
+    } catch (error) {
+      stderr.writeln(
+        '[Store] AI lead scoring failed for ${lead['id']}: $error',
+      );
+    }
+  }
+
   Database? _db;
   PgPersistence? _persistence;
 
@@ -413,8 +431,7 @@ class Store {
 
     final showcase = projects.firstWhere(
       (p) =>
-          (p['type'] == 'residential_complex' ||
-              p['type'] == 'residential') &&
+          (p['type'] == 'residential_complex' || p['type'] == 'residential') &&
           (p['isPublished'] as bool? ?? true),
       orElse: () => projects.first,
     );
@@ -430,9 +447,9 @@ class Store {
     } else {
       const adminId = 'demo-trust-stager';
       for (final type in kRequiredDocumentTypes) {
-        final existing = documentsForDeveloper(developerId).any(
-          (d) => d['type'] == type && d['status'] == 'accepted',
-        );
+        final existing = documentsForDeveloper(
+          developerId,
+        ).any((d) => d['type'] == type && d['status'] == 'accepted');
         if (existing) continue;
         final doc = addDocument(
           developerId: developerId,
@@ -511,9 +528,7 @@ class Store {
   /// Platform operator phones. Production: `SYSTEM_ADMIN_PHONES` only.
   /// Non-production: seeds a default for local/tests.
   Set<String> get _systemAdminPhones {
-    final defaults = isProduction
-        ? const <String>[]
-        : const ['+998903306416'];
+    final defaults = isProduction ? const <String>[] : const ['+998903306416'];
     final fromEnv =
         appEnv()['SYSTEM_ADMIN_PHONES']
             ?.split(',')
@@ -591,25 +606,24 @@ class Store {
   /// Catalogue-facing developer snapshot embedded on projects (no KYC fields).
   Map<String, dynamic> _catalogueDeveloperSnapshot(
     Map<String, dynamic> developer,
-  ) =>
-      Map<String, dynamic>.from(developer)
-        ..remove('verificationStatus')
-        ..remove('rejectionReason')
-        ..remove('ownerUserId')
-        ..remove('legalName')
-        ..remove('inn')
-        ..remove('website')
-        ..remove('createdAt')
-        ..remove('directorPinfl')
-        ..remove('directorPassport')
-        ..remove('uboDeclared')
-        ..remove('uboFullName')
-        ..remove('registrationNumber')
-        ..remove('okedCode')
-        ..remove('legalForm')
-        ..remove('accountKind')
-        ..remove('constructionLicense')
-        ..remove('profileComplete');
+  ) => Map<String, dynamic>.from(developer)
+    ..remove('verificationStatus')
+    ..remove('rejectionReason')
+    ..remove('ownerUserId')
+    ..remove('legalName')
+    ..remove('inn')
+    ..remove('website')
+    ..remove('createdAt')
+    ..remove('directorPinfl')
+    ..remove('directorPassport')
+    ..remove('uboDeclared')
+    ..remove('uboFullName')
+    ..remove('registrationNumber')
+    ..remove('okedCode')
+    ..remove('legalForm')
+    ..remove('accountKind')
+    ..remove('constructionLicense')
+    ..remove('profileComplete');
 
   /// Refresh embedded `developer` from the live registry.
   void _refreshProjectDeveloper(Map<String, dynamic> project) {
@@ -665,6 +679,7 @@ class Store {
           ? null
           : '${_unitKindLabel(unit)} ${unit['number']}',
       'intent': input['intent'],
+      'subject': input['subject'],
       'status': 'new',
       'contactPhone': input['contactPhone'],
       'message': sanitizeText(input['message'] as String?),
@@ -674,8 +689,14 @@ class Store {
       'assignedManager': null,
       'notes': null,
       'createdAt': DateTime.now().toIso8601String(),
+      // Filled by the lead-scoring engine below; null until it has run once.
+      'aiScore': null,
+      'aiBand': null,
+      'aiReasons': <String>[],
+      'aiScoredAt': null,
     };
     leads.insert(0, lead);
+    _runAiScoring(lead);
     _broadcast('leadCreated', lead, adminOnly: true);
     final persistence = _persistence;
     if (persistence != null) {
@@ -748,9 +769,7 @@ class Store {
     if (filter == null || filter.isEmpty || filter == 'all') return source;
     if (filter == 'me') {
       if (currentUserId == null) return const [];
-      return source
-          .where((l) => l['ownerUserId'] == currentUserId)
-          .toList();
+      return source.where((l) => l['ownerUserId'] == currentUserId).toList();
     }
     if (filter == 'unassigned') {
       return source.where((l) => l['ownerUserId'] == null).toList();
@@ -813,9 +832,7 @@ class Store {
 
     final eventType = ownerUserId == null
         ? 'unassigned'
-        : (asTransfer && previousOwner != null
-              ? 'transferred'
-              : 'assigned');
+        : (asTransfer && previousOwner != null ? 'transferred' : 'assigned');
 
     _appendLeadEvent({
       'id': 'lev-${_uuid.v4()}',
@@ -923,6 +940,7 @@ class Store {
     for (final lead in leads) {
       if (lead['id'] == id) {
         lead['status'] = status;
+        _runAiScoring(lead);
         _broadcast('leadStatusChanged', {
           'leadId': lead['id'],
           'projectId': lead['projectId'],
@@ -931,7 +949,9 @@ class Store {
         final persistence = _persistence;
         if (persistence != null) {
           unawaited(
-            persistence.updateLeadStatus(id, status).catchError((error) {
+            // Full upsert (not just the status column) so the freshly
+            // recomputed ai* fields are persisted in the same round trip.
+            persistence.saveLead(lead).catchError((error) {
               stderr.writeln(
                 '[Store] Failed to persist lead status for $id: $error',
               );
@@ -1006,7 +1026,9 @@ class Store {
       final persistence = _persistence;
       if (persistence != null) {
         unawaited(
-          persistence.deleteSessionByAccessToken(token).catchError((Object _) {}),
+          persistence
+              .deleteSessionByAccessToken(token)
+              .catchError((Object _) {}),
         );
       }
     }
@@ -1021,9 +1043,9 @@ class Store {
       final persistence = _persistence;
       if (persistence != null) {
         unawaited(
-          persistence.deleteSessionByRefreshToken(refreshToken).catchError((
-            Object _,
-          ) {}),
+          persistence
+              .deleteSessionByRefreshToken(refreshToken)
+              .catchError((Object _) {}),
         );
       }
       return null;
@@ -1145,10 +1167,7 @@ class Store {
 
   /// Verifies OTP for [requestId]; creates user on first sign-in and mints tokens.
   /// Invalidates after [kMaxOtpAttempts]; comparison is constant-time.
-  OtpVerifyResult verifyOtp({
-    required String requestId,
-    required String code,
-  }) {
+  OtpVerifyResult verifyOtp({required String requestId, required String code}) {
     final request = _otpRequests[requestId];
     if (request == null) {
       return OtpVerifyResult.failure(OtpVerifyError.notFound);
@@ -1241,10 +1260,7 @@ class Store {
       String name,
       String id,
     ) = switch (normalized) {
-      'b2b' ||
-      'b2b_platform' ||
-      'admin' ||
-      'platform' => (
+      'b2b' || 'b2b_platform' || 'admin' || 'platform' => (
         '+998900000001',
         UserRole.systemAdmin,
         'Demo Reviewer (Admin)',
@@ -1471,9 +1487,8 @@ class Store {
   List<Map<String, dynamic>> ticketsForUser(String userId) =>
       tickets.where((t) => t['userId'] == userId).toList();
 
-  List<Map<String, dynamic>> allTickets({String? status}) => tickets
-      .where((t) => status == null || t['status'] == status)
-      .toList();
+  List<Map<String, dynamic>> allTickets({String? status}) =>
+      tickets.where((t) => status == null || t['status'] == status).toList();
 
   /// Append a ticket reply; admin may also advance [status].
   Map<String, dynamic>? addTicketReply(
@@ -1686,8 +1701,7 @@ class Store {
   Map<String, dynamic> planForDeveloper(String developerId) {
     final planId =
         subscriptionsByDeveloperId[developerId]?['planId'] as String?;
-    return subscriptionPlanById(planId ?? '') ??
-        subscriptionPlanById('start')!;
+    return subscriptionPlanById(planId ?? '') ?? subscriptionPlanById('start')!;
   }
 
   /// Live project count for [developerId]. [excludingId] skipped (re-publish).
@@ -2093,8 +2107,9 @@ class Store {
   }
 
   /// Count of [UserRole.systemAdmin] (blocks deleting the last admin).
-  int systemAdminCount() =>
-      _usersByPhone.values.where((u) => u['role'] == UserRole.systemAdmin).length;
+  int systemAdminCount() => _usersByPhone.values
+      .where((u) => u['role'] == UserRole.systemAdmin)
+      .length;
 
   /// Hard-delete user. Awaits DB DELETE first so a restart cannot resurrect the row.
   Future<Map<String, dynamic>?> deleteUser(String id) async {
@@ -2579,6 +2594,7 @@ class Store {
     }
     if (score != null) lead['score'] = score;
     lead['lastContactAt'] = DateTime.now().toIso8601String();
+    _runAiScoring(lead);
     await _persistLead(lead);
     return lead;
   }
@@ -2716,7 +2732,9 @@ class Store {
     final doc = documentById(id);
     if (doc == null) return null;
     doc['status'] = status;
-    doc['rejectReason'] = status == 'rejected' ? sanitizeText(rejectReason) : null;
+    doc['rejectReason'] = status == 'rejected'
+        ? sanitizeText(rejectReason)
+        : null;
     doc['reviewedBy'] = reviewedBy;
     doc['reviewedAt'] = DateTime.now().toIso8601String();
     _persist('document review', (p) => p.saveDocument(doc));
@@ -2746,10 +2764,10 @@ class Store {
           'type': type,
           'status':
               devDocs.firstWhere(
-                (d) => d['type'] == type,
-                orElse: () => const {'status': 'missing'},
-              )['status']
-              as String,
+                    (d) => d['type'] == type,
+                    orElse: () => const {'status': 'missing'},
+                  )['status']
+                  as String,
         },
     ];
   }
@@ -2846,6 +2864,18 @@ class Store {
     required bool takenAtIsManual,
     int? progressPercent,
     required String uploadedBy,
+    // Best-effort readiness-engine output for this same upload (computed by
+    // the caller in `admin_routes.dart` when it has the raw image bytes);
+    // left null for legacy uploads or whenever verification couldn't run.
+    String? phash,
+    String? verificationStatus,
+    int? verificationConfidence,
+    Map<String, dynamic>? verification,
+    DateTime? exifTakenAt,
+    double? exifLat,
+    double? exifLng,
+    String? detectedStage,
+    String? declaredStage,
   }) {
     final report = {
       'id': 'phr-${_uuid.v4()}',
@@ -2857,6 +2887,15 @@ class Store {
       'progressPercent': progressPercent,
       'uploadedBy': uploadedBy,
       'createdAt': DateTime.now().toIso8601String(),
+      'phash': phash,
+      'verificationStatus': verificationStatus,
+      'verificationConfidence': verificationConfidence,
+      'verification': verification,
+      'exifTakenAt': exifTakenAt?.toIso8601String(),
+      'exifLat': exifLat,
+      'exifLng': exifLng,
+      'detectedStage': detectedStage,
+      'declaredStage': declaredStage,
     };
     photoReports.insert(0, report);
     _persist('photo report', (p) => p.savePhotoReport(report));
@@ -2899,7 +2938,9 @@ class Store {
 
   /// Photo reports for [projectId], newest `takenAt` first.
   List<Map<String, dynamic>> photoReportsForProject(String projectId) {
-    final items = photoReports.where((r) => r['projectId'] == projectId).toList();
+    final items = photoReports
+        .where((r) => r['projectId'] == projectId)
+        .toList();
     items.sort(
       (a, b) => (b['takenAt'] as String).compareTo(a['takenAt'] as String),
     );

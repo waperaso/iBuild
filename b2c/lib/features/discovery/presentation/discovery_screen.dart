@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ibuild_core/ibuild_core.dart';
 
-import '../../../core/utils/formatters.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../../../core/widgets/app_chip.dart';
@@ -19,18 +16,18 @@ import '../../../core/widgets/promo_banner.dart';
 import '../../../core/widgets/responsive_card_grid.dart';
 import '../../../core/widgets/scroll_tuning.dart';
 import '../../../core/widgets/section_header.dart';
-import '../../../l10n/enum_labels.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../ai/presentation/widgets/ai_search_bar.dart';
+import '../../ai/presentation/widgets/ai_search_panel.dart';
 import '../../notifications/providers/notifications_providers.dart';
 import '../../rentals/data/rental_listings_repository.dart';
 import '../../rentals/providers/rental_listings_providers.dart';
 import '../../rentals/presentation/widgets/rental_listing_card.dart';
 import '../providers/discovery_providers.dart';
 import '../providers/filters_providers.dart';
-import 'widgets/filter_sheet.dart';
 import 'widgets/property_card.dart';
 
-/// Discovery home: mode toggle, search/filters, paginated project list.
+/// Discovery home: search/filters and paginated project list.
 class DiscoveryScreen extends ConsumerStatefulWidget {
   const DiscoveryScreen({super.key});
 
@@ -192,16 +189,10 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                         ],
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      _ModeToggle(
-                        mode: mode,
-                        onChanged: (m) =>
-                            ref.read(discoveryModeProvider.notifier).set(m),
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-                      const _SearchAndFilterRow(),
+                      const AiSearchBar(),
+                      const AiSearchPanel(),
                       const SizedBox(height: AppSpacing.lg),
                       const _CategoryChips(),
-                      const _ActiveFiltersBar(),
                       ref.watch(districtCatalogueProvider).when(
                         data: (catalogue) {
                           if (catalogue.isEmpty) return const SizedBox.shrink();
@@ -361,168 +352,6 @@ class _NotificationsBell extends ConsumerWidget {
   }
 }
 
-class _ModeToggle extends StatelessWidget {
-  const _ModeToggle({required this.mode, required this.onChanged});
-
-  final DiscoveryMode mode;
-  final ValueChanged<DiscoveryMode> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final l10n = AppLocalizations.of(context);
-    final items = {
-      DiscoveryMode.buy: l10n.modeBuy,
-      DiscoveryMode.rent: l10n.modeRent,
-      DiscoveryMode.newBuilds: l10n.modeNewBuilds,
-    };
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.xs),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(AppRadii.pill),
-      ),
-      child: Row(
-        children: [
-          for (final entry in items.entries)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(entry.key),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.md - 2,
-                  ),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: mode == entry.key
-                        ? colors.accent
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppRadii.pill),
-                  ),
-                  child: Text(
-                    entry.value,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: mode == entry.key
-                          ? colors.onAccent
-                          : colors.inkMuted,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Search field + filter icon button, sharing state with [FilterSheet] via
-/// [discoveryFiltersProvider]. Search input is debounced so typing doesn't
-/// fire a request per keystroke.
-class _SearchAndFilterRow extends ConsumerStatefulWidget {
-  const _SearchAndFilterRow();
-
-  @override
-  ConsumerState<_SearchAndFilterRow> createState() =>
-      _SearchAndFilterRowState();
-}
-
-class _SearchAndFilterRowState extends ConsumerState<_SearchAndFilterRow> {
-  late final TextEditingController _controller;
-  Timer? _debounce;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(
-      text: ref.read(discoveryFiltersProvider).searchText,
-    );
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onChanged(String value) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 350), () {
-      ref.read(discoveryFiltersProvider.notifier).setSearchText(value);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final l10n = AppLocalizations.of(context);
-    final hasSheetFilters = ref.watch(
-      discoveryFiltersProvider.select((f) => f.hasSheetFilters),
-    );
-    final filterCount = ref.watch(
-      discoveryFiltersProvider.select((f) => f.activeSheetFilterCount),
-    );
-
-    final pill = BorderRadius.circular(AppRadii.pill);
-
-    return Row(
-      children: [
-        Expanded(
-          child: Material(
-            color: colors.surface,
-            borderRadius: pill,
-            clipBehavior: Clip.antiAlias,
-            child: TextField(
-              controller: _controller,
-              onChanged: _onChanged,
-              decoration: InputDecoration(
-                hintText: l10n.searchHint,
-                prefixIcon: Icon(Icons.search, color: colors.inkMuted),
-                filled: true,
-                fillColor: colors.surface,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.md,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: pill,
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: pill,
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: pill,
-                  borderSide: BorderSide(
-                    color: colors.accent.withValues(alpha: 0.45),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Material(
-          color: hasSheetFilters ? colors.accent : colors.surface,
-          shape: const CircleBorder(),
-          child: Badge(
-            isLabelVisible: hasSheetFilters && filterCount > 0,
-            label: Text('$filterCount'),
-            child: IconButton(
-              onPressed: () => showFilterSheet(context),
-              icon: Icon(
-                Icons.tune,
-                color: hasSheetFilters ? colors.onAccent : colors.ink,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _CategoryChips extends ConsumerWidget {
   const _CategoryChips();
 
@@ -610,139 +439,6 @@ class _DevelopersRail extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-/// Active filter chips + "Filters applied" label below the search row.
-class _ActiveFiltersBar extends ConsumerWidget {
-  const _ActiveFiltersBar();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final filters = ref.watch(discoveryFiltersProvider);
-    if (!filters.hasSheetFilters) return const SizedBox.shrink();
-
-    final l10n = AppLocalizations.of(context);
-    final colors = context.colors;
-    final textTheme = Theme.of(context).textTheme;
-    final notifier = ref.read(discoveryFiltersProvider.notifier);
-
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.filter_alt, size: 16, color: colors.accent),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                l10n.filtersApplied,
-                style: textTheme.labelLarge?.copyWith(color: colors.accent),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: notifier.clearSheetFilters,
-                child: Text(l10n.clearFilters),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              for (final district in filters.districts)
-                AppChip(
-                  label: district,
-                  selected: true,
-                  icon: Icons.close,
-                  onTap: () => notifier.toggleDistrict(district),
-                ),
-              if (filters.status != null)
-                AppChip(
-                  label: filters.status!.label(context),
-                  selected: true,
-                  icon: Icons.close,
-                  onTap: () => notifier.applySheetFilters(
-                    districts: filters.districts,
-                    status: null,
-                    minPrice: filters.minPrice,
-                    maxPrice: filters.maxPrice,
-                    rooms: filters.rooms,
-                    areaMin: filters.areaMin,
-                    offplanOnly: filters.offplanOnly,
-                  ),
-                ),
-              if (filters.minPrice != null || filters.maxPrice != null)
-                AppChip(
-                  label: l10n.priceRangeLabel(
-                    Formatters.compact(filters.minPrice ?? 0),
-                    Formatters.compact(filters.maxPrice ?? 300000),
-                  ),
-                  selected: true,
-                  icon: Icons.close,
-                  onTap: () => notifier.applySheetFilters(
-                    districts: filters.districts,
-                    status: filters.status,
-                    rooms: filters.rooms,
-                    areaMin: filters.areaMin,
-                    offplanOnly: filters.offplanOnly,
-                  ),
-                ),
-              for (final room in filters.rooms)
-                AppChip(
-                  label: room == 0
-                      ? l10n.roomsStudio
-                      : (room == 4 ? l10n.roomsPlus(room) : '$room'),
-                  selected: true,
-                  icon: Icons.close,
-                  onTap: () {
-                    final next = {...filters.rooms}..remove(room);
-                    notifier.applySheetFilters(
-                      districts: filters.districts,
-                      status: filters.status,
-                      minPrice: filters.minPrice,
-                      maxPrice: filters.maxPrice,
-                      rooms: next,
-                      areaMin: filters.areaMin,
-                      offplanOnly: filters.offplanOnly,
-                    );
-                  },
-                ),
-              if (filters.areaMin != null)
-                AppChip(
-                  label: l10n.areaMinLabel,
-                  selected: true,
-                  icon: Icons.close,
-                  onTap: () => notifier.applySheetFilters(
-                    districts: filters.districts,
-                    status: filters.status,
-                    minPrice: filters.minPrice,
-                    maxPrice: filters.maxPrice,
-                    rooms: filters.rooms,
-                    offplanOnly: filters.offplanOnly,
-                  ),
-                ),
-              if (filters.offplanOnly)
-                AppChip(
-                  label: l10n.offplanOnlyLabel,
-                  selected: true,
-                  icon: Icons.close,
-                  onTap: () => notifier.applySheetFilters(
-                    districts: filters.districts,
-                    status: filters.status,
-                    minPrice: filters.minPrice,
-                    maxPrice: filters.maxPrice,
-                    rooms: filters.rooms,
-                    areaMin: filters.areaMin,
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

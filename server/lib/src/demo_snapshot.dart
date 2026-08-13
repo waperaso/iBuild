@@ -134,7 +134,10 @@ class DemoSnapshot {
       'moderationStatus': 'pending_review',
       'isPublished': false,
       'district': 'Yunusabad',
-      'developer': {'id': 'demo-developer-pending', 'name': 'Demo Construction LLC'},
+      'developer': {
+        'id': 'demo-developer-pending',
+        'name': 'Demo Construction LLC',
+      },
     },
   ];
 
@@ -240,9 +243,8 @@ class DemoSnapshot {
     'demo': true,
   };
 
-  static List<Map<String, dynamic>> myDocuments() => developerDocuments(
-    'demo-developer-residence',
-  );
+  static List<Map<String, dynamic>> myDocuments() =>
+      developerDocuments('demo-developer-residence');
 
   static List<Map<String, dynamic>> myProjects() => [
     {

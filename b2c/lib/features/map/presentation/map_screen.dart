@@ -13,10 +13,11 @@ import '../../../core/widgets/scroll_tuning.dart';
 import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/shell_tab_scope.dart';
 import '../../../l10n/gen/app_localizations.dart';
-import '../../discovery/presentation/widgets/filter_sheet.dart';
+import '../../ai/presentation/widgets/ai_search_bar.dart';
+import '../../ai/presentation/widgets/ai_search_panel.dart';
+import '../../ai/providers/ai_search_providers.dart';
 import '../../discovery/presentation/widgets/property_card.dart';
 import '../../discovery/providers/discovery_providers.dart';
-import '../../discovery/providers/filters_providers.dart';
 
 /// Zoom range shared by the map's gestures and its [_VerticalZoomSlider] —
 /// keeps the slider's travel meaningful (whole app never needs continent- or
@@ -293,20 +294,35 @@ class _VerticalZoomSliderState extends State<_VerticalZoomSlider> {
   }
 }
 
-class _MapSearchControls extends StatelessWidget {
+class _MapSearchControls extends ConsumerWidget {
   const _MapSearchControls({this.maxWidth});
 
   final double? maxWidth;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasActiveSearch = ref.watch(
+      aiSearchProvider.select((s) => s.phase != AiSearchPhase.idle),
+    );
+
     final controls = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _SearchBar(),
-        const SizedBox(height: AppSpacing.md),
-        const _MapModeToggle(),
+        const _MapSearchSurface(child: AiSearchBar()),
+        if (hasActiveSearch)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.md),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 280),
+              child: const SingleChildScrollView(
+                child: _MapSearchSurface(
+                  padding: EdgeInsets.all(AppSpacing.md),
+                  child: AiSearchPanel(showResultCards: false),
+                ),
+              ),
+            ),
+          ),
       ],
     );
 
@@ -319,85 +335,24 @@ class _MapSearchControls extends StatelessWidget {
   }
 }
 
-class _SearchBar extends ConsumerStatefulWidget {
-  @override
-  ConsumerState<_SearchBar> createState() => _SearchBarState();
-}
+/// Wraps AI search widgets in an opaque, shadowed surface so they stay
+/// legible over the map tiles (the shared [AiSearchBar]/[AiSearchPanel] are
+/// flat by default since discovery already sits on an opaque background).
+class _MapSearchSurface extends StatelessWidget {
+  const _MapSearchSurface({required this.child, this.padding});
 
-class _SearchBarState extends ConsumerState<_SearchBar> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(
-      text: ref.read(discoveryFiltersProvider).searchText,
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final l10n = AppLocalizations.of(context);
-    final filters = ref.watch(discoveryFiltersProvider);
-    return Row(
-      children: [
-        Expanded(
-          child: Material(
-            color: colors.surface,
-            elevation: 2,
-            shadowColor: colors.ink.withValues(alpha: 0.1),
-            clipBehavior: Clip.antiAlias,
-            borderRadius: BorderRadius.circular(AppRadii.pill),
-            child: TextField(
-              controller: _controller,
-              onChanged: (v) =>
-                  ref.read(discoveryFiltersProvider.notifier).setSearchText(v),
-              decoration: InputDecoration(
-                hintText: l10n.searchByLocations,
-                prefixIcon: Icon(Icons.search, color: colors.inkMuted),
-                filled: true,
-                fillColor: colors.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.pill),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.pill),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.pill),
-                  borderSide: BorderSide(
-                    color: colors.accent.withValues(alpha: 0.45),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Material(
-          color: colors.surface,
-          shape: const CircleBorder(),
-          elevation: 2,
-          shadowColor: colors.ink.withValues(alpha: 0.1),
-          child: IconButton(
-            tooltip: l10n.filtersTitle,
-            onPressed: () => showFilterSheet(context),
-            icon: Badge(
-              isLabelVisible: filters.hasSheetFilters,
-              child: Icon(Icons.tune, color: colors.ink),
-            ),
-          ),
-        ),
-      ],
+    return Material(
+      color: Colors.transparent,
+      elevation: 2,
+      shadowColor: colors.ink.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(AppRadii.card),
+      child: Padding(padding: padding ?? EdgeInsets.zero, child: child),
     );
   }
 }
@@ -418,62 +373,6 @@ class _MapPin extends StatelessWidget {
           color: accent,
           shape: BoxShape.circle,
           border: Border.all(color: onAccent, width: 2),
-        ),
-      ),
-    );
-  }
-}
-
-class _MapModeToggle extends ConsumerWidget {
-  const _MapModeToggle();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
-    final l10n = AppLocalizations.of(context);
-    final mode = ref.watch(discoveryModeProvider);
-    final items = {
-      DiscoveryMode.buy: l10n.modeBuy,
-      DiscoveryMode.rent: l10n.modeRent,
-      DiscoveryMode.newBuilds: l10n.modeNewBuilds,
-    };
-
-    return Material(
-      color: colors.surface,
-      borderRadius: BorderRadius.circular(AppRadii.pill),
-      elevation: 2,
-      shadowColor: colors.ink.withValues(alpha: 0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xs),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final entry in items.entries)
-              GestureDetector(
-                onTap: () =>
-                    ref.read(discoveryModeProvider.notifier).set(entry.key),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
-                  ),
-                  decoration: BoxDecoration(
-                    color: mode == entry.key
-                        ? colors.accent
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppRadii.pill),
-                  ),
-                  child: Text(
-                    entry.value,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: mode == entry.key
-                          ? colors.onAccent
-                          : colors.inkMuted,
-                    ),
-                  ),
-                ),
-              ),
-          ],
         ),
       ),
     );

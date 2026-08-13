@@ -455,5 +455,350 @@
   },
   "quizDoneAction": "К моим вариантам",
   "quizRetakeAction": "Пройти заново",
-  "quizEntryAction": "Пройти викторину"
+  "quizEntryAction": "Пройти викторину",
+
+  "leadSubjectLabel": "О чём заявка?",
+  "leadSubjectProject": "О проекте",
+  "leadSubjectUnit": "О конкретной квартире",
+  "leadSubjectRent": "Об аренде",
+  "leadSubjectOffice": "Об офисе",
+  "leadSubjectMortgage": "Консультация по ипотеке",
+  "leadSubjectOther": "Другое",
+
+  "aiFabTooltip": "Спросить iBuild AI",
+  "aiChatTitle": "iBuild AI",
+  "aiChatInfoTooltip": "О iBuild AI",
+  "aiChatInfoBody": "Спрашивайте о каталоге, конкретном комплексе или квартире, а также о рассрочках и ипотеке — iBuild AI отвечает на основе данных и условий iBuild.",
+  "aiChatErrorSnackbar": "Не удалось получить ответ. Попробуйте ещё раз.",
+  "aiChatQuotaExhaustedTitle": "Дневной лимит исчерпан",
+  "aiChatQuotaExhaustedBody": "Вы использовали сегодняшний лимит сообщений iBuild AI. Возвращайтесь завтра.",
+  "aiChatUnavailableTitle": "iBuild AI временно недоступен",
+  "aiChatUnavailableBody": "Ассистент временно недоступен. Попробуйте немного позже.",
+  "aiChatEmptyTitle": "Спросите iBuild AI о чём угодно",
+  "aiChatEmptyBody": "Например: «В каких комплексах Чиланзара есть рассрочка?» или «Какая ставка подойдёт для квартиры за $60 000?»",
+  "aiChatInputHint": "Написать iBuild AI...",
+  "aiChatSendTooltip": "Отправить",
+
+  "aiBetaNoticeTitle": "iBuild AI в тестовом режиме",
+  "aiBetaNoticeBody": "Ответы иногда могут быть неточными — всегда проверяйте цену и наличие непосредственно в карточке объекта.",
+  "aiQuotaTitle": "Дневная квота",
+  "aiQuotaUsedLabel": "Использовано {used} из {limit} сообщений за день",
+  "@aiQuotaUsedLabel": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "limit": { "type": "int" }
+    }
+  },
+  "aiQuotaResetLabel": "Обновится {time}",
+  "@aiQuotaResetLabel": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "aiSearchInfoExamplesTitle": "Попробуйте спросить",
+
+  "aiSearchInfoTitle": "AI умный поиск",
+  "aiSearchInfoBody": "Опишите, что вы ищете, обычными словами — комнаты, бюджет, район, всё важное для вас — и iBuild AI превратит это в реальный поиск по каталогу.",
+  "aiSearchExample1": "2-комнатная в Чиланзаре до $60 000",
+  "aiSearchExample2": "Офис на 3 комнаты рядом с деловым районом, готов сейчас",
+  "aiSearchExample3": "Квартира в аренду, не первый этаж, с парковкой",
+  "aiSearchHint": "Опишите, что вы ищете...",
+  "aiSearchClearTooltip": "Очистить поиск",
+  "aiSearchSubmitTooltip": "Искать",
+  "aiSearchInfoTooltip": "О AI-поиске",
+
+  "aiSearchRateLimitedTitle": "Дневной лимит поиска исчерпан",
+  "aiSearchRateLimitedBody": "Вы использовали дневной лимит AI-поиска. Возвращайтесь {time}.",
+  "@aiSearchRateLimitedBody": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "aiSearchUnavailableTitle": "AI-поиск временно недоступен",
+  "aiSearchUnavailableBody": "Умный поиск временно недоступен. Попробуйте немного позже.",
+  "aiSearchGenericErrorTitle": "Не удалось выполнить поиск",
+  "aiSearchGenericErrorBody": "Что-то пошло не так. Попробуйте ещё раз через момент.",
+  "aiSearchUnrecognizedNote": "Не удалось распознать: {terms}",
+  "@aiSearchUnrecognizedNote": {
+    "placeholders": { "terms": { "type": "String" } }
+  },
+  "aiSearchSummary": "{count, plural, =0{Нет совпадений} one{{count} совпадение} few{{count} совпадения} many{{count} совпадений} other{{count} совпадений}}",
+  "@aiSearchSummary": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiSearchResultsEmptyTitle": "Пока нет совпадений",
+  "aiSearchResultsEmptyBody": "Попробуйте ослабить одно из условий — увеличить бюджет или рассмотреть соседний район.",
+  "aiSearchMatchScoreLabel": "Совпадение {score}%",
+  "@aiSearchMatchScoreLabel": {
+    "placeholders": { "score": { "type": "int" } }
+  },
+  "aiSearchStatusStarting": "Начинаю поиск...",
+  "aiSearchTabHintTooltip": "Tab — принять подсказку",
+  "aiSearchTabAcceptLabel": "Принять подсказку AI",
+  "aiSearchClarifyTitle": "Не удалось понять запрос",
+  "aiSearchClarifyBody": "Таких слов в каталоге нет: {terms}. Уточните запрос или выберите подсказку ниже.",
+  "@aiSearchClarifyBody": {
+    "placeholders": { "terms": { "type": "String" } }
+  },
+  "aiSearchClarifyExamplesHint": "Или попробуйте один из примеров:",
+  "aiSearchDidYouMean": "Вы имели в виду «{suggestion}»?",
+  "@aiSearchDidYouMean": {
+    "placeholders": { "suggestion": { "type": "String" } }
+  },
+  "aiSearchQuotedTerm": "«{term}»",
+  "@aiSearchQuotedTerm": {
+    "placeholders": { "term": { "type": "String" } }
+  },
+  "aiSearchRelaxConstraint": "Убрать условие: {constraint}",
+  "@aiSearchRelaxConstraint": {
+    "placeholders": { "constraint": { "type": "String" } }
+  },
+
+  "aiStepParsingV1": "Читаю ваш запрос...",
+  "aiStepParsingV2": "Разбираюсь, что вам нужно...",
+  "aiStepParsingV3": "Разбираю {count, plural, one{{count} условие} few{{count} условия} many{{count} условий} other{{count} условий}}...",
+  "@aiStepParsingV3": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepParsingV4": "Раскладываю запрос по параметрам...",
+
+  "aiStepScanningDistrictV1": "Изучаю район {district}...",
+  "@aiStepScanningDistrictV1": {
+    "placeholders": { "district": { "type": "String" } }
+  },
+  "aiStepScanningDistrictV2": "Просматриваю {count} проектов в районе {district}...",
+  "@aiStepScanningDistrictV2": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "district": { "type": "String" }
+    }
+  },
+  "aiStepScanningDistrictV3": "Проверяю наличие в районе {district}...",
+  "@aiStepScanningDistrictV3": {
+    "placeholders": { "district": { "type": "String" } }
+  },
+  "aiStepScanningDistrictV4": "Обследую {district} ({count} проектов)...",
+  "@aiStepScanningDistrictV4": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "aiStepFoundInDistrictV1": "Найдено {count} в районе {district}",
+  "@aiStepFoundInDistrictV1": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "district": { "type": "String" }
+    }
+  },
+  "aiStepFoundInDistrictV2": "{count} вариантов найдено в {district}",
+  "@aiStepFoundInDistrictV2": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "district": { "type": "String" }
+    }
+  },
+  "aiStepFoundInDistrictV3": "{district}: {count} стоят внимания",
+  "@aiStepFoundInDistrictV3": {
+    "placeholders": {
+      "district": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepFoundInDistrictV4": "Отобрано {count} в районе {district}",
+  "@aiStepFoundInDistrictV4": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "district": { "type": "String" }
+    }
+  },
+
+  "aiStepOpeningProjectV1": "Открываю {project} ({index}/{total})...",
+  "@aiStepOpeningProjectV1": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "aiStepOpeningProjectV2": "Заглядываю в {project}...",
+  "@aiStepOpeningProjectV2": {
+    "placeholders": { "project": { "type": "String" } }
+  },
+  "aiStepOpeningProjectV3": "Проверяю {project} ({index} из {total})...",
+  "@aiStepOpeningProjectV3": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "aiStepOpeningProjectV4": "Сейчас смотрю {project}...",
+  "@aiStepOpeningProjectV4": {
+    "placeholders": { "project": { "type": "String" } }
+  },
+
+  "aiStepScanningUnitsV1": "Сканирую квартиры в {project} ({count})...",
+  "@aiStepScanningUnitsV1": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepScanningUnitsV2": "Проверяю {count} квартир в {project}...",
+  "@aiStepScanningUnitsV2": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "project": { "type": "String" }
+    }
+  },
+  "aiStepScanningUnitsV3": "Изучаю планировки в {project}...",
+  "@aiStepScanningUnitsV3": {
+    "placeholders": { "project": { "type": "String" } }
+  },
+  "aiStepScanningUnitsV4": "{project}: рассматриваю {count} квартир...",
+  "@aiStepScanningUnitsV4": {
+    "placeholders": {
+      "project": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "aiStepFilteringBookedV1": "Убираю {removed} занятых, осталось {left}...",
+  "@aiStepFilteringBookedV1": {
+    "placeholders": {
+      "removed": { "type": "int" },
+      "left": { "type": "int" }
+    }
+  },
+  "aiStepFilteringBookedV2": "Убираю проданные и забронированные (осталось {left})...",
+  "@aiStepFilteringBookedV2": {
+    "placeholders": { "left": { "type": "int" } }
+  },
+  "aiStepFilteringBookedV3": "Пропускаю {removed} уже занятых...",
+  "@aiStepFilteringBookedV3": {
+    "placeholders": { "removed": { "type": "int" } }
+  },
+  "aiStepFilteringBookedV4": "Оставляю только доступные варианты ({left})...",
+  "@aiStepFilteringBookedV4": {
+    "placeholders": { "left": { "type": "int" } }
+  },
+
+  "aiStepRankingPriceV1": "Ранжирую {count} по соответствию...",
+  "@aiStepRankingPriceV1": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepRankingPriceV2": "Сортирую по цене и соответствию запросу...",
+  "aiStepRankingPriceV3": "Сравниваю {count} вариантов...",
+  "@aiStepRankingPriceV3": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepRankingPriceV4": "Выстраиваю лучшие {count} вариантов...",
+  "@aiStepRankingPriceV4": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "aiStepDoneV1": "Готово · {count, plural, =0{нет совпадений} one{{count} совпадение} few{{count} совпадения} many{{count} совпадений} other{{count} совпадений}} за {elapsedMs} мс",
+  "@aiStepDoneV1": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "elapsedMs": { "type": "int" }
+    }
+  },
+  "aiStepDoneV2": "Готово — {count, plural, =0{ничего подходящего} one{найдено {count} совпадение} few{найдено {count} совпадения} many{найдено {count} совпадений} other{найдено {count} совпадений}}",
+  "@aiStepDoneV2": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepDoneV3": "Поиск завершён ({count, plural, =0{0 результатов} one{{count} результат} few{{count} результата} many{{count} результатов} other{{count} результатов}})",
+  "@aiStepDoneV3": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiStepDoneV4": "Готово — {count, plural, =0{совпадений не найдено} one{{count} сильное совпадение} few{{count} сильных совпадения} many{{count} сильных совпадений} other{{count} сильных совпадений}}",
+  "@aiStepDoneV4": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "aiStepNoMatchIntent": "В каталоге нет ничего похожего на {terms} — дальше не искал",
+  "@aiStepNoMatchIntent": {
+    "placeholders": { "terms": { "type": "String" } }
+  },
+  "aiStepLowConfidence": "Не до конца понял {terms} — показываю более широкие совпадения ({count})",
+  "@aiStepLowConfidence": {
+    "placeholders": {
+      "terms": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "aiStepAutocorrected": "Прочитал «{from}» как «{to}»",
+  "@aiStepAutocorrected": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
+  "aiStepSoftenedAmenity": "Ослабил условие «{amenity}», чтобы найти варианты",
+  "@aiStepSoftenedAmenity": {
+    "placeholders": { "amenity": { "type": "String" } }
+  },
+
+  "aiReasonDistrictMatch": "Нужный район",
+  "aiReasonRoomsMatch": "Подходит по комнатам",
+  "aiReasonPriceFit": "Вписывается в бюджет",
+  "aiReasonPriceBelowBudget": "Ниже бюджета",
+  "aiReasonAreaFit": "Подходит по площади",
+  "aiReasonFloorPreference": "Подходит по этажу",
+  "aiReasonDealTypeMatch": "Продажа/аренда совпадает",
+  "aiReasonKindMatch": "Тип объекта совпадает",
+  "aiReasonAvailableNow": "Доступно сейчас",
+  "aiReasonAmenityMatch": "Есть нужные удобства",
+  "aiReasonDeveloperMatch": "Нужный застройщик",
+  "aiReasonProjectMatch": "Нужный проект",
+  "aiReasonHighTrustIndex": "Высокий индекс доверия",
+  "aiReasonReadySoon": "Скоро готово",
+  "aiReasonOffplanDiscount": "Скидка на этапе строительства",
+
+  "aiChipAreaRange": "{min}–{max} м²",
+  "@aiChipAreaRange": {
+    "placeholders": {
+      "min": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "aiChipAreaUpTo": "до {max} м²",
+  "@aiChipAreaUpTo": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+  "aiChipAreaFrom": "от {min} м²",
+  "@aiChipAreaFrom": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "aiDealTypeRent": "В аренду",
+  "aiDealTypeSale": "В продажу",
+  "aiUnitKindApartment": "Квартира",
+  "aiUnitKindCommercial": "Коммерческое помещение",
+  "aiUnitKindParking": "Парковка",
+  "aiChipFloorRange": "Этаж {min}–{max}",
+  "@aiChipFloorRange": {
+    "placeholders": {
+      "min": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "aiChipFloorFrom": "Этаж {min}+",
+  "@aiChipFloorFrom": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "aiChipFloorUpTo": "До {max} этажа",
+  "@aiChipFloorUpTo": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+  "aiChipNotFirstFloor": "Не первый этаж",
+  "aiChipNotLastFloor": "Не последний этаж",
+  "aiChipAvailableOnly": "Только доступные",
+  "aiSearchShowAll": "Показать все {count}",
+  "@aiSearchShowAll": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiSearchAllResultsTitle": "Все результаты",
+  "aiConstraintWithout": "Без {amenity}",
+  "@aiConstraintWithout": {
+    "placeholders": { "amenity": { "type": "String" } }
+  }
 }

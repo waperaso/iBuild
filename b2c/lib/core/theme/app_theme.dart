@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ibuild_core/ibuild_core.dart';
 
-import 'app_colors.dart';
 import 'app_dimens.dart';
 import 'app_typography.dart';
 

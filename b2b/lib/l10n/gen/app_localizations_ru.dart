@@ -77,6 +77,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Демо-режим только для просмотра — действие не сохранено.';
 
   @override
+  String get phoneHidden => 'Скрыто';
+
+  @override
   String get otpTitle => 'Введите код';
 
   @override
@@ -1687,6 +1690,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get projectPhotoReportDateLabel => 'Дата съёмки';
 
   @override
+  String get projectPhotoReportDeclaredStageLabel =>
+      'Заявленный этап строительства';
+
+  @override
   String get projectPhotoReportProgressLabel =>
       'Процент готовности (необязательно)';
 
@@ -1887,6 +1894,33 @@ class AppLocalizationsRu extends AppLocalizations {
   String get crmEdit => 'Изменить';
 
   @override
+  String get crmAiAssistant => 'ИИ-ассистент';
+
+  @override
+  String get crmAiInsightsTitle => 'ИИ-аналитика';
+
+  @override
+  String get crmAiInsightsExpand => 'Показать ИИ-аналитику';
+
+  @override
+  String get crmAiInsightsCollapse => 'Свернуть ИИ-аналитику';
+
+  @override
+  String get crmBandFilterLabel => 'Оценка ИИ';
+
+  @override
+  String get crmBandFilterAll => 'Все';
+
+  @override
+  String get crmBandFilterHot => 'Горячие';
+
+  @override
+  String get crmBandFilterWarm => 'Тёплые';
+
+  @override
+  String get crmBandFilterCold => 'Холодные';
+
+  @override
   String crmAssignedTo(String name) {
     return 'Ответственный: $name';
   }
@@ -2017,4 +2051,885 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get supportTicketsSubtitle =>
       'Свяжитесь с командой платформы — оплата, модерация или техническая проблема.';
+
+  @override
+  String get aiCrmPanelTitle => 'Требуют внимания сегодня';
+
+  @override
+  String get aiCrmPanelSubtitle =>
+      'Лиды, ранжированные ИИ по срочности, с указанием причин каждой оценки.';
+
+  @override
+  String get aiCrmOpenBot => 'Открыть ассистента';
+
+  @override
+  String get aiCrmEmpty => 'Сейчас горячих лидов нет';
+
+  @override
+  String get aiCrmUnavailable =>
+      'ИИ-ассистент сейчас недоступен. Попробуйте позже.';
+
+  @override
+  String get aiMetricLeadVolume => 'Лиды сегодня / план';
+
+  @override
+  String get aiMetricHotLeads => 'Горячие лиды';
+
+  @override
+  String get aiMetricPerManagerAvg => 'В среднем на менеджера';
+
+  @override
+  String get aiMetricResponseSla => 'Медиана ответа, мин';
+
+  @override
+  String get aiMetricSlaBreaches => 'Нарушения SLA';
+
+  @override
+  String get aiMetricFunnelWon => 'Закрыто';
+
+  @override
+  String get aiMetricConversion => 'Конверсия';
+
+  @override
+  String get aiMetricMinutesSuffix => 'мин';
+
+  @override
+  String get aiReasonHighIntent => 'Высокая заинтересованность';
+
+  @override
+  String get aiReasonViewingRequested => 'Запрошен просмотр';
+
+  @override
+  String get aiReasonSpecificUnit => 'Спрашивал про конкретный юнит';
+
+  @override
+  String get aiReasonPreferredTimeSet => 'Указано удобное время';
+
+  @override
+  String get aiReasonLongMessage => 'Подробное сообщение';
+
+  @override
+  String get aiReasonMortgageInterest => 'Интересует ипотека';
+
+  @override
+  String get aiReasonCashBuyer => 'Покупка за наличные';
+
+  @override
+  String get aiReasonUrgentKeyword => 'Срочные формулировки';
+
+  @override
+  String get aiReasonRepeatContact => 'Повторное обращение';
+
+  @override
+  String get aiReasonRecentActivity => 'Недавняя активность';
+
+  @override
+  String get aiReasonNoResponse24h => 'Нет ответа 24 часа';
+
+  @override
+  String get aiReasonNoResponse3d => 'Нет ответа 3 дня';
+
+  @override
+  String get aiReasonSlaBreach => 'Нарушен SLA';
+
+  @override
+  String get aiReasonFunnelAdvanced => 'Продвинулся по воронке';
+
+  @override
+  String get aiReasonStalled => 'Застопорился';
+
+  @override
+  String get aiReasonHotProject => 'Востребованный ЖК';
+
+  @override
+  String get aiReasonUnitScarcity => 'Осталось мало юнитов';
+
+  @override
+  String get aiReasonOffplanInterest =>
+      'Интерес к продаже на этапе строительства';
+
+  @override
+  String get aiReasonRentIntent => 'Ищет аренду';
+
+  @override
+  String get aiReasonLowSpecificity => 'Низкая конкретика';
+
+  @override
+  String get crmBotTitle => 'ИИ-ассистент';
+
+  @override
+  String get crmBotBack => 'Назад';
+
+  @override
+  String get crmBotActionOpenLead => 'Открыть лид';
+
+  @override
+  String get crmBotActionAssignToMe => 'Назначить на меня';
+
+  @override
+  String get crmBotActionMarkContacted => 'Отметить контакт';
+
+  @override
+  String crmBotProjectMeta(int hot, int open, int units) {
+    return '$hot горячих · $open в работе · $units юнитов доступно';
+  }
+
+  @override
+  String get crmBotMessageRoot => 'Что вы хотите посмотреть?';
+
+  @override
+  String crmBotMessageHotLeads(int count) {
+    return '$count горячих лидов требуют внимания сегодня.';
+  }
+
+  @override
+  String get crmBotMessageByProject =>
+      'Выберите ЖК, чтобы посмотреть его лиды.';
+
+  @override
+  String get crmBotMessageByImportance => 'Лиды, ранжированные по важности.';
+
+  @override
+  String get crmBotMessageTodaySummary => 'Вот сводка за сегодня.';
+
+  @override
+  String get crmBotMessageWhatNext => 'Вот что стоит сделать дальше.';
+
+  @override
+  String get crmBotMessageProjectMenu =>
+      'Выберите, что проверить по этому проекту.';
+
+  @override
+  String crmBotMessageProjectHot(int count) {
+    return '$count горячих лидов по этому проекту.';
+  }
+
+  @override
+  String crmBotMessageProjectNoResponse48h(int count) {
+    return '$count лидов без ответа более 48 часов.';
+  }
+
+  @override
+  String crmBotMessageProjectNewToday(int count) {
+    return '$count новых лидов сегодня.';
+  }
+
+  @override
+  String get crmBotMessageProjectFunnel => 'Вот воронка по этому проекту.';
+
+  @override
+  String get crmBotMessageGeneric => 'Вот что удалось найти.';
+
+  @override
+  String crmBotMessageNeedsResponse(int count) {
+    return '$count лидов всё ещё ждут первого ответа.';
+  }
+
+  @override
+  String crmBotMessageUnassigned(int count) {
+    return '$count открытых лидов без ответственного.';
+  }
+
+  @override
+  String crmBotMessageByManager(int count) {
+    return 'Нагрузка по $count менеджерам.';
+  }
+
+  @override
+  String crmBotMessageManagerLeads(String name, int count) {
+    return 'У $name $count открытых лидов.';
+  }
+
+  @override
+  String get crmBotMessageAnalytics => 'Какой отчёт показать?';
+
+  @override
+  String crmBotMessageWeekSummary(int count) {
+    return 'За последние 7 дней пришло $count лидов.';
+  }
+
+  @override
+  String get crmBotMessageConversion => 'Конверсия между этапами воронки.';
+
+  @override
+  String crmBotMessageDemand(int count) {
+    return 'Что спрашивают: комнатность по $count лидам с выбранной квартирой.';
+  }
+
+  @override
+  String crmBotMessageProjectDemand(String name) {
+    return 'Спрос и наличие в «$name».';
+  }
+
+  @override
+  String get crmBotMessageExample =>
+      'Живых лидов пока нет — так ответ выглядит, когда они появятся.';
+
+  @override
+  String get crmBotOptionHotLeads => 'Горячие лиды';
+
+  @override
+  String get crmBotOptionByProject => 'По ЖК';
+
+  @override
+  String get crmBotOptionByImportance => 'По важности';
+
+  @override
+  String get crmBotOptionTodaySummary => 'Сводка за сегодня';
+
+  @override
+  String get crmBotOptionWhatNext => 'Что делать дальше';
+
+  @override
+  String get crmBotOptionProjectHot => 'Горячие лиды';
+
+  @override
+  String get crmBotOptionProjectNoResponse48h => 'Без ответа 48 часов';
+
+  @override
+  String get crmBotOptionProjectNewToday => 'Новые сегодня';
+
+  @override
+  String get crmBotOptionProjectFunnel => 'Воронка';
+
+  @override
+  String get crmBotOptionBackToRoot => 'Назад в начало';
+
+  @override
+  String get crmBotOptionBackToProjects => 'Назад к ЖК';
+
+  @override
+  String get crmBotOptionBackToProjectMenu => 'Назад в меню ЖК';
+
+  @override
+  String get crmBotOptionNeedsResponse => 'Ждут ответа';
+
+  @override
+  String get crmBotOptionUnassigned => 'Без ответственного';
+
+  @override
+  String get crmBotOptionByManager => 'По менеджерам';
+
+  @override
+  String get crmBotOptionAnalytics => 'Аналитика';
+
+  @override
+  String get crmBotOptionWeekSummary => 'За неделю';
+
+  @override
+  String get crmBotOptionConversion => 'Конверсия';
+
+  @override
+  String get crmBotOptionDemand => 'Что спрашивают';
+
+  @override
+  String get crmBotOptionProjectDemand => 'Спрос и наличие';
+
+  @override
+  String get crmBotOptionBackToAnalytics => 'Назад к аналитике';
+
+  @override
+  String get crmBotOptionBackToManagers => 'Назад к менеджерам';
+
+  @override
+  String get crmBotNodeRoot => 'Ассистент';
+
+  @override
+  String get crmBotNodeHotLeads => 'Горячие лиды';
+
+  @override
+  String get crmBotNodeByProject => 'По ЖК';
+
+  @override
+  String get crmBotNodeByImportance => 'По важности';
+
+  @override
+  String get crmBotNodeTodaySummary => 'Сегодня';
+
+  @override
+  String get crmBotNodeWhatNext => 'Дальнейшие шаги';
+
+  @override
+  String get crmBotNodeProjectMenu => 'Проект';
+
+  @override
+  String get crmBotNodeProjectHot => 'Горячие';
+
+  @override
+  String get crmBotNodeProjectNoResponse48h => 'Без ответа 48ч';
+
+  @override
+  String get crmBotNodeProjectNewToday => 'Новые сегодня';
+
+  @override
+  String get crmBotNodeProjectFunnel => 'Воронка';
+
+  @override
+  String get crmBotNodeNeedsResponse => 'Ждут ответа';
+
+  @override
+  String get crmBotNodeUnassigned => 'Без ответственного';
+
+  @override
+  String get crmBotNodeByManager => 'Менеджеры';
+
+  @override
+  String get crmBotNodeManagerLeads => 'Менеджер';
+
+  @override
+  String get crmBotNodeAnalytics => 'Аналитика';
+
+  @override
+  String get crmBotNodeWeekSummary => 'За неделю';
+
+  @override
+  String get crmBotNodeConversion => 'Конверсия';
+
+  @override
+  String get crmBotNodeDemand => 'Спрос';
+
+  @override
+  String get crmBotNodeProjectDemand => 'Спрос';
+
+  @override
+  String get crmBotMetricLeadsToday => 'Лидов сегодня';
+
+  @override
+  String get crmBotMetricHotLeads => 'Горячих лидов';
+
+  @override
+  String get crmBotMetricLeadVolume => 'Объём лидов';
+
+  @override
+  String get crmBotMetricByBand => 'По уровню оценки';
+
+  @override
+  String get crmBotMetricResponseSla => 'SLA ответа';
+
+  @override
+  String get crmBotMetricFunnel => 'Воронка';
+
+  @override
+  String get crmBotMetricConversion => 'Конверсия';
+
+  @override
+  String get crmBotMetricGeneric => 'Показатель';
+
+  @override
+  String get crmBotMetricLeadsWeek => 'Лидов за неделю';
+
+  @override
+  String get crmBotMetricLeadsPrevWeek => 'Неделей ранее';
+
+  @override
+  String get crmBotMetricWonWeek => 'Сделок за неделю';
+
+  @override
+  String get crmBotMetricSlaBreached => 'Нарушений SLA';
+
+  @override
+  String crmBotMetricConversionStep(String from, String to) {
+    return '$from → $to';
+  }
+
+  @override
+  String crmBotMetricDemandRooms(int rooms) {
+    return 'Запросов на $rooms-комн.';
+  }
+
+  @override
+  String crmBotMetricAvailableRooms(int rooms) {
+    return 'Свободно $rooms-комн.';
+  }
+
+  @override
+  String get crmBotSubtitle => 'Лиды, проекты и нагрузка команды';
+
+  @override
+  String get crmBotExampleBadge => 'Пример';
+
+  @override
+  String get crmBotRetry => 'Повторить';
+
+  @override
+  String get crmBotEmptyCards => 'По этому вопросу сейчас ничего нет.';
+
+  @override
+  String crmBotManagerMeta(int open, int hot) {
+    return '$open в работе · $hot горячих';
+  }
+
+  @override
+  String crmBotManagerAvgResponse(String minutes) {
+    return 'Ответ в среднем $minutes мин';
+  }
+
+  @override
+  String get b2bAiChatFabTooltip => 'Спросить iBuild AI';
+
+  @override
+  String get b2bAiChatFabLabel => 'AI';
+
+  @override
+  String get b2bAiChatTitle => 'iBuild AI';
+
+  @override
+  String get b2bAiChatSubtitle => 'Вопросы о проектах, лидах и аналитике';
+
+  @override
+  String b2bAiChatQuotaRemaining(int remaining, int limit) {
+    return 'Осталось $remaining из $limit сегодня';
+  }
+
+  @override
+  String b2bAiChatQuotaResetLabel(String time) {
+    return 'Обновится $time';
+  }
+
+  @override
+  String get b2bAiChatErrorSnackbar =>
+      'Не удалось получить ответ. Попробуйте ещё раз.';
+
+  @override
+  String get b2bAiChatQuotaExhaustedTitle => 'Дневной лимит исчерпан';
+
+  @override
+  String get b2bAiChatQuotaExhaustedBody =>
+      'Вы использовали сегодняшний лимит сообщений AI-чата. Возвращайтесь завтра.';
+
+  @override
+  String get b2bAiChatUnavailableTitle => 'AI-ассистент временно недоступен';
+
+  @override
+  String get b2bAiChatUnavailableBody =>
+      'Ассистент временно недоступен. Попробуйте немного позже.';
+
+  @override
+  String get b2bAiChatForbiddenTitle => 'Недоступно для этого аккаунта';
+
+  @override
+  String get b2bAiChatForbiddenBody =>
+      'AI-чат доступен только администраторам.';
+
+  @override
+  String get b2bAiChatEmptyTitle => 'Спросите AI-ассистента о чём угодно';
+
+  @override
+  String get b2bAiChatEmptyBody =>
+      'Свободные вопросы о ваших проектах, лидах и аналитике — попробуйте один из подсказанных запросов.';
+
+  @override
+  String get b2bAiChatInputHint => 'Написать AI-ассистенту...';
+
+  @override
+  String get b2bAiChatSendTooltip => 'Отправить';
+
+  @override
+  String get b2bAiChatQuickPromptsLabel => 'Быстрые вопросы';
+
+  @override
+  String get b2bAiChatQuickSystemSummary => 'Сводка по всем проектам';
+
+  @override
+  String get b2bAiChatQuickSystemOverdue => 'Где просрочен ответ по лидам?';
+
+  @override
+  String get b2bAiChatQuickSystemAttention => 'Какие проекты требуют внимания?';
+
+  @override
+  String get b2bAiChatQuickResidenceSummary => 'Сводка по моему проекту';
+
+  @override
+  String get b2bAiChatQuickResidenceHotLeads => 'Покажи горячие лиды';
+
+  @override
+  String get b2bAiChatQuickResidenceWeekChanges => 'Что изменилось за неделю?';
+
+  @override
+  String get readinessStageEarthworks => 'Земляные работы';
+
+  @override
+  String get readinessStageFoundation => 'Фундамент';
+
+  @override
+  String get readinessStageFrameFloors => 'Каркас и перекрытия';
+
+  @override
+  String get readinessStageRoofing => 'Кровля';
+
+  @override
+  String get readinessStageFacade => 'Фасад';
+
+  @override
+  String get readinessStageUtilities => 'Инженерные сети';
+
+  @override
+  String get readinessStageInteriorFinishing => 'Внутренняя отделка';
+
+  @override
+  String get readinessStageLandscaping => 'Благоустройство';
+
+  @override
+  String get readinessStatusConfirmed => 'Подтверждено';
+
+  @override
+  String get readinessStatusRequiresManualReview => 'Требует проверки вручную';
+
+  @override
+  String get readinessStatusDiscrepancyFound => 'Обнаружено несоответствие';
+
+  @override
+  String get readinessStatusViolationFound => 'Обнаружено нарушение';
+
+  @override
+  String get readinessCheckDialogTitle => 'ИИ-проверка готовности объекта';
+
+  @override
+  String get readinessAnalyzing => 'Проверяем фото с помощью ИИ…';
+
+  @override
+  String readinessConfidenceLabel(int percent) {
+    return 'Уверенность: $percent%';
+  }
+
+  @override
+  String get readinessUnavailableTitle => 'ИИ-проверка недоступна';
+
+  @override
+  String get readinessUnavailableMessage =>
+      'Проверку готовности не удалось выполнить. Можно продолжить без неё — отчёт загрузится как обычно.';
+
+  @override
+  String get readinessProceedWithoutCheck => 'Продолжить без проверки';
+
+  @override
+  String get readinessAckAndUpload => 'Понятно, загрузить';
+
+  @override
+  String get readinessConfirmedProceeding => 'Подтверждено — загружаем…';
+
+  @override
+  String get readinessReshoot => 'Переснять';
+
+  @override
+  String get readinessOverrideUpload => 'Всё равно загрузить';
+
+  @override
+  String get readinessOverrideCommentLabel =>
+      'Объясните, почему загружаете несмотря на предупреждение';
+
+  @override
+  String get readinessOverrideCommentHint =>
+      'Обязательно — опишите несоответствие, найденное ИИ';
+
+  @override
+  String get readinessDigestTitle => 'ИИ-консультант по объектам';
+
+  @override
+  String get readinessDigestEmpty => 'Пока нет отчётов, проверенных ИИ.';
+
+  @override
+  String readinessDigestTrend(int confirmed, int total) {
+    return '$confirmed из последних $total отчётов подтверждены';
+  }
+
+  @override
+  String get readinessDigestOutstandingTitle => 'Требуют внимания';
+
+  @override
+  String get verifStage1Ok => 'Изображение прошло проверку на пригодность.';
+
+  @override
+  String get verifStage1ImageUnreadable =>
+      'Не удалось прочитать или декодировать изображение.';
+
+  @override
+  String verifStage1LowQuality(Object blur, Object exposure) {
+    return 'Слишком низкое качество изображения (размытие $blur, экспозиция $exposure).';
+  }
+
+  @override
+  String get verifStage1MetadataMissing => 'Отсутствуют метаданные фото.';
+
+  @override
+  String get verifStage1GeotagMissing => 'У фото нет геометки.';
+
+  @override
+  String verifStage1GeotagFarFromObject(Object distanceKm, Object radiusKm) {
+    return 'Геометка фото в $distanceKm км от объекта (допустимый радиус $radiusKm км).';
+  }
+
+  @override
+  String verifStage1DateInFuture(String takenAt) {
+    return 'Дата фото ($takenAt) относится к будущему.';
+  }
+
+  @override
+  String verifStage1DateOutsideWindow(String takenAt, int windowDays) {
+    return 'Дата фото ($takenAt) выходит за пределы окна в $windowDays дней.';
+  }
+
+  @override
+  String get verifInsufficientData => 'Недостаточно данных для этой проверки.';
+
+  @override
+  String verifStage1EvidenceDecoded(int width, int height, int bytes) {
+    return 'Декодировано $width×${height}px, $bytes байт.';
+  }
+
+  @override
+  String verifStage1EvidenceExifDate(String takenAt) {
+    return 'Дата из EXIF: $takenAt.';
+  }
+
+  @override
+  String get verifStage1EvidenceNoExif => 'Данные EXIF не найдены.';
+
+  @override
+  String verifStage1EvidenceGeoDistance(Object distanceKm, Object radiusKm) {
+    return 'Расстояние до объекта: $distanceKm км (радиус $radiusKm км).';
+  }
+
+  @override
+  String verifStage1EvidenceSharpness(Object blur, Object threshold) {
+    return 'Резкость $blur (порог $threshold).';
+  }
+
+  @override
+  String get verifStage2Ok => 'Дубликат предыдущего отчёта не найден.';
+
+  @override
+  String get verifStage2NoPriorReports =>
+      'Нет предыдущих отчётов для сравнения.';
+
+  @override
+  String verifStage2NearDuplicate(
+    Object distance,
+    String reportId,
+    String takenAt,
+  ) {
+    return 'Очень похоже на отчёт $reportId от $takenAt (расстояние $distance).';
+  }
+
+  @override
+  String verifStage2DuplicateFound(
+    Object distance,
+    String reportId,
+    String takenAt,
+  ) {
+    return 'Дубликат отчёта $reportId от $takenAt (расстояние $distance).';
+  }
+
+  @override
+  String verifStage2EvidenceComparedCount(int count) {
+    return 'Сравнено с $count предыдущими фото.';
+  }
+
+  @override
+  String verifStage2EvidenceHammingDistance(
+    Object distance,
+    Object threshold,
+    String reportId,
+  ) {
+    return 'Расстояние Хэмминга $distance при пороге $threshold (отчёт $reportId).';
+  }
+
+  @override
+  String verifStage3Ok(String stage, Object confidence) {
+    return 'Определён этап: $stage (уверенность $confidence).';
+  }
+
+  @override
+  String verifStage3NotConstructionSite(Object confidence) {
+    return 'Не похоже на строительную площадку (уверенность $confidence).';
+  }
+
+  @override
+  String verifStage3StageUnclear(Object confidence) {
+    return 'Этап строительства неясен (уверенность $confidence).';
+  }
+
+  @override
+  String verifStage3EvidenceClassified(String stage, Object confidence) {
+    return 'Определён этап: $stage ($confidence).';
+  }
+
+  @override
+  String verifStage3EvidenceFeatures(
+    Object skyRatio,
+    Object soilRatio,
+    Object concreteRatio,
+    Object vegetationRatio,
+    Object verticalEdgeDensity,
+    Object openingPeriodicity,
+  ) {
+    return 'Небо $skyRatio, грунт $soilRatio, бетон $concreteRatio, зелень $vegetationRatio, кромки $verticalEdgeDensity, проёмы $openingPeriodicity.';
+  }
+
+  @override
+  String verifStage4Ok(String declaredStage) {
+    return 'Соответствует заявленному этапу ($declaredStage).';
+  }
+
+  @override
+  String get verifStage4NoDeclaredStage => 'Заявленный этап не указан.';
+
+  @override
+  String verifStage4AdjacentStageMismatch(
+    String declaredStage,
+    String detectedStage,
+  ) {
+    return 'Заявлен этап $declaredStage, но похоже на соседний этап $detectedStage.';
+  }
+
+  @override
+  String verifStage4StageMismatch(
+    String declaredStage,
+    String detectedStage,
+    Object distance,
+  ) {
+    return 'Заявлен этап $declaredStage, но определён $detectedStage (расстояние $distance).';
+  }
+
+  @override
+  String verifStage4EvidenceComparison(
+    String declaredStage,
+    String detectedStage,
+    int ordinalDistance,
+  ) {
+    return 'Заявлено $declaredStage, определено $detectedStage (разница $ordinalDistance этапов).';
+  }
+
+  @override
+  String verifStage5Ok(String previousTakenAt) {
+    return 'Прогресс с предыдущего отчёта ($previousTakenAt) выглядит последовательным.';
+  }
+
+  @override
+  String get verifStage5NoPreviousReport =>
+      'Нет предыдущего отчёта для сравнения прогресса.';
+
+  @override
+  String verifStage5NoVisibleProgress(Object distance, String previousTakenAt) {
+    return 'Нет видимого прогресса с $previousTakenAt (расстояние $distance).';
+  }
+
+  @override
+  String verifStage5RegressionDetected(
+    String previousStage,
+    String detectedStage,
+  ) {
+    return 'Похоже на регресс: было $previousStage, стало $detectedStage.';
+  }
+
+  @override
+  String get verifStage5ProgressNotDeclared =>
+      'Прогресс изменился, но не был заявлен.';
+
+  @override
+  String verifStage5EvidenceSimilarity(
+    Object distance,
+    Object threshold,
+    String previousReportId,
+    String previousTakenAt,
+  ) {
+    return 'Схожесть $distance при пороге $threshold (отчёт $previousReportId, $previousTakenAt).';
+  }
+
+  @override
+  String verifStage5EvidenceProgressDelta(
+    Object previousPercent,
+    Object currentPercent,
+  ) {
+    return 'Прогресс $previousPercent% → $currentPercent%.';
+  }
+
+  @override
+  String get verifStage5EvidenceDeveloperComment =>
+      'Прикреплён комментарий застройщика.';
+
+  @override
+  String get verifStage6Ok => 'Признаков нарушений или рисков не найдено.';
+
+  @override
+  String get verifStage6SafetyGearAbsent =>
+      'На площадке не видно защитной экипировки.';
+
+  @override
+  String verifStage6StructuralDamage(Object ratio) {
+    return 'Обнаружены возможные повреждения конструкции ($ratio).';
+  }
+
+  @override
+  String get verifStage6WorkStoppage => 'Признаки приостановки работ.';
+
+  @override
+  String verifStage6DebrisAccumulation(Object score) {
+    return 'Обнаружено скопление строительного мусора (оценка $score).';
+  }
+
+  @override
+  String verifStage6AmbiguousIndicator(String indicator) {
+    return 'Неоднозначный индикатор: $indicator.';
+  }
+
+  @override
+  String verifStage6EvidenceHiVisRatio(Object ratio, Object threshold) {
+    return 'Доля сигнальной экипировки $ratio (порог $threshold).';
+  }
+
+  @override
+  String verifStage6EvidenceCrackPixels(Object ratio, Object threshold) {
+    return 'Доля пикселей с трещинами $ratio (порог $threshold).';
+  }
+
+  @override
+  String get verifStage6EvidenceNoEquipment => 'В кадре не обнаружено техники.';
+
+  @override
+  String verifStage6EvidenceDebrisTexture(Object score) {
+    return 'Оценка текстуры мусора $score.';
+  }
+
+  @override
+  String get verifStage7Confirmed => 'Все проверки пройдены — подтверждено.';
+
+  @override
+  String verifStage7ManualReview(int warnings) {
+    return 'Предупреждений: $warnings — требуется проверка вручную.';
+  }
+
+  @override
+  String verifStage7NotReached(String stoppedAt) {
+    return 'Проверка остановлена на этапе $stoppedAt.';
+  }
+
+  @override
+  String verifStage7EvidenceStageSummary(int passed, int warnings, int failed) {
+    return 'Пройдено $passed, предупреждений $warnings, провалено $failed.';
+  }
+
+  @override
+  String verifSummaryConfirmed(String detectedStage, Object progressPercent) {
+    return 'Подтверждено: этап $detectedStage, прогресс $progressPercent%.';
+  }
+
+  @override
+  String verifSummaryManualReview(String stage) {
+    return 'Это фото этапа «$stage» требует быстрой проверки вручную.';
+  }
+
+  @override
+  String verifSummaryDiscrepancy(
+    String stage,
+    String declaredStage,
+    String detectedStage,
+  ) {
+    return 'На проверке «$stage» заявленный этап $declaredStage не совпадает с определённым $detectedStage.';
+  }
+
+  @override
+  String verifSummaryViolation(String stage, String indicator) {
+    return 'На проверке «$stage» обнаружен индикатор нарушения: $indicator.';
+  }
 }

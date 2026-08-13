@@ -29,6 +29,12 @@
   <img src="https://img.shields.io/badge/built%20with-GPT%205.6%20Sol-0a1f35" alt="GPT 5.6 Sol">
 </p>
 
+> ### 🇺🇿 Regulatory tailwind — happening right now
+>
+> A law introducing **mandatory escrow accounts for shared construction** is currently moving through Uzbekistan's parliament. Buyer funds will no longer go straight to the developer — they will sit in a bank and be released only against **confirmed construction progress**. That hands every lending bank a new legal duty it has no cheap way to fulfill today: verifying that the work behind each tranche actually happened.
+>
+> Закон о долевом строительстве с обязательными **эскроу-счетами** сейчас проходит через парламент Узбекистана. Деньги дольщика больше не пойдут напрямую застройщику — они лягут на счёт в банке и будут переведены только после **подтверждения выполненных работ**. У банков появляется новая юридическая обязанность, которую сегодня нечем закрыть недорого: проверять, что стройка за каждым траншем реальна.
+
 ---
 
 # English
@@ -100,6 +106,8 @@ The main buyer complaint in Uzbekistan is not price or choice — it is the **in
 
 iBuild’s product job: give buyers and banks an **independent monitoring and verification tool** for construction progress, and give authorized agencies an early signal when plan and fact diverge.
 
+> **Why now.** A law introducing mandatory escrow accounts for shared construction is currently moving through Uzbekistan’s parliament — state-level recognition of the exact same broken-promise problem iBuild is built to solve, and the moment banks start needing a verification tool rather than just wanting one.
+
 ---
 
 ## 3. Schedule trust system
@@ -137,6 +145,8 @@ Up to 15 % is normal for a build cycle. Over 15 % triggers a flag and informatio
 iBuild is an **independent digital system** for monitoring, documenting, and verifying construction progress. Informational exchange with authorized government bodies is planned. <span style="background:#eef1f5;color:#5a6270;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #ccd2da">planned</span>
 
 A plan–fact gap is a signal for the buyer, the bank, and the agency. Judging compliance with building codes is the government’s job, not the platform’s.
+
+> **The near-term driver.** Once escrow accounts are mandatory, a bank cannot release a tranche without confirming the work behind it — today that check is manual, slow, and expensive to staff. The monitoring chain below (Section 5) is designed to be the tool a bank plugs into for that confirmation, turning a regulatory cost into a service iBuild already sells.
 
 ---
 
@@ -229,6 +239,19 @@ Monitoring is two-tier: machine first (metadata and image compare), then a speci
 | **Developer** (subscription) | More completed leads at the same traffic; verified reports support verified-developer status. |
 | **Bank** (verification · leads) | Continuous monitoring plus specialists on disputes costs less than an in-house team; referral link brings mortgage/loan applications. |
 | **iBuild** (margin) | Monitoring unit cost falls; the service stays cheaper than a bank’s own staff as inventory grows. |
+
+### 7.3. In-house AI engines (shipped, code in this repo)
+
+Two of the AI features above are not a vendor call — they are deterministic, in-house engines written for this repo, with no training and no upstream model call:
+
+| Engine | What it does | Server code | Client code |
+|---|---|---|---|
+| **Smart search (b2c)** | Parses free-text ru/uz/en queries into structured constraints, ranks catalogue units, and drives the inline "ghost text" suggestion. | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
+| **CRM lead scoring (b2b)** | Scores every lead hot/warm/cold from behaviour, SLA timers, and keyword signals; answers the CRM assistant's guided questions. | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
+| **Readiness / photo analysis** | Runs the `stage_1`…`stage_7` verification pipeline locally before any optional vision-model pass. | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | — |
+| Buyer AI consultant *(OpenAI-backed)* | Conversational chat layer over the catalogue; the only piece that calls an upstream model. | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
+
+All AI HTTP endpoints (`/v1/ai/search`, `/v1/ai/search/suggest`, `/v1/ai/crm/leads`, `/v1/ai/crm/query`, `/v1/ai/chat`, photo verification) are wired in [`ai_routes.dart`](server/lib/src/ai/ai_routes.dart).
 
 ---
 
@@ -366,6 +389,8 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 
 Отсюда продуктовая задача iBuild: дать покупателю и банку **инструмент независимого мониторинга и верификации сведений** о ходе строительства, а уполномоченным государственным органам — ранний информационный сигнал о расхождении плана и факта.
 
+> **Почему именно сейчас.** Через парламент Узбекистана проходит закон о долевом строительстве с обязательными эскроу-счетами — та же проблема обманутых дольщиков признана на уровне государства, и именно с этого момента у банков появляется не желание, а необходимость в инструменте верификации.
+
 ---
 
 ## 3. Система доверия к срокам
@@ -403,6 +428,8 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 iBuild — **независимая цифровая система** мониторинга, документирования и верификации сведений о ходе строительства. Планируется информационный обмен с уполномоченными государственными органами. <span style="background:#eef1f5;color:#5a6270;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #ccd2da">план</span>
 
 Расхождение плана и факта — сигнал для покупателя, банка и ведомства. Оценка соответствия строительным нормам — компетенция госорганов, не платформы.
+
+> **Ближайший драйвер.** Как только эскроу-счета станут обязательными, банк не сможет выпустить транш без подтверждения выполненных работ — сегодня эта проверка ручная, медленная и дорога в содержании. Цепочка мониторинга ниже (раздел 5) спроектирована как инструмент, к которому банк подключается для такого подтверждения, — регуляторная нагрузка превращается в услугу, которую iBuild уже продаёт.
 
 ---
 
@@ -496,6 +523,19 @@ iBuild — **независимая цифровая система** монит
 | **Банк** (верификация · лиды) | Сплошной мониторинг плюс специалист по спорным дешевле собственного штата; реферальная ссылка приводит заявки на ипотеку и кредит. |
 | **iBuild** (маржа) | Себестоимость мониторинга падает: услуга дешевле банковского штата, маржа держится при росте объектов. |
 
+### 7.3. Собственные ИИ-движки (реализовано, код в этом репозитории)
+
+Две ИИ-возможности выше — не вызов вендора, а детерминированные собственные движки, написанные для этого репозитория: без обучения моделей и без обращения к внешнему провайдеру.
+
+| Движок | Что делает | Код сервера | Код клиента |
+|---|---|---|---|
+| **Умный поиск (b2c)** | Разбирает свободный текст на ru/uz/en в структурные условия, ранжирует юниты каталога и формирует подсказку «серым текстом». | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
+| **Скоринг лидов CRM (b2b)** | Оценивает каждый лид как горячий/тёплый/холодный по поведению, таймерам SLA и ключевым словам; отвечает на вопросы ассистента CRM. | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
+| **Готовность / анализ фото** | Локально выполняет проверку `stage_1`…`stage_7` до опционального прохода через модель компьютерного зрения. | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | — |
+| ИИ-консультант покупателя *(на базе OpenAI)* | Диалоговый слой над каталогом; единственный компонент, обращающийся к внешней модели. | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
+
+Все ИИ-эндпоинты (`/v1/ai/search`, `/v1/ai/search/suggest`, `/v1/ai/crm/leads`, `/v1/ai/crm/query`, `/v1/ai/chat`, верификация фото) подключены в [`ai_routes.dart`](server/lib/src/ai/ai_routes.dart).
+
 ---
 
 ## 8. Возможности для клиентов
@@ -568,8 +608,11 @@ iBuild — **независимая цифровая система** монит
 | Path | Purpose |
 |---|---|
 | [`b2c/`](b2c/) | Buyer app — search, map, project pages, favorites, requests |
+| [`b2c/lib/features/ai/`](b2c/lib/features/ai/) | Buyer-side smart search UI (search bar, results, ghost-text suggest) |
 | [`b2b/`](b2b/) | Developer & platform admin — CRM, units, media, moderation |
+| [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) | CRM AI assistant UI (bot sheet, lead/metric cards, band pills) |
 | [`server/`](server/) | API — REST, WebSocket, PostgreSQL |
+| [`server/lib/src/ai/`](server/lib/src/ai/) | AI engines — smart search, CRM lead scoring, readiness/photo analysis, chat |
 | [`packages/`](packages/) | Shared Dart packages (theme, models, widgets) |
 | [`ibuild-wiki/`](ibuild-wiki/) | Internal project reference (full HTML version) |
 

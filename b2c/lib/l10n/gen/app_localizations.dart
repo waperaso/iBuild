@@ -2151,6 +2151,744 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Take the quiz'**
   String get quizEntryAction;
+
+  /// No description provided for @leadSubjectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s this about?'**
+  String get leadSubjectLabel;
+
+  /// No description provided for @leadSubjectProject.
+  ///
+  /// In en, this message translates to:
+  /// **'A project'**
+  String get leadSubjectProject;
+
+  /// No description provided for @leadSubjectUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'A specific unit'**
+  String get leadSubjectUnit;
+
+  /// No description provided for @leadSubjectRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Renting'**
+  String get leadSubjectRent;
+
+  /// No description provided for @leadSubjectOffice.
+  ///
+  /// In en, this message translates to:
+  /// **'An office'**
+  String get leadSubjectOffice;
+
+  /// No description provided for @leadSubjectMortgage.
+  ///
+  /// In en, this message translates to:
+  /// **'Mortgage consult'**
+  String get leadSubjectMortgage;
+
+  /// No description provided for @leadSubjectOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get leadSubjectOther;
+
+  /// No description provided for @aiFabTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask iBuild AI'**
+  String get aiFabTooltip;
+
+  /// No description provided for @aiChatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'iBuild AI'**
+  String get aiChatTitle;
+
+  /// No description provided for @aiChatInfoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'About iBuild AI'**
+  String get aiChatInfoTooltip;
+
+  /// No description provided for @aiChatInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about the catalogue, a specific complex or unit, or how installments and mortgages work — iBuild AI answers using iBuild\'s own listings and terms.'**
+  String get aiChatInfoBody;
+
+  /// No description provided for @aiChatErrorSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get a reply. Please try again.'**
+  String get aiChatErrorSnackbar;
+
+  /// No description provided for @aiChatQuotaExhaustedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit reached'**
+  String get aiChatQuotaExhaustedTitle;
+
+  /// No description provided for @aiChatQuotaExhaustedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used today\'s iBuild AI messages. Please come back tomorrow.'**
+  String get aiChatQuotaExhaustedBody;
+
+  /// No description provided for @aiChatUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'iBuild AI is taking a break'**
+  String get aiChatUnavailableTitle;
+
+  /// No description provided for @aiChatUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant is temporarily unavailable. Please try again later.'**
+  String get aiChatUnavailableBody;
+
+  /// No description provided for @aiChatEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask iBuild AI anything'**
+  String get aiChatEmptyTitle;
+
+  /// No description provided for @aiChatEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try “Which complexes in Chilanzar have installments?” or “What\'s a good mortgage rate for a \$60,000 flat?”'**
+  String get aiChatEmptyBody;
+
+  /// No description provided for @aiChatInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message iBuild AI...'**
+  String get aiChatInputHint;
+
+  /// No description provided for @aiChatSendTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get aiChatSendTooltip;
+
+  /// No description provided for @aiBetaNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'iBuild AI is in testing'**
+  String get aiBetaNoticeTitle;
+
+  /// No description provided for @aiBetaNoticeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers may occasionally be inaccurate — always double-check details like price and availability on the listing itself.'**
+  String get aiBetaNoticeBody;
+
+  /// No description provided for @aiQuotaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily quota'**
+  String get aiQuotaTitle;
+
+  /// No description provided for @aiQuotaUsedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {limit} messages used today'**
+  String aiQuotaUsedLabel(int used, int limit);
+
+  /// No description provided for @aiQuotaResetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Resets {time}'**
+  String aiQuotaResetLabel(String time);
+
+  /// No description provided for @aiSearchInfoExamplesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try asking'**
+  String get aiSearchInfoExamplesTitle;
+
+  /// No description provided for @aiSearchInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI smart search'**
+  String get aiSearchInfoTitle;
+
+  /// No description provided for @aiSearchInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what you\'re looking for in plain language — rooms, budget, district, anything that matters to you — and iBuild AI will parse it into a live search of the catalogue.'**
+  String get aiSearchInfoBody;
+
+  /// No description provided for @aiSearchExample1.
+  ///
+  /// In en, this message translates to:
+  /// **'2-room in Chilanzar under \$60k'**
+  String get aiSearchExample1;
+
+  /// No description provided for @aiSearchExample2.
+  ///
+  /// In en, this message translates to:
+  /// **'3-bedroom office near the business district, ready now'**
+  String get aiSearchExample2;
+
+  /// No description provided for @aiSearchExample3.
+  ///
+  /// In en, this message translates to:
+  /// **'Apartment for rent, not on the first floor, with parking'**
+  String get aiSearchExample3;
+
+  /// No description provided for @aiSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what you\'re looking for...'**
+  String get aiSearchHint;
+
+  /// No description provided for @aiSearchClearTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get aiSearchClearTooltip;
+
+  /// No description provided for @aiSearchSubmitTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get aiSearchSubmitTooltip;
+
+  /// No description provided for @aiSearchInfoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'About AI search'**
+  String get aiSearchInfoTooltip;
+
+  /// No description provided for @aiSearchRateLimitedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily search limit reached'**
+  String get aiSearchRateLimitedTitle;
+
+  /// No description provided for @aiSearchRateLimitedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the daily AI search limit. Please come back {time}.'**
+  String aiSearchRateLimitedBody(String time);
+
+  /// No description provided for @aiSearchUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI search is taking a break'**
+  String get aiSearchUnavailableTitle;
+
+  /// No description provided for @aiSearchUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart search is temporarily unavailable. Please try again later.'**
+  String get aiSearchUnavailableBody;
+
+  /// No description provided for @aiSearchGenericErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t run that search'**
+  String get aiSearchGenericErrorTitle;
+
+  /// No description provided for @aiSearchGenericErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again in a moment.'**
+  String get aiSearchGenericErrorBody;
+
+  /// No description provided for @aiSearchUnrecognizedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sure what you meant by: {terms}'**
+  String aiSearchUnrecognizedNote(String terms);
+
+  /// No description provided for @aiSearchSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No matches} =1{1 match} other{{count} matches}}'**
+  String aiSearchSummary(int count);
+
+  /// No description provided for @aiSearchResultsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches yet'**
+  String get aiSearchResultsEmptyTitle;
+
+  /// No description provided for @aiSearchResultsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try loosening a constraint — a wider budget or a nearby district often helps.'**
+  String get aiSearchResultsEmptyBody;
+
+  /// No description provided for @aiSearchMatchScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{score}% match'**
+  String aiSearchMatchScoreLabel(int score);
+
+  /// No description provided for @aiSearchStatusStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started...'**
+  String get aiSearchStatusStarting;
+
+  /// No description provided for @aiSearchTabHintTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Press Tab to accept the suggestion'**
+  String get aiSearchTabHintTooltip;
+
+  /// No description provided for @aiSearchTabAcceptLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the AI suggestion'**
+  String get aiSearchTabAcceptLabel;
+
+  /// No description provided for @aiSearchClarifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not understand the query'**
+  String get aiSearchClarifyTitle;
+
+  /// No description provided for @aiSearchClarifyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These words are not in the catalogue: {terms}. Rephrase the query or pick one of the suggestions below.'**
+  String aiSearchClarifyBody(String terms);
+
+  /// No description provided for @aiSearchClarifyExamplesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Try one of these instead:'**
+  String get aiSearchClarifyExamplesHint;
+
+  /// No description provided for @aiSearchDidYouMean.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you mean “{suggestion}”?'**
+  String aiSearchDidYouMean(String suggestion);
+
+  /// No description provided for @aiSearchQuotedTerm.
+  ///
+  /// In en, this message translates to:
+  /// **'“{term}”'**
+  String aiSearchQuotedTerm(String term);
+
+  /// No description provided for @aiSearchRelaxConstraint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop: {constraint}'**
+  String aiSearchRelaxConstraint(String constraint);
+
+  /// No description provided for @aiStepParsingV1.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading your request ({count} details)...'**
+  String aiStepParsingV1(int count);
+
+  /// No description provided for @aiStepParsingV2.
+  ///
+  /// In en, this message translates to:
+  /// **'Understanding what you\'re after ({count} details)...'**
+  String aiStepParsingV2(int count);
+
+  /// No description provided for @aiStepParsingV3.
+  ///
+  /// In en, this message translates to:
+  /// **'Parsing {count, plural, =1{1 requirement} other{{count} requirements}}...'**
+  String aiStepParsingV3(int count);
+
+  /// No description provided for @aiStepParsingV4.
+  ///
+  /// In en, this message translates to:
+  /// **'Breaking down your request into {count} parts...'**
+  String aiStepParsingV4(int count);
+
+  /// No description provided for @aiStepScanningDistrictV1.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning {district} ({count} projects)...'**
+  String aiStepScanningDistrictV1(String district, int count);
+
+  /// No description provided for @aiStepScanningDistrictV2.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking through {count} projects in {district}...'**
+  String aiStepScanningDistrictV2(String district, int count);
+
+  /// No description provided for @aiStepScanningDistrictV3.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking availability in {district} ({count} projects)...'**
+  String aiStepScanningDistrictV3(String district, int count);
+
+  /// No description provided for @aiStepScanningDistrictV4.
+  ///
+  /// In en, this message translates to:
+  /// **'Surveying {district} ({count} projects)...'**
+  String aiStepScanningDistrictV4(String district, int count);
+
+  /// No description provided for @aiStepFoundInDistrictV1.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count} in {district}'**
+  String aiStepFoundInDistrictV1(String district, int count);
+
+  /// No description provided for @aiStepFoundInDistrictV2.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} candidates spotted in {district}'**
+  String aiStepFoundInDistrictV2(String district, int count);
+
+  /// No description provided for @aiStepFoundInDistrictV3.
+  ///
+  /// In en, this message translates to:
+  /// **'{district}: {count} worth a closer look'**
+  String aiStepFoundInDistrictV3(String district, int count);
+
+  /// No description provided for @aiStepFoundInDistrictV4.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortlisted {count} in {district}'**
+  String aiStepFoundInDistrictV4(String district, int count);
+
+  /// No description provided for @aiStepOpeningProjectV1.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening {project} ({index}/{total})...'**
+  String aiStepOpeningProjectV1(String project, int index, int total);
+
+  /// No description provided for @aiStepOpeningProjectV2.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking inside {project} ({index} of {total})...'**
+  String aiStepOpeningProjectV2(String project, int index, int total);
+
+  /// No description provided for @aiStepOpeningProjectV3.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking {project} ({index} of {total})...'**
+  String aiStepOpeningProjectV3(String project, int index, int total);
+
+  /// No description provided for @aiStepOpeningProjectV4.
+  ///
+  /// In en, this message translates to:
+  /// **'Now viewing {project} ({index}/{total})...'**
+  String aiStepOpeningProjectV4(String project, int index, int total);
+
+  /// No description provided for @aiStepScanningUnitsV1.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning units in {project} ({count})...'**
+  String aiStepScanningUnitsV1(String project, int count);
+
+  /// No description provided for @aiStepScanningUnitsV2.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking {count} units in {project}...'**
+  String aiStepScanningUnitsV2(String project, int count);
+
+  /// No description provided for @aiStepScanningUnitsV3.
+  ///
+  /// In en, this message translates to:
+  /// **'Going through the floor plans in {project} ({count} units)...'**
+  String aiStepScanningUnitsV3(String project, int count);
+
+  /// No description provided for @aiStepScanningUnitsV4.
+  ///
+  /// In en, this message translates to:
+  /// **'{project}: reviewing {count} units...'**
+  String aiStepScanningUnitsV4(String project, int count);
+
+  /// No description provided for @aiStepFilteringBookedV1.
+  ///
+  /// In en, this message translates to:
+  /// **'Filtering out {removed} unavailable, {left} left...'**
+  String aiStepFilteringBookedV1(int removed, int left);
+
+  /// No description provided for @aiStepFilteringBookedV2.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing {removed} sold and reserved units ({left} remain)...'**
+  String aiStepFilteringBookedV2(int removed, int left);
+
+  /// No description provided for @aiStepFilteringBookedV3.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipping {removed} already taken, {left} left...'**
+  String aiStepFilteringBookedV3(int removed, int left);
+
+  /// No description provided for @aiStepFilteringBookedV4.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeping only the {left} available units (removed {removed})...'**
+  String aiStepFilteringBookedV4(int removed, int left);
+
+  /// No description provided for @aiStepRankingPriceV1.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranking {count} by best fit...'**
+  String aiStepRankingPriceV1(int count);
+
+  /// No description provided for @aiStepRankingPriceV2.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorting {count} by price and match quality...'**
+  String aiStepRankingPriceV2(int count);
+
+  /// No description provided for @aiStepRankingPriceV3.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparing {count} options...'**
+  String aiStepRankingPriceV3(int count);
+
+  /// No description provided for @aiStepRankingPriceV4.
+  ///
+  /// In en, this message translates to:
+  /// **'Lining up the best {count} matches...'**
+  String aiStepRankingPriceV4(int count);
+
+  /// No description provided for @aiStepDoneV1.
+  ///
+  /// In en, this message translates to:
+  /// **'Done · {count, plural, =0{no matches} =1{1 match} other{{count} matches}} in {elapsedMs}ms'**
+  String aiStepDoneV1(int count, int elapsedMs);
+
+  /// No description provided for @aiStepDoneV2.
+  ///
+  /// In en, this message translates to:
+  /// **'All set — {count, plural, =0{nothing quite matched} =1{1 match found} other{{count} matches found}} ({elapsedMs}ms)'**
+  String aiStepDoneV2(int count, int elapsedMs);
+
+  /// No description provided for @aiStepDoneV3.
+  ///
+  /// In en, this message translates to:
+  /// **'Search complete ({count, plural, =0{0 results} =1{1 result} other{{count} results}}, {elapsedMs}ms)'**
+  String aiStepDoneV3(int count, int elapsedMs);
+
+  /// No description provided for @aiStepDoneV4.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready — {count, plural, =0{no matches this time} =1{1 strong match} other{{count} strong matches}} ({elapsedMs}ms)'**
+  String aiStepDoneV4(int count, int elapsedMs);
+
+  /// No description provided for @aiStepNoMatchIntent.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in the catalogue matches {terms} — stopping here'**
+  String aiStepNoMatchIntent(String terms);
+
+  /// No description provided for @aiStepLowConfidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Not fully sure about {terms} — showing broader matches ({count})'**
+  String aiStepLowConfidence(String terms, int count);
+
+  /// No description provided for @aiStepAutocorrected.
+  ///
+  /// In en, this message translates to:
+  /// **'Read “{from}” as “{to}”'**
+  String aiStepAutocorrected(String from, String to);
+
+  /// No description provided for @aiStepSoftenedAmenity.
+  ///
+  /// In en, this message translates to:
+  /// **'Relaxed the “{amenity}” requirement to find options'**
+  String aiStepSoftenedAmenity(String amenity);
+
+  /// No description provided for @aiReasonDistrictMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Right district'**
+  String get aiReasonDistrictMatch;
+
+  /// No description provided for @aiReasonRoomsMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Room count matches'**
+  String get aiReasonRoomsMatch;
+
+  /// No description provided for @aiReasonPriceFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fits your budget'**
+  String get aiReasonPriceFit;
+
+  /// No description provided for @aiReasonPriceBelowBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Below budget'**
+  String get aiReasonPriceBelowBudget;
+
+  /// No description provided for @aiReasonAreaFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Area matches'**
+  String get aiReasonAreaFit;
+
+  /// No description provided for @aiReasonFloorPreference.
+  ///
+  /// In en, this message translates to:
+  /// **'Floor preference'**
+  String get aiReasonFloorPreference;
+
+  /// No description provided for @aiReasonDealTypeMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale/rent matches'**
+  String get aiReasonDealTypeMatch;
+
+  /// No description provided for @aiReasonKindMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit type matches'**
+  String get aiReasonKindMatch;
+
+  /// No description provided for @aiReasonAvailableNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Available now'**
+  String get aiReasonAvailableNow;
+
+  /// No description provided for @aiReasonAmenityMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Has requested amenities'**
+  String get aiReasonAmenityMatch;
+
+  /// No description provided for @aiReasonDeveloperMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested developer'**
+  String get aiReasonDeveloperMatch;
+
+  /// No description provided for @aiReasonProjectMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested project'**
+  String get aiReasonProjectMatch;
+
+  /// No description provided for @aiReasonHighTrustIndex.
+  ///
+  /// In en, this message translates to:
+  /// **'High trust index'**
+  String get aiReasonHighTrustIndex;
+
+  /// No description provided for @aiReasonReadySoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready soon'**
+  String get aiReasonReadySoon;
+
+  /// No description provided for @aiReasonOffplanDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Off-plan discount'**
+  String get aiReasonOffplanDiscount;
+
+  /// No description provided for @aiChipAreaRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{min}–{max} m²'**
+  String aiChipAreaRange(int min, int max);
+
+  /// No description provided for @aiChipAreaUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'up to {max} m²'**
+  String aiChipAreaUpTo(int max);
+
+  /// No description provided for @aiChipAreaFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'from {min} m²'**
+  String aiChipAreaFrom(int min);
+
+  /// No description provided for @aiDealTypeRent.
+  ///
+  /// In en, this message translates to:
+  /// **'For rent'**
+  String get aiDealTypeRent;
+
+  /// No description provided for @aiDealTypeSale.
+  ///
+  /// In en, this message translates to:
+  /// **'For sale'**
+  String get aiDealTypeSale;
+
+  /// No description provided for @aiUnitKindApartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Apartment'**
+  String get aiUnitKindApartment;
+
+  /// No description provided for @aiUnitKindCommercial.
+  ///
+  /// In en, this message translates to:
+  /// **'Commercial'**
+  String get aiUnitKindCommercial;
+
+  /// No description provided for @aiUnitKindParking.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking'**
+  String get aiUnitKindParking;
+
+  /// No description provided for @aiChipFloorRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Floor {min}–{max}'**
+  String aiChipFloorRange(int min, int max);
+
+  /// No description provided for @aiChipFloorFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Floor {min}+'**
+  String aiChipFloorFrom(int min);
+
+  /// No description provided for @aiChipFloorUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to floor {max}'**
+  String aiChipFloorUpTo(int max);
+
+  /// No description provided for @aiChipNotFirstFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Not first floor'**
+  String get aiChipNotFirstFloor;
+
+  /// No description provided for @aiChipNotLastFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Not last floor'**
+  String get aiChipNotLastFloor;
+
+  /// No description provided for @aiChipAvailableOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Available only'**
+  String get aiChipAvailableOnly;
+
+  /// No description provided for @aiSearchShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all {count}'**
+  String aiSearchShowAll(int count);
+
+  /// No description provided for @aiSearchAllResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All results'**
+  String get aiSearchAllResultsTitle;
+
+  /// No description provided for @aiConstraintWithout.
+  ///
+  /// In en, this message translates to:
+  /// **'Without {amenity}'**
+  String aiConstraintWithout(String amenity);
 }
 
 class _AppLocalizationsDelegate
