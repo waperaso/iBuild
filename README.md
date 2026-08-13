@@ -911,14 +911,6 @@ Faqat biznes toʻlaydi. Quruvchi — obuna va ilgari surish; bank — obyektni t
 
 ---
 
-## Contributors
-
-| Name | GitHub |
-|---|---|
-| Adylkhan | [@waperaso](https://github.com/waperaso) |
-
----
-
 <p align="center">
   <sub>iBuild Wiki · © iBuild</sub>
 </p>
