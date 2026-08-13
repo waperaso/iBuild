@@ -793,6 +793,10 @@
   },
   "aiChipNotFirstFloor": "Не первый этаж",
   "aiChipNotLastFloor": "Не последний этаж",
+  "aiChipExcludeFloors": "Не этаж {floors}",
+  "@aiChipExcludeFloors": {
+    "placeholders": { "floors": { "type": "String" } }
+  },
   "aiChipAvailableOnly": "Только доступные",
   "aiSearchShowAll": "Показать все {count}",
   "@aiSearchShowAll": {

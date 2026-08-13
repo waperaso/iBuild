@@ -222,6 +222,20 @@ void main() {
       expect(c.excludedAmenities, isEmpty);
     });
 
+    test('«не на 2 этаже» excludes floor 2 instead of requiring it', () {
+      final c = SmartSearchParser.parse('квартира не на 2 этаже');
+      expect(c.excludeFloors, {2});
+      expect(c.floorMin, isNull);
+      expect(c.floorMax, isNull);
+    });
+
+    test('«кроме 5 этажа» and «без 3 этажа» exclude that floor', () {
+      final except = SmartSearchParser.parse('квартира кроме 5 этажа');
+      expect(except.excludeFloors, {5});
+      final without = SmartSearchParser.parse('квартира без 3 этажа');
+      expect(without.excludeFloors, {3});
+    });
+
     test('«без» before an unknown word stays unknown, nothing invented', () {
       final c = SmartSearchParser.parse('квартира без посредников');
       expect(c.excludedAmenities, isEmpty);

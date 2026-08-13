@@ -253,6 +253,8 @@ class AiSearchConstraints {
   int? get floorMax => (raw['floorMax'] as num?)?.toInt();
   bool? get notFirstFloor => raw['notFirstFloor'] as bool?;
   bool? get notLastFloor => raw['notLastFloor'] as bool?;
+  List<int>? get excludeFloors =>
+      (raw['excludeFloors'] as List?)?.map((e) => (e as num).toInt()).toList();
   bool? get availableOnly => raw['availableOnly'] as bool?;
   List<String>? get amenities =>
       (raw['amenities'] as List?)?.map((e) => e as String).toList();
@@ -288,6 +290,7 @@ class AiSearchConstraints {
     'floorMax',
     'notFirstFloor',
     'notLastFloor',
+    'excludeFloors',
     'availableOnly',
     'amenities',
     'excludedAmenities',

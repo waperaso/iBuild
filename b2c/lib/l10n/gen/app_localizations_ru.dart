@@ -1690,6 +1690,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aiChipNotLastFloor => 'Не последний этаж';
 
   @override
+  String aiChipExcludeFloors(String floors) {
+    return 'Не этаж $floors';
+  }
+
+  @override
   String get aiChipAvailableOnly => 'Только доступные';
 
   @override

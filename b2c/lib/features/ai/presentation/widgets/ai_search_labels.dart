@@ -307,6 +307,16 @@ List<AiConstraintChipData> buildAiConstraintChips(
     );
   }
 
+  final excludeFloors = constraints.excludeFloors;
+  if (excludeFloors != null && excludeFloors.isNotEmpty) {
+    chips.add(
+      AiConstraintChipData(
+        label: l10n.aiChipExcludeFloors(excludeFloors.join(', ')),
+        removeKeys: {'excludeFloors'},
+      ),
+    );
+  }
+
   if (constraints.availableOnly == true) {
     chips.add(
       AiConstraintChipData(

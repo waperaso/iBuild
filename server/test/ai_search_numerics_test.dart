@@ -104,6 +104,29 @@ void main() {
       expect(c.floorMax, isNull);
     });
 
+    test('«не на N этаже» excludes that floor by number, not by position', () {
+      expect(
+        SmartSearchParser.parse('квартира не на 2 этаже').excludeFloors,
+        {2},
+      );
+      expect(
+        SmartSearchParser.parse('квартира не 4 этаж').excludeFloors,
+        {4},
+      );
+      expect(
+        SmartSearchParser.parse('5 этаж не подходит').excludeFloors,
+        {5},
+      );
+      expect(SmartSearchParser.parse('2 qavatda emas').excludeFloors, {2});
+      expect(SmartSearchParser.parse('not floor 3').excludeFloors, {3});
+    });
+
+    test('«не на N этаже» is not also read as an exact floor', () {
+      final c = SmartSearchParser.parse('квартира не на 2 этаже');
+      expect(c.floorMin, isNull);
+      expect(c.floorMax, isNull);
+    });
+
     test('«не выше N» is a floor ceiling, «выше N» is a floor minimum', () {
       expect(SmartSearchParser.parse('этаж не выше 9').floorMax, 9);
       expect(SmartSearchParser.parse('выше 10 этажа').floorMin, 11);

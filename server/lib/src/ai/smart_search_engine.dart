@@ -80,6 +80,11 @@ class SearchConstraints {
   int? floorMax;
   bool? notFirstFloor;
   bool? notLastFloor;
+
+  /// Specific floors the query refuses («не на 2 этаже», «кроме 5 этажа»).
+  /// Distinct from [floorMin]/[floorMax] — those are a range, this is a veto
+  /// on exact numbers regardless of where they sit relative to any range.
+  Set<int>? excludeFloors;
   bool? availableOnly;
   Set<String> amenities = {};
 
@@ -117,6 +122,7 @@ class SearchConstraints {
     if (floorMax != null) n++;
     if (notFirstFloor == true) n++;
     if (notLastFloor == true) n++;
+    if (excludeFloors != null && excludeFloors!.isNotEmpty) n++;
     if (availableOnly == true) n++;
     if (amenities.isNotEmpty) n++;
     if (excludedAmenities.isNotEmpty) n++;
@@ -145,6 +151,9 @@ class SearchConstraints {
     'floorMax': floorMax,
     'notFirstFloor': notFirstFloor,
     'notLastFloor': notLastFloor,
+    'excludeFloors': excludeFloors == null
+        ? null
+        : (excludeFloors!.toList()..sort()),
     'availableOnly': availableOnly,
     'amenities': amenities.toList(),
     'excludedAmenities': excludedAmenities.toList(),
@@ -181,6 +190,13 @@ class SearchConstraints {
     c.floorMax = (json['floorMax'] as num?)?.toInt();
     c.notFirstFloor = json['notFirstFloor'] as bool?;
     c.notLastFloor = json['notLastFloor'] as bool?;
+    final rawExcludeFloors = json['excludeFloors'];
+    if (rawExcludeFloors is List) {
+      c.excludeFloors = rawExcludeFloors
+          .whereType<num>()
+          .map((n) => n.toInt())
+          .toSet();
+    }
     c.availableOnly = json['availableOnly'] as bool?;
     final rawAmenities = json['amenities'];
     if (rawAmenities is List) {
@@ -605,6 +621,9 @@ class SmartSearchEngine {
           floor == floorsTotal) {
         return false;
       }
+      if (c.excludeFloors != null && c.excludeFloors!.contains(floor)) {
+        return false;
+      }
     }
 
     if (c.amenities.isNotEmpty || c.excludedAmenities.isNotEmpty) {
@@ -712,7 +731,8 @@ class SmartSearchEngine {
         (c.floorMin != null ||
             c.floorMax != null ||
             c.notFirstFloor == true ||
-            c.notLastFloor == true)) {
+            c.notLastFloor == true ||
+            (c.excludeFloors != null && c.excludeFloors!.isNotEmpty))) {
       reasons.add('floorPreference');
       score += 8;
     } else if (floor != null && floorsTotal != null && floorsTotal > 2) {
@@ -1123,7 +1143,8 @@ class SmartSearchParser {
     // fall through to the exact-floor pass as "floor 1".
     const floorRefusal =
         '(?:не\\s+(?:предлага$_wordTail|нужен|нужна|нужно|надо|'
-        'интересует|рассматрива$_wordTail)|исключ$_wordTail)';
+        'интересует|рассматрива$_wordTail|подход$_wordTail|годится)|'
+        'исключ$_wordTail)';
     final notFirstRe = RegExp(
       'не перв$_wordTail(?:\\s+этаж$_wordTail)?|'
       'перв$_wordTail\\s+этаж$_wordTail\\s+$floorRefusal|'
@@ -1204,6 +1225,36 @@ class SmartSearchParser {
       if (digitsAlreadyConsumed(m)) continue;
       final n = int.tryParse(m.group(1) ?? m.group(2) ?? '');
       if (n != null) c.floorMax = n - 1;
+      consume(m);
+    }
+    // «не на 2 этаже» / «не 2 этаж» / «кроме 5 этажа» / «без 5 этажа»: a
+    // specific floor number refused — as opposed to notFirst/notLast above,
+    // which refuse by position, not by number. Runs before exactFloorRe so
+    // the number is not re-read as a positive floor constraint (which is
+    // exactly the inverse of what the query asked for).
+    const floorOrdinalTail = r'(?:-?[йяое][а-я]{0,2})?';
+    final notExactFloorRe = RegExp(
+      r'не\s+на\s*(\d{1,2})\s*' + floorOrdinalTail + r'\s*' + floorNoun +
+          r'|не\s*(\d{1,2})\s*' + floorOrdinalTail + r'\s*' + floorNoun +
+          r'|кроме\s*(\d{1,2})\s*' + floorOrdinalTail + r'\s*' + floorNoun +
+          r'|без\s*(\d{1,2})\s*' + floorOrdinalTail + r'\s*' + floorNoun +
+          r'|(\d{1,2})\s*' + floorOrdinalTail + r'\s*' + floorNoun +
+          r'\s+' + floorRefusal +
+          r'|(\d{1,2})\s*-?\s*qavat(?:da)?\s+emas' +
+          r'|not\s+(?:on\s+)?floor\s*(\d{1,2})|no\s+floor\s*(\d{1,2})',
+      caseSensitive: false,
+    );
+    for (final m in notExactFloorRe.allMatches(lower)) {
+      if (digitsAlreadyConsumed(m)) continue;
+      String? group;
+      for (var i = 1; i <= m.groupCount; i++) {
+        group = m.group(i);
+        if (group != null) break;
+      }
+      final n = int.tryParse(group ?? '');
+      if (n != null) {
+        (c.excludeFloors ??= <int>{}).add(n);
+      }
       consume(m);
     }
     final exactFloorRe = RegExp(

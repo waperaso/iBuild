@@ -381,6 +381,7 @@ class SmartSearchSuggester {
               c.floorMax != null ||
               c.notFirstFloor == true ||
               c.notLastFloor == true ||
+              (c.excludeFloors != null && c.excludeFloors!.isNotEmpty) ||
               c.floorPreference != null,
         SearchTermKind.area =>
           c.areaMin != null || c.areaMax != null || c.areaPreference != null,

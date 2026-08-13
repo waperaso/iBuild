@@ -2872,6 +2872,12 @@ abstract class AppLocalizations {
   /// **'Not last floor'**
   String get aiChipNotLastFloor;
 
+  /// No description provided for @aiChipExcludeFloors.
+  ///
+  /// In en, this message translates to:
+  /// **'Not floor {floors}'**
+  String aiChipExcludeFloors(String floors);
+
   /// No description provided for @aiChipAvailableOnly.
   ///
   /// In en, this message translates to:

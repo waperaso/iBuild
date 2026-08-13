@@ -303,7 +303,7 @@ void mountAiRoutes(
   ///   "projectStatus": "planned" | "under_construction" | "ready" | "handed_over",
   ///   "isOffplan": true,
   ///   "floorMin": 5, "floorMax": null,
-  ///   "notFirstFloor": true, "notLastFloor": false,
+  ///   "notFirstFloor": true, "notLastFloor": false, "excludeFloors": [2],
   ///   "availableOnly": true,
   ///   "amenities": ["parking"],
   ///   "excludedAmenities": ["renovation"],

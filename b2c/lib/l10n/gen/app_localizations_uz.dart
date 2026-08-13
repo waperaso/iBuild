@@ -1678,6 +1678,11 @@ class AppLocalizationsUz extends AppLocalizations {
   String get aiChipNotLastFloor => 'Oxirgi qavat emas';
 
   @override
+  String aiChipExcludeFloors(String floors) {
+    return '$floors-qavat emas';
+  }
+
+  @override
   String get aiChipAvailableOnly => 'Faqat mavjudlar';
 
   @override

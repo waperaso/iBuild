@@ -793,6 +793,10 @@
   },
   "aiChipNotFirstFloor": "Birinchi qavat emas",
   "aiChipNotLastFloor": "Oxirgi qavat emas",
+  "aiChipExcludeFloors": "{floors}-qavat emas",
+  "@aiChipExcludeFloors": {
+    "placeholders": { "floors": { "type": "String" } }
+  },
   "aiChipAvailableOnly": "Faqat mavjudlar",
   "aiSearchShowAll": "Barcha {count} natijani ko‘rish",
   "@aiSearchShowAll": {
