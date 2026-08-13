@@ -52,6 +52,7 @@
 5. [Monitoring chain](#5-monitoring-chain-from-photo-to-specialist)
 6. [Four market sides](#6-four-market-sides-and-the-gaps-ibuild-closes)
 7. [Role of AI](#7-role-of-artificial-intelligence)
+   - [7.4 AI differentiators](#74-how-our-ai-differs-from-typical-alternatives)
 8. [Buyer features](#8-buyer-features)
 9. [Business features](#9-business-features)
 10. [Differences](#10-differences-from-alternatives)
@@ -252,6 +253,15 @@ Not built yet, no code in this repo — future integrations under consideration,
 | **Newo AI** | Voice assistant and call centre: answers on the catalogue and matches preferences — deal type, district, budget, rooms. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
 | **Karmon AI** | Budgeting: purchase budget with installments and mortgage, project expense planning. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
 
+### 7.4. How our AI differs from typical alternatives
+
+Detailed write-ups grounded in the actual server code — not marketing copy:
+
+| Topic | Document | What it covers |
+|---|---|---|
+| **Smart search (b2c)** | [`AI_SEARCH_DIFFERENTIATORS.md`](AI_SEARCH_DIFFERENTIATORS.md) | Negation handling, blocked queries when intent is unclear, domain ranking with trust index, softened impossible amenities, execution trace |
+| **CRM AI (b2b)** | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | Explainable lead scoring with reason codes, real-estate inventory signals, SLA and silence escalation, guided assistant tree (not free chat), demand vs available units |
+
 ---
 
 ## 8. Buyer features
@@ -326,6 +336,7 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 5. [Цепочка мониторинга](#5-цепочка-мониторинга-от-снимка-до-специалиста)
 6. [Четыре стороны рынка](#6-четыре-стороны-рынка-и-разрывы-которые-закрывает-ibuild)
 7. [Роль искусственного интеллекта](#7-роль-искусственного-интеллекта)
+   - [7.4 Отличия ИИ](#74-чем-наш-ии-отличается-от-типичных-аналогов)
 8. [Возможности для клиентов](#8-возможности-для-клиентов)
 9. [Возможности для бизнеса](#9-возможности-для-бизнеса)
 10. [Отличия от аналогов](#10-отличия-от-аналогов)
@@ -527,6 +538,15 @@ iBuild — **независимая цифровая система** монит
 | **Newo AI** | Голосовой помощник и колл-центр: отвечает по каталогу и подбирает объекты по предпочтениям клиента — сделка, район, бюджет, комнатность. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">план</span> |
 | **Karmon AI** | Универсальный инструмент бюджетирования: расчёт бюджета покупки с учётом рассрочки и ипотеки, планирование расходов по проекту. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">план</span> |
 
+### 7.4. Чем наш ИИ отличается от типичных аналогов
+
+Подробные разборы с опорой на реальный код сервера — не маркетинговые формулировки:
+
+| Тема | Документ | О чём |
+|---|---|---|
+| **Умный поиск (b2c)** | [`AI_SEARCH_DIFFERENTIATORS.md`](AI_SEARCH_DIFFERENTIATORS.md) | Отрицание, блокировка непонятных запросов, доменное ранжирование с индексом доверия, смягчение невыполнимых пожеланий, трейс выполнения |
+| **CRM AI (b2b)** | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | Объяснимый скоринг с кодами причин, сигналы инвентаря недвижимости, эскалация SLA и молчания, дерево ассистента (не свободный чат), спрос vs свободные юниты |
+
 ---
 
 ## 8. Возможности для клиентов
@@ -597,6 +617,8 @@ iBuild — **независимая цифровая система** монит
 | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) | CRM AI assistant UI (bot sheet, lead/metric cards, band pills) |
 | [`server/`](server/) | API — REST, WebSocket, PostgreSQL |
 | [`server/lib/src/ai/`](server/lib/src/ai/) | AI engines — smart search, CRM lead scoring, readiness/photo analysis, chat |
+| [`AI_SEARCH_DIFFERENTIATORS.md`](AI_SEARCH_DIFFERENTIATORS.md) | Smart search vs ordinary search — code-backed explanation |
+| [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | CRM AI vs typical CRM AI — code-backed explanation |
 | [`packages/`](packages/) | Shared Dart packages (theme, models, widgets) |
 | [`ibuild-wiki/`](ibuild-wiki/) | Internal project reference (full HTML version) |
 

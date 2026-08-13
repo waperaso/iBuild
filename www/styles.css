@@ -2093,6 +2093,7 @@ html[data-theme="dark"] .ai-device {
   border: 1px solid var(--fl-outline);
   border-radius: 24px;
   background: var(--fl-surface);
+  overflow: hidden;
 }
 
 .ai-metric-label {
@@ -2304,8 +2305,26 @@ html[data-theme="dark"] .ai-device {
     left: 14px;
   }
 
-  .ai-metric strong {
-    font-size: 18px;
+  .ai-metric {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .ai-metric-label {
+    font-size: 12.5px;
+  }
+
+  .ai-metric-value {
+    gap: 2px;
+  }
+
+  .ai-metric-value b {
+    font-size: 15px;
+  }
+
+  .ai-metric-value .fl-trend {
+    width: 13px;
+    height: 13px;
   }
 
   .ai-live span {
