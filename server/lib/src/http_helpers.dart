@@ -140,6 +140,13 @@ Middleware errorEnvelopeMiddleware() {
     return (Request request) async {
       try {
         return await inner(request);
+      } on HijackException {
+        // Not a real error: shelf_web_socket signals a successful upgrade
+        // by hijacking the socket and throwing this for control flow. It
+        // must reach shelf_io.handleRequest untouched — catching it here
+        // would turn every WebSocket upgrade into a bogus 500 response
+        // written over an already-hijacked connection.
+        rethrow;
       } on InvalidJsonBodyException catch (error) {
         return jsonError('VALIDATION_ERROR', error.message, status: 422);
       } on PayloadTooLargeException catch (error) {
