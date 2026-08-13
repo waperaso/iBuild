@@ -11,7 +11,8 @@
 
 <p align="center">
   <a href="#english">English</a> ·
-  <a href="#русский">Русский</a>
+  <a href="#русский">Русский</a> ·
+  <a href="#oʻzbek">Oʻzbek</a>
 </p>
 
 <p align="center">
@@ -34,6 +35,8 @@
 > A law introducing **mandatory escrow accounts for shared construction** is currently moving through Uzbekistan's parliament. Buyer funds will no longer go straight to the developer — they will sit in a bank and be released only against **confirmed construction progress**. That hands every lending bank a new legal duty it has no cheap way to fulfill today: verifying that the work behind each tranche actually happened.
 >
 > Закон о долевом строительстве с обязательными **эскроу-счетами** сейчас проходит через парламент Узбекистана. Деньги дольщика больше не пойдут напрямую застройщику — они лягут на счёт в банке и будут переведены только после **подтверждения выполненных работ**. У банков появляется новая юридическая обязанность, которую сегодня нечем закрыть недорого: проверять, что стройка за каждым траншем реальна.
+>
+> Ulushli qurilish uchun majburiy **eskrou-hisoblar**ni joriy etuvchi qonun hozir Oʻzbekiston parlamentidan oʻtmoqda. Xaridor puli endi toʻgʻridan-toʻgʻri quruvchiga bormaydi — u bankdagi hisobda turadi va faqat **bajarilgan ishlar tasdiqlangandan keyin** chiqariladi. Bu har bir kreditlashtiruvchi bankka bugun arzon bajarish usuli yoʻq boʻlgan yangi yuridik majburiyatni yuklaydi: har bir transh ortidagi ishning haqiqatan bajarilganini tekshirish.
 
 ---
 
@@ -606,6 +609,290 @@ iBuild — **независимая цифровая система** монит
 
 ---
 
+# Oʻzbek
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### Mazmuni
+
+1. [Taʼrif](#1-taʼrif)
+2. [Bozor muammosi](#2-bozor-muammosi)
+3. [Muddatlarga ishonch tizimi](#3-muddatlarga-ishonch-tizimi)
+4. [Davlat organlari bilan hamkorlik](#4-davlat-organlari-bilan-hamkorlik)
+5. [Monitoring zanjiri](#5-monitoring-zanjiri-suratdan-mutaxassisgacha)
+6. [Bozorning toʻrt tomoni](#6-bozorning-toʻrt-tomoni-va-ibuild-yopadigan-boʻshliqlar)
+7. [Sunʼiy intellekt roli](#7-sunʼiy-intellekt-roli)
+   - [7.4 SI farqlari](#74-bizning-si-analoglardan-qanday-farq-qiladi)
+8. [Xaridorlar uchun imkoniyatlar](#8-xaridorlar-uchun-imkoniyatlar)
+9. [Biznes uchun imkoniyatlar](#9-biznes-uchun-imkoniyatlar)
+10. [Analoglardan farqi](#10-analoglardan-farqi)
+11. [Monetizatsiya](#11-monetizatsiya)
+
+</td>
+<td width="50%" valign="top">
+
+### iBuild · qisqacha
+
+| | |
+|---|---|
+| **Bozor** | Oʻzbekiston: Toshkent, Yangi Toshkent |
+| **Taklif** | Tayyor kvartiralar, off-plan, ofis ijarasi, strit-riteyl |
+| **Ilovalar** | Xaridor ilovasi (Android, iOS, Web), ikki admin panel |
+| **Taraflar** | Xaridorlar, quruvchilar, banklar, mutaxassislar, davlat organlari |
+| **Stek** | Flutter, Dart (REST va WebSocket), qatorlar darajasida izolyatsiyalangan PostgreSQL |
+| **Muhandislik** | AI-native: Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol |
+| **SI dvijoklari** | Ishlab chiqilgan, oʻz kuchimiz bilan: aqlli qidiruv, CRM lidlarni baholash, tayyorlik/foto tekshiruvi (oʻqitishsiz), OpenAI asosidagi xaridor chati. Rejada — vendorlar: Newo AI (ovoz), Karmon AI (byudjetlashtirish) |
+| **Bosqich** | MVP — toʻliq stsenariy ishlaydi |
+| **Daromad** | Quruvchi obunasi, ilgari surish, banklar uchun tasdiqlash va referal lidlar |
+
+</td>
+</tr>
+</table>
+
+---
+
+## 1. Taʼrif
+
+**iBuild** — qurilish jarayoni haqidagi maʼlumotlarni monitoring qilish, hujjatlashtirish va tasdiqlash boʻyicha mustaqil raqamli tizim; u quruvchilarni, xaridorlarni, banklarni va vakolatli davlat organlarini bir-biriga bogʻlaydi. Bitta mahsulotda toʻrt xil taklif birlashtirilgan: quruvchidan tayyor kvartiralar, qurilayotgan kvartiralar (*off-plan*), biznes-markazlarda ofis ijarasi va turar-joy majmualarining birinchi qavatlarida strit-riteyl.
+
+Tizim xaridor ilovasidan, quruvchi panelidan, platforma admin panelidan va yagona maʼlumotlar bazasi ustidagi umumiy API dan iborat. Platforma **AI-native**: butun kod bazasi Cursordagi agentlik SI modellari — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol — bilan yoziladi.
+
+Klassifayd (eʼlonlar) taxtasidan farqli oʻlaroq, iBuild boshqalarning eʼlonlarini joylashtirmaydi. U qurilish tarixi kuzatib boriladigan **tasdiqlangan obyektlar reyestri**ni yuritadi va vaʼda qilingan jadvalni haqiqiy jarayon bilan solishtiradi.
+
+> **Faqat birlamchi sotuv.** Platformada sotuv — faqat quruvchidan birlamchi koʻchmas mulk. Ikkilamchi obyektlarga faqat ijaraga berish uchun ruxsat berilgan. Bu qoida siyosat bilan emas, balki maʼlumotlar bazasi sxemasi bilan mustahkamlangan.
+
+---
+
+## 2. Bozor muammosi
+
+Oʻzbekistondagi xaridorning asosiy shikoyati narx yoki tanlov emas — bu **quruvchi vaʼdalarini faktlar bilan solishtira olmaslik**. Topshirish sanalari reklamada eʼlon qilinadi, ammo hech qanday hujjatlashtirilgan holda qayd etilmaydi: uch oyda vaʼda qilingan obyekt bir yilda quriladi, ayrim obyektlar esa umuman tugallanmaydi.
+
+- kvartira mavjudligi va narxi faqat har bir sotuv ofisiga qoʻngʻiroq qilib bilinadi;
+- yangi qurilishning ochiq, sanalangan qurilish tarixi yoʻq;
+- vaʼda qilingan va haqiqiy ish hajmlari hech qachon solishtirilmaydi;
+- quruvchida qulay raqamli vitrina va lidlarni hisobga olish tizimi yoʻq;
+- bank ajratilgan mablagʻlarning taqdirini koʻrmaydi va ipoteka/kredit lidlarini alohida izlashga majbur;
+- vakolatli davlat organlari muammoli obyekt haqida kechikib — jabrlangan xaridorlardan bilib oladi.
+
+Shu sababli iBuildning mahsulot vazifasi: xaridor va bankka qurilish jarayoni boʻyicha **mustaqil monitoring va tasdiqlash vositasi**ni, vakolatli davlat organlariga esa reja va fakt orasidagi farq haqida erta signalni taqdim etish.
+
+> **Nega aynan hozir.** Oʻzbekiston parlamentidan ulushli qurilish uchun majburiy eskrou-hisoblar toʻgʻrisidagi qonun oʻtmoqda — bu aldangan xaridorlar bilan bogʻliq xuddi shu muammoning davlat darajasida tan olinishi va shu paytdan boshlab banklarda tasdiqlash vositasiga ehtiyoj — istak emas, zaruratning paydo boʻlishi.
+
+---
+
+## 3. Muddatlarga ishonch tizimi
+
+Mahsulotning yadrosi. Bitta reklama "tayyorlik" raqami oʻrniga obyekt kartochkasi **ikki** koʻrsatkichni va ular orasidagi farqni koʻrsatadi.
+
+### 3.1. Ikki tayyorlik koʻrsatkichi
+
+- **Haqiqiy qurilish jarayoni** — sanalangan, tayyorlik foizi bilan fotohisobotlardan tasdiqlangan tayyorlik. <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">amalga oshirilgan</span>
+- **Rejalashtirilgan qurilish jarayoni** — quruvchi obyektni eʼlon qilishda bildirgan jadvalga koʻra tayyorlik. <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">amalga oshirilgan</span>
+
+```
+Haqiqiy qurilish jarayoni           ████████████░░░░░░░░  62 %
+Rejalashtirilgan qurilish jarayoni   ██████████████░░░░░░  74 %
+```
+
+> ⚠️ **Farq 12 %.** Ruxsat etilgan chetlanish. Ishonch indeksi — 84 %.
+
+### 3.2. Ishonch indeksi va chegaralar
+
+Ishonch indeksi — haqiqiy tayyorlikning rejalashtirilganiga nisbati, 0–100 % shkalada. Farq uch diapazonga boʻlinadi:
+
+| Diapazon | Baho |
+|---|---|
+| **10 %gacha** | jadvalga mos |
+| **10–15 %** | ruxsat etilgan chetlanish |
+| **15 %dan yuqori** | orqada qolish — monitoring |
+
+Qurilish siklida 15 %gacha boʻlgan chetlanish odatiy holdir. 15 %dan yuqori chetlanish bayroqcha va axborot monitoringini, zarur boʻlsa obyektga tashrifni keltirib chiqaradi. Xaridor, quruvchi, bank va administrator bir xil raqamni koʻradi; haqiqiy koʻrsatkich faqat tasdiqlangan fotohisobot bilan oʻzgaradi.
+
+---
+
+## 4. Davlat organlari bilan hamkorlik
+
+iBuild — qurilish jarayoni haqidagi maʼlumotlarni monitoring qilish, hujjatlashtirish va tasdiqlash boʻyicha **mustaqil raqamli tizim**. Vakolatli davlat organlari bilan axborot almashinuvi rejalashtirilgan. <span style="background:#eef1f5;color:#5a6270;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #ccd2da">reja</span>
+
+Reja va fakt orasidagi farq — xaridor, bank va idora uchun signal. Qurilish normalariga muvofiqlikni baholash — davlat organlarining vazifasi, platformaning emas.
+
+> **Yaqin muddatdagi drayver.** Eskrou-hisoblar majburiy boʻlishi bilanoq, bank bajarilgan ishni tasdiqlamasdan transhni chiqarib berolmaydi — bugun bu tekshiruv qoʻlda, sekin va xodim saqlash uchun qimmat. Quyidagi monitoring zanjiri (5-boʻlim) bank shu tasdiqlash uchun ulanadigan vosita boʻlishi uchun moʻljallangan — tartibga solish yuki iBuild allaqachon sotayotgan xizmatga aylanadi.
+
+---
+
+## 5. Monitoring zanjiri: suratdan mutaxassisgacha
+
+| Qadam | Bosqich | Tavsif |
+|:---:|---|---|
+| **1** | Quruvchi fotohisoboti | Geobelgi va tayyorlik foizi bilan sanalangan obyekt surati. <span style="background:#e6f3ef;color:#14866d;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">amalga oshirilgan</span> |
+| **2** | SI orqali surat tekshiruvi | Geobelgi/metadata tekshiruvi plyus oldingi hisobotlar bilan vizual taqqoslash. <span style="background:#fdf2dc;color:#b8860b;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">ishlanmoqda</span> |
+| **3** | "Aniqlashtirish talab etiladi" belgisi | Nomuvofiqlikda quruvchi tushuntirish beradi va qayta suratga oladi. <span style="background:#fdf2dc;color:#b8860b;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">ishlanmoqda</span> |
+| **4** | Tizim ogohlantiruvi | Toʻgʻri javob yoʻq yoki chetlanish chegaradan oshgan — administratorga tanqidiy ogohlantirish. <span style="background:#e6f3ef;color:#14866d;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">amalga oshirilgan</span> |
+| **5** | Mutaxassis (texnik ekspert) | Shartnoma boʻyicha yoki quruvchi roziligi bilan tashrif — haqiqiy jarayonni qayd etish. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">reja</span> |
+| **6** | Idoraga signal | Maʼlumotlar kelishilgan formatda tegishli davlat organiga boradi. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">reja</span> |
+| **7** | Kartochkadagi natija | Monitoring natijasi eʼlon qilinadi va ishonch indeksiga taʼsir qiladi. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">reja</span> |
+
+Monitoring ikki bosqichli: avval mashina (metadata va tasvirlarni taqqoslash), keyin mutaxassis. Sezilarli chetlanishda — axborot monitoringi va zarur boʻlsa shartnoma boʻyicha yoki quruvchi roziligi bilan obyektga tashrif.
+
+---
+
+## 6. Bozorning toʻrt tomoni va iBuild yopadigan boʻshliqlar
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+#### ① iBuild · <sub>daromad oladi</sub>
+
+**Boʻshliq.** Quruvchi, xaridor va bank orasida qurilish jarayoni haqidagi maʼlumotlarni hujjatlashtiradigan va tasdiqlaydigan mustaqil taraf yoʻq: har kim soʻzga ishonadi yoki oʻz tekshiruvini oʻtkazadi.
+
+**Yechim.** iBuild reyestrni yuritadi, jadvalni qayd etadi va hisobotlarni mashina va mutaxassislar orqali tasdiqlaydi. Mahsulot — **monitoring va tasdiqlash** plyus qizigan lidlar: quruvchi obuna uchun, bank esa tasdiqlash va ipoteka/kredit uchun referal lidlar uchun toʻlaydi.
+
+</td>
+<td width="50%" valign="top">
+
+#### ② Banklar · <sub>toʻlaydi: tasdiqlash · lidlar</sub>
+
+**Boʻshliq.** Kredit berilgandan keyin bank pul nimaga aylanayotganini koʻrmaydi: sifatsiz materiallar, maqsadsiz sarflash, eng yomon holatda — quruvchi mablagʻlar bilan gʻoyib boʻladi. Oʻz texnik mutaxassislar shtati qimmat; ipoteka va kredit lidlari alohida muammo.
+
+**Yechim.** Tasdiqlangan obyekt manzarasi transhlarni tasdiqlangan jarayonga bogʻlash imkonini beradi. Alohida, banklar ilovadagi referal havola orqali ipoteka/kredit lidlari uchun toʻlashi mumkin. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">reja</span>
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+#### ③ Xaridorlar · <sub>iBuildga toʻlamaydi</sub>
+
+**Boʻshliq.** Oʻzbekistondagi xaridor allaqachon toʻlagan obyektning haqiqiy jarayonidan koʻpincha bexabar: reklama vaʼdasi va qurilish maydoni orasida tasdiqlanadigan bogʻliqlik yoʻq.
+
+**Yechim.** SI orqali hisobot tekshiruvi va mutaxassis tashriflari sanalangan ish tarixini, fakt va rejani yonma-yon, monitoring natijalarini — pul koʻchishidan oldin, keyin emas — taqdim etadi.
+
+</td>
+<td valign="top">
+
+#### ④ Quruvchilar · <sub>obuna uchun toʻlaydi</sub>
+
+**Boʻshliq.** Insofli quruvchida oʻzini insofsizidan ajratib koʻrsatishning imkoni yoʻq: bozor barchani bir xil baholaydi, vitrina va lidlarni hisobga olish qoʻlda qolmoqda.
+
+**Yechim.** Koʻrinuvchanlik, qizigan lidlar oqimi, CRM bilan obyektlarni boshqarish paneli va hujjatlarni tasdiqlashdan keyin **iBuild tasdiqlangan quruvchi** maqomi. Shaffoflik ustunlikka aylanadi.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 7. Sunʼiy intellekt roli
+
+Loyihada "SI" soʻzi ortida ikki xil narsa yashiringan — ular bu yerda ajratilgan, biri boshqasining oʻrniga oʻtib ketmasligi uchun.
+
+**Muhandislik.** Kodning oʻzi Cursordagi agentlik SI modellari bilan yoziladi: **Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol**.
+
+**Mahsulotda** SI oʻz kuchimiz bilan ishlab chiqiladi. Quyidagi uch dvijok — bu repozitoriyada toʻliq yoziladigan va ishlaydigan oddiy deterministik Dart kodi: oʻqitish bosqichisiz va tashqi modelga murojaatsiz.
+
+| Dvijok | Nima qiladi | Tashqi modelga murojaat qiladimi? | Server kodi | Klient kodi |
+|---|---|:---:|---|---|
+| **Aqlli qidiruv (b2c)** | Erkin matnni ru/uz/en tillarida struktura shartlariga ajratadi, katalog yunitlarini reytinglaydi va "kul rang matn" taklifini shakllantiradi. | Yoʻq | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
+| **CRM lidlarni baholash (b2b)** | Har bir lidni xatti-harakati, SLA taymerlari va ru/uz/en kalit soʻzlariga koʻra issiq/iliq/sovuq deb baholaydi; CRM yordamchisining boshqariladigan savollariga javob beradi. | Yoʻq | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
+| **Tayyorlik / foto tekshiruvi** | Har bir fotohisobot uchun 7 bosqichli tekshiruv: EXIF/geobelgi, perseptiv xesh boʻyicha dublikatlarni aniqlash, qoʻlda sozlangan qurilish bosqichi klassifikatori, oldingi hisobot bilan jarayonni solishtirish va vizual xavf koʻrsatkichlari (SIV, yoriqlar, chiqindilar). | Ixtiyoriy (quyida qarang) | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | [`project_detail_readiness.dart`](b2b/lib/features/residence/project_detail_readiness.dart) |
+| **SI xaridor konsultanti** | Katalog ustidagi dialog qatlami. | **Ha — OpenAI** | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
+
+Tayyorlik dvijogi ixtiyoriy ravishda oʻz mahalliy natijasi ustiga GPT-vision oʻtishini qoʻshib qoʻyishi mumkin (`AI_VISION_ENABLED`, birlamchi holatda oʻchirilgan); agar bu chaqiriq muvaffaqiyatsiz boʻlsa, vaqt tugasa yoki oʻchirilgan boʻlsa — deterministik mahalliy natija oʻzgarishsiz yuboriladi. Barcha SI HTTP endpointlari (`/v1/ai/search`, `/v1/ai/search/suggest`, `/v1/ai/crm/leads`, `/v1/ai/crm/query`, `/v1/ai/chat`, fotohisobotlarni tekshirish) [`ai_routes.dart`](server/lib/src/ai/ai_routes.dart) da ulangan; foydalanish IP/foydalanuvchi boʻyicha kvota bilan cheklangan [`ai_quota.dart`](server/lib/src/ai/ai_quota.dart).
+
+### 7.1. Qamrov
+
+- Har bir fotohisobot eʼlon qilinishidan oldin deterministik tekshiruvdan oʻtadi — monitoring uzluksiz, tanlab emas.
+- Tayyorlik tekshiruvi hisobot eʼlon qilinishidan oldin **koʻrib chiqish (preview)** sifatida ishlaydi (`POST /v1/admin/projects/<id>/photo-reports/analyze`): u belgilaydi va tasniflaydi, lekin oʻzi eʼlon qilmaydi yoki rad etmaydi — natija boʻyicha qarorni administrator qabul qiladi.
+- Past ishonchli tasniflash qattiq radni avtomatik ravishda notoʻgʻri radlashning oʻrniga "qoʻlda tekshirish" belgisiga tushiradi.
+
+### 7.2. Toʻlovchilar uchun nima beradi
+
+| Kim toʻlaydi | SI nima beradi |
+|---|---|
+| **Quruvchi** (obuna) | Bir xil trafikda koʻproq yakunlangan lidlar; tasdiqlangan hisobotlar tasdiqlangan quruvchi maqomini qoʻllab-quvvatlaydi. |
+| **Bank** (tasdiqlash · lidlar) | Uzluksiz monitoring plyus nizoli holatlar boʻyicha mutaxassis oʻz shtatidan arzonroq; referal havola ipoteka/kredit arizalarini keltiradi. |
+| **iBuild** (marja) | Monitoring tan narxi tushadi: obyektlar soni oʻsishi bilan xizmat bank shtatidan arzon qolib qoladi. |
+
+### 7.3. Vendorlar bilan rejalashtirilgan integratsiyalar
+
+Hali amalga oshirilmagan, bu repozitoriyada kod yoʻq — kelajak uchun koʻrib chiqilayotgan integratsiyalar, yuqoridagi oʻz dvijoklarimizdan alohida, biri ikkinchisi bilan aralashib ketmasligi uchun:
+
+| Vendor | Vazifasi | Holati |
+|---|---|---|
+| **Newo AI** | Ovozli yordamchi va kol-markaz: katalog boʻyicha javob beradi va xaridor afzalliklariga koʻra obyektlarni tanlaydi — bitim turi, tuman, byudjet, xonalar soni. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">reja</span> |
+| **Karmon AI** | Byudjetlashtirish: boʻlib-toʻlov va ipoteka hisobga olingan xarid byudjeti, loyiha xarajatlarini rejalashtirish. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">reja</span> |
+
+### 7.4. Bizning SI analoglardan qanday farq qiladi
+
+Server kodining haqiqiy holatiga asoslangan batafsil tahlillar — marketing matni emas:
+
+| Mavzu | Hujjat | Nima haqida |
+|---|---|---|
+| **Aqlli qidiruv (b2c)** | [`AI_SEARCH_DIFFERENTIATORS.md`](AI_SEARCH_DIFFERENTIATORS.md) | Inkorni qayta ishlash, niyat aniq boʻlmaganda soʻrovlarni bloklash, ishonch indeksi bilan domen reytingi, imkonsiz qulayliklarni yumshatish, bajarilish trace |
+| **CRM SI (b2b)** | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | Sabab kodlari bilan tushunarli skoring, koʻchmas mulk inventar signallari, SLA va sukut eskalatsiyasi, boshqariladigan yordamchi daraxti (erkin chat emas), talab va boʻsh yunitlar |
+
+---
+
+## 8. Xaridorlar uchun imkoniyatlar
+
+| Imkoniyat | Holat |
+|---|---|
+| Xarid / Ijara / Yangi qurilish filtrlari bilan xarita va qidiruv | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">amalga oshirilgan</span> |
+| Kvartira va ofislar uchun jonli "shaxmat taxtasi" panjarasi | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">amalga oshirilgan</span> |
+| Bir tegishda soʻrov: koʻrish, qoʻngʻiroq, band qilish, ijara | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">amalga oshirilgan</span> |
+| Qurilish jarayoni boʻyicha sanalangan fotohisobotlar tasmasi | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">amalga oshirilgan</span> |
+| Ikki tayyorlik chizigʻi va ishonch indeksi | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">ishlanmoqda</span> |
+| Tasdiqlangan hujjatlar bilan quruvchi kartochkasi | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">amalga oshirilgan</span> |
+| Ipoteka, boʻlib-toʻlov va ijara daromadliligi kalkulyatorlari | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">ishlanmoqda</span> |
+| Sevimlilar, saqlangan qidiruvlar, "Mening soʻrovlarim", sharhlar, uch til | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">ishlanmoqda</span> |
+| Narx va qurilish bosqichlari boʻyicha push-bildirishnomalar | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">ishlanmoqda</span> |
+| Ipoteka/kredit uchun bank referal havolasi; ovozli tanlov (Newo AI) | <span style="background:#eef1f5;color:#5a6270;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #ccd2da">reja</span> |
+
+---
+
+## 9. Biznes uchun imkoniyatlar
+
+| Imkoniyat | Holat |
+|---|---|
+| Loyihalar, korpuslar, yunitlar, media kutubxona, planirovkalar | <span style="background:#e8f0e4;color:#5a7a2f;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #c5d6a8">yaxshilanmoqda</span> |
+| Ziddiyatlardan himoyalangan tahrirlash bilan "shaxmat taxtasi" muharriri | <span style="background:#e8f0e4;color:#5a7a2f;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #c5d6a8">yaxshilanmoqda</span> |
+| Lidlar CRM: funnel, statuslar, teglar, voqealar tarixi | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">amalga oshirilgan</span> |
+| Fotohisobotlar va rejalashtirilgan qurilish jadvalini kiritish | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">ishlanmoqda</span> |
+| Analitika: talab, funnel, lid konversiyasi | <span style="background:#e6f3ef;color:#14866d;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #b7ded2">amalga oshirilgan</span> |
+| Quruvchini tasdiqlash, loyiha/sharh moderatsiyasi, audit jurnali | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">ishlanmoqda</span> |
+| Ogohlantirishlar, jumladan jadvaldan tanqidiy chetlanish ogohlantirishlari | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">ishlanmoqda</span> |
+| Bank oʻtkazmasi orqali obuna toʻlovi | <span style="background:#fdf2dc;color:#b8860b;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #e8d4a2">ishlanmoqda</span> |
+| Bank hisobotlari va ipoteka/kredit referal lidlari | <span style="background:#eef1f5;color:#5a6270;padding:1px 6px;border-radius:3px;font-size:0.85em;font-weight:700;border:1px solid #ccd2da">reja</span> |
+
+---
+
+## 10. Analoglardan farqi
+
+- Eʼlonlar taxtalari **koʻrishlarni** sotadi, iBuild — **monitoring va tasdiqlashni**.
+- **Manba.** Faqat tasdiqlangan hujjatlarga ega quruvchilar.
+- **Mavjudlik va narx.** Eskirgan eʼlonlar oʻrniga jonli "shaxmat taxtasi".
+- **Qurilish jarayoni.** Reklama suratlari oʻrniga sanalangan hisobotlar va ishonch indeksi.
+- **Muddat buzilishi.** Sukunat oʻrniga SI belgisi, ogohlantirish va mutaxassis tashrifi.
+- **Bank va davlat.** Tasdiqlash, ipoteka/kredit referal lidlari, idoraga axborot signali.
+
+---
+
+## 11. Monetizatsiya
+
+Faqat biznes toʻlaydi. Quruvchi — obuna va ilgari surish; bank — obyektni tasdiqlash va, rejaga koʻra, referal havola orqali ipoteka/kredit lidlari. Xaridor toʻlamaydi.
+
+| Manba | Kimdan | Tavsif |
+|---|---|---|
+| Quruvchi obunasi | Quruvchilar | Eʼlon qilish, CRM, analitika. Start / Growth / Scale |
+| Ilgari surish va lid paketlari | Quruvchilar | Qidiruvda joylashuv; tarif limitidan ortiq lidlar |
+| Banklar uchun tasdiqlash | Banklar | Kreditlashtiruvchi xizmati sifatida qurilish jarayoni monitoringi/tasdiqlashi <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">reja</span> |
+| Bankka referal lidlar | Banklar | Referal havola orqali ipoteka yoki kredit arizasi <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">reja</span> |
+
+---
+
 
 ## Repository / Репозиторий
 
@@ -621,6 +908,14 @@ iBuild — **независимая цифровая система** монит
 | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | CRM AI vs typical CRM AI — code-backed explanation |
 | [`packages/`](packages/) | Shared Dart packages (theme, models, widgets) |
 | [`ibuild-wiki/`](ibuild-wiki/) | Internal project reference (full HTML version) |
+
+---
+
+## Contributors
+
+| Name | GitHub |
+|---|---|
+| Adylkhan | [@waperaso](https://github.com/waperaso) |
 
 ---
 
