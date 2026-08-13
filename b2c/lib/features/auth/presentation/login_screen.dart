@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,15 @@ import '../../../core/widgets/pill_button.dart';
 import '../../../core/widgets/step_indicator.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../providers/auth_providers.dart';
+
+/// Reads `Retry-After` off a 429 `DioException`, else `null` for any other error.
+int? _rateLimitRetryAfter(Object error) {
+  if (error is! DioException || error.response?.statusCode != 429) {
+    return null;
+  }
+  final header = error.response?.headers.value('retry-after');
+  return int.tryParse(header ?? '') ?? 60;
+}
 
 /// Phone entry — step 1 of the OTP sign-in flow (plan §5). Sends a code via
 /// [AuthController.sendOtp], then hands off to [OtpScreen] for verification.
@@ -64,9 +74,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           },
         ).toString(),
       );
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
-      setState(() => _error = l10n.somethingWentWrong);
+      final retryAfter = _rateLimitRetryAfter(error);
+      setState(
+        () => _error = retryAfter != null
+            ? l10n.loginRateLimitedError(retryAfter)
+            : l10n.somethingWentWrong,
+      );
     } finally {
       if (mounted) setState(() => _sending = false);
     }

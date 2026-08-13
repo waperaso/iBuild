@@ -18,6 +18,8 @@
   "loginPhoneHint": "Phone number",
   "loginSendCode": "Send code",
   "loginSendCodeError": "Could not send code. Try again.",
+  "loginRateLimitedError": "Too many attempts. Wait {seconds}s and try again.",
+  "@loginRateLimitedError": { "placeholders": { "seconds": { "type": "int" } } },
   "signInDemo": "Sign in (demo)",
   "demoButton": "Demo",
   "demoModeTitle": "Demo mode",

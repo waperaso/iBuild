@@ -184,6 +184,12 @@ abstract class AppLocalizations {
   /// **'Could not send code. Try again.'**
   String get loginSendCodeError;
 
+  /// No description provided for @loginRateLimitedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait {seconds}s and try again.'**
+  String loginRateLimitedError(int seconds);
+
   /// No description provided for @signInDemo.
   ///
   /// In en, this message translates to:

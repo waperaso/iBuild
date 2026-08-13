@@ -736,6 +736,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get somethingWentWrong => 'Что-то пошло не так.';
 
   @override
+  String loginRateLimitedError(int seconds) {
+    return 'Слишком много попыток. Подождите $seconds с и попробуйте снова.';
+  }
+
+  @override
   String get retry => 'Повторить';
 
   @override

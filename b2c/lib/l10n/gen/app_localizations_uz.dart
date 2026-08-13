@@ -736,6 +736,11 @@ class AppLocalizationsUz extends AppLocalizations {
   String get somethingWentWrong => 'Nimadir xato ketdi.';
 
   @override
+  String loginRateLimitedError(int seconds) {
+    return 'Urinishlar juda koʻp. $seconds soniyadan keyin qayta urinib koʻring.';
+  }
+
+  @override
   String get retry => 'Qayta urinish';
 
   @override

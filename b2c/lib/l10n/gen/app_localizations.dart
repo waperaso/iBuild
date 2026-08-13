@@ -1402,6 +1402,12 @@ abstract class AppLocalizations {
   /// **'Something went wrong.'**
   String get somethingWentWrong;
 
+  /// No description provided for @loginRateLimitedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait {seconds}s and try again.'**
+  String loginRateLimitedError(int seconds);
+
   /// No description provided for @retry.
   ///
   /// In en, this message translates to:

@@ -53,6 +53,11 @@ class AppLocalizationsUz extends AppLocalizations {
       'Kodni yuborib boʻlmadi. Qayta urinib koʻring.';
 
   @override
+  String loginRateLimitedError(int seconds) {
+    return 'Urinishlar juda koʻp. $seconds soniyadan keyin qayta urinib koʻring.';
+  }
+
+  @override
   String get signInDemo => 'Kirish (demo)';
 
   @override

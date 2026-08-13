@@ -311,6 +311,8 @@
   "leadStatusLost": "Lost",
 
   "somethingWentWrong": "Something went wrong.",
+  "loginRateLimitedError": "Too many attempts. Wait {seconds}s and try again.",
+  "@loginRateLimitedError": { "placeholders": { "seconds": { "type": "int" } } },
   "retry": "Retry",
   "viewGalleryCount": "Gallery · {count} photos",
   "@viewGalleryCount": {

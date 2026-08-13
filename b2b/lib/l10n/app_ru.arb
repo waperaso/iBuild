@@ -18,6 +18,8 @@
   "loginPhoneHint": "Номер телефона",
   "loginSendCode": "Отправить код",
   "loginSendCodeError": "Не удалось отправить код. Попробуйте снова.",
+  "loginRateLimitedError": "Слишком много попыток. Подождите {seconds} с и попробуйте снова.",
+  "@loginRateLimitedError": { "placeholders": { "seconds": { "type": "int" } } },
   "signInDemo": "Войти (demo)",
   "demoButton": "Демо",
   "demoModeTitle": "Демо-режим",

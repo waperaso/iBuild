@@ -53,6 +53,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось отправить код. Попробуйте снова.';
 
   @override
+  String loginRateLimitedError(int seconds) {
+    return 'Слишком много попыток. Подождите $seconds с и попробуйте снова.';
+  }
+
+  @override
   String get signInDemo => 'Войти (demo)';
 
   @override

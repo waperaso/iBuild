@@ -263,6 +263,8 @@
   "leadStatusLost": "Bekor qilindi",
 
   "somethingWentWrong": "Nimadir xato ketdi.",
+  "loginRateLimitedError": "Urinishlar juda koʻp. {seconds} soniyadan keyin qayta urinib koʻring.",
+  "@loginRateLimitedError": { "placeholders": { "seconds": { "type": "int" } } },
   "retry": "Qayta urinish",
   "viewGalleryCount": "Galereya · {count} surat",
   "@viewGalleryCount": {

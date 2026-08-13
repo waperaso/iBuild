@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,15 @@ import '../../core/widgets/demo_entry_button.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../l10n/gen/app_localizations.dart';
 import 'auth.dart';
+
+/// Reads `Retry-After` off a 429 `DioException`, else `null` for any other error.
+int? _rateLimitRetryAfter(Object error) {
+  if (error is! DioException || error.response?.statusCode != 429) {
+    return null;
+  }
+  final header = error.response?.headers.value('retry-after');
+  return int.tryParse(header ?? '') ?? 60;
+}
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -48,9 +58,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           .sendOtp(phone);
       if (!mounted) return;
       context.push('/otp', extra: {'phone': phone, 'requestId': requestId});
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
-      setState(() => _error = l10n.loginSendCodeError);
+      final retryAfter = _rateLimitRetryAfter(error);
+      setState(
+        () => _error = retryAfter != null
+            ? l10n.loginRateLimitedError(retryAfter)
+            : l10n.loginSendCodeError,
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }

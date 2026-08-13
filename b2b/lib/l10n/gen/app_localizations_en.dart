@@ -52,6 +52,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSendCodeError => 'Could not send code. Try again.';
 
   @override
+  String loginRateLimitedError(int seconds) {
+    return 'Too many attempts. Wait ${seconds}s and try again.';
+  }
+
+  @override
   String get signInDemo => 'Sign in (demo)';
 
   @override

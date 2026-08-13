@@ -263,6 +263,8 @@
   "leadStatusLost": "Отклонена",
 
   "somethingWentWrong": "Что-то пошло не так.",
+  "loginRateLimitedError": "Слишком много попыток. Подождите {seconds} с и попробуйте снова.",
+  "@loginRateLimitedError": { "placeholders": { "seconds": { "type": "int" } } },
   "retry": "Повторить",
   "viewGalleryCount": "Галерея · {count} фото",
   "@viewGalleryCount": {

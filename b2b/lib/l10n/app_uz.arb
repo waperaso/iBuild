@@ -18,6 +18,8 @@
   "loginPhoneHint": "Telefon raqami",
   "loginSendCode": "Kod yuborish",
   "loginSendCodeError": "Kodni yuborib boʻlmadi. Qayta urinib koʻring.",
+  "loginRateLimitedError": "Urinishlar juda koʻp. {seconds} soniyadan keyin qayta urinib koʻring.",
+  "@loginRateLimitedError": { "placeholders": { "seconds": { "type": "int" } } },
   "signInDemo": "Kirish (demo)",
   "demoButton": "Demo",
   "demoModeTitle": "Demo rejim",

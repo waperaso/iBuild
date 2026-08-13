@@ -732,6 +732,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get somethingWentWrong => 'Something went wrong.';
 
   @override
+  String loginRateLimitedError(int seconds) {
+    return 'Too many attempts. Wait ${seconds}s and try again.';
+  }
+
+  @override
   String get retry => 'Retry';
 
   @override
