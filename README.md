@@ -56,7 +56,6 @@
 9. [Business features](#9-business-features)
 10. [Differences](#10-differences-from-alternatives)
 11. [Monetization](#11-monetization)
-12. [Status and roadmap](#12-status-and-roadmap)
 
 </td>
 <td width="50%" valign="top">
@@ -331,7 +330,6 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 9. [Возможности для бизнеса](#9-возможности-для-бизнеса)
 10. [Отличия от аналогов](#10-отличия-от-аналогов)
 11. [Монетизация](#11-монетизация)
-12. [Статус и дорожная карта](#12-статус-и-дорожная-карта)
 
 </td>
 <td width="50%" valign="top">
