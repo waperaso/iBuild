@@ -71,7 +71,7 @@
 | **Parties** | Buyers, developers, banks, specialists, government |
 | **Stack** | Flutter, Dart (REST & WebSocket), PostgreSQL with row-level isolation |
 | **Engineering** | AI-native: Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol |
-| **AI vendors** | Newo AI, Karmon AI, AI photo-report verification |
+| **AI engines** | Shipped, in-house: smart search, CRM lead scoring, readiness/photo verification (no training), OpenAI-backed buyer chat. Planned vendors: Newo AI (voice), Karmon AI (budgeting) |
 | **Stage** | MVP — end-to-end scenario works |
 | **Revenue** | Developer subscription, promotion, bank verification & referral leads |
 
@@ -215,22 +215,26 @@ Monitoring is two-tier: machine first (metadata and image compare), then a speci
 
 ## 7. Role of artificial intelligence
 
-**Engineering — AI-native.** The codebase is written with agentic AI models in Cursor: **Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol**.
+Two different things carry the "AI" label in this project — kept separate here so neither overstates the other.
 
-**In the product**, AI is a verification layer on vendor solutions — not a showcase. Own models are not trained; vendor APIs are plugged in so continuous informational monitoring stays affordable.
+**Engineering.** The codebase itself is written with agentic coding models in Cursor: **Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol**.
 
-| Vendor | Role | Status |
-|---|---|---|
-| **Newo AI** | Voice assistant and call centre: answers on the catalogue and matches preferences — deal type, district, budget, rooms. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
-| **Karmon AI** | Budgeting: purchase budget with installments and mortgage, project expense planning. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
-| **AI verification** | Photo geotag/metadata (coords, date, device) and visual progress vs prior reports. Mismatches are flagged for clarification. | <span style="background:#fdf2dc;color:#b8860b;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">in progress</span> |
+**In the product**, AI is built in-house. Three engines below are plain deterministic Dart code, written and run entirely in this repo — no training step, no upstream model call.
+
+| Engine | What it does | Calls an upstream model? | Server code | Client code |
+|---|---|:---:|---|---|
+| **Smart search (b2c)** | Parses free-text ru/uz/en queries into structured constraints, ranks catalogue units, and drives the inline "ghost text" suggestion. | No | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
+| **CRM lead scoring (b2b)** | Scores every lead hot/warm/cold from behaviour, SLA timers, and ru/uz/en keyword signals; answers the CRM assistant's guided questions. | No | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
+| **Readiness / photo verification** | A 7-stage pipeline per photo report: EXIF/geotag checks, perceptual-hash duplicate detection, a hand-tuned stage classifier, progress-vs-previous-report comparison, and visual risk indicators (safety gear, cracks, debris). | Optional (see below) | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | [`project_detail_readiness.dart`](b2b/lib/features/residence/project_detail_readiness.dart) |
+| **Buyer AI consultant** | Conversational chat layer over the catalogue. | **Yes — OpenAI** | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
+
+The readiness engine can optionally merge a GPT-vision pass over its own local result (`AI_VISION_ENABLED`, off by default); if that call fails, times out, or is disabled, the deterministic local result ships as-is. All AI HTTP endpoints (`/v1/ai/search`, `/v1/ai/search/suggest`, `/v1/ai/crm/leads`, `/v1/ai/crm/query`, `/v1/ai/chat`, photo-report verification) are wired in [`ai_routes.dart`](server/lib/src/ai/ai_routes.dart); usage is quota-limited per IP/user via [`ai_quota.dart`](server/lib/src/ai/ai_quota.dart).
 
 ### 7.1. Scope of AI
 
-- **Every** report goes through machine verification — continuous, not sampling.
-- AI flags and escalates; it **does not decide** — a human changes object status.
-- Site visits are only for disputed reports, so headcount grows slower than inventory.
-- Matching and budgeting are optional — the app works without them.
+- Every photo report goes through the deterministic pipeline before publication — continuous, not sampling.
+- The readiness check runs as a **preview** (`POST /v1/admin/projects/<id>/photo-reports/analyze`) before a report is published: it flags and classifies, it does not itself publish or reject — an admin acts on the result.
+- A low-confidence classification automatically downgrades a hard failure to a manual-review flag instead of a false-positive rejection.
 
 ### 7.2. Value for payers
 
@@ -240,18 +244,14 @@ Monitoring is two-tier: machine first (metadata and image compare), then a speci
 | **Bank** (verification · leads) | Continuous monitoring plus specialists on disputes costs less than an in-house team; referral link brings mortgage/loan applications. |
 | **iBuild** (margin) | Monitoring unit cost falls; the service stays cheaper than a bank’s own staff as inventory grows. |
 
-### 7.3. In-house AI engines (shipped, code in this repo)
+### 7.3. Planned vendor integrations
 
-Two of the AI features above are not a vendor call — they are deterministic, in-house engines written for this repo, with no training and no upstream model call:
+Not built yet, no code in this repo — future integrations under consideration, kept separate from the in-house engines above so the two are never confused:
 
-| Engine | What it does | Server code | Client code |
-|---|---|---|---|
-| **Smart search (b2c)** | Parses free-text ru/uz/en queries into structured constraints, ranks catalogue units, and drives the inline "ghost text" suggestion. | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
-| **CRM lead scoring (b2b)** | Scores every lead hot/warm/cold from behaviour, SLA timers, and keyword signals; answers the CRM assistant's guided questions. | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
-| **Readiness / photo analysis** | Runs the `stage_1`…`stage_7` verification pipeline locally before any optional vision-model pass. | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | — |
-| Buyer AI consultant *(OpenAI-backed)* | Conversational chat layer over the catalogue; the only piece that calls an upstream model. | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
-
-All AI HTTP endpoints (`/v1/ai/search`, `/v1/ai/search/suggest`, `/v1/ai/crm/leads`, `/v1/ai/crm/query`, `/v1/ai/chat`, photo verification) are wired in [`ai_routes.dart`](server/lib/src/ai/ai_routes.dart).
+| Vendor | Role | Status |
+|---|---|---|
+| **Newo AI** | Voice assistant and call centre: answers on the catalogue and matches preferences — deal type, district, budget, rooms. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
+| **Karmon AI** | Budgeting: purchase budget with installments and mortgage, project expense planning. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span> |
 
 ---
 
@@ -312,14 +312,6 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 
 ---
 
-## 12. Status and roadmap
-
-**Works today.** Search, chessboard, requests, CRM; platform panel; dual readiness bars.
-
-**Next stage.** AI verification, Newo AI and Karmon AI, subscription billing, specialists (tech experts), government information exchange, bank contracts and mortgage/loan referral leads. IT Park residency and tax benefits are planned. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span>
-
----
-
 # Русский
 
 <table>
@@ -354,7 +346,7 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 | **Стороны** | Клиенты, застройщики, банки, специалисты, госорганы |
 | **Стек** | Flutter, Dart (REST и WebSocket), PostgreSQL с изоляцией на уровне строк |
 | **Инженерия** | AI-native: Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol |
-| **ИИ-вендоры** | Newo AI, Karmon AI, ИИ-верификация фотоотчётов |
+| **ИИ-движки** | Реализовано, собственные: умный поиск, скоринг лидов CRM, верификация готовности/фото (без обучения), чат-консультант на базе OpenAI. В планах — вендоры: Newo AI (голос), Karmon AI (бюджетирование) |
 | **Стадия** | MVP, сквозной сценарий работает |
 | **Доход** | Подписка застройщика, продвижение, верификация и реферальные лиды для банков |
 
@@ -498,22 +490,27 @@ iBuild — **независимая цифровая система** монит
 
 ## 7. Роль искусственного интеллекта
 
-**Инженерия — AI-native.** Код пишется агентными ИИ-моделями в Cursor: **Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol**.
+В проекте под словом «ИИ» скрываются две разные вещи — здесь они разделены, чтобы одна не выдавалась за другую.
 
-**В продукте** ИИ — слой верификации на решениях вендоров, а не витрина. Собственные модели не разрабатываются — подключаются API вендоров, чтобы сплошной информационный мониторинг оставался доступным по себестоимости.
+**Инженерия.** Сам код пишется агентными ИИ-моделями в Cursor: **Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol**.
 
-| Вендор | Назначение | Статус |
-|---|---|---|
-| **Newo AI** | Голосовой помощник и колл-центр: отвечает по каталогу и подбирает объекты по предпочтениям клиента — сделка, район, бюджет, комнатность. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">план</span> |
-| **Karmon AI** | Универсальный инструмент бюджетирования: расчёт бюджета покупки с учётом рассрочки и ипотеки, планирование расходов по проекту. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">план</span> |
-| **ИИ-верификация** | Геотег и метаданные снимка (координаты, дата, устройство) и визуальное сравнение прогресса с прошлыми отчётами. При несоответствии отчёт помечается как требующий уточнения. | <span style="background:#fdf2dc;color:#b8860b;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">в разработке</span> |
+**В продукте** ИИ разрабатывается собственными силами. Три движка ниже — обычный детерминированный Dart-код, написанный и выполняемый целиком в этом репозитории: без этапа обучения и без обращения к внешней модели.
+
+| Движок | Что делает | Обращается к внешней модели? | Код сервера | Код клиента |
+|---|---|:---:|---|---|
+| **Умный поиск (b2c)** | Разбирает свободный текст на ru/uz/en в структурные условия, ранжирует юниты каталога и формирует подсказку «серым текстом». | Нет | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
+| **Скоринг лидов CRM (b2b)** | Оценивает каждый лид как горячий/тёплый/холодный по поведению, таймерам SLA и ключевым словам на ru/uz/en; отвечает на вопросы ассистента CRM. | Нет | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
+| **Готовность / анализ фото** | 7-этапная проверка каждого фотоотчёта: EXIF и геотег, поиск дублей по перцептивному хешу, классификатор этапа стройки, сравнение прогресса с прошлым отчётом, визуальные риск-индикаторы (СИЗ, трещины, мусор). | Опционально (см. ниже) | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | [`project_detail_readiness.dart`](b2b/lib/features/residence/project_detail_readiness.dart) |
+| **ИИ-консультант покупателя** | Диалоговый слой над каталогом. | **Да — OpenAI** | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
+
+Движок готовности может опционально домешать проход через GPT-vision поверх собственного локального результата (`AI_VISION_ENABLED`, по умолчанию выключено); если этот вызов упал, превысил таймаут или отключён — уходит детерминированный локальный результат без изменений. Все ИИ-эндпоинты (`/v1/ai/search`, `/v1/ai/search/suggest`, `/v1/ai/crm/leads`, `/v1/ai/crm/query`, `/v1/ai/chat`, верификация фотоотчётов) подключены в [`ai_routes.dart`](server/lib/src/ai/ai_routes.dart); использование ограничено квотой на IP/пользователя через [`ai_quota.dart`](server/lib/src/ai/ai_quota.dart).
 
 ### 7.1. Объём участия
 
-- Машинную верификацию проходит **каждый** отчёт: мониторинг сплошной, а не выборочный.
-- ИИ помечает и передаёт дальше, но **решения не выносит** — статус объекта меняет человек.
-- Посещение объекта нужно только по спорным отчётам: штат растёт медленнее числа объектов.
-- Подбор и бюджет вспомогательны — приложение работает и без них.
+- Каждый фотоотчёт проходит детерминированную проверку до публикации — мониторинг сплошной, а не выборочный.
+- Проверка готовности запускается как **предпросмотр** (`POST /v1/admin/projects/<id>/photo-reports/analyze`) до публикации отчёта: она помечает и классифицирует, но не публикует и не отклоняет сама — решение по результату принимает администратор.
+- Низкая уверенность классификации автоматически понижает жёсткий отказ до пометки «на ручную проверку» вместо ложного отклонения.
+
 
 ### 7.2. Что это даёт плательщикам
 
@@ -523,18 +520,14 @@ iBuild — **независимая цифровая система** монит
 | **Банк** (верификация · лиды) | Сплошной мониторинг плюс специалист по спорным дешевле собственного штата; реферальная ссылка приводит заявки на ипотеку и кредит. |
 | **iBuild** (маржа) | Себестоимость мониторинга падает: услуга дешевле банковского штата, маржа держится при росте объектов. |
 
-### 7.3. Собственные ИИ-движки (реализовано, код в этом репозитории)
+### 7.3. Планируемые интеграции с вендорами
 
-Две ИИ-возможности выше — не вызов вендора, а детерминированные собственные движки, написанные для этого репозитория: без обучения моделей и без обращения к внешнему провайдеру.
+Пока не реализовано, кода в этом репозитории нет — рассматриваемые интеграции на будущее, отдельно от собственных движков выше, чтобы одно не путалось с другим:
 
-| Движок | Что делает | Код сервера | Код клиента |
-|---|---|---|---|
-| **Умный поиск (b2c)** | Разбирает свободный текст на ru/uz/en в структурные условия, ранжирует юниты каталога и формирует подсказку «серым текстом». | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
-| **Скоринг лидов CRM (b2b)** | Оценивает каждый лид как горячий/тёплый/холодный по поведению, таймерам SLA и ключевым словам; отвечает на вопросы ассистента CRM. | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
-| **Готовность / анализ фото** | Локально выполняет проверку `stage_1`…`stage_7` до опционального прохода через модель компьютерного зрения. | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | — |
-| ИИ-консультант покупателя *(на базе OpenAI)* | Диалоговый слой над каталогом; единственный компонент, обращающийся к внешней модели. | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
-
-Все ИИ-эндпоинты (`/v1/ai/search`, `/v1/ai/search/suggest`, `/v1/ai/crm/leads`, `/v1/ai/crm/query`, `/v1/ai/chat`, верификация фото) подключены в [`ai_routes.dart`](server/lib/src/ai/ai_routes.dart).
+| Вендор | Назначение | Статус |
+|---|---|---|
+| **Newo AI** | Голосовой помощник и колл-центр: отвечает по каталогу и подбирает объекты по предпочтениям клиента — сделка, район, бюджет, комнатность. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">план</span> |
+| **Karmon AI** | Универсальный инструмент бюджетирования: расчёт бюджета покупки с учётом рассрочки и ипотеки, планирование расходов по проекту. | <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">план</span> |
 
 ---
 
@@ -595,13 +588,6 @@ iBuild — **независимая цифровая система** монит
 
 ---
 
-## 12. Статус и дорожная карта
-
-**Работает сегодня.** Поиск, «шахматка», заявка, CRM; панель платформы; две полосы готовности.
-
-**Ближайший этап.** ИИ-верификация, Newo AI и Karmon AI, оплата подписок, специалисты (технические эксперты), взаимодействие с уполномоченными государственными органами, договоры с банками и реферальные лиды на ипотеку и кредит. Планируется получение резидентства в IT Park и налоговых льгот. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">план</span>
-
----
 
 ## Repository / Репозиторий
 
