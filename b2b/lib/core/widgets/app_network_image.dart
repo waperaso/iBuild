@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
+    show ImageRenderMethodForWeb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ibuild_core/ibuild_core.dart';
@@ -82,6 +84,15 @@ class AppNetworkImage extends StatelessWidget {
       fit: fit,
       memCacheWidth: _cacheWidth(context),
       memCacheHeight: _cacheHeight(context),
+      // Web defaults to ImageRenderMethodForWeb.HtmlImage, which uploads the
+      // *original* image as a GPU texture and silently ignores
+      // memCacheWidth/memCacheHeight above. With enough full-resolution
+      // photos live across screens, CanvasKit's single WebGL context runs
+      // out of GPU memory and gets dropped — every image already painted
+      // then renders solid black with no error (flutter/flutter#158093,
+      // #160199, #178524). HttpGet actually decodes at the requested size.
+      imageRenderMethodForWeb:
+          kIsWeb ? ImageRenderMethodForWeb.HttpGet : ImageRenderMethodForWeb.HtmlImage,
       fadeInDuration: Duration.zero,
       fadeOutDuration: Duration.zero,
       placeholder: (context, _) => _placeholder(context),
