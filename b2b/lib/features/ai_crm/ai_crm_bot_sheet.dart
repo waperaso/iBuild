@@ -7,6 +7,7 @@ import '../../core/localization/locale_controller.dart';
 import '../../core/localization/status_labels.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
+import '../../core/utils/redacted_phone.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/pill_button.dart';
@@ -830,7 +831,7 @@ class _LeadCard extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            card['contactPhone']?.toString() ?? '',
+            displayPhone(l10n, card['contactPhone']?.toString()),
             style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
           ),
           if (reasons.isNotEmpty) ...[

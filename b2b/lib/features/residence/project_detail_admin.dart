@@ -19,6 +19,7 @@ import '../../core/localization/verification_codes.dart';
 import '../../core/network/ws_client.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
+import '../../core/utils/redacted_phone.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_network_image.dart';
 import '../../core/widgets/empty_state.dart';
@@ -1439,7 +1440,10 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
               'lost',
             ],
             statusLabel: (status) => leadStatusLabel(l10n, status),
-            onStatusChanged: _updateLeadStatus,
+            onStatusChanged: (lead, status) {
+              if (isDemoPlaceholder(lead)) return;
+              _updateLeadStatus(lead, status);
+            },
             cardBuilder: (context, lead) => _LeadKanbanCard(
               lead: lead,
               onEdit: () => _editLead(lead),
@@ -1611,6 +1615,8 @@ class _LeadKanbanCard extends StatelessWidget {
         _MetaChip(label: tag.toString()),
     ];
 
+    final placeholder = isDemoPlaceholder(lead);
+
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
@@ -1626,24 +1632,29 @@ class _LeadKanbanCard extends StatelessWidget {
                   style: textTheme.titleSmall,
                 ),
               ),
+              if (placeholder) ...[
+                const AiExampleBadge(),
+                const SizedBox(width: AppSpacing.xs),
+              ],
               if (band != null) ...[
                 AiBandPill(band: band),
                 const SizedBox(width: AppSpacing.xs),
               ],
-              IconButton(
-                tooltip: l10n.projectTagsScoreTooltip,
-                iconSize: 18,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                onPressed: onEdit,
-                icon: const Icon(Icons.label_outline),
-              ),
+              if (!placeholder)
+                IconButton(
+                  tooltip: l10n.projectTagsScoreTooltip,
+                  iconSize: 18,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.label_outline),
+                ),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             l10n.projectLeadContactLine(
-              '${lead['contactPhone'] ?? ''}',
+              displayPhone(l10n, lead['contactPhone']?.toString()),
               '${lead['message'] ?? ''}',
             ),
             maxLines: 2,

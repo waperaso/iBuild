@@ -147,6 +147,8 @@ class _KanbanColumn extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: Draggable<Map<String, dynamic>>(
                           data: lead,
+                          maxSimultaneousDrags:
+                              lead['isDemoPlaceholder'] == true ? 0 : 1,
                           feedback: Material(
                             color: Colors.transparent,
                             child: SizedBox(

@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../core/localization/status_labels.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
+import '../../core/utils/redacted_phone.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_network_image.dart';
 import '../../core/widgets/document_review_row.dart';
@@ -381,7 +382,10 @@ class _PendingRentalListingCard extends ConsumerWidget {
     final areaTotal = (listing['areaTotal'] as num?)?.toDouble();
     final rooms = listing['rooms'] as int?;
     final rentMonthly = listing['rentMonthly'] as num?;
-    final contactPhone = listing['contactPhone']?.toString() ?? '';
+    final contactPhone = displayPhone(
+      l10n,
+      listing['contactPhone']?.toString(),
+    );
 
     return AppCard(
       child: Row(

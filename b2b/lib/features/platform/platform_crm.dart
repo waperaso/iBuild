@@ -7,6 +7,7 @@ import '../../core/localization/status_labels.dart';
 import '../../core/network/ws_client.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
+import '../../core/utils/redacted_phone.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/lead_kanban_board.dart';
@@ -250,7 +251,10 @@ class _PlatformCrmState extends ConsumerState<PlatformCrm> {
                 leads: filtered,
                 statuses: _kLeadStatuses,
                 statusLabel: (status) => leadStatusLabel(l10n, status),
-                onStatusChanged: _updateLeadStatus,
+                onStatusChanged: (lead, status) {
+                  if (isDemoPlaceholder(lead)) return;
+                  _updateLeadStatus(lead, status);
+                },
                 cardBuilder: (context, lead) => _CrmKanbanCard(
                   lead: lead,
                   onEdit: () async {
@@ -299,6 +303,7 @@ class _CrmKanbanCard extends StatelessWidget {
         .map((r) => r.toString())
         .take(2)
         .toList();
+    final placeholder = isDemoPlaceholder(lead);
 
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -315,6 +320,10 @@ class _CrmKanbanCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              if (placeholder) ...[
+                const AiExampleBadge(),
+                const SizedBox(width: AppSpacing.xs),
+              ],
               // The AI band supersedes the manually set score — showing both
               // would put two hot/warm/cold pills on the same card.
               if (band != null) ...[
@@ -334,7 +343,7 @@ class _CrmKanbanCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            lead['contactPhone']?.toString() ?? '',
+            displayPhone(l10n, lead['contactPhone']?.toString()),
             style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
           ),
           if ((lead['message'] as String?)?.isNotEmpty == true) ...[
@@ -356,15 +365,17 @@ class _CrmKanbanCard extends StatelessWidget {
           ],
           const SizedBox(height: AppSpacing.xs),
           LeadOwnerLine(lead: lead),
-          const SizedBox(height: AppSpacing.sm),
-          Align(
-            alignment: Alignment.centerRight,
-            child: PillButton(
-              label: l10n.crmEdit,
-              variant: PillButtonVariant.outline,
-              onPressed: onEdit,
+          if (!placeholder) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Align(
+              alignment: Alignment.centerRight,
+              child: PillButton(
+                label: l10n.crmEdit,
+                variant: PillButtonVariant.outline,
+                onPressed: onEdit,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

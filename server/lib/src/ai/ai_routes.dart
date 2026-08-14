@@ -6,6 +6,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import '../auth_context.dart';
+import '../demo_overlay.dart';
 import '../http_helpers.dart';
 import '../static_files.dart';
 import '../store.dart';
@@ -1062,7 +1063,10 @@ class _AdminScope {
 
 _AdminScope _adminScope(Store store, AuthContext auth) {
   if (auth.isSystemAdmin) {
-    return _AdminScope(store.leads, store.projects);
+    return _AdminScope(
+      DemoOverlay.leads(auth, store, store.leads),
+      store.projects,
+    );
   }
   final projects = store.projectsForDeveloperOwner(auth.userId);
   final projectIds = projects.map((p) => p['id']).toSet();

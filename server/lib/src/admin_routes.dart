@@ -7,6 +7,7 @@ import 'package:shelf_router/shelf_router.dart';
 
 import 'ai/readiness_engine.dart';
 import 'auth_context.dart';
+import 'demo_overlay.dart';
 import 'env_loader.dart';
 import 'http_helpers.dart';
 import 'rate_limiter.dart';
@@ -680,6 +681,10 @@ void mountAdminRoutes(
   ) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
+    final overlayDocs = DemoOverlay.documentsForDeveloper(req.auth, id);
+    if (overlayDocs != null) {
+      return jsonOk(overlayDocs, meta: {'total': overlayDocs.length});
+    }
     if (store.developerById(id) == null) {
       return jsonError('NOT_FOUND', 'Developer $id not found', status: 404);
     }
@@ -1482,7 +1487,7 @@ void mountAdminRoutes(
     }
     final ownerFilter = req.url.queryParameters['owner'];
     final items = store.filterLeadsByOwner(
-      store.leadsForProject(id),
+      DemoOverlay.leads(auth, store, store.leadsForProject(id), projectId: id),
       ownerFilter: ownerFilter,
       currentUserId: auth.userId,
     );
@@ -1515,6 +1520,11 @@ void mountAdminRoutes(
         'Authentication required',
         status: 401,
       );
+    }
+    final overlayLead = DemoOverlay.leadById(auth, store, lid);
+    if (overlayLead != null) {
+      final items = DemoOverlay.leadEvents(auth, lid);
+      return jsonOk(items, meta: {'total': items.length});
     }
     final lead = store.leadById(lid);
     if (lead == null) {
@@ -1665,7 +1675,10 @@ void mountAdminRoutes(
   router.get('/v1/platform/developers/pending', (Request req) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
-    final items = store.pendingDevelopers();
+    final items = DemoOverlay.pendingDevelopers(
+      req.auth,
+      store.pendingDevelopers(),
+    );
     return jsonOk(items, meta: {'total': items.length});
   });
 
@@ -1816,7 +1829,7 @@ void mountAdminRoutes(
     if (denied != null) return denied;
     final ownerFilter = req.url.queryParameters['owner'];
     final items = store.filterLeadsByOwner(
-      store.leads,
+      DemoOverlay.leads(req.auth, store, store.leads),
       ownerFilter: ownerFilter,
       currentUserId: req.auth!.userId,
     );
@@ -1881,14 +1894,14 @@ void mountAdminRoutes(
   router.get('/v1/platform/businesses', (Request req) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
-    final items = store.platformBusinesses();
+    final items = DemoOverlay.businesses(req.auth, store.platformBusinesses());
     return jsonOk(items, meta: {'total': items.length});
   });
 
   router.get('/v1/platform/users', (Request req) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
-    final items = store.allUsers();
+    final items = DemoOverlay.users(req.auth, store.allUsers());
     return jsonOk(items, meta: {'total': items.length});
   });
 
@@ -2039,7 +2052,9 @@ void mountAdminRoutes(
   router.get('/v1/platform/analytics', (Request req) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
-    return jsonOk(store.platformAnalytics());
+    return jsonOk(
+      DemoOverlay.analytics(req.auth, store, store.platformAnalytics()),
+    );
   });
 
   // --- Admin notifications (developer changes / submitted docs) -----------
@@ -2050,20 +2065,33 @@ void mountAdminRoutes(
     final unreadOnly =
         req.url.queryParameters['unreadOnly']?.toLowerCase() == 'true';
     final limit = int.tryParse(req.url.queryParameters['limit'] ?? '') ?? 200;
-    final items = store.adminNotifications(
+    final items = DemoOverlay.notifications(
+      req.auth,
+      store.adminNotifications(unreadOnly: unreadOnly, limit: limit),
       unreadOnly: unreadOnly,
       limit: limit,
     );
     return jsonOk(
       items,
-      meta: {'total': items.length, 'unread': store.unreadNotificationCount()},
+      meta: {
+        'total': items.length,
+        'unread': DemoOverlay.unreadNotificationCount(
+          req.auth,
+          store.unreadNotificationCount(),
+        ),
+      },
     );
   });
 
   router.get('/v1/platform/notifications/unread-count', (Request req) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
-    return jsonOk({'count': store.unreadNotificationCount()});
+    return jsonOk({
+      'count': DemoOverlay.unreadNotificationCount(
+        req.auth,
+        store.unreadNotificationCount(),
+      ),
+    });
   });
 
   router.post('/v1/platform/notifications/<id>/read', (Request req, String id) {
@@ -2088,7 +2116,11 @@ void mountAdminRoutes(
   router.get('/v1/platform/reviews/pending', (Request req) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
-    final items = store.reviewsForModeration();
+    final items = DemoOverlay.pendingReviews(
+      req.auth,
+      store,
+      store.reviewsForModeration(),
+    );
     return jsonOk(items, meta: {'total': items.length});
   });
 
@@ -2141,7 +2173,10 @@ void mountAdminRoutes(
   router.get('/v1/platform/rental-listings/pending', (Request req) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
-    final items = store.pendingRentalListings();
+    final items = DemoOverlay.pendingRentalListings(
+      req.auth,
+      store.pendingRentalListings(),
+    );
     return jsonOk(items, meta: {'total': items.length});
   });
 
@@ -2186,8 +2221,15 @@ void mountAdminRoutes(
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
     final limit = int.tryParse(req.url.queryParameters['limit'] ?? '') ?? 100;
-    final items = store.auditLog.take(limit).toList();
-    return jsonOk(items, meta: {'total': store.auditLog.length});
+    final items = DemoOverlay.auditLog(
+      req.auth,
+      store.auditLog,
+      limit: limit,
+    );
+    return jsonOk(
+      items,
+      meta: {'total': DemoOverlay.auditLogTotal(req.auth, store.auditLog.length)},
+    );
   });
 
   // --- Support tickets (platform admin triage) ----------------------------
@@ -2196,13 +2238,19 @@ void mountAdminRoutes(
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
     final status = req.url.queryParameters['status'];
-    final items = store.allTickets(status: status);
+    final items = DemoOverlay.tickets(
+      req.auth,
+      store.allTickets(status: status),
+      status: status,
+    );
     return jsonOk(items, meta: {'total': items.length});
   });
 
   router.get('/v1/platform/tickets/<id>', (Request req, String id) {
     final denied = _requireSystemAdmin(req);
     if (denied != null) return denied;
+    final overlay = DemoOverlay.ticketById(req.auth, id);
+    if (overlay != null) return jsonOk(overlay);
     final ticket = store.ticketById(id);
     if (ticket == null) {
       return jsonError('NOT_FOUND', 'Ticket $id not found', status: 404);

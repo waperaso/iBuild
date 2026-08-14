@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization/status_labels.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
+import '../../core/utils/redacted_phone.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/horizontal_scroll_rail.dart';
@@ -149,22 +150,26 @@ class _AiLeadCard extends ConsumerWidget {
     final reasons = (lead['aiReasons'] as List? ?? const [])
         .map((r) => r.toString())
         .take(3);
+    final l10n = AppLocalizations.of(context);
+    final placeholder = isDemoPlaceholder(lead);
 
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
-      onTap: () =>
-          showDialog<CrmLeadEditResult>(
-            context: context,
-            builder: (_) => CrmLeadEditorDialog(lead: lead, statuses: statuses),
-          ).then((result) async {
-            if (result == null) return;
-            await applyCrmLeadEdit(
-              ref,
-              leadId: lead['id'] as String,
-              result: result,
-            );
-            ref.invalidate(aiCrmLeadsProvider);
-          }),
+      onTap: placeholder
+          ? null
+          : () => showDialog<CrmLeadEditResult>(
+              context: context,
+              builder: (_) =>
+                  CrmLeadEditorDialog(lead: lead, statuses: statuses),
+            ).then((result) async {
+              if (result == null) return;
+              await applyCrmLeadEdit(
+                ref,
+                leadId: lead['id'] as String,
+                result: result,
+              );
+              ref.invalidate(aiCrmLeadsProvider);
+            }),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -178,12 +183,16 @@ class _AiLeadCard extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              if (placeholder) ...[
+                const AiExampleBadge(),
+                const SizedBox(width: AppSpacing.xs),
+              ],
               if (band != null) AiBandPill(band: band),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            lead['contactPhone']?.toString() ?? '',
+            displayPhone(l10n, lead['contactPhone']?.toString()),
             style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
           ),
           if (reasons.isNotEmpty) ...[

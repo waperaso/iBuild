@@ -23,3 +23,7 @@ String displayPhone(AppLocalizations l10n, String? phone) {
   if (isPhoneRedacted(trimmed)) return l10n.phoneHidden;
   return trimmed;
 }
+
+/// True for rows the API tagged as demo-only placeholders.
+bool isDemoPlaceholder(Map<String, dynamic> row) =>
+    row['isDemoPlaceholder'] == true;
