@@ -15,7 +15,7 @@ import 'ai_crm_bot_sheet.dart';
 import 'ai_crm_pills.dart';
 import 'ai_crm_providers.dart';
 
-/// Plain info card used whenever the AI CRM engine is not available yet
+/// Plain info card used whenever the CRM assistant is not available yet
 /// (501 while the server sibling ships it, or any transient error) — never
 /// a raw error dump, per the "Beta notice" design convention.
 class AiUnavailableCard extends StatelessWidget {
@@ -201,14 +201,14 @@ class _AiLeadCard extends ConsumerWidget {
 }
 
 /// Ranked "требуют внимания сегодня" hot-leads panel, shared across the
-/// platform AI CRM screen and the condensed embeds on /residence and a
+/// platform CRM assistant screen and the condensed embeds on /residence and a
 /// project's own detail screen. [condensed] trims the list and tightens the
 /// section chrome (title/subtitle) so it reads as one section among others.
 /// [showHeader] drops the title row entirely — used when an enclosing
 /// section (e.g. [AiInsightsSection]) already names the block.
 ///
-/// With a header the panel draws its own bordered card so the title, the AI
-/// badge, the "open assistant" button and the leads underneath share one set
+/// With a header the panel draws its own bordered card so the title, the
+/// "open assistant" button and the leads underneath share one set
 /// of edges; loose rows on the page made the button look stranded at the far
 /// right of an empty band.
 class HotLeadsPanel extends ConsumerWidget {
@@ -289,7 +289,7 @@ class HotLeadsPanel extends ConsumerWidget {
   }
 }
 
-/// Title + AI badge on one side, the assistant button on the other, both
+/// Title on one side, the assistant button on the other, both
 /// vertically centered. Stacks when the panel is too narrow to hold the ru/uz
 /// title and the button on one line.
 class _PanelHeader extends StatelessWidget {
@@ -318,8 +318,6 @@ class _PanelHeader extends StatelessWidget {
                     : textTheme.headlineMedium,
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
-            const AiMarkBadge(),
           ],
         ),
         if (!condensed) ...[
@@ -426,8 +424,6 @@ class _AiInsightsSectionState extends State<AiInsightsSection> {
                       style: textTheme.titleMedium,
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  const AiMarkBadge(),
                   const Spacer(),
                   Tooltip(
                     message: _expanded

@@ -1900,19 +1900,19 @@ class AppLocalizationsUz extends AppLocalizations {
   String get crmEdit => 'Tahrirlash';
 
   @override
-  String get crmAiAssistant => 'AI yordamchi';
+  String get crmAiAssistant => 'CRM yordamchi';
 
   @override
-  String get crmAiInsightsTitle => 'AI tahlili';
+  String get crmAiInsightsTitle => 'CRM tahlili';
 
   @override
-  String get crmAiInsightsExpand => 'AI tahlilini ko\'rsatish';
+  String get crmAiInsightsExpand => 'CRM tahlilini ko\'rsatish';
 
   @override
-  String get crmAiInsightsCollapse => 'AI tahlilini yopish';
+  String get crmAiInsightsCollapse => 'CRM tahlilini yopish';
 
   @override
-  String get crmBandFilterLabel => 'AI bahosi';
+  String get crmBandFilterLabel => 'Lid bahosi';
 
   @override
   String get crmBandFilterAll => 'Barchasi';
@@ -2063,7 +2063,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get aiCrmPanelSubtitle =>
-      'AI tomonidan muhimlik darajasi bo\'yicha saralangan lidlar, har bir baho sababi bilan.';
+      'Muhimlik darajasi bo\'yicha saralangan lidlar, har bir baho sababi bilan.';
 
   @override
   String get aiCrmOpenBot => 'Yordamchini ochish';
@@ -2073,7 +2073,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get aiCrmUnavailable =>
-      'AI yordamchi hozircha ishlamayapti. Keyinroq urinib ko\'ring.';
+      'CRM yordamchi hozircha ishlamayapti. Keyinroq urinib ko\'ring.';
 
   @override
   String get aiMetricLeadVolume => 'Bugungi lidlar / reja';
@@ -2161,7 +2161,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get aiReasonLowSpecificity => 'Past aniqlik';
 
   @override
-  String get crmBotTitle => 'AI yordamchi';
+  String get crmBotTitle => 'CRM yordamchi';
 
   @override
   String get crmBotBack => 'Orqaga';

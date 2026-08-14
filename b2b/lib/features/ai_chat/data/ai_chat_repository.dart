@@ -7,7 +7,7 @@ import 'ai_chat_models.dart';
 /// Dio calls against the `/v1/ai/b2b/*` routes — the free-form B2B AI
 /// assistant chat (admin-only: system admin gets a platform-wide analyst
 /// view, residence admin gets their own residence's data). Distinct from
-/// the guided `AI CRM bot` (`admin_api.dart`'s `aiCrmQuery`), which stays a
+/// the guided `CRM assistant` (`admin_api.dart`'s `aiCrmQuery`), which stays a
 /// separate, node-based Q&A flow.
 class AiChatRepository {
   AiChatRepository(this._dio);

@@ -39,7 +39,7 @@ final _platformLeadsProvider =
       return ref.watch(adminApiProvider).platformLeads(owner: owner);
     });
 
-/// Platform-wide lead CRM: one AI-native workspace — ranked AI insights and
+/// Platform-wide lead CRM: one workspace — ranked CRM insights and
 /// the guided assistant on top of the classic owner/status/search filters and
 /// the drag-and-drop kanban board.
 class PlatformCrm extends ConsumerStatefulWidget {

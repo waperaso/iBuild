@@ -1899,19 +1899,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get crmEdit => 'Изменить';
 
   @override
-  String get crmAiAssistant => 'ИИ-ассистент';
+  String get crmAiAssistant => 'CRM-ассистент';
 
   @override
-  String get crmAiInsightsTitle => 'ИИ-аналитика';
+  String get crmAiInsightsTitle => 'Аналитика CRM';
 
   @override
-  String get crmAiInsightsExpand => 'Показать ИИ-аналитику';
+  String get crmAiInsightsExpand => 'Показать аналитику CRM';
 
   @override
-  String get crmAiInsightsCollapse => 'Свернуть ИИ-аналитику';
+  String get crmAiInsightsCollapse => 'Свернуть аналитику CRM';
 
   @override
-  String get crmBandFilterLabel => 'Оценка ИИ';
+  String get crmBandFilterLabel => 'Оценка лида';
 
   @override
   String get crmBandFilterAll => 'Все';
@@ -2062,7 +2062,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aiCrmPanelSubtitle =>
-      'Лиды, ранжированные ИИ по срочности, с указанием причин каждой оценки.';
+      'Лиды, ранжированные по срочности, с указанием причин каждой оценки.';
 
   @override
   String get aiCrmOpenBot => 'Открыть ассистента';
@@ -2072,7 +2072,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aiCrmUnavailable =>
-      'ИИ-ассистент сейчас недоступен. Попробуйте позже.';
+      'CRM-ассистент сейчас недоступен. Попробуйте позже.';
 
   @override
   String get aiMetricLeadVolume => 'Лиды сегодня / план';
@@ -2160,7 +2160,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aiReasonLowSpecificity => 'Низкая конкретика';
 
   @override
-  String get crmBotTitle => 'ИИ-ассистент';
+  String get crmBotTitle => 'CRM-ассистент';
 
   @override
   String get crmBotBack => 'Назад';

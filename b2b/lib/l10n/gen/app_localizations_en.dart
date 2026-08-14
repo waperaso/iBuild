@@ -1898,19 +1898,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get crmEdit => 'Edit';
 
   @override
-  String get crmAiAssistant => 'AI assistant';
+  String get crmAiAssistant => 'CRM assistant';
 
   @override
-  String get crmAiInsightsTitle => 'AI insights';
+  String get crmAiInsightsTitle => 'CRM insights';
 
   @override
-  String get crmAiInsightsExpand => 'Show AI insights';
+  String get crmAiInsightsExpand => 'Show CRM insights';
 
   @override
-  String get crmAiInsightsCollapse => 'Hide AI insights';
+  String get crmAiInsightsCollapse => 'Hide CRM insights';
 
   @override
-  String get crmBandFilterLabel => 'AI score';
+  String get crmBandFilterLabel => 'Lead score';
 
   @override
   String get crmBandFilterAll => 'All';
@@ -2061,7 +2061,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiCrmPanelSubtitle =>
-      'AI-ranked leads by urgency, with the reasons behind each score.';
+      'Leads ranked by urgency, with the reasons behind each score.';
 
   @override
   String get aiCrmOpenBot => 'Open assistant';
@@ -2071,7 +2071,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiCrmUnavailable =>
-      'The AI assistant isn\'t available right now. Try again later.';
+      'The CRM assistant isn\'t available right now. Try again later.';
 
   @override
   String get aiMetricLeadVolume => 'Leads today / plan';
@@ -2158,7 +2158,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiReasonLowSpecificity => 'Low specificity';
 
   @override
-  String get crmBotTitle => 'AI assistant';
+  String get crmBotTitle => 'CRM assistant';
 
   @override
   String get crmBotBack => 'Back';

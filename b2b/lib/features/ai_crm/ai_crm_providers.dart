@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../admin/admin_api.dart';
 
-/// Lead statuses used across the AI CRM panel and bot lead-editor dialogs —
+/// Lead statuses used across the CRM assistant panel and bot lead-editor dialogs —
 /// mirrors `_kLeadStatuses` in platform_crm.dart / project_detail_admin.dart.
 const kAiCrmLeadStatuses = [
   'new',
@@ -15,7 +15,7 @@ const kAiCrmLeadStatuses = [
   'lost',
 ];
 
-/// Orders leads inside a kanban column by AI urgency — highest `aiScore`
+/// Orders leads inside a kanban column by assistant urgency — highest `aiScore`
 /// first, with leads the scoring engine has not reached yet left at the
 /// bottom in their original newest-first order.
 int compareLeadsByAiUrgency(Map<String, dynamic> a, Map<String, dynamic> b) {

@@ -3404,31 +3404,31 @@ abstract class AppLocalizations {
   /// No description provided for @crmAiAssistant.
   ///
   /// In en, this message translates to:
-  /// **'AI assistant'**
+  /// **'CRM assistant'**
   String get crmAiAssistant;
 
   /// No description provided for @crmAiInsightsTitle.
   ///
   /// In en, this message translates to:
-  /// **'AI insights'**
+  /// **'CRM insights'**
   String get crmAiInsightsTitle;
 
   /// No description provided for @crmAiInsightsExpand.
   ///
   /// In en, this message translates to:
-  /// **'Show AI insights'**
+  /// **'Show CRM insights'**
   String get crmAiInsightsExpand;
 
   /// No description provided for @crmAiInsightsCollapse.
   ///
   /// In en, this message translates to:
-  /// **'Hide AI insights'**
+  /// **'Hide CRM insights'**
   String get crmAiInsightsCollapse;
 
   /// No description provided for @crmBandFilterLabel.
   ///
   /// In en, this message translates to:
-  /// **'AI score'**
+  /// **'Lead score'**
   String get crmBandFilterLabel;
 
   /// No description provided for @crmBandFilterAll.
@@ -3716,7 +3716,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiCrmPanelSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'AI-ranked leads by urgency, with the reasons behind each score.'**
+  /// **'Leads ranked by urgency, with the reasons behind each score.'**
   String get aiCrmPanelSubtitle;
 
   /// No description provided for @aiCrmOpenBot.
@@ -3734,7 +3734,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiCrmUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'The AI assistant isn\'t available right now. Try again later.'**
+  /// **'The CRM assistant isn\'t available right now. Try again later.'**
   String get aiCrmUnavailable;
 
   /// No description provided for @aiMetricLeadVolume.
@@ -3908,7 +3908,7 @@ abstract class AppLocalizations {
   /// No description provided for @crmBotTitle.
   ///
   /// In en, this message translates to:
-  /// **'AI assistant'**
+  /// **'CRM assistant'**
   String get crmBotTitle;
 
   /// No description provided for @crmBotBack.

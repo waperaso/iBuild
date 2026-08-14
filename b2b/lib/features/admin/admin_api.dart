@@ -613,12 +613,12 @@ class AdminApi {
   Future<void> markAllNotificationsRead() =>
       _dio.post('/platform/notifications/read-all');
 
-  // --- AI CRM (plan Part 3) ---------------------------------------------
+  // --- CRM assistant (plan Part 3) --------------------------------------
   //
   // Frozen contract (see `server/lib/src/ai/ai_routes.dart`'s doc comments):
   // computed lead scoring + a guided (not free-text) assistant. Both routes
   // 501 until the server sibling ships the scoring engine — callers must
-  // treat that (and any other error) as "AI not available yet", never crash.
+  // treat that (and any other error) as "assistant not available yet", never crash.
 
   /// `GET /v1/ai/crm/leads` — ranked leads + aggregate metrics for the panel.
   Future<Map<String, dynamic>> aiCrmLeads({

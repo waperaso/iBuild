@@ -36,7 +36,7 @@ class AiMarkBadge extends StatelessWidget {
   }
 }
 
-/// "Example" marker for a card group the AI CRM assistant filled with sample
+/// "Example" marker for a card group the CRM assistant filled with sample
 /// data because the workspace has no leads yet (`isExample` on the query
 /// response). Deliberately neutral rather than accent-tinted so it labels the
 /// demo answer without competing with [AiMarkBadge].
@@ -75,7 +75,7 @@ class AiExampleBadge extends StatelessWidget {
   }
 }
 
-/// AI score band pill — same visual treatment as `_ScorePill` in
+/// Lead-score band pill — same visual treatment as `_ScorePill` in
 /// platform_crm.dart (hot/warm tinted, cold neutral), reused for `aiBand`
 /// values which share the same hot/warm/cold vocabulary as the manual score.
 class AiBandPill extends StatelessWidget {

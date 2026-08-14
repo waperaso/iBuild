@@ -53,7 +53,7 @@
 3. [Schedule trust system](#3-schedule-trust-system)
 4. [Government interaction](#4-government-interaction)
 5. [Monitoring chain](#5-monitoring-chain-from-photo-to-specialist)
-6. [Four market sides](#6-four-market-sides-and-the-gaps-ibuild-closes)
+6. [Five market sides](#6-five-market-sides-and-the-gaps-ibuild-closes)
 7. [Role of AI](#7-role-of-artificial-intelligence)
    - [7.4 AI differentiators](#74-how-our-ai-differs-from-typical-alternatives)
 8. [Buyer features](#8-buyer-features)
@@ -74,7 +74,7 @@
 | **Parties** | Buyers, developers, banks, specialists, government |
 | **Stack** | Flutter, Dart (REST & WebSocket), PostgreSQL with row-level isolation |
 | **Engineering** | AI-native: Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol |
-| **AI engines** | Shipped, in-house: smart search, CRM lead scoring, readiness/photo verification (no training), OpenAI-backed buyer chat. Planned vendors: Newo AI (voice), Karmon AI (budgeting) |
+| **AI engines** | Shipped, in-house: smart search, CRM assistant, readiness/photo verification (no training), OpenAI-backed buyer chat. Planned vendors: Newo AI (voice), Karmon AI (budgeting) |
 | **Stage** | MVP — end-to-end scenario works |
 | **Revenue** | Developer subscription, promotion, bank verification & referral leads |
 
@@ -169,7 +169,7 @@ Monitoring is two-tier: machine first (metadata and image compare), then a speci
 
 ---
 
-## 6. Four market sides and the gaps iBuild closes
+## 6. Five market sides and the gaps iBuild closes
 
 <table>
 <tr>
@@ -212,6 +212,17 @@ Monitoring is two-tier: machine first (metadata and image compare), then a speci
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top">
+
+#### ⑤ Government · <sub>receives an informational signal</sub>
+
+**Gap.** Authorized government bodies learn about a problem site late — from harmed buyers — with no earlier, dated signal that a project is falling behind its declared schedule. Judging compliance with building codes is theirs to do, but today they have no independent data feed to act on before harm is done.
+
+**Solution.** iBuild passes an informational signal on a plan–fact gap to the relevant agency, in an agreed format, once monitoring flags a material lag. The platform does not replace regulatory oversight — it feeds it an earlier, verifiable signal than a complaint after the fact. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">planned</span>
+
+</td>
+</tr>
 </table>
 
 ---
@@ -227,7 +238,7 @@ Two different things carry the "AI" label in this project — kept separate here
 | Engine | What it does | Calls an upstream model? | Server code | Client code |
 |---|---|:---:|---|---|
 | **Smart search (b2c)** | Parses free-text ru/uz/en queries into structured constraints, ranks catalogue units, and drives the inline "ghost text" suggestion. | No | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
-| **CRM lead scoring (b2b)** | Scores every lead hot/warm/cold from behaviour, SLA timers, and ru/uz/en keyword signals; answers the CRM assistant's guided questions. | No | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
+| **CRM assistant (b2b)** | Scores every lead hot/warm/cold from behaviour, SLA timers, and ru/uz/en keyword signals; answers the CRM assistant's guided questions. | No | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
 | **Readiness / photo verification** | A 7-stage pipeline per photo report: EXIF/geotag checks, perceptual-hash duplicate detection, a hand-tuned stage classifier, progress-vs-previous-report comparison, and visual risk indicators (safety gear, cracks, debris). | Optional (see below) | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | [`project_detail_readiness.dart`](b2b/lib/features/residence/project_detail_readiness.dart) |
 | **Buyer AI consultant** | Conversational chat layer over the catalogue. | **Yes — OpenAI** | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
 
@@ -244,7 +255,7 @@ The readiness engine can optionally merge a GPT-vision pass over its own local r
 | Who pays | What AI delivers |
 |---|---|
 | **Developer** (subscription) | More completed leads at the same traffic; verified reports support verified-developer status. |
-| **Bank** (verification · leads) | Continuous monitoring plus specialists on disputes costs less than an in-house team; referral link brings mortgage/loan applications. |
+| **Bank** (verification · leads) | Continuous monitoring plus specialists on disputed cases costs less than an in-house team; referral link brings mortgage/loan applications. |
 | **iBuild** (margin) | Monitoring unit cost falls; the service stays cheaper than a bank’s own staff as inventory grows. |
 
 ### 7.3. Planned vendor integrations
@@ -263,7 +274,7 @@ Detailed write-ups grounded in the actual server code — not marketing copy:
 | Topic | Document | What it covers |
 |---|---|---|
 | **Smart search (b2c)** | [`AI_SEARCH_DIFFERENTIATORS.md`](AI_SEARCH_DIFFERENTIATORS.md) | Negation handling, blocked queries when intent is unclear, domain ranking with trust index, softened impossible amenities, execution trace |
-| **CRM AI (b2b)** | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | Explainable lead scoring with reason codes, real-estate inventory signals, SLA and silence escalation, guided assistant tree (not free chat), demand vs available units |
+| **CRM assistant (b2b)** | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | Explainable lead scoring with reason codes, real-estate inventory signals, SLA and silence escalation, guided assistant tree (not free chat), demand vs available units |
 
 ---
 
@@ -337,7 +348,7 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 3. [Система доверия к срокам](#3-система-доверия-к-срокам)
 4. [Взаимодействие с госорганами](#4-взаимодействие-с-госорганами)
 5. [Цепочка мониторинга](#5-цепочка-мониторинга-от-снимка-до-специалиста)
-6. [Четыре стороны рынка](#6-четыре-стороны-рынка-и-разрывы-которые-закрывает-ibuild)
+6. [Пять сторон рынка](#6-пять-сторон-рынка-и-разрывы-которые-закрывает-ibuild)
 7. [Роль искусственного интеллекта](#7-роль-искусственного-интеллекта)
    - [7.4 Отличия ИИ](#74-чем-наш-ии-отличается-от-типичных-аналогов)
 8. [Возможности для клиентов](#8-возможности-для-клиентов)
@@ -358,7 +369,7 @@ Only businesses pay. Developers — subscription and promotion; banks — object
 | **Стороны** | Клиенты, застройщики, банки, специалисты, госорганы |
 | **Стек** | Flutter, Dart (REST и WebSocket), PostgreSQL с изоляцией на уровне строк |
 | **Инженерия** | AI-native: Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol |
-| **ИИ-движки** | Реализовано, собственные: умный поиск, скоринг лидов CRM, верификация готовности/фото (без обучения), чат-консультант на базе OpenAI. В планах — вендоры: Newo AI (голос), Karmon AI (бюджетирование) |
+| **ИИ-движки** | Реализовано, собственные: умный поиск, CRM-ассистент, верификация готовности/фото (без обучения), чат-консультант на базе OpenAI. В планах — вендоры: Newo AI (голос), Karmon AI (бюджетирование) |
 | **Стадия** | MVP, сквозной сценарий работает |
 | **Доход** | Подписка застройщика, продвижение, верификация и реферальные лиды для банков |
 
@@ -453,7 +464,7 @@ iBuild — **независимая цифровая система** монит
 
 ---
 
-## 6. Четыре стороны рынка и разрывы, которые закрывает iBuild
+## 6. Пять сторон рынка и разрывы, которые закрывает iBuild
 
 <table>
 <tr>
@@ -496,6 +507,17 @@ iBuild — **независимая цифровая система** монит
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top">
+
+#### ⑤ Государство · <sub>получает информационный сигнал</sub>
+
+**Разрыв.** Уполномоченные государственные органы узнают о проблемном объекте поздно — от пострадавших покупателей, без раннего датированного сигнала о том, что проект отстаёт от заявленного графика. Оценка соответствия строительным нормам — их компетенция, но сегодня у них нет независимого источника данных, чтобы действовать до того, как пострадали люди.
+
+**Решение.** iBuild передаёт в профильное ведомство информационный сигнал о расхождении плана и факта в согласованном формате — как только мониторинг фиксирует существенное отставание. Платформа не подменяет государственный надзор, а даёт ему более ранний и верифицируемый сигнал, чем жалоба по факту. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">план</span>
+
+</td>
+</tr>
 </table>
 
 ---
@@ -511,7 +533,7 @@ iBuild — **независимая цифровая система** монит
 | Движок | Что делает | Обращается к внешней модели? | Код сервера | Код клиента |
 |---|---|:---:|---|---|
 | **Умный поиск (b2c)** | Разбирает свободный текст на ru/uz/en в структурные условия, ранжирует юниты каталога и формирует подсказку «серым текстом». | Нет | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
-| **Скоринг лидов CRM (b2b)** | Оценивает каждый лид как горячий/тёплый/холодный по поведению, таймерам SLA и ключевым словам на ru/uz/en; отвечает на вопросы ассистента CRM. | Нет | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
+| **CRM-ассистент (b2b)** | Оценивает каждый лид как горячий/тёплый/холодный по поведению, таймерам SLA и ключевым словам на ru/uz/en; отвечает на вопросы ассистента CRM. | Нет | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
 | **Готовность / анализ фото** | 7-этапная проверка каждого фотоотчёта: EXIF и геотег, поиск дублей по перцептивному хешу, классификатор этапа стройки, сравнение прогресса с прошлым отчётом, визуальные риск-индикаторы (СИЗ, трещины, мусор). | Опционально (см. ниже) | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | [`project_detail_readiness.dart`](b2b/lib/features/residence/project_detail_readiness.dart) |
 | **ИИ-консультант покупателя** | Диалоговый слой над каталогом. | **Да — OpenAI** | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
 
@@ -529,7 +551,7 @@ iBuild — **независимая цифровая система** монит
 | Кто платит | Что даёт ИИ |
 |---|---|
 | **Застройщик** (подписка) | Больше доведённых заявок при том же трафике; пройденная верификация отчётов подтверждает статус верифицированного застройщика. |
-| **Банк** (верификация · лиды) | Сплошной мониторинг плюс специалист по спорным дешевле собственного штата; реферальная ссылка приводит заявки на ипотеку и кредит. |
+| **Банк** (верификация · лиды) | Сплошной мониторинг плюс специалист по спорным случаям дешевле собственного штата; реферальная ссылка приводит заявки на ипотеку и кредит. |
 | **iBuild** (маржа) | Себестоимость мониторинга падает: услуга дешевле банковского штата, маржа держится при росте объектов. |
 
 ### 7.3. Планируемые интеграции с вендорами
@@ -548,7 +570,7 @@ iBuild — **независимая цифровая система** монит
 | Тема | Документ | О чём |
 |---|---|---|
 | **Умный поиск (b2c)** | [`AI_SEARCH_DIFFERENTIATORS.md`](AI_SEARCH_DIFFERENTIATORS.md) | Отрицание, блокировка непонятных запросов, доменное ранжирование с индексом доверия, смягчение невыполнимых пожеланий, трейс выполнения |
-| **CRM AI (b2b)** | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | Объяснимый скоринг с кодами причин, сигналы инвентаря недвижимости, эскалация SLA и молчания, дерево ассистента (не свободный чат), спрос vs свободные юниты |
+| **CRM-ассистент (b2b)** | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | Объяснимый скоринг с кодами причин, сигналы инвентаря недвижимости, эскалация SLA и молчания, дерево ассистента (не свободный чат), спрос vs свободные юниты |
 
 ---
 
@@ -622,7 +644,7 @@ iBuild — **независимая цифровая система** монит
 3. [Muddatlarga ishonch tizimi](#3-muddatlarga-ishonch-tizimi)
 4. [Davlat organlari bilan hamkorlik](#4-davlat-organlari-bilan-hamkorlik)
 5. [Monitoring zanjiri](#5-monitoring-zanjiri-suratdan-mutaxassisgacha)
-6. [Bozorning toʻrt tomoni](#6-bozorning-toʻrt-tomoni-va-ibuild-yopadigan-boʻshliqlar)
+6. [Bozorning beshta tomoni](#6-bozorning-beshta-tomoni-va-ibuild-yopadigan-boʻshliqlar)
 7. [Sunʼiy intellekt roli](#7-sunʼiy-intellekt-roli)
    - [7.4 SI farqlari](#74-bizning-si-analoglardan-qanday-farq-qiladi)
 8. [Xaridorlar uchun imkoniyatlar](#8-xaridorlar-uchun-imkoniyatlar)
@@ -643,7 +665,7 @@ iBuild — **независимая цифровая система** монит
 | **Taraflar** | Xaridorlar, quruvchilar, banklar, mutaxassislar, davlat organlari |
 | **Stek** | Flutter, Dart (REST va WebSocket), qatorlar darajasida izolyatsiyalangan PostgreSQL |
 | **Muhandislik** | AI-native: Cursor — Fable 5, Opus 4.8, Opus 5, Sonnet 5, GPT 5.6 Sol |
-| **SI dvijoklari** | Ishlab chiqilgan, oʻz kuchimiz bilan: aqlli qidiruv, CRM lidlarni baholash, tayyorlik/foto tekshiruvi (oʻqitishsiz), OpenAI asosidagi xaridor chati. Rejada — vendorlar: Newo AI (ovoz), Karmon AI (byudjetlashtirish) |
+| **SI dvijoklari** | Ishlab chiqilgan, oʻz kuchimiz bilan: aqlli qidiruv, CRM yordamchi, tayyorlik/foto tekshiruvi (oʻqitishsiz), OpenAI asosidagi xaridor chati. Rejada — vendorlar: Newo AI (ovoz), Karmon AI (byudjetlashtirish) |
 | **Bosqich** | MVP — toʻliq stsenariy ishlaydi |
 | **Daromad** | Quruvchi obunasi, ilgari surish, banklar uchun tasdiqlash va referal lidlar |
 
@@ -738,7 +760,7 @@ Monitoring ikki bosqichli: avval mashina (metadata va tasvirlarni taqqoslash), k
 
 ---
 
-## 6. Bozorning toʻrt tomoni va iBuild yopadigan boʻshliqlar
+## 6. Bozorning beshta tomoni va iBuild yopadigan boʻshliqlar
 
 <table>
 <tr>
@@ -781,6 +803,17 @@ Monitoring ikki bosqichli: avval mashina (metadata va tasvirlarni taqqoslash), k
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top">
+
+#### ⑤ Davlat · <sub>axborot signalini oladi</sub>
+
+**Boʻshliq.** Vakolatli davlat organlari muammoli obyekt haqida kechikib — jabrlangan xaridorlardan bilib oladi, loyihaning belgilangan jadvaldan orqada qolayotgani haqida erta, sanalangan signal yoʻq. Qurilish normalariga muvofiqlikni baholash ularning vazifasi, ammo bugun ularda odamlar zarar koʻrishidan oldin harakat qilish uchun mustaqil maʼlumot manbai yoʻq.
+
+**Yechim.** iBuild monitoring sezilarli chetlanishni belgilagach, reja va fakt orasidagi farq haqidagi axborot signalini kelishilgan formatda tegishli davlat organiga yetkazadi. Platforma davlat nazoratini almashtirmaydi — unga fakt boʻlgandan keyingi shikoyatdan koʻra ertaroq va tasdiqlanadigan signal beradi. <span style="background:#eef1f5;color:#5a6270;padding:1px 4px;border-radius:3px;font-size:0.8em;font-weight:700">reja</span>
+
+</td>
+</tr>
 </table>
 
 ---
@@ -796,7 +829,7 @@ Loyihada "SI" soʻzi ortida ikki xil narsa yashiringan — ular bu yerda ajratil
 | Dvijok | Nima qiladi | Tashqi modelga murojaat qiladimi? | Server kodi | Klient kodi |
 |---|---|:---:|---|---|
 | **Aqlli qidiruv (b2c)** | Erkin matnni ru/uz/en tillarida struktura shartlariga ajratadi, katalog yunitlarini reytinglaydi va "kul rang matn" taklifini shakllantiradi. | Yoʻq | [`smart_search_engine.dart`](server/lib/src/ai/smart_search_engine.dart), [`search_dictionary.dart`](server/lib/src/ai/search_dictionary.dart), [`search_suggester.dart`](server/lib/src/ai/search_suggester.dart) | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) |
-| **CRM lidlarni baholash (b2b)** | Har bir lidni xatti-harakati, SLA taymerlari va ru/uz/en kalit soʻzlariga koʻra issiq/iliq/sovuq deb baholaydi; CRM yordamchisining boshqariladigan savollariga javob beradi. | Yoʻq | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
+| **CRM yordamchi (b2b)** | Har bir lidni xatti-harakati, SLA taymerlari va ru/uz/en kalit soʻzlariga koʻra issiq/iliq/sovuq deb baholaydi; CRM yordamchisining boshqariladigan savollariga javob beradi. | Yoʻq | [`lead_scoring_engine.dart`](server/lib/src/ai/lead_scoring_engine.dart) | [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) |
 | **Tayyorlik / foto tekshiruvi** | Har bir fotohisobot uchun 7 bosqichli tekshiruv: EXIF/geobelgi, perseptiv xesh boʻyicha dublikatlarni aniqlash, qoʻlda sozlangan qurilish bosqichi klassifikatori, oldingi hisobot bilan jarayonni solishtirish va vizual xavf koʻrsatkichlari (SIV, yoriqlar, chiqindilar). | Ixtiyoriy (quyida qarang) | [`readiness_engine.dart`](server/lib/src/ai/readiness_engine.dart) | [`project_detail_readiness.dart`](b2b/lib/features/residence/project_detail_readiness.dart) |
 | **SI xaridor konsultanti** | Katalog ustidagi dialog qatlami. | **Ha — OpenAI** | [`openai_client.dart`](server/lib/src/ai/openai_client.dart), [`prompts.dart`](server/lib/src/ai/prompts.dart) | [`ai_chat_sheet.dart`](b2c/lib/features/ai/presentation/ai_chat_sheet.dart) |
 
@@ -832,7 +865,7 @@ Server kodining haqiqiy holatiga asoslangan batafsil tahlillar — marketing mat
 | Mavzu | Hujjat | Nima haqida |
 |---|---|---|
 | **Aqlli qidiruv (b2c)** | [`AI_SEARCH_DIFFERENTIATORS.md`](AI_SEARCH_DIFFERENTIATORS.md) | Inkorni qayta ishlash, niyat aniq boʻlmaganda soʻrovlarni bloklash, ishonch indeksi bilan domen reytingi, imkonsiz qulayliklarni yumshatish, bajarilish trace |
-| **CRM SI (b2b)** | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | Sabab kodlari bilan tushunarli skoring, koʻchmas mulk inventar signallari, SLA va sukut eskalatsiyasi, boshqariladigan yordamchi daraxti (erkin chat emas), talab va boʻsh yunitlar |
+| **CRM yordamchi (b2b)** | [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | Sabab kodlari bilan tushunarli skoring, koʻchmas mulk inventar signallari, SLA va sukut eskalatsiyasi, boshqariladigan yordamchi daraxti (erkin chat emas), talab va boʻsh yunitlar |
 
 ---
 
@@ -901,11 +934,11 @@ Faqat biznes toʻlaydi. Quruvchi — obuna va ilgari surish; bank — obyektni t
 | [`b2c/`](b2c/) | Buyer app — search, map, project pages, favorites, requests |
 | [`b2c/lib/features/ai/`](b2c/lib/features/ai/) | Buyer-side smart search UI (search bar, results, ghost-text suggest) |
 | [`b2b/`](b2b/) | Developer & platform admin — CRM, units, media, moderation |
-| [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) | CRM AI assistant UI (bot sheet, lead/metric cards, band pills) |
+| [`b2b/lib/features/ai_crm/`](b2b/lib/features/ai_crm/) | CRM assistant UI (bot sheet, lead/metric cards, band pills) |
 | [`server/`](server/) | API — REST, WebSocket, PostgreSQL |
-| [`server/lib/src/ai/`](server/lib/src/ai/) | AI engines — smart search, CRM lead scoring, readiness/photo analysis, chat |
+| [`server/lib/src/ai/`](server/lib/src/ai/) | AI engines — smart search, CRM assistant, readiness/photo analysis, chat |
 | [`AI_SEARCH_DIFFERENTIATORS.md`](AI_SEARCH_DIFFERENTIATORS.md) | Smart search vs ordinary search — code-backed explanation |
-| [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | CRM AI vs typical CRM AI — code-backed explanation |
+| [`AI_CRM_DIFFERENTIATORS.md`](AI_CRM_DIFFERENTIATORS.md) | CRM assistant vs typical CRM AI — code-backed explanation |
 | [`packages/`](packages/) | Shared Dart packages (theme, models, widgets) |
 | [`ibuild-wiki/`](ibuild-wiki/) | Internal project reference (full HTML version) |
 
