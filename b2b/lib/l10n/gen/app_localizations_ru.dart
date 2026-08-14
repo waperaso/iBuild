@@ -1083,6 +1083,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get orgPlanSubscribe => 'Подписаться';
 
   @override
+  String get orgPlanContactSales => 'Связаться с отделом продаж';
+
+  @override
+  String get orgPlanContactSalesPending =>
+      'Контакт отдела продаж пока в разработке.';
+
+  @override
   String orgPlanSummary(
     String price,
     String maxProjects,
@@ -1094,11 +1101,15 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get orgPlanFlexSummary =>
+      'Индивидуальные лимиты проектов, юнитов и заявок — по договорённости с отделом продаж.';
+
+  @override
   String get orgTitle => 'Профиль организации';
 
   @override
   String get orgSubtitle =>
-      'Настройте, как компания и ЖК отображаются покупателям. Публикация требует активной подписки \$299/мес.';
+      'Настройте, как компания и ЖК отображаются покупателям. Публикация требует активной подписки Publisher.';
 
   @override
   String get orgNoProfile => 'Профиль организации пока не создан.';
@@ -1129,7 +1140,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get orgSubscriptionPlansSubtitle =>
-      'Выберите тариф по количеству публикуемых проектов/юнитов и включённых заявок до оплаты за каждую сверх лимита.';
+      'Publisher — тариф с самостоятельной оплатой. Flex — индивидуальные условия, свяжитесь с отделом продаж.';
 
   @override
   String orgPlansError(String error) {

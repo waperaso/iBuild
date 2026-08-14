@@ -1964,6 +1964,18 @@ abstract class AppLocalizations {
   /// **'Subscribe'**
   String get orgPlanSubscribe;
 
+  /// No description provided for @orgPlanContactSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact sales'**
+  String get orgPlanContactSales;
+
+  /// No description provided for @orgPlanContactSalesPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales contact is in development.'**
+  String get orgPlanContactSalesPending;
+
   /// No description provided for @orgPlanSummary.
   ///
   /// In en, this message translates to:
@@ -1976,6 +1988,12 @@ abstract class AppLocalizations {
     String payPerLead,
   );
 
+  /// No description provided for @orgPlanFlexSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom project, unit, and lead limits — arranged with sales.'**
+  String get orgPlanFlexSummary;
+
   /// No description provided for @orgTitle.
   ///
   /// In en, this message translates to:
@@ -1985,7 +2003,7 @@ abstract class AppLocalizations {
   /// No description provided for @orgSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Configure how your company and residences appear. Publishing to buyers requires an active \$299/mo subscription.'**
+  /// **'Configure how your company and residences appear. Publishing to buyers requires an active Publisher subscription.'**
   String get orgSubtitle;
 
   /// No description provided for @orgNoProfile.
@@ -2033,7 +2051,7 @@ abstract class AppLocalizations {
   /// No description provided for @orgSubscriptionPlansSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose a tier for how many projects/units you publish and how many leads are included before pay-per-lead applies.'**
+  /// **'Publisher is the self-serve plan. Flex is custom — contact sales.'**
   String get orgSubscriptionPlansSubtitle;
 
   /// No description provided for @orgPlansError.

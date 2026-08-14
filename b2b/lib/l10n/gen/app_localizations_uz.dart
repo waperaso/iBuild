@@ -1085,6 +1085,13 @@ class AppLocalizationsUz extends AppLocalizations {
   String get orgPlanSubscribe => 'Obuna boʻlish';
 
   @override
+  String get orgPlanContactSales => 'Sotuvlar bilan bogʻlanish';
+
+  @override
+  String get orgPlanContactSalesPending =>
+      'Sotuvlar boʻlimi aloqasi hozircha ishlab chiqilmoqda.';
+
+  @override
   String orgPlanSummary(
     String price,
     String maxProjects,
@@ -1096,11 +1103,15 @@ class AppLocalizationsUz extends AppLocalizations {
   }
 
   @override
+  String get orgPlanFlexSummary =>
+      'Loyiha, yunit va murojaat limitlari kelishiladi — sotuvlar boʻlimi orqali.';
+
+  @override
   String get orgTitle => 'Tashkilot profili';
 
   @override
   String get orgSubtitle =>
-      'Kompaniyangiz va ЖКlaringiz qanday koʻrinishini sozlang. Xaridorlarga nashr etish uchun faol \$299/oy obuna talab qilinadi.';
+      'Kompaniyangiz va ЖКlaringiz qanday koʻrinishini sozlang. Xaridorlarga nashr etish uchun faol Publisher obunasi talab qilinadi.';
 
   @override
   String get orgNoProfile => 'Hozircha tashkilot profili yoʻq.';
@@ -1131,7 +1142,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get orgSubscriptionPlansSubtitle =>
-      'Nechta loyiha/yunit nashr etishingiz va limitdan tashqari toʻlovgacha nechta murojaat kiritilganiga qarab tarifni tanlang.';
+      'Publisher — mustaqil toʻlovli tarif. Flex — individual shartlar, sotuvlar bilan bogʻlaning.';
 
   @override
   String orgPlansError(String error) {

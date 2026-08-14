@@ -532,7 +532,7 @@ class DemoSnapshot {
       'directorFullName': 'Nilufar Rasulova',
       'paymentStatus': 'active',
       'canPublish': true,
-      'subscription': {'planId': 'growth', 'status': 'active'},
+      'subscription': {'planId': 'start', 'status': 'active'},
     }),
     mark({
       'id': '${idPrefix}developer-unpaid',
@@ -544,7 +544,7 @@ class DemoSnapshot {
       'directorFullName': 'Jasur Aliyev',
       'paymentStatus': 'none',
       'canPublish': false,
-      'subscription': {'planId': 'starter', 'status': 'expired'},
+      'subscription': {'planId': 'start', 'status': 'expired'},
     }),
   ];
 
@@ -576,7 +576,7 @@ class DemoSnapshot {
         'userId': '${idPrefix}user-buyer',
         'userName': 'Sample Buyer',
         'userPhone': '+998900001003',
-        'subject': 'Invoice for Growth plan',
+        'subject': 'Invoice for Publisher plan',
         'category': 'billing',
         'status': 'in_progress',
         'assignedToName': ownerName,

@@ -16,9 +16,9 @@ import 'user_roles.dart';
 import 'seed_data.dart';
 import 'validation.dart';
 
-/// Legacy monthly B2B price (USD); equals the default `growth` tier.
-const kBusinessSubscriptionUsd = 299.0;
-const kBusinessSubscriptionPlanId = 'growth';
+/// Self-serve Publisher monthly price (USD); Flex is arranged with sales.
+const kBusinessSubscriptionUsd = 99.0;
+const kBusinessSubscriptionPlanId = 'start';
 
 /// Developer verification statuses: draft → pending → in_review → approved|rejected.
 const kDeveloperVerificationStatuses = {
@@ -29,11 +29,12 @@ const kDeveloperVerificationStatuses = {
   'rejected',
 };
 
-/// Subscription tiers (project/unit caps + included leads before overage).
+/// Subscription tiers shown in B2B. `start` (Publisher) is self-serve
+/// checkout; `flex` is custom and only arranged through sales.
 const kSubscriptionPlans = <Map<String, dynamic>>[
   {
     'id': 'start',
-    'name': 'Start',
+    'name': 'Publisher',
     'priceUsd': 99.0,
     'maxProjects': 3,
     'maxUnits': 300,
@@ -41,24 +42,21 @@ const kSubscriptionPlans = <Map<String, dynamic>>[
     'payPerLeadUsd': 3.0,
   },
   {
-    'id': 'growth',
-    'name': 'Growth',
-    'priceUsd': 299.0,
-    'maxProjects': 10,
-    'maxUnits': 2000,
-    'includedLeadsPerMonth': 250,
-    'payPerLeadUsd': 2.5,
-  },
-  {
-    'id': 'corporate',
-    'name': 'Corporate',
-    'priceUsd': 799.0,
-    'maxProjects': -1, // unlimited
-    'maxUnits': -1, // unlimited
-    'includedLeadsPerMonth': 1000,
-    'payPerLeadUsd': 2.0,
+    'id': 'flex',
+    'name': 'Flex',
+    'priceUsd': null,
+    'maxProjects': -1,
+    'maxUnits': -1,
+    'includedLeadsPerMonth': -1,
+    'payPerLeadUsd': null,
+    'contactSales': true,
   },
 ];
+
+bool isCheckoutSubscriptionPlan(String id) {
+  final plan = subscriptionPlanById(id);
+  return plan != null && plan['contactSales'] != true;
+}
 
 Map<String, dynamic>? subscriptionPlanById(String id) {
   for (final plan in kSubscriptionPlans) {
@@ -1850,7 +1848,8 @@ class Store {
 
   Map<String, dynamic> _blankSubscription(String developerId, String planId) {
     final plan =
-        subscriptionPlanById(planId) ?? subscriptionPlanById('growth')!;
+        subscriptionPlanById(planId) ??
+        subscriptionPlanById(kBusinessSubscriptionPlanId)!;
     return {
       'id': 'sub-${_uuid.v4()}',
       'developerId': developerId,
@@ -1951,7 +1950,7 @@ class Store {
         filled('officeAddress');
   }
 
-  /// Start/renew subscription. Defaults to existing plan, else `growth`.
+  /// Start/renew subscription. Defaults to existing plan, else Publisher.
   Map<String, dynamic>? activateSubscription(
     String ownerUserId, {
     String? planId,
@@ -1964,10 +1963,13 @@ class Store {
     final now = DateTime.now().toUtc();
     final end = now.add(const Duration(days: 30));
     final existing = subscriptionsByDeveloperId[id];
-    final resolvedPlanId =
+    var resolvedPlanId =
         planId ?? existing?['planId'] as String? ?? kBusinessSubscriptionPlanId;
-    final plan =
-        subscriptionPlanById(resolvedPlanId) ?? subscriptionPlanById('growth')!;
+    if (!isCheckoutSubscriptionPlan(resolvedPlanId)) {
+      if (planId != null) throw StateError('CONTACT_SALES');
+      resolvedPlanId = kBusinessSubscriptionPlanId;
+    }
+    final plan = subscriptionPlanById(resolvedPlanId)!;
     final subscription = {
       'id': existing?['id'] ?? 'sub-${_uuid.v4()}',
       'developerId': id,
@@ -2977,7 +2979,7 @@ class Store {
     final byPlan = <String, int>{};
     for (final sub in subscriptionsByDeveloperId.values) {
       if (sub['status'] != 'active') continue;
-      final planId = sub['planId'] as String? ?? 'growth';
+      final planId = sub['planId'] as String? ?? kBusinessSubscriptionPlanId;
       byPlan[planId] = (byPlan[planId] ?? 0) + 1;
     }
     return {

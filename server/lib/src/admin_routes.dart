@@ -749,10 +749,12 @@ void mountAdminRoutes(
     }
     final body = await req.readJson();
     final planId = body['planId'] as String?;
-    if (planId != null && subscriptionPlanById(planId) == null) {
+    if (planId != null && !isCheckoutSubscriptionPlan(planId)) {
       return jsonError(
         'VALIDATION_ERROR',
-        'planId must be one of ${kSubscriptionPlans.map((p) => p['id']).join(', ')}',
+        planId == 'flex'
+            ? 'Flex is arranged with sales — it cannot be checked out online'
+            : 'planId must be one of ${kSubscriptionPlans.where((p) => p['contactSales'] != true).map((p) => p['id']).join(', ')}',
         status: 422,
       );
     }

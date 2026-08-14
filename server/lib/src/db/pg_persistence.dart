@@ -2121,7 +2121,7 @@ class PgPersistence {
           ),
           'amountUsd': TypedValue(
             Type.double,
-            (sub['amountUsd'] as num?)?.toDouble() ?? 299.0,
+            (sub['amountUsd'] as num?)?.toDouble() ?? 99.0,
           ),
           'currency': TypedValue(
             Type.text,
@@ -2202,7 +2202,7 @@ class PgPersistence {
     'id': m['id'],
     'developerId': m['developer_id'],
     'planId': m['plan_id'] ?? 'business_monthly',
-    'amountUsd': _asNum(m['amount_usd'])?.toDouble() ?? 299.0,
+    'amountUsd': _asNum(m['amount_usd'])?.toDouble() ?? 99.0,
     'currency': m['currency'] ?? 'USD',
     'status': m['status'] ?? 'none',
     'provider': m['provider'] ?? 'manual',

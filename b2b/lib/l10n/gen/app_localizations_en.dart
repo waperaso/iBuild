@@ -1081,6 +1081,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orgPlanSubscribe => 'Subscribe';
 
   @override
+  String get orgPlanContactSales => 'Contact sales';
+
+  @override
+  String get orgPlanContactSalesPending => 'Sales contact is in development.';
+
+  @override
   String orgPlanSummary(
     String price,
     String maxProjects,
@@ -1092,11 +1098,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get orgPlanFlexSummary =>
+      'Custom project, unit, and lead limits — arranged with sales.';
+
+  @override
   String get orgTitle => 'Organization profile';
 
   @override
   String get orgSubtitle =>
-      'Configure how your company and residences appear. Publishing to buyers requires an active \$299/mo subscription.';
+      'Configure how your company and residences appear. Publishing to buyers requires an active Publisher subscription.';
 
   @override
   String get orgNoProfile => 'No organization profile yet.';
@@ -1127,7 +1137,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orgSubscriptionPlansSubtitle =>
-      'Choose a tier for how many projects/units you publish and how many leads are included before pay-per-lead applies.';
+      'Publisher is the self-serve plan. Flex is custom — contact sales.';
 
   @override
   String orgPlansError(String error) {

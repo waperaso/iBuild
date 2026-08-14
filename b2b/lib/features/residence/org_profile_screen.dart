@@ -48,6 +48,8 @@ class _PlanCard extends StatefulWidget {
   final bool loading;
   final VoidCallback onSubscribe;
 
+  bool get isContactSales => plan['contactSales'] == true;
+
   @override
   State<_PlanCard> createState() => _PlanCardState();
 }
@@ -57,6 +59,13 @@ class _PlanCardState extends State<_PlanCard> {
 
   String _limit(AppLocalizations l10n, dynamic value) =>
       value == -1 ? l10n.orgPlanUnlimited : '$value';
+
+  void _contactSales() {
+    final l10n = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.orgPlanContactSalesPending)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,13 +115,15 @@ class _PlanCardState extends State<_PlanCard> {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      l10n.orgPlanSummary(
-                        '${plan['priceUsd']}',
-                        _limit(l10n, plan['maxProjects']),
-                        _limit(l10n, plan['maxUnits']),
-                        '${plan['includedLeadsPerMonth']}',
-                        '${plan['payPerLeadUsd']}',
-                      ),
+                      widget.isContactSales
+                          ? l10n.orgPlanFlexSummary
+                          : l10n.orgPlanSummary(
+                              '${plan['priceUsd']}',
+                              _limit(l10n, plan['maxProjects']),
+                              _limit(l10n, plan['maxUnits']),
+                              '${plan['includedLeadsPerMonth']}',
+                              '${plan['payPerLeadUsd']}',
+                            ),
                       style: textTheme.bodySmall?.copyWith(
                         color: colors.inkMuted,
                       ),
@@ -122,16 +133,20 @@ class _PlanCardState extends State<_PlanCard> {
               ),
               const SizedBox(width: AppSpacing.md),
               PillButton(
-                label: widget.isActive
+                label: widget.isContactSales
+                    ? l10n.orgPlanContactSales
+                    : widget.isActive
                     ? l10n.orgPlanCurrentPlan
                     : l10n.orgPlanSubscribe,
-                variant: widget.isActive
+                variant: widget.isActive && !widget.isContactSales
                     ? PillButtonVariant.outline
                     : PillButtonVariant.accent,
                 loading: widget.loading,
-                onPressed: widget.isActive || widget.loading
-                    ? null
-                    : widget.onSubscribe,
+                onPressed: widget.isContactSales
+                    ? _contactSales
+                    : (widget.isActive || widget.loading
+                          ? null
+                          : widget.onSubscribe),
               ),
             ],
           ),

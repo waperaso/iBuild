@@ -53,10 +53,10 @@ void main() {
       expect(dev.subscriptionPriceUsd, 349);
     });
 
-    test('defaults the subscription price to 299 when absent', () {
+    test('defaults the subscription price to 99 when absent', () {
       final dev = DeveloperProfile.fromJson({'id': 'd1'});
       expect(dev.canPublish, isFalse);
-      expect(dev.subscriptionPriceUsd, 299);
+      expect(dev.subscriptionPriceUsd, 99);
     });
   });
 }

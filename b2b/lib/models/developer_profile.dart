@@ -29,7 +29,7 @@ class DeveloperProfile {
     return DeveloperProfile(
       developer: Developer.fromJson(normalized),
       canPublish: json.boolOr('canPublish'),
-      subscriptionPriceUsd: json.intOr('subscriptionPriceUsd', 299),
+      subscriptionPriceUsd: json.intOr('subscriptionPriceUsd', 99),
       raw: json,
     );
   }

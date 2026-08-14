@@ -476,12 +476,16 @@ void main() {
       expect(items.any((e) => e['action'] == 'developer.approve'), isTrue);
     });
 
-    test('GET /v1/subscription-plans lists Start/Growth/Corporate', () async {
+    test('GET /v1/subscription-plans lists Publisher and Flex', () async {
       final response = await handler(_get('/v1/subscription-plans'));
       expect(response.statusCode, 200);
       final json = await _decode(response);
-      final ids = (json['data'] as List).map((p) => p['id']).toList();
-      expect(ids, containsAll(['start', 'growth', 'corporate']));
+      final plans = (json['data'] as List).cast<Map>();
+      final byId = {for (final p in plans) p['id']: p};
+      expect(byId.keys, ['start', 'flex']);
+      expect(byId['start']!['name'], 'Publisher');
+      expect(byId['flex']!['contactSales'], isTrue);
+      expect(byId['flex']!['priceUsd'], isNull);
     });
 
     test('PATCH /v1/platform/developers/:id/status walks pending -> in_review '
