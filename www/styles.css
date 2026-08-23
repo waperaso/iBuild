@@ -1136,6 +1136,10 @@ html[data-theme="dark"] .button-secondary:hover {
   isolation: isolate;
 }
 
+.ai-showcase-canvas + .ai-showcase-canvas {
+  margin-top: 20px;
+}
+
 html[data-theme="dark"] .ai-showcase-canvas {
   --ai-canvas: #0a1f35;
   --ai-surface: #122840;
@@ -2343,6 +2347,120 @@ html[data-theme="dark"] .ai-device {
   }
 }
 
+/* Photo-verification cinematic — same ai-motion frame as the search/CRM
+   canvas above, with a single device card instead of the two-up rig. */
+.ai-motion.av-motion,
+.ai-motion.av-motion .ai-motion-stage {
+  min-height: 560px;
+}
+
+.ai-motion.av-motion .ai-motion-stage {
+  padding: 84px 32px 40px;
+  perspective: none;
+}
+
+.av-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
+  gap: 28px;
+  width: min(100%, 980px);
+  padding: 24px;
+}
+
+.av-photo-stage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--fl-surface-alt);
+}
+
+.av-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.03);
+  transition: opacity 1.1s var(--ease), transform 1.1s var(--ease);
+}
+
+.av-photo.is-current {
+  opacity: 1;
+  transform: none;
+}
+
+.av-photo-tag {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ai-navy) 82%, transparent);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.av-panel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.av-panel .data-line {
+  width: 100%;
+}
+
+.av-row {
+  opacity: 0;
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+  transition-delay: calc(var(--i, 0) * 0.1s);
+  transform: translateY(6px);
+}
+
+.av-motion.is-checking .av-row {
+  opacity: 1;
+  transform: none;
+}
+
+.av-verdict {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--fl-outline);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+}
+
+.av-motion.is-verdict .av-verdict {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 980px) {
+  .av-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .ai-motion.av-motion,
+  .ai-motion.av-motion .ai-motion-stage {
+    min-height: 500px;
+  }
+
+  .ai-motion.av-motion .ai-motion-stage {
+    padding: 72px 14px 32px;
+  }
+}
+
 .vision-grid {
   display: grid;
   grid-template-columns: 1.35fr 0.65fr;
@@ -3529,6 +3647,10 @@ html[data-theme="dark"] .button-primary:hover {
     margin-left: calc(50% - 47.5vw);
     border-radius: 20px;
     box-shadow: 0 20px 48px rgba(0, 24, 51, 0.2);
+  }
+
+  .ai-showcase-canvas + .ai-showcase-canvas {
+    margin-top: 16px;
   }
 
   .system,

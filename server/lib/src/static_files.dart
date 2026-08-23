@@ -101,3 +101,28 @@ Handler residencesStaticHandler({String? imagesDir}) {
 /// Public uploads at `/v1/static/uploads/<filename>` (top-level only; not `private/`).
 Handler uploadsStaticHandler({String? uploadsDir}) =>
     _staticDirHandler(() => uploadsDir ?? kUploadsRoot);
+
+/// Reads bytes for a photo URL that points at our own upload storage
+/// (`/v1/static/uploads/<file>` or `/v1/static/residences/<file>`). Any other
+/// URL is ignored — this never fetches over the network.
+Future<Uint8List?> tryReadLocalUploadBytes(String? url) async {
+  if (url == null || url.isEmpty) return null;
+  final segments =
+      Uri.tryParse(url)?.pathSegments ??
+      url.split('/').where((s) => s.isNotEmpty).toList();
+  if (segments.isEmpty) return null;
+  final filename = segments.last;
+  if (!isSafeUploadFilename(filename)) return null;
+  final isResidence = segments.contains('residences');
+  if (!isResidence && !segments.contains('uploads')) return null;
+  final dir = isResidence
+      ? '${Directory.current.path}${Platform.pathSeparator}residences-images'
+      : kUploadsRoot;
+  final file = File('$dir${Platform.pathSeparator}$filename');
+  if (!await file.exists()) return null;
+  try {
+    return await file.readAsBytes();
+  } catch (_) {
+    return null;
+  }
+}

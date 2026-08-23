@@ -30,7 +30,7 @@
       if (lang === "en" || lang === "ru" || lang === "uz") document.documentElement.setAttribute("lang", lang);
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="styles.css?v=31">
   <style>
     body.is-loading { overflow: hidden; }
 
@@ -64,9 +64,10 @@
       background: #0a1f35;
     }
   </style>
-  <script src="i18n.js?v=18" defer></script>
+  <script src="i18n.js?v=22" defer></script>
   <script src="script.js?v=10" defer></script>
   <script src="ai-motion.js?v=10" defer></script>
+  <script src="ai-verify-motion.js?v=2" defer></script>
 </head>
 <body class="is-loading">
   <div class="page-loader" data-page-loader role="status" aria-live="polite" data-i18n-aria="a11y.loader">
@@ -245,6 +246,7 @@
           <div class="ai-feature-chips" aria-label="iBuild AI capabilities" data-i18n-aria="ai.chipsAria">
             <span><i aria-hidden="true"></i><span data-i18n="ai.chipSearch">Smart search & buyer assistant</span></span>
             <span><i aria-hidden="true"></i><span data-i18n="ai.chipCrm">CRM scoring & guided analysis</span></span>
+            <span><i aria-hidden="true"></i><span data-i18n="ai.chipVerify">AI photo verification</span></span>
             <span><i aria-hidden="true"></i><span data-i18n="ai.chipGrounded">Grounded in live platform data</span></span>
           </div>
         </div>
@@ -473,6 +475,54 @@
           </div>
 
           <div class="ai-cursor" data-ai-cursor aria-hidden="true"><i></i></div>
+        </div>
+      </div>
+
+      <div class="ai-showcase-canvas reveal" role="img" data-i18n-aria="verify.canvasAria">
+        <div class="ai-motion av-motion" id="aiVerifyMotion">
+          <div class="ai-motion-bg" aria-hidden="true">
+            <span class="ai-motion-glow"></span>
+            <span class="ai-motion-glow side"></span>
+            <span class="ai-motion-grid"></span>
+          </div>
+
+          <div class="ai-motion-hud">
+            <p class="ai-motion-kicker" data-ai-hud-kicker></p>
+            <p class="ai-motion-title" data-ai-hud-title></p>
+          </div>
+
+          <div class="ai-motion-stage">
+            <article class="av-card ai-device">
+              <div class="av-photo-stage">
+                <img class="av-photo is-current" data-av="photoA" src="assets/images/first-check-photo.jpg" alt="">
+                <img class="av-photo" data-av="photoB" src="assets/images/second-check-photo.jpg" alt="">
+                <span class="av-photo-tag" data-av-field="tag" data-i18n="verify.visual.tagBaseline">Baseline · 04 Jun 2026</span>
+              </div>
+
+              <div class="av-panel">
+                <div class="data-line av-row" style="--i:0">
+                  <span data-i18n="verify.visual.rowViewpoint">Same viewpoint</span>
+                  <strong data-i18n="verify.visual.rowViewpointStatus">Confirmed</strong>
+                </div>
+                <div class="data-line av-row" style="--i:1">
+                  <span data-i18n="verify.visual.rowDates">Dates in order</span>
+                  <strong data-i18n="verify.visual.rowDatesStatus">Confirmed</strong>
+                </div>
+                <div class="data-line av-row" style="--i:2">
+                  <span data-i18n="verify.visual.rowProgress">Visible progress</span>
+                  <strong data-i18n="verify.visual.rowProgressStatus">+64 pp change</strong>
+                </div>
+                <div class="data-line av-row" style="--i:3">
+                  <span data-i18n="verify.visual.rowNotes">Notes for review</span>
+                  <strong data-i18n="verify.visual.rowNotesStatus">None</strong>
+                </div>
+
+                <div class="av-verdict">
+                  <span class="ai-live"><i aria-hidden="true"></i><span data-i18n="verify.visual.verified">AI: confirmed</span></span>
+                </div>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
     </section>
