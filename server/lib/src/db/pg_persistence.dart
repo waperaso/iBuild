@@ -1101,6 +1101,8 @@ class PgPersistence {
       'exifLng': m['exif_lng'],
       'detectedStage': m['detected_stage'],
       'declaredStage': m['declared_stage'],
+      'cycleId': m['cycle_id'],
+      'role': m['role'],
     };
   }
 
@@ -1112,14 +1114,14 @@ class PgPersistence {
           taken_at_is_manual, progress_percent, uploaded_by, created_at,
           phash, verification_status, verification_confidence,
           verification_json, exif_taken_at, exif_lat, exif_lng,
-          detected_stage, declared_stage
+          detected_stage, declared_stage, cycle_id, role
         ) VALUES (
           @id, @projectId, @buildingId, @photoUrl, @takenAt::date,
           @takenAtIsManual, @progressPercent, @uploadedBy,
           COALESCE(@createdAt::timestamptz, now()),
           @phash, @verificationStatus, @verificationConfidence,
           @verificationJson::jsonb, @exifTakenAt, @exifLat, @exifLng,
-          @detectedStage, @declaredStage
+          @detectedStage, @declaredStage, @cycleId, @role
         )
         ON CONFLICT (id) DO UPDATE SET
           phash = EXCLUDED.phash,
@@ -1130,7 +1132,9 @@ class PgPersistence {
           exif_lat = EXCLUDED.exif_lat,
           exif_lng = EXCLUDED.exif_lng,
           detected_stage = EXCLUDED.detected_stage,
-          declared_stage = EXCLUDED.declared_stage
+          declared_stage = EXCLUDED.declared_stage,
+          cycle_id = EXCLUDED.cycle_id,
+          role = EXCLUDED.role
       '''),
       parameters: {
         'id': TypedValue(Type.text, report['id'] as String),
@@ -1183,6 +1187,8 @@ class PgPersistence {
           Type.text,
           report['declaredStage'] as String?,
         ),
+        'cycleId': TypedValue(Type.text, report['cycleId'] as String?),
+        'role': TypedValue(Type.text, report['role'] as String?),
       },
     );
   }
@@ -1193,6 +1199,207 @@ class PgPersistence {
       parameters: {'id': TypedValue(Type.text, id)},
     );
   }
+
+  String? _isoTs(Object? v) {
+    if (v == null) return null;
+    if (v is DateTime) return v.toUtc().toIso8601String();
+    return v.toString();
+  }
+
+  Future<List<Map<String, dynamic>>> loadAllSitePhotoCycles() async {
+    final rows = await _db.execute(
+      'SELECT * FROM site_photo_cycles ORDER BY updated_at DESC',
+    );
+    return rows.map((r) {
+      final m = r.toColumnMap();
+      return {
+        'id': m['id'],
+        'projectId': m['project_id'],
+        'intervalDays': m['interval_days'] ?? 14,
+        'graceDays': m['grace_days'] ?? 3,
+        'status': m['status'],
+        'photoAId': m['photo_a_id'],
+        'photoBId': m['photo_b_id'],
+        'dueAt': _isoTs(m['due_at']),
+        'windowEndAt': _isoTs(m['window_end_at']),
+        'promptVersion': m['prompt_version'],
+        'vendorJobId': m['vendor_job_id'],
+        'createdAt': _isoTs(m['created_at']),
+        'updatedAt': _isoTs(m['updated_at']),
+      };
+    }).toList();
+  }
+
+  Future<void> saveSitePhotoCycle(Map<String, dynamic> cycle) =>
+      _asService((s) async {
+        await s.execute(
+          Sql.named('''
+            INSERT INTO site_photo_cycles (
+              id, project_id, interval_days, grace_days, status,
+              photo_a_id, photo_b_id, due_at, window_end_at,
+              prompt_version, vendor_job_id, created_at, updated_at
+            ) VALUES (
+              @id, @projectId, @intervalDays, @graceDays, @status,
+              @photoAId, @photoBId, @dueAt::timestamptz, @windowEndAt::timestamptz,
+              @promptVersion, @vendorJobId,
+              COALESCE(@createdAt::timestamptz, now()),
+              COALESCE(@updatedAt::timestamptz, now())
+            )
+            ON CONFLICT (id) DO UPDATE SET
+              interval_days = EXCLUDED.interval_days,
+              grace_days = EXCLUDED.grace_days,
+              status = EXCLUDED.status,
+              photo_a_id = EXCLUDED.photo_a_id,
+              photo_b_id = EXCLUDED.photo_b_id,
+              due_at = EXCLUDED.due_at,
+              window_end_at = EXCLUDED.window_end_at,
+              prompt_version = EXCLUDED.prompt_version,
+              vendor_job_id = EXCLUDED.vendor_job_id,
+              updated_at = EXCLUDED.updated_at
+          '''),
+          parameters: {
+            'id': TypedValue(Type.text, cycle['id'] as String),
+            'projectId': TypedValue(Type.text, cycle['projectId'] as String),
+            'intervalDays': TypedValue(
+              Type.integer,
+              cycle['intervalDays'] as int? ?? 14,
+            ),
+            'graceDays': TypedValue(
+              Type.integer,
+              cycle['graceDays'] as int? ?? 3,
+            ),
+            'status': TypedValue(Type.text, cycle['status'] as String),
+            'photoAId': TypedValue(Type.text, cycle['photoAId'] as String?),
+            'photoBId': TypedValue(Type.text, cycle['photoBId'] as String?),
+            'dueAt': TypedValue(Type.text, cycle['dueAt'] as String?),
+            'windowEndAt': TypedValue(Type.text, cycle['windowEndAt'] as String?),
+            'promptVersion': TypedValue(
+              Type.text,
+              cycle['promptVersion'] as String?,
+            ),
+            'vendorJobId': TypedValue(Type.text, cycle['vendorJobId'] as String?),
+            'createdAt': TypedValue(Type.text, cycle['createdAt'] as String?),
+            'updatedAt': TypedValue(Type.text, cycle['updatedAt'] as String?),
+          },
+        );
+      });
+
+  Future<List<Map<String, dynamic>>> loadAllVendorAiCalls() async {
+    final rows = await _db.execute(
+      'SELECT * FROM vendor_ai_calls ORDER BY created_at DESC',
+    );
+    return rows.map((r) {
+      final m = r.toColumnMap();
+      return {
+        'id': m['id'],
+        'actorUserId': m['actor_user_id'],
+        'projectId': m['project_id'],
+        'cycleId': m['cycle_id'],
+        'photoAId': m['photo_a_id'],
+        'photoBId': m['photo_b_id'],
+        'promptId': m['prompt_id'],
+        'promptSha256': m['prompt_sha256'],
+        'model': m['model'],
+        'requestSha256': m['request_sha256'],
+        'responseSha256': m['response_sha256'],
+        'httpStatus': m['http_status'] ?? 0,
+        'latencyMs': m['latency_ms'],
+        'verdict': m['verdict'],
+        'createdAt': _isoTs(m['created_at']),
+      };
+    }).toList();
+  }
+
+  Future<void> saveVendorAiCall(Map<String, dynamic> row) =>
+      _asService((s) async {
+        await s.execute(
+          Sql.named('''
+            INSERT INTO vendor_ai_calls (
+              id, actor_user_id, project_id, cycle_id, photo_a_id, photo_b_id,
+              prompt_id, prompt_sha256, model, request_sha256, response_sha256,
+              http_status, latency_ms, verdict, created_at
+            ) VALUES (
+              @id, @actorUserId, @projectId, @cycleId, @photoAId, @photoBId,
+              @promptId, @promptSha256, @model, @requestSha256, @responseSha256,
+              @httpStatus, @latencyMs, @verdict,
+              COALESCE(@createdAt::timestamptz, now())
+            )
+            ON CONFLICT (id) DO NOTHING
+          '''),
+          parameters: {
+            'id': TypedValue(Type.text, row['id'] as String),
+            'actorUserId': TypedValue(Type.text, row['actorUserId'] as String?),
+            'projectId': TypedValue(Type.text, row['projectId'] as String),
+            'cycleId': TypedValue(Type.text, row['cycleId'] as String?),
+            'photoAId': TypedValue(Type.text, row['photoAId'] as String?),
+            'photoBId': TypedValue(Type.text, row['photoBId'] as String?),
+            'promptId': TypedValue(Type.text, row['promptId'] as String),
+            'promptSha256': TypedValue(Type.text, row['promptSha256'] as String),
+            'model': TypedValue(Type.text, row['model'] as String?),
+            'requestSha256': TypedValue(
+              Type.text,
+              row['requestSha256'] as String,
+            ),
+            'responseSha256': TypedValue(
+              Type.text,
+              row['responseSha256'] as String?,
+            ),
+            'httpStatus': TypedValue(
+              Type.integer,
+              row['httpStatus'] as int? ?? 0,
+            ),
+            'latencyMs': TypedValue(Type.integer, row['latencyMs'] as int?),
+            'verdict': TypedValue(Type.text, row['verdict'] as String),
+            'createdAt': TypedValue(Type.text, row['createdAt'] as String?),
+          },
+        );
+      });
+
+  Future<List<Map<String, dynamic>>> loadAllInspectorReviews() async {
+    final rows = await _db.execute(
+      'SELECT * FROM inspector_reviews ORDER BY created_at DESC',
+    );
+    return rows.map((r) {
+      final m = r.toColumnMap();
+      return {
+        'id': m['id'],
+        'cycleId': m['cycle_id'],
+        'status': m['status'],
+        'assignedTo': m['assigned_to'],
+        'govNotifiedAt': _isoTs(m['gov_notified_at']),
+        'createdAt': _isoTs(m['created_at']),
+      };
+    }).toList();
+  }
+
+  Future<void> saveInspectorReview(Map<String, dynamic> row) =>
+      _asService((s) async {
+        await s.execute(
+          Sql.named('''
+            INSERT INTO inspector_reviews (
+              id, cycle_id, status, assigned_to, gov_notified_at, created_at
+            ) VALUES (
+              @id, @cycleId, @status, @assignedTo, @govNotifiedAt::timestamptz,
+              COALESCE(@createdAt::timestamptz, now())
+            )
+            ON CONFLICT (id) DO UPDATE SET
+              status = EXCLUDED.status,
+              assigned_to = EXCLUDED.assigned_to,
+              gov_notified_at = EXCLUDED.gov_notified_at
+          '''),
+          parameters: {
+            'id': TypedValue(Type.text, row['id'] as String),
+            'cycleId': TypedValue(Type.text, row['cycleId'] as String),
+            'status': TypedValue(Type.text, row['status'] as String),
+            'assignedTo': TypedValue(Type.text, row['assignedTo'] as String?),
+            'govNotifiedAt': TypedValue(
+              Type.text,
+              row['govNotifiedAt'] as String?,
+            ),
+            'createdAt': TypedValue(Type.text, row['createdAt'] as String?),
+          },
+        );
+      });
 
   // --- AI usage ledger (quota that survives a deploy) ----------------------
 

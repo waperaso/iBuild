@@ -16,6 +16,41 @@ import 'user_roles.dart';
 import 'seed_data.dart';
 import 'validation.dart';
 
+/// Days between site-photo A and the request for B.
+const kSitePhotoIntervalDays = 14;
+const kSitePhotoGraceDays = 3;
+
+/// Fast interval for demo / pitch sessions (waiting → awaiting_b).
+const kSitePhotoDemoIntervalMinutes = 2;
+
+/// After photo B (or a finished check) the pair cannot be replaced / restarted
+/// for this long — stops an instant re-upload that looks pre-baked.
+const kSitePhotoReuploadLock = Duration(minutes: 2);
+
+/// Grace after a fast-interval due before the cycle is marked missed.
+const kSitePhotoDemoGraceMinutes = 30;
+
+const kSitePhotoLanguages = {'ru', 'uz', 'en'};
+
+/// `ru` / `uz` / `en`; anything else (including null) becomes `en`.
+String normalizeSitePhotoLanguage(Object? raw) {
+  final code = (raw as String?)?.trim().toLowerCase();
+  if (code == null || code.isEmpty) return 'en';
+  final base = code.split(RegExp('[-_]')).first;
+  return kSitePhotoLanguages.contains(base) ? base : 'en';
+}
+
+/// How long a cycle may stay in `analyzing` before GET/tick recovers it.
+const kSitePhotoAnalyzingTimeout = Duration(minutes: 3);
+
+bool isTerminalSitePhotoStatus(String? status) =>
+    status == 'confirmed' || status == 'rejected';
+
+/// Closed for uploads; [missed] still shown until a new cycle is started.
+bool isClosedSitePhotoStatus(String? status) =>
+    isTerminalSitePhotoStatus(status) || status == 'missed';
+
+
 /// Self-serve Publisher monthly price (USD); Flex is arranged with sales.
 const kBusinessSubscriptionUsd = 99.0;
 const kBusinessSubscriptionPlanId = 'start';
@@ -200,6 +235,15 @@ class Store {
 
   /// Construction-progress photo reports (Photo Reports API).
   final List<Map<String, dynamic>> photoReports = [];
+
+  /// One A→B site-photo cycle per project (construction verification).
+  final List<Map<String, dynamic>> sitePhotoCycles = [];
+
+  /// Audit of vendor AI calls (hashes only — never keys or image bytes).
+  final List<Map<String, dynamic>> vendorAiCalls = [];
+
+  /// Human-inspector queue for cycles whose vendor path is stub/reject.
+  final List<Map<String, dynamic>> inspectorReviews = [];
 
   /// Admin inbox for developer-side events that need attention ([notifyAdmins]).
   final List<Map<String, dynamic>> notifications = [];
@@ -387,6 +431,15 @@ class Store {
       store.photoReports
         ..clear()
         ..addAll(await persistence.loadAllPhotoReports());
+      store.sitePhotoCycles
+        ..clear()
+        ..addAll(await persistence.loadAllSitePhotoCycles());
+      store.vendorAiCalls
+        ..clear()
+        ..addAll(await persistence.loadAllVendorAiCalls());
+      store.inspectorReviews
+        ..clear()
+        ..addAll(await persistence.loadAllInspectorReviews());
       store.notifications
         ..clear()
         ..addAll(await persistence.loadAllNotifications());
@@ -474,41 +527,6 @@ class Store {
       );
     }
 
-    final existingReports = photoReportsForProject(projectId);
-    if (existingReports.length >= 2) {
-      stderr.writeln(
-        '[Store] DEMO_STAGE_TRUST: photo reports already present for $projectId.',
-      );
-      return;
-    }
-    final now = DateTime.now();
-    addPhotoReport(
-      projectId: projectId,
-      photoUrl: 'https://picsum.photos/seed/ibuild-progress-1/800/600',
-      takenAt: now.subtract(const Duration(days: 60)),
-      takenAtIsManual: true,
-      progressPercent: 45,
-      uploadedBy: 'demo-trust-stager',
-    );
-    addPhotoReport(
-      projectId: projectId,
-      photoUrl: 'https://picsum.photos/seed/ibuild-progress-2/800/600',
-      takenAt: now.subtract(const Duration(days: 20)),
-      takenAtIsManual: true,
-      progressPercent: 68,
-      uploadedBy: 'demo-trust-stager',
-    );
-    addPhotoReport(
-      projectId: projectId,
-      photoUrl: 'https://picsum.photos/seed/ibuild-progress-3/800/600',
-      takenAt: now.subtract(const Duration(days: 3)),
-      takenAtIsManual: true,
-      progressPercent: 75,
-      uploadedBy: 'demo-trust-stager',
-    );
-    stderr.writeln(
-      '[Store] DEMO_STAGE_TRUST: photo reports staged for ${showcase['name']}.',
-    );
   }
 
   /// requestId -> pending OTP request (plan §5, dev/demo phone-OTP auth).
@@ -1121,7 +1139,11 @@ class Store {
   }
 
   /// Fire-and-forget persist; log failures, keep in-memory state authoritative.
+  /// When [_suppressPersist] is true (demo session bootstrap), skip PG writes.
+  bool _suppressPersist = false;
+
   void _persist(String what, Future<void> Function(PgPersistence p) op) {
+    if (_suppressPersist) return;
     final persistence = _persistence;
     if (persistence == null) return;
     unawaited(
@@ -1129,6 +1151,23 @@ class Store {
         stderr.writeln('[Store] Failed to persist $what: $error');
       }),
     );
+  }
+
+  /// Persist a site-photo cycle unless it was staged for a demo session.
+  void _saveSitePhotoCycle(String what, Map<String, dynamic> cycle) {
+    if (cycle['demoEphemeral'] == true) return;
+    _persist(what, (p) => p.saveSitePhotoCycle(cycle));
+  }
+
+  /// Runs [body] without writing to PostgreSQL (in-memory only).
+  T _withoutPersist<T>(T Function() body) {
+    final prev = _suppressPersist;
+    _suppressPersist = true;
+    try {
+      return body();
+    } finally {
+      _suppressPersist = prev;
+    }
   }
 
   void _assertPersistenceForWrite(String action) {
@@ -1159,6 +1198,9 @@ class Store {
     rentalListings.clear();
     documents.clear();
     photoReports.clear();
+    sitePhotoCycles.clear();
+    vendorAiCalls.clear();
+    inspectorReviews.clear();
     notifications.clear();
     developersRegistry.removeWhere((d) => d['ownerUserId'] == null);
   }
@@ -1248,8 +1290,8 @@ class Store {
 
   /// Awards / reviewer demo login — in-memory session only; user has
   /// `isDemo: true` so [demoGuardMiddleware] blocks mutating API calls.
-  /// Reads use the same live handlers as a real admin; nothing is written
-  /// to PostgreSQL from demo sessions.
+  /// Bootstrap (NestOne bind, KYC placeholders, site-photo staging) is
+  /// applied in-memory only and never written to PostgreSQL.
   OtpVerifyResult createDemoSession({required String profile}) {
     final normalized = profile.trim().toLowerCase();
     final (
@@ -1267,7 +1309,7 @@ class Store {
       'b2b_residence' || 'residence' => (
         '+998900000002',
         UserRole.residenceAdmin,
-        'Demo Reviewer (Residence)',
+        'NestOne Admin',
         'demo-user-b2b-residence',
       ),
       _ => (
@@ -1286,6 +1328,10 @@ class Store {
       'isDemo': true,
     };
     _usersByPhone[phone] = user;
+
+    if (role == UserRole.residenceAdmin) {
+      _withoutPersist(() => _bindDemoResidenceOwner(id));
+    }
 
     final now = DateTime.now();
     final accessExpiry = now.add(_accessTokenTtl);
@@ -1308,6 +1354,199 @@ class Store {
       refreshToken: refreshToken,
       user: user,
     );
+  }
+
+  /// Attach the residence demo reviewer to NestOne (or the first approved
+  /// developer) with an active subscription and accepted KYC docs so the
+  /// NestOne workspace shows the full residence-admin surface.
+  void _bindDemoResidenceOwner(String ownerUserId) {
+    for (final d in developersRegistry) {
+      if (d['ownerUserId'] == ownerUserId) {
+        d['ownerUserId'] = null;
+      }
+    }
+    Map<String, dynamic>? target = developerById('dev-nestone');
+    if (target == null) {
+      for (final d in developersRegistry) {
+        if (d['verificationStatus'] == 'approved') {
+          target = d;
+          break;
+        }
+      }
+    }
+    if (target == null) return;
+    target['ownerUserId'] = ownerUserId;
+    target['verificationStatus'] = 'approved';
+    target['name'] ??= 'NestOne Development';
+    target['legalName'] ??= 'NestOne Development MCHJ';
+    target['agentName'] ??= 'Madina Rakhimova';
+    target['agentPhone'] ??= '+998 90 150 10 10';
+    final developerId = target['id'] as String;
+    String? projectId;
+    if (developerId == 'dev-nestone') {
+      projectId = 'prj-nestone';
+    } else {
+      for (final p in projects) {
+        if ((p['developer'] as Map?)?['id'] == developerId) {
+          projectId = p['id'] as String?;
+          break;
+        }
+      }
+    }
+    // Owner must be set before activateSubscription looks up the developer.
+    activateSubscription(ownerUserId);
+    _ensureDemoResidenceDocuments(
+      developerId: developerId,
+      projectId: projectId ?? developerId,
+    );
+    if (projectId != null) {
+      _stageDemoSitePhotoEmpty(projectId);
+    }
+    _refreshProjectsForDeveloper(developerId);
+  }
+
+  /// Empty A→B cycle for the NestOne residence demo. Photos are attached only
+  /// when the reviewer taps Upload photo 1 / 2. In-memory (`demoEphemeral`).
+  void _stageDemoSitePhotoEmpty(String projectId) {
+    sitePhotoCycles.removeWhere(
+      (c) => c['projectId'] == projectId && c['demoEphemeral'] == true,
+    );
+    photoReports.removeWhere(
+      (r) =>
+          r['projectId'] == projectId &&
+          r['uploadedBy'] == 'demo-user-b2b-residence' &&
+          (r['id'] as String?)?.startsWith('pr-demo-') == true,
+    );
+
+    final created = DateTime.now().toUtc();
+    sitePhotoCycles.add(<String, dynamic>{
+      'id': 'spc-demo-${_uuid.v4()}',
+      'projectId': projectId,
+      'intervalDays': kSitePhotoIntervalDays,
+      'intervalMinutes': kSitePhotoDemoIntervalMinutes,
+      'graceDays': kSitePhotoGraceDays,
+      'status': 'awaiting_a',
+      'photoAId': null,
+      'photoBId': null,
+      'dueAt': null,
+      'windowEndAt': null,
+      'promptVersion': 'v0',
+      'vendorJobId': null,
+      'demoEphemeral': true,
+      'createdAt': created.toIso8601String(),
+      'updatedAt': created.toIso8601String(),
+    });
+  }
+
+  Map<String, dynamic> _demoSitePhotoReport({
+    required String projectId,
+    required String cycleId,
+    required String filename,
+    required String role,
+    required DateTime takenAt,
+    required int progressPercent,
+  }) {
+    return <String, dynamic>{
+      'id': 'pr-demo-${_uuid.v4()}',
+      'projectId': projectId,
+      'photoUrl': staticResidencePhoto(filename),
+      'takenAt': _dateOnly(takenAt),
+      'takenAtIsManual': true,
+      'progressPercent': progressPercent,
+      'uploadedBy': 'demo-user-b2b-residence',
+      'cycleId': cycleId,
+      'role': role,
+      'createdAt': takenAt.toUtc().toIso8601String(),
+    };
+  }
+
+  /// Pitch-only: attach bundled photo 1. Skips the 14-day wait so photo 2
+  /// can be uploaded next. In-memory (`demoEphemeral`); does not persist.
+  void attachDemoSitePhotoBaseline(String cycleId, {String? userLanguage}) {
+    final cycle = sitePhotoCycleById(cycleId);
+    if (cycle == null || cycle['demoEphemeral'] != true) {
+      throw StateError('CYCLE_NOT_FOUND');
+    }
+    _assertReuploadAllowed(cycle);
+    if (cycle['photoAId'] != null || cycle['status'] != 'awaiting_a') {
+      throw StateError('ALREADY_HAS_A');
+    }
+    final takenAt = DateTime.now().toUtc();
+    final report = _demoSitePhotoReport(
+      projectId: cycle['projectId'] as String,
+      cycleId: cycleId,
+      filename: kSitePhotoDemoAFile,
+      role: 'baseline_a',
+      takenAt: takenAt,
+      progressPercent: 90,
+    );
+    photoReports.add(report);
+    cycle['photoAId'] = report['id'];
+    cycle['status'] = 'awaiting_b';
+    cycle['dueAt'] = takenAt.toIso8601String();
+    cycle['windowEndAt'] = takenAt
+        .add(const Duration(minutes: kSitePhotoDemoGraceMinutes))
+        .toIso8601String();
+    if (userLanguage != null) {
+      cycle['userLanguage'] = normalizeSitePhotoLanguage(userLanguage);
+    }
+    cycle['updatedAt'] = takenAt.toIso8601String();
+  }
+
+  /// Pitch-only: attach bundled photo 2 and start the check.
+  /// In-memory (`demoEphemeral`); does not persist.
+  void attachDemoSitePhotoFollowUp(String cycleId, {String? userLanguage}) {
+    final cycle = sitePhotoCycleById(cycleId);
+    if (cycle == null || cycle['demoEphemeral'] != true) {
+      throw StateError('CYCLE_NOT_FOUND');
+    }
+    _assertReuploadAllowed(cycle);
+    if (cycle['photoBId'] != null) throw StateError('ALREADY_HAS_B');
+    refreshSitePhotoCycle(cycle);
+    if (cycle['status'] == 'waiting') throw StateError('TOO_EARLY');
+    if (cycle['status'] == 'missed') throw StateError('WINDOW_CLOSED');
+    if (cycle['status'] != 'awaiting_b') throw StateError('NOT_AWAITING_B');
+    final takenAt = DateTime.now().toUtc();
+    final report = _demoSitePhotoReport(
+      projectId: cycle['projectId'] as String,
+      cycleId: cycleId,
+      filename: kSitePhotoDemoBFile,
+      role: 'followup_b',
+      takenAt: takenAt,
+      progressPercent: 92,
+    );
+    photoReports.add(report);
+    if (userLanguage != null) {
+      cycle['userLanguage'] = normalizeSitePhotoLanguage(userLanguage);
+    }
+    attachPhotoB(cycleId: cycleId, reportId: report['id'] as String);
+  }
+
+  /// Accepted KYC placeholders so org profile / publish gates look complete.
+  void _ensureDemoResidenceDocuments({
+    required String developerId,
+    required String projectId,
+  }) {
+    if (hasAllRequiredDocumentsAccepted(developerId)) return;
+    const adminId = 'demo-user-b2b-residence';
+    for (final type in kRequiredDocumentTypes) {
+      final existing = documentsForDeveloper(
+        developerId,
+      ).any((d) => d['type'] == type && d['status'] == 'accepted');
+      if (existing) continue;
+      final doc = addDocument(
+        developerId: developerId,
+        projectId: projectId,
+        type: type,
+        fileUrl: '/v1/static/demo/$type.pdf',
+        uploadedBy: adminId,
+      );
+      reviewDocument(
+        doc['id'] as String,
+        status: 'accepted',
+        reviewedBy: adminId,
+      );
+    }
   }
 
   // --- Favorites / saved searches ----------------------------------------
@@ -2878,6 +3117,8 @@ class Store {
     double? exifLng,
     String? detectedStage,
     String? declaredStage,
+    String? cycleId,
+    String? role,
   }) {
     final report = {
       'id': 'phr-${_uuid.v4()}',
@@ -2898,6 +3139,8 @@ class Store {
       'exifLng': exifLng,
       'detectedStage': detectedStage,
       'declaredStage': declaredStage,
+      'cycleId': cycleId,
+      'role': role,
     };
     photoReports.insert(0, report);
     _persist('photo report', (p) => p.savePhotoReport(report));
@@ -2963,6 +3206,595 @@ class Store {
     _persist('photo report delete', (p) => p.deletePhotoReport(id));
     return removed;
   }
+
+  Map<String, dynamic>? sitePhotoCycleById(String id) {
+    for (final c in sitePhotoCycles) {
+      if (c['id'] == id) return c;
+    }
+    return null;
+  }
+
+  /// Active (non-terminal) cycle for [projectId], else the latest row.
+  /// When [includeDemoEphemeral] is true, demo-staged rows win over live ones
+  /// so pitch/reviewer sessions never mutate production cycles.
+  Map<String, dynamic>? sitePhotoCycleForProject(
+    String projectId, {
+    bool includeDemoEphemeral = false,
+  }) {
+    if (includeDemoEphemeral) {
+      Map<String, dynamic>? demoActive;
+      Map<String, dynamic>? demoLatest;
+      DateTime? demoActiveCreated;
+      DateTime? demoLatestCreated;
+      for (final c in sitePhotoCycles) {
+        if (c['projectId'] != projectId || c['demoEphemeral'] != true) {
+          continue;
+        }
+        final created =
+            DateTime.tryParse(c['createdAt'] as String? ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+        if (demoLatest == null || created.isAfter(demoLatestCreated!)) {
+          demoLatest = c;
+          demoLatestCreated = created;
+        }
+        if (!isTerminalSitePhotoStatus(c['status'] as String?)) {
+          if (demoActive == null || created.isAfter(demoActiveCreated!)) {
+            demoActive = c;
+            demoActiveCreated = created;
+          }
+        }
+      }
+      final demo = demoActive ?? demoLatest;
+      if (demo != null) return demo;
+    }
+
+    Map<String, dynamic>? active;
+    Map<String, dynamic>? latest;
+    DateTime? latestCreated;
+    DateTime? activeCreated;
+    for (final c in sitePhotoCycles) {
+      if (c['projectId'] != projectId) continue;
+      if (c['demoEphemeral'] == true) continue;
+      final created =
+          DateTime.tryParse(c['createdAt'] as String? ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+      if (latest == null || created.isAfter(latestCreated!)) {
+        latest = c;
+        latestCreated = created;
+      }
+      if (!isTerminalSitePhotoStatus(c['status'] as String?)) {
+        if (active == null || created.isAfter(activeCreated!)) {
+          active = c;
+          activeCreated = created;
+        }
+      }
+    }
+    return active ?? latest;
+  }
+
+  /// In-flight verify jobs keyed by cycle id (tests await these).
+  final Map<String, Future<void>> _pendingVerifyJobs = {};
+
+  void trackVerifyJob(String cycleId, Future<void> job) {
+    final tracked = () async {
+      try {
+        await job;
+      } finally {
+        _pendingVerifyJobs.remove(cycleId);
+      }
+    }();
+    _pendingVerifyJobs[cycleId] = tracked;
+  }
+
+  Future<void> awaitPendingVerifyJobs() async {
+    while (_pendingVerifyJobs.isNotEmpty) {
+      await Future.wait(List<Future<void>>.from(_pendingVerifyJobs.values));
+    }
+  }
+
+  /// Creates `awaiting_a` on first touch or after a terminal cycle. Advances
+  /// `waiting` → `awaiting_b` when [now] is past `dueAt`, and
+  /// `awaiting_b` → `missed` when past `windowEndAt`. Recovers stuck
+  /// `analyzing` rows older than [kSitePhotoAnalyzingTimeout].
+  Map<String, dynamic> ensureSitePhotoCycle(
+    String projectId, {
+    DateTime? now,
+    bool renewMissed = false,
+    int? intervalMinutes,
+  }) {
+    var cycle = sitePhotoCycleForProject(projectId);
+    final status = cycle?['status'] as String?;
+    final needsNew = cycle == null ||
+        isTerminalSitePhotoStatus(status) ||
+        (renewMissed && status == 'missed');
+    if (needsNew) {
+      final created = DateTime.now().toUtc();
+      final prevLock = cycle?['reuploadLockedUntil'];
+      cycle = {
+        'id': 'spc-${_uuid.v4()}',
+        'projectId': projectId,
+        'intervalDays': kSitePhotoIntervalDays,
+        if (intervalMinutes != null) 'intervalMinutes': intervalMinutes,
+        'graceDays': kSitePhotoGraceDays,
+        'status': 'awaiting_a',
+        'photoAId': null,
+        'photoBId': null,
+        'dueAt': null,
+        'windowEndAt': null,
+        'promptVersion': 'v0',
+        'vendorJobId': null,
+        if (prevLock != null) 'reuploadLockedUntil': prevLock,
+        'createdAt': created.toIso8601String(),
+        'updatedAt': created.toIso8601String(),
+      };
+      sitePhotoCycles.add(cycle);
+      _saveSitePhotoCycle('site photo cycle', cycle!);
+    } else if (intervalMinutes != null &&
+        cycle!['intervalMinutes'] == null &&
+        (cycle['status'] == 'awaiting_a')) {
+      cycle['intervalMinutes'] = intervalMinutes;
+      _saveSitePhotoCycle('site photo fast interval', cycle!);
+    }
+    return refreshSitePhotoCycle(cycle!, now: now);
+  }
+
+  Map<String, dynamic> refreshSitePhotoCycle(
+    Map<String, dynamic> cycle, {
+    DateTime? now,
+  }) {
+    final clock = now ?? DateTime.now().toUtc();
+    final status = cycle['status'] as String?;
+    if (status == 'waiting') {
+      final dueRaw = cycle['dueAt'] as String?;
+      final due = dueRaw == null ? null : DateTime.tryParse(dueRaw);
+      if (due != null && !clock.isBefore(due.toUtc())) {
+        cycle['status'] = 'awaiting_b';
+        cycle['updatedAt'] = clock.toIso8601String();
+        _saveSitePhotoCycle('site photo cycle tick', cycle);
+      }
+    }
+    if (cycle['status'] == 'awaiting_b' && cycle['photoBId'] == null) {
+      final windowRaw = cycle['windowEndAt'] as String?;
+      final windowEnd =
+          windowRaw == null ? null : DateTime.tryParse(windowRaw);
+      if (windowEnd != null && clock.isAfter(windowEnd.toUtc())) {
+        cycle['status'] = 'missed';
+        cycle['updatedAt'] = clock.toIso8601String();
+        _saveSitePhotoCycle('site photo window closed', cycle);
+      }
+    }
+    if (cycle['status'] == 'analyzing') {
+      final updatedRaw = cycle['updatedAt'] as String?;
+      final updated =
+          updatedRaw == null ? null : DateTime.tryParse(updatedRaw);
+      if (updated != null &&
+          !clock.difference(updated.toUtc()).isNegative &&
+          clock.difference(updated.toUtc()) >= kSitePhotoAnalyzingTimeout) {
+        completeConstructionVerify(
+          cycleId: cycle['id'] as String,
+          result: {
+            'verdict': 'needs_review',
+            'vendorVerdict': 'needs_review',
+            'confidence': 0,
+            'sameViewpoint': null,
+            'progressDelta': null,
+            'flags': <String>['job_timeout'],
+            'summary':
+                'Automated check timed out. Manual review required.',
+            'temporal': {'ok': true, 'reason': 'passThrough'},
+            'normative': {'ok': true, 'reason': 'passThrough'},
+          },
+        );
+      }
+    }
+    return cycle;
+  }
+
+  void attachPhotoA({
+    required String cycleId,
+    required String reportId,
+    required DateTime takenAt,
+    String? userLanguage,
+  }) {
+    final cycle = sitePhotoCycleById(cycleId);
+    if (cycle == null) throw StateError('CYCLE_NOT_FOUND');
+    refreshSitePhotoCycle(cycle);
+    _assertReuploadAllowed(cycle);
+    if (cycle['photoAId'] != null || cycle['status'] != 'awaiting_a') {
+      throw StateError('ALREADY_HAS_A');
+    }
+    final intervalDays = cycle['intervalDays'] as int? ?? kSitePhotoIntervalDays;
+    final intervalMinutes = cycle['intervalMinutes'] as int?;
+    final graceDays = cycle['graceDays'] as int? ?? kSitePhotoGraceDays;
+    final due = intervalMinutes != null
+        ? takenAt.toUtc().add(Duration(minutes: intervalMinutes))
+        : takenAt.toUtc().add(Duration(days: intervalDays));
+    final windowEnd = intervalMinutes != null
+        ? due.add(const Duration(minutes: kSitePhotoDemoGraceMinutes))
+        : due.add(Duration(days: graceDays));
+    cycle['photoAId'] = reportId;
+    cycle['status'] = 'waiting';
+    cycle['dueAt'] = due.toIso8601String();
+    cycle['windowEndAt'] = windowEnd.toIso8601String();
+    if (userLanguage != null) {
+      cycle['userLanguage'] = normalizeSitePhotoLanguage(userLanguage);
+    }
+    cycle['updatedAt'] = DateTime.now().toUtc().toIso8601String();
+    _saveSitePhotoCycle('site photo A', cycle);
+  }
+
+  /// Presentation helper: jump `waiting` → `awaiting_b` immediately.
+  /// Only cycles with a fast [intervalMinutes] (demo / pitch) may unlock —
+  /// production 14-day waits cannot be skipped via this endpoint.
+  void unlockSitePhotoFollowUp(
+    String cycleId, {
+    bool allowPersist = true,
+  }) {
+    final cycle = sitePhotoCycleById(cycleId);
+    if (cycle == null) throw StateError('CYCLE_NOT_FOUND');
+    refreshSitePhotoCycle(cycle);
+    if (cycle['status'] == 'awaiting_b') return;
+    if (cycle['status'] != 'waiting') throw StateError('NOT_WAITING');
+    if (cycle['intervalMinutes'] == null) {
+      throw StateError('UNLOCK_NOT_ALLOWED');
+    }
+    final now = DateTime.now().toUtc();
+    final grace = const Duration(minutes: kSitePhotoDemoGraceMinutes);
+    cycle['dueAt'] = now.subtract(const Duration(seconds: 1)).toIso8601String();
+    cycle['windowEndAt'] = now.add(grace).toIso8601String();
+    cycle['status'] = 'awaiting_b';
+    cycle['updatedAt'] = now.toIso8601String();
+    if (allowPersist) {
+      _saveSitePhotoCycle('site photo unlock', cycle);
+    }
+  }
+
+  void attachPhotoB({
+    required String cycleId,
+    required String reportId,
+    String? userLanguage,
+  }) {
+    final cycle = sitePhotoCycleById(cycleId);
+    if (cycle == null) throw StateError('CYCLE_NOT_FOUND');
+    refreshSitePhotoCycle(cycle);
+    _assertReuploadAllowed(cycle);
+    if (cycle['photoBId'] != null) throw StateError('ALREADY_HAS_B');
+    if (cycle['status'] == 'waiting') throw StateError('TOO_EARLY');
+    if (cycle['status'] == 'missed') throw StateError('WINDOW_CLOSED');
+    if (cycle['status'] != 'awaiting_b') throw StateError('NOT_AWAITING_B');
+    final windowRaw = cycle['windowEndAt'] as String?;
+    final windowEnd = windowRaw == null ? null : DateTime.tryParse(windowRaw);
+    if (windowEnd != null &&
+        DateTime.now().toUtc().isAfter(windowEnd.toUtc())) {
+      cycle['status'] = 'missed';
+      cycle['updatedAt'] = DateTime.now().toUtc().toIso8601String();
+      _saveSitePhotoCycle('site photo window closed', cycle);
+      throw StateError('WINDOW_CLOSED');
+    }
+    cycle['photoBId'] = reportId;
+    cycle['status'] = 'analyzing';
+    if (userLanguage != null) {
+      cycle['userLanguage'] = normalizeSitePhotoLanguage(userLanguage);
+    }
+    _lockReupload(cycle);
+    cycle['updatedAt'] = DateTime.now().toUtc().toIso8601String();
+    _saveSitePhotoCycle('site photo B', cycle);
+  }
+
+  void _lockReupload(Map<String, dynamic> cycle, {DateTime? now}) {
+    final clock = now ?? DateTime.now().toUtc();
+    cycle['reuploadLockedUntil'] =
+        clock.add(kSitePhotoReuploadLock).toIso8601String();
+  }
+
+  bool isReuploadLocked(Map<String, dynamic> cycle, {DateTime? now}) {
+    final raw = cycle['reuploadLockedUntil'] as String?;
+    if (raw == null || raw.isEmpty) return false;
+    final until = DateTime.tryParse(raw);
+    if (until == null) return false;
+    return (now ?? DateTime.now().toUtc()).isBefore(until.toUtc());
+  }
+
+  void _assertReuploadAllowed(Map<String, dynamic> cycle, {DateTime? now}) {
+    if (isReuploadLocked(cycle, now: now)) {
+      throw StateError('REUPLOAD_LOCKED');
+    }
+  }
+
+  Map<String, dynamic>? inspectorReviewForCycle(String cycleId) {
+    for (final row in inspectorReviews) {
+      if (row['cycleId'] == cycleId) return row;
+    }
+    return null;
+  }
+
+  /// Lands the cycle in inspector after the verify job (stub or real).
+  void completeConstructionVerify({
+    required String cycleId,
+    required Map<String, dynamic> result,
+    Map<String, dynamic>? verifyExport,
+  }) {
+    final cycle = sitePhotoCycleById(cycleId);
+    if (cycle == null) throw StateError('CYCLE_NOT_FOUND');
+    final status = cycle['status'] as String?;
+    if (status == 'confirmed' ||
+        status == 'rejected' ||
+        status == 'missed') {
+      return;
+    }
+    cycle['status'] = 'inspector';
+    cycle['lastResult'] = result;
+    if (verifyExport != null) {
+      cycle['verifyExport'] = verifyExport;
+    }
+    cycle['updatedAt'] = DateTime.now().toUtc().toIso8601String();
+    _saveSitePhotoCycle('site photo verify', cycle);
+    addInspectorReview(cycleId: cycleId);
+  }
+
+  void confirmSitePhotoCycle({
+    required String cycleId,
+    required String actorUserId,
+  }) {
+    final cycle = sitePhotoCycleById(cycleId);
+    if (cycle == null) throw StateError('CYCLE_NOT_FOUND');
+    refreshSitePhotoCycle(cycle);
+    if (cycle['status'] != 'inspector') throw StateError('NOT_INSPECTOR');
+    final now = DateTime.now().toUtc().toIso8601String();
+    cycle['status'] = 'confirmed';
+    cycle['updatedAt'] = now;
+    _saveSitePhotoCycle('site photo confirm', cycle);
+    final review =
+        inspectorReviewForCycle(cycleId) ??
+        addInspectorReview(cycleId: cycleId);
+    review['status'] = 'confirmed';
+    review['assignedTo'] = actorUserId;
+    review['govNotifiedAt'] = now;
+    _persist('inspector confirm', (p) => p.saveInspectorReview(review));
+    audit(
+      actorUserId: actorUserId,
+      action: 'site_photo.confirm',
+      targetType: 'site_photo_cycle',
+      targetId: cycleId,
+    );
+    audit(
+      actorUserId: actorUserId,
+      action: 'gov.notify.stub',
+      targetType: 'site_photo_cycle',
+      targetId: cycleId,
+    );
+  }
+
+  void overturnSitePhotoCycle({
+    required String cycleId,
+    required String actorUserId,
+  }) {
+    final cycle = sitePhotoCycleById(cycleId);
+    if (cycle == null) throw StateError('CYCLE_NOT_FOUND');
+    refreshSitePhotoCycle(cycle);
+    if (cycle['status'] != 'inspector') throw StateError('NOT_INSPECTOR');
+    cycle['status'] = 'rejected';
+    cycle['updatedAt'] = DateTime.now().toUtc().toIso8601String();
+    _saveSitePhotoCycle('site photo overturn', cycle);
+    final review =
+        inspectorReviewForCycle(cycleId) ??
+        addInspectorReview(cycleId: cycleId);
+    review['status'] = 'overturned';
+    review['assignedTo'] = actorUserId;
+    _persist('inspector overturn', (p) => p.saveInspectorReview(review));
+    audit(
+      actorUserId: actorUserId,
+      action: 'site_photo.overturn',
+      targetType: 'site_photo_cycle',
+      targetId: cycleId,
+    );
+  }
+
+  Map<String, dynamic> addVendorAiCall(Map<String, dynamic> input) {
+    final row = {
+      'id': 'vac-${_uuid.v4()}',
+      'actorUserId': input['actorUserId'],
+      'projectId': input['projectId'],
+      'cycleId': input['cycleId'],
+      'photoAId': input['photoAId'],
+      'photoBId': input['photoBId'],
+      'promptId': input['promptId'],
+      'promptSha256': input['promptSha256'],
+      'model': input['model'] ?? 'none',
+      'requestSha256': input['requestSha256'],
+      'responseSha256': input['responseSha256'],
+      'httpStatus': input['httpStatus'] ?? 0,
+      'latencyMs': input['latencyMs'],
+      'verdict': input['verdict'] ?? 'stub',
+      'createdAt': DateTime.now().toUtc().toIso8601String(),
+    };
+    vendorAiCalls.insert(0, row);
+    final cycleId = row['cycleId'] as String?;
+    final cycle = cycleId == null ? null : sitePhotoCycleById(cycleId);
+    if (cycle?['demoEphemeral'] != true) {
+      _persist('vendor ai call', (p) => p.saveVendorAiCall(row));
+    }
+    if (cycle != null) {
+      cycle['vendorJobId'] = row['id'];
+      _saveSitePhotoCycle('site photo cycle vendor job', cycle);
+    }
+    return row;
+  }
+
+  Map<String, dynamic> addInspectorReview({required String cycleId}) {
+    for (final existing in inspectorReviews) {
+      if (existing['cycleId'] == cycleId) return existing;
+    }
+    final row = {
+      'id': 'ins-${_uuid.v4()}',
+      'cycleId': cycleId,
+      'status': 'queued',
+      'assignedTo': null,
+      'govNotifiedAt': null,
+      'createdAt': DateTime.now().toUtc().toIso8601String(),
+    };
+    inspectorReviews.insert(0, row);
+    final cycle = sitePhotoCycleById(cycleId);
+    if (cycle?['demoEphemeral'] != true) {
+      _persist('inspector review', (p) => p.saveInspectorReview(row));
+    }
+    return row;
+  }
+
+  List<Map<String, dynamic>> vendorCallsForCycle(String cycleId) {
+    final items = vendorAiCalls
+        .where((c) => c['cycleId'] == cycleId)
+        .toList();
+    items.sort(
+      (a, b) => (b['createdAt'] as String).compareTo(a['createdAt'] as String),
+    );
+    return items;
+  }
+
+  Map<String, dynamic>? _photoRef(String? id) {
+    if (id == null) return null;
+    final report = photoReportById(id);
+    if (report == null) return null;
+    return {
+      'id': report['id'],
+      'photoUrl': report['photoUrl'],
+      'takenAt': report['takenAt'],
+    };
+  }
+
+  /// Public cycle JSON. [forPlatform] adds developer/project names and
+  /// the latest vendor-call hashes (never the key or image bytes).
+  Map<String, dynamic> serializeSitePhotoCycle(
+    Map<String, dynamic> cycle, {
+    required bool forPlatform,
+    DateTime? now,
+  }) {
+    refreshSitePhotoCycle(cycle, now: now);
+    final status = cycle['status'] as String;
+    final dueAt = cycle['dueAt'] as String?;
+    final photoA = _photoRef(cycle['photoAId'] as String?);
+    final photoB = _photoRef(cycle['photoBId'] as String?);
+    final locked = isReuploadLocked(cycle, now: now);
+    final payload = <String, dynamic>{
+      'id': cycle['id'],
+      'projectId': cycle['projectId'],
+      'status': status,
+      'intervalDays': cycle['intervalDays'],
+      if (cycle['intervalMinutes'] != null)
+        'intervalMinutes': cycle['intervalMinutes'],
+      'dueAt': dueAt,
+      'windowEndAt': cycle['windowEndAt'],
+      'photoA': photoA,
+      'photoB': photoB,
+      'canUploadA':
+          !locked &&
+          ((status == 'awaiting_a' && photoA == null) || status == 'missed'),
+      'canUploadB': !locked && status == 'awaiting_b' && photoB == null,
+      'canUnlockFollowUp':
+          status == 'waiting' && cycle['intervalMinutes'] != null,
+      'tooEarlyUntil': status == 'waiting' ? dueAt : null,
+      if (locked) 'reuploadLockedUntil': cycle['reuploadLockedUntil'],
+      if (cycle['userLanguage'] != null) 'userLanguage': cycle['userLanguage'],
+    };
+    if (status == 'analyzing' ||
+        status == 'inspector' ||
+        status == 'confirmed' ||
+        status == 'rejected') {
+      payload['result'] = _cycleResult(cycle, status);
+    }
+    final verifyExport = cycle['verifyExport'];
+    if (verifyExport is Map) {
+      payload['verifyExport'] = Map<String, dynamic>.from(verifyExport);
+    }
+    if (forPlatform) {
+      final project = projectById(cycle['projectId'] as String);
+      final developer = project?['developer'] as Map?;
+      final calls = vendorCallsForCycle(cycle['id'] as String);
+      final latest = calls.isEmpty ? null : calls.first;
+      payload['developerId'] = developer?['id'];
+      payload['developerName'] = developer?['name'] ?? developer?['legalName'];
+      payload['projectName'] = project?['name'];
+      payload['stubVerdict'] = latest?['verdict'] ??
+          (status == 'inspector' ? 'needs_review' : null);
+      payload['vendorCall'] = latest == null
+          ? null
+          : {
+              'id': latest['id'],
+              'promptVersion': latest['promptId'],
+              'promptSha256': latest['promptSha256'],
+              'requestSha256': latest['requestSha256'],
+              'verdict': latest['verdict'],
+              'createdAt': latest['createdAt'],
+            };
+      payload['govNotifiedAt'] =
+          inspectorReviewForCycle(cycle['id'] as String)?['govNotifiedAt'];
+    }
+    return payload;
+  }
+
+  Map<String, dynamic> _cycleResult(
+    Map<String, dynamic> cycle,
+    String status,
+  ) {
+    final stored = cycle['lastResult'];
+    final storedMap = stored is Map
+        ? Map<String, dynamic>.from(stored)
+        : null;
+    var verdict = 'needs_review';
+    if (status == 'confirmed') verdict = 'confirm';
+    if (status == 'rejected') verdict = 'reject';
+    final summary = status == 'confirmed'
+        ? 'Confirmed by inspector.'
+        : status == 'rejected'
+        ? 'Rejected by inspector.'
+        : storedMap?['summary'] as String? ?? 'Submitted for review.';
+    const passThrough = {'ok': true, 'reason': 'passThrough'};
+    return {
+      'verdict': verdict,
+      'vendorVerdict': storedMap?['vendorVerdict'],
+      'confidence': storedMap?['confidence'],
+      'sameViewpoint': storedMap?['sameViewpoint'],
+      'progressDelta': storedMap?['progressDelta'],
+      'flags': storedMap?['flags'] ?? <String>[],
+      'summary': summary,
+      'temporal': storedMap?['temporal'] ?? passThrough,
+      'normative': storedMap?['normative'] ?? passThrough,
+      if (storedMap?['integrity'] != null) 'integrity': storedMap!['integrity'],
+    };
+  }
+
+  List<Map<String, dynamic>> listSitePhotoCycles({
+    String? status,
+    String? query,
+  }) {
+    final needle = query?.trim().toLowerCase();
+    final items = <Map<String, dynamic>>[];
+    for (final cycle in sitePhotoCycles) {
+      refreshSitePhotoCycle(cycle);
+      if (status != null && status.isNotEmpty && cycle['status'] != status) {
+        continue;
+      }
+      final row = serializeSitePhotoCycle(cycle, forPlatform: true);
+      if (needle != null && needle.isNotEmpty) {
+        final hay =
+            '${row['projectName'] ?? ''} ${row['developerName'] ?? ''}'
+                .toLowerCase();
+        if (!hay.contains(needle)) continue;
+      }
+      items.add(row);
+    }
+    items.sort((a, b) {
+      final aa = a['dueAt'] as String? ?? a['id'] as String;
+      final bb = b['dueAt'] as String? ?? b['id'] as String;
+      return bb.compareTo(aa);
+    });
+    return items;
+  }
+
+  int inspectorCycleCount() => sitePhotoCycles.where((c) {
+    refreshSitePhotoCycle(c);
+    return c['status'] == 'inspector';
+  }).length;
 
   Map<String, dynamic> platformAnalytics() {
     final owned = developersRegistry.where((d) => d['ownerUserId'] != null);

@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import 'ai/construction_verify_job.dart';
+import 'ai/openai_client.dart';
 import 'ai/readiness_engine.dart';
 import 'auth_context.dart';
 import 'demo_overlay.dart';
@@ -48,9 +50,11 @@ void mountAdminRoutes(
   Router router,
   Store store, {
   RateLimiter? refreshLimiter,
+  OpenAiClient? openAiClient,
 }) {
   final refreshRateLimiter =
       refreshLimiter ?? RateLimiter(30, const Duration(minutes: 5));
+  final visionClient = openAiClient ?? OpenAiClient();
 
   // --- Auth helpers (refresh / logout / me) --------------------------------
 
@@ -1391,6 +1395,186 @@ void mountAdminRoutes(
     return jsonOk({'id': id, 'deleted': true});
   });
 
+  router.get('/v1/admin/projects/<id>/site-photo-cycle', (
+    Request req,
+    String id,
+  ) {
+    final denied = _requireManagedProject(req, store, id);
+    if (denied != null) return denied;
+    final isDemo = req.auth!.isDemo;
+    // Demo: serve in-memory staging only — never ensure/persist a real cycle.
+    // Live: ensure as usual (no demo intervalMinutes injection).
+    final Map<String, dynamic> cycle;
+    if (isDemo) {
+      final existing = store.sitePhotoCycleForProject(
+        id,
+        includeDemoEphemeral: true,
+      );
+      if (existing == null) {
+        return jsonError('NOT_FOUND', 'Cycle not found', status: 404);
+      }
+      cycle = store.refreshSitePhotoCycle(existing);
+    } else {
+      cycle = store.ensureSitePhotoCycle(id);
+    }
+    return jsonOk(
+      store.serializeSitePhotoCycle(
+        cycle,
+        forPlatform: req.auth!.isSystemAdmin,
+      ),
+    );
+  });
+
+  router.post('/v1/admin/projects/<id>/site-photo-cycle/unlock', (
+    Request req,
+    String id,
+  ) {
+    final denied = _requireManagedProject(req, store, id);
+    if (denied != null) return denied;
+    final isDemo = req.auth!.isDemo;
+    final cycle = store.sitePhotoCycleForProject(
+      id,
+      includeDemoEphemeral: isDemo,
+    );
+    if (cycle == null) {
+      return jsonError('NOT_FOUND', 'Cycle not found', status: 404);
+    }
+    try {
+      store.unlockSitePhotoFollowUp(
+        cycle['id'] as String,
+        // Demo unlock is pitch-only and must not hit PostgreSQL.
+        allowPersist: !isDemo,
+      );
+    } on StateError catch (e) {
+      return _cycleStateError(e);
+    }
+    final refreshed = store.sitePhotoCycleForProject(
+          id,
+          includeDemoEphemeral: isDemo,
+        ) ??
+        cycle;
+    return jsonOk(
+      store.serializeSitePhotoCycle(
+        refreshed,
+        forPlatform: req.auth!.isSystemAdmin,
+      ),
+    );
+  });
+
+  router.post('/v1/admin/projects/<id>/site-photo-cycle/photo-a', (
+    Request req,
+    String id,
+  ) async {
+    return _handleCyclePhotoUpload(
+      req,
+      store,
+      id,
+      role: 'baseline_a',
+      openAiClient: visionClient,
+    );
+  });
+
+  router.post('/v1/admin/projects/<id>/site-photo-cycle/photo-b', (
+    Request req,
+    String id,
+  ) async {
+    return _handleCyclePhotoUpload(
+      req,
+      store,
+      id,
+      role: 'followup_b',
+      openAiClient: visionClient,
+    );
+  });
+
+  router.get('/v1/admin/projects/<id>/site-photo-cycle/vendor-calls', (
+    Request req,
+    String id,
+  ) {
+    final adminDenied = _requireSystemAdmin(req);
+    if (adminDenied != null) return adminDenied;
+    final project = store.projectById(id);
+    if (project == null) {
+      return jsonError('NOT_FOUND', 'Project $id not found', status: 404);
+    }
+    final cycle = store.sitePhotoCycleForProject(id);
+    if (cycle == null) {
+      return jsonOk(const <Map<String, dynamic>>[], meta: {'total': 0});
+    }
+    final items = store
+        .vendorCallsForCycle(cycle['id'] as String)
+        .map(
+          (c) => {
+            'id': c['id'],
+            'promptVersion': c['promptId'],
+            'promptSha256': c['promptSha256'],
+            'requestSha256': c['requestSha256'],
+            'verdict': c['verdict'],
+            'httpStatus': c['httpStatus'],
+            'createdAt': c['createdAt'],
+          },
+        )
+        .toList();
+    return jsonOk(items, meta: {'total': items.length});
+  });
+
+  router.get('/v1/platform/site-photo-cycles', (Request req) {
+    final denied = _requireSystemAdmin(req);
+    if (denied != null) return denied;
+    final status = req.url.queryParameters['status'];
+    final q = req.url.queryParameters['q'];
+    final items = store.listSitePhotoCycles(status: status, query: q);
+    return jsonOk(
+      items,
+      meta: {
+        'total': items.length,
+        'inspectorCount': store.inspectorCycleCount(),
+      },
+    );
+  });
+
+  router.post('/v1/platform/site-photo-cycles/<id>/confirm', (
+    Request req,
+    String id,
+  ) {
+    final denied = _requireSystemAdmin(req);
+    if (denied != null) return denied;
+    try {
+      store.confirmSitePhotoCycle(
+        cycleId: id,
+        actorUserId: req.auth!.userId,
+      );
+    } on StateError catch (e) {
+      return _cycleStateError(e);
+    }
+    final cycle = store.sitePhotoCycleById(id);
+    if (cycle == null) {
+      return jsonError('NOT_FOUND', 'Cycle $id not found', status: 404);
+    }
+    return jsonOk(store.serializeSitePhotoCycle(cycle, forPlatform: true));
+  });
+
+  router.post('/v1/platform/site-photo-cycles/<id>/overturn', (
+    Request req,
+    String id,
+  ) {
+    final denied = _requireSystemAdmin(req);
+    if (denied != null) return denied;
+    try {
+      store.overturnSitePhotoCycle(
+        cycleId: id,
+        actorUserId: req.auth!.userId,
+      );
+    } on StateError catch (e) {
+      return _cycleStateError(e);
+    }
+    final cycle = store.sitePhotoCycleById(id);
+    if (cycle == null) {
+      return jsonError('NOT_FOUND', 'Cycle $id not found', status: 404);
+    }
+    return jsonOk(store.serializeSitePhotoCycle(cycle, forPlatform: true));
+  });
+
   router.get('/v1/admin/projects/<id>/offers', (Request req, String id) {
     final auth = req.auth;
     if (auth == null) {
@@ -1468,7 +1652,14 @@ void mountAdminRoutes(
     if (!_canManageProject(store, auth, project)) {
       return jsonError('FORBIDDEN', 'Not your project', status: 403);
     }
-    return jsonOk(store.projectAnalytics(id));
+    return jsonOk(
+      DemoOverlay.projectAnalytics(
+        auth,
+        store,
+        id,
+        store.projectAnalytics(id),
+      ),
+    );
   });
 
   router.get('/v1/admin/projects/<id>/leads', (Request req, String id) {
@@ -2333,6 +2524,314 @@ void mountAdminRoutes(
   });
 }
 
+Response? _requireManagedProject(Request req, Store store, String projectId) {
+  final auth = req.auth;
+  if (auth == null) {
+    return jsonError('UNAUTHENTICATED', 'Authentication required', status: 401);
+  }
+  final project = store.projectById(projectId);
+  if (project == null) {
+    return jsonError('NOT_FOUND', 'Project $projectId not found', status: 404);
+  }
+  if (!_canManageProject(store, auth, project)) {
+    return jsonError('FORBIDDEN', 'Not your project', status: 403);
+  }
+  return null;
+}
+
+void _enqueueConstructionVerify({
+  required Store store,
+  required String cycleId,
+  required String actorUserId,
+  OpenAiClient? openAiClient,
+}) {
+  final job = () async {
+    try {
+      await runConstructionVerifyJob(
+        store: store,
+        cycleId: cycleId,
+        actorUserId: actorUserId,
+        client: openAiClient,
+      );
+    } catch (error, stack) {
+      stderr.writeln('[construction_verify] job failed: $error\n$stack');
+      final current = store.sitePhotoCycleById(cycleId);
+      if (current != null && current['status'] == 'analyzing') {
+        store.completeConstructionVerify(
+          cycleId: cycleId,
+          result: {
+            'verdict': 'needs_review',
+            'vendorVerdict': 'needs_review',
+            'confidence': 0,
+            'sameViewpoint': null,
+            'progressDelta': null,
+            'flags': <String>['verify_error'],
+            'summary': constructionVerifyFallbackSummary(
+              'failed',
+              current['userLanguage'] as String? ?? 'en',
+            ),
+            'temporal': {'ok': true, 'reason': 'passThrough'},
+            'normative': {'ok': true, 'reason': 'passThrough'},
+          },
+        );
+      }
+    }
+  }();
+  store.trackVerifyJob(cycleId, job);
+}
+
+Future<Response> _handleCyclePhotoUpload(
+  Request req,
+  Store store,
+  String projectId, {
+  required String role,
+  OpenAiClient? openAiClient,
+}) async {
+  final denied = _requireManagedProject(req, store, projectId);
+  if (denied != null) return denied;
+  final auth = req.auth!;
+  if (auth.isDemo) {
+    return _handleDemoCyclePhotoUpload(
+      req,
+      store,
+      projectId,
+      role: role,
+      openAiClient: openAiClient,
+    );
+  }
+  final cycle = store.ensureSitePhotoCycle(
+    projectId,
+    renewMissed: role == 'baseline_a',
+  );
+
+  String? url;
+  String? takenAtRaw;
+  int? progressPercent;
+  String? userLanguage;
+  final contentType = req.headers['content-type'] ?? '';
+  if (contentType.contains('multipart/form-data')) {
+    final parsed = await _handleMultipartPhotoReport(req);
+    if (parsed == null) {
+      return jsonError('VALIDATION_ERROR', 'file is required', status: 422);
+    }
+    url = parsed.url;
+    takenAtRaw = parsed.takenAt;
+    progressPercent = parsed.progressPercent;
+    userLanguage = parsed.userLanguage;
+  } else {
+    final body = await req.readJson();
+    url = body['url'] as String?;
+    takenAtRaw = body['takenAt'] as String?;
+    progressPercent = (body['progressPercent'] as num?)?.toInt();
+    userLanguage = body['userLanguage'] as String? ??
+        body['user_language'] as String?;
+  }
+  userLanguage = normalizeSitePhotoLanguage(
+    userLanguage ?? req.headers['accept-language'],
+  );
+  if (url == null || url.isEmpty) {
+    return jsonError(
+      'VALIDATION_ERROR',
+      'url or multipart file required',
+      status: 422,
+    );
+  }
+  DateTime takenAt;
+  var takenAtIsManual = false;
+  if (takenAtRaw != null && takenAtRaw.isNotEmpty) {
+    final parsed = DateTime.tryParse(takenAtRaw);
+    if (parsed == null) {
+      return jsonError(
+        'VALIDATION_ERROR',
+        'takenAt must be a valid date',
+        status: 422,
+      );
+    }
+    takenAt = parsed;
+    takenAtIsManual = true;
+  } else {
+    takenAt = DateTime.now();
+  }
+  if (progressPercent != null &&
+      (progressPercent < 0 || progressPercent > 100)) {
+    return jsonError(
+      'VALIDATION_ERROR',
+      'progressPercent must be between 0 and 100',
+      status: 422,
+    );
+  }
+
+  try {
+    if (role == 'baseline_a') {
+      if (cycle['photoAId'] != null ||
+          (cycle['status'] as String) != 'awaiting_a') {
+        throw StateError('ALREADY_HAS_A');
+      }
+    } else {
+      store.refreshSitePhotoCycle(cycle);
+      if (cycle['photoBId'] != null) throw StateError('ALREADY_HAS_B');
+      if (cycle['status'] == 'waiting') throw StateError('TOO_EARLY');
+      if (cycle['status'] == 'missed') throw StateError('WINDOW_CLOSED');
+      if (cycle['status'] != 'awaiting_b') throw StateError('NOT_AWAITING_B');
+    }
+  } on StateError catch (e) {
+    return _cycleStateError(e);
+  }
+
+  final report = store.addPhotoReport(
+    projectId: projectId,
+    photoUrl: url,
+    takenAt: takenAt,
+    takenAtIsManual: takenAtIsManual,
+    progressPercent: progressPercent,
+    uploadedBy: auth.userId,
+    cycleId: cycle['id'] as String,
+    role: role,
+  );
+  try {
+    if (role == 'baseline_a') {
+      store.attachPhotoA(
+        cycleId: cycle['id'] as String,
+        reportId: report['id'] as String,
+        takenAt: takenAt,
+        userLanguage: userLanguage,
+      );
+    } else {
+      store.attachPhotoB(
+        cycleId: cycle['id'] as String,
+        reportId: report['id'] as String,
+        userLanguage: userLanguage,
+      );
+      _enqueueConstructionVerify(
+        store: store,
+        cycleId: cycle['id'] as String,
+        actorUserId: auth.userId,
+        openAiClient: openAiClient,
+      );
+    }
+  } on StateError catch (e) {
+    return _cycleStateError(e);
+  }
+
+  return jsonOk(
+    store.serializeSitePhotoCycle(
+      cycle,
+      forPlatform: auth.isSystemAdmin,
+    ),
+    status: 201,
+  );
+}
+
+/// Demo residence pitch: attach bundled photo 1 then photo 2 in memory only.
+/// Platform demo hitting a live project still gets DEMO_READ_ONLY.
+Future<Response> _handleDemoCyclePhotoUpload(
+  Request req,
+  Store store,
+  String projectId, {
+  required String role,
+  OpenAiClient? openAiClient,
+}) async {
+  final cycle = store.sitePhotoCycleForProject(
+    projectId,
+    includeDemoEphemeral: true,
+  );
+  if (cycle == null || cycle['demoEphemeral'] != true) {
+    return jsonError(
+      'DEMO_READ_ONLY',
+      'Demo mode is view-only — changes are not saved.',
+      status: 403,
+    );
+  }
+
+  String? userLanguage;
+  final contentType = req.headers['content-type'] ?? '';
+  if (contentType.contains('application/json')) {
+    try {
+      final body = await req.readJson();
+      userLanguage = body['userLanguage'] as String? ??
+          body['user_language'] as String?;
+    } catch (_) {}
+  } else if (contentType.contains('multipart/form-data')) {
+    final parsed = await _handleMultipartPhotoReport(req);
+    userLanguage = parsed?.userLanguage;
+  }
+  userLanguage = normalizeSitePhotoLanguage(
+    userLanguage ?? req.headers['accept-language'],
+  );
+
+  try {
+    if (role == 'baseline_a') {
+      store.attachDemoSitePhotoBaseline(
+        cycle['id'] as String,
+        userLanguage: userLanguage,
+      );
+    } else {
+      store.attachDemoSitePhotoFollowUp(
+        cycle['id'] as String,
+        userLanguage: userLanguage,
+      );
+      _enqueueConstructionVerify(
+        store: store,
+        cycleId: cycle['id'] as String,
+        actorUserId: req.auth!.userId,
+        openAiClient: openAiClient,
+      );
+    }
+  } on StateError catch (e) {
+    return _cycleStateError(e);
+  }
+
+  final refreshed = store.sitePhotoCycleForProject(
+        projectId,
+        includeDemoEphemeral: true,
+      ) ??
+      cycle;
+  return jsonOk(
+    store.serializeSitePhotoCycle(
+      refreshed,
+      forPlatform: req.auth!.isSystemAdmin,
+    ),
+    status: 201,
+  );
+}
+
+Response _cycleStateError(StateError e) {
+  switch (e.message) {
+    case 'ALREADY_HAS_A':
+    case 'ALREADY_HAS_B':
+      return jsonError('CONFLICT', e.message, status: 409);
+    case 'TOO_EARLY':
+      return jsonError('TOO_EARLY', 'Follow-up photo is not due yet', status: 422);
+    case 'WINDOW_CLOSED':
+      return jsonError(
+        'WINDOW_CLOSED',
+        'Follow-up upload window has closed',
+        status: 422,
+      );
+    case 'NOT_AWAITING_B':
+    case 'NOT_WAITING':
+      return jsonError('VALIDATION_ERROR', e.message, status: 422);
+    case 'REUPLOAD_LOCKED':
+      return jsonError(
+        'REUPLOAD_LOCKED',
+        'Photos cannot be uploaded again yet. Wait two minutes.',
+        status: 429,
+      );
+    case 'UNLOCK_NOT_ALLOWED':
+      return jsonError(
+        'FORBIDDEN',
+        'Follow-up unlock is only available for demo/fast-interval cycles',
+        status: 403,
+      );
+    case 'CYCLE_NOT_FOUND':
+      return jsonError('NOT_FOUND', 'Cycle not found', status: 404);
+    case 'NOT_INSPECTOR':
+      return jsonError('CONFLICT', 'Cycle is not in inspector', status: 409);
+    default:
+      return jsonError('VALIDATION_ERROR', e.message, status: 422);
+  }
+}
+
 Response? _requireSystemAdmin(Request req) {
   final auth = req.auth;
   if (auth == null) {
@@ -2450,6 +2949,7 @@ Future<
     String? buildingId,
     Uint8List imageBytes,
     String? declaredStage,
+    String? userLanguage,
   })?
 >
 _handleMultipartPhotoReport(Request req) async {
@@ -2476,6 +2976,7 @@ _handleMultipartPhotoReport(Request req) async {
     buildingId: field('buildingId'),
     imageBytes: filePart.data,
     declaredStage: field('declaredStage'),
+    userLanguage: field('userLanguage') ?? field('user_language'),
   );
 }
 

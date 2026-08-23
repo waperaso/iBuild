@@ -9,6 +9,7 @@ import 'demo_guard.dart';
 import 'demo_read_isolation.dart';
 import 'admin_routes.dart';
 import 'ai/ai_routes.dart';
+import 'ai/openai_client.dart';
 import 'auth_context.dart';
 import 'calculators.dart';
 import 'env_loader.dart';
@@ -95,6 +96,7 @@ Handler createHandler(
   RateLimiter? otpVerifyLimiter,
   RateLimiter? refreshLimiter,
   RateLimiter? leadsLimiter,
+  OpenAiClient? openAiClient,
 }) {
   final otpRateLimiter =
       otpLimiter ?? RateLimiter(5, const Duration(minutes: 5));
@@ -869,6 +871,13 @@ Handler createHandler(
   });
 
   router.post('/v1/auth/demo', (Request req) async {
+    if (!demoLoginEnabled) {
+      return jsonError(
+        'FORBIDDEN',
+        'Demo login is disabled',
+        status: 403,
+      );
+    }
     final body = await req.readJson();
     final profile = (body['profile'] as String?)?.trim();
     if (profile == null || profile.isEmpty) {
@@ -887,9 +896,15 @@ Handler createHandler(
     });
   });
 
-  mountAdminRoutes(router, store, refreshLimiter: refreshRateLimiter);
+  final aiClient = openAiClient ?? OpenAiClient();
+  mountAdminRoutes(
+    router,
+    store,
+    refreshLimiter: refreshRateLimiter,
+    openAiClient: aiClient,
+  );
 
-  mountAiRoutes(router, store);
+  mountAiRoutes(router, store, openAiClient: aiClient);
 
   // WS: Bearer or `access_token` query; lead/PII events go to admins only.
   router.get('/v1/ws', (Request req) {
