@@ -1,17 +1,25 @@
 import 'store.dart';
 import 'user_roles.dart';
 
-/// Synthetic admin/CRM rows for the B2B platform demo session.
+/// Synthetic admin/CRM rows for B2B demo sessions.
 ///
 /// Bound to **live published projects** (and their units) so a lead card
 /// opens a real catalogue record instead of a fake `demo-project-1` that
 /// 404s. Never persisted; [DemoOverlay] is the only caller, and it only
 /// merges these in when [AuthContext.isDemo] is true.
+///
+/// NestOne (`prj-nestone`) placeholders are assigned to the residence demo
+/// admin so the NestOne workspace CRM is fully populated.
 class DemoSnapshot {
   DemoSnapshot._();
 
   static const ownerId = 'demo-user-b2b-platform';
   static const ownerName = 'Demo Reviewer (Admin)';
+
+  static const residenceOwnerId = 'demo-user-b2b-residence';
+  static const residenceOwnerName = 'NestOne Admin';
+  static const nestOneProjectId = 'prj-nestone';
+  static const nestOneDeveloperId = 'dev-nestone';
 
   static const idPrefix = 'demo-ov-';
 
@@ -64,8 +72,8 @@ class DemoSnapshot {
   }
 
   static Map<String, dynamic> _lead({
-    required Store store,
     required int index,
+    required Map<String, dynamic> project,
     required String number,
     required String status,
     required String intent,
@@ -82,7 +90,6 @@ class DemoSnapshot {
     String? notes,
     required String createdAt,
   }) {
-    final project = _projectAt(store, index);
     final unit = _unitAt(project, index);
     return mark({
       'id': '${idPrefix}lead-${index.toString().padLeft(2, '0')}',
@@ -110,241 +117,81 @@ class DemoSnapshot {
     });
   }
 
-  /// Fourteen leads covering every funnel status and hot/warm/cold band.
-  /// Relative timestamps so SLA / 24h / 3d signals light up in the assistant.
+  /// Assignee for the "contacted" placeholder on a project: NestOne / the
+  /// residence-demo developer's projects go to [residenceOwnerId], everything
+  /// else to the platform demo reviewer.
+  static ({String id, String name}) _assigneeForProject(
+    Store store,
+    Map<String, dynamic> project,
+  ) {
+    final developerId =
+        (project['developer'] as Map?)?['id'] as String? ??
+        project['developerId'] as String?;
+    final reg = developerId == null ? null : store.developerById(developerId);
+    final ownedByResidence = reg?['ownerUserId'] == residenceOwnerId ||
+        project['id'] == nestOneProjectId ||
+        developerId == nestOneDeveloperId;
+    if (ownedByResidence) {
+      return (id: residenceOwnerId, name: residenceOwnerName);
+    }
+    return (id: ownerId, name: ownerName);
+  }
+
+  /// Two placeholder leads per published ЖК — enough to demo the funnel
+  /// without flooding project CRM screens.
   static List<Map<String, dynamic>> leads(Store store, {String? projectId}) {
-    const me = ownerId;
-    const meName = ownerName;
-    final items = <Map<String, dynamic>>[
-      _lead(
-        store: store,
-        index: 1,
-        number: 'L-1042',
-        status: 'new',
-        intent: 'buy_offplan',
-        phone: '+998900010042',
-        message:
-            'Urgent: want the 2-room off-plan unit, ready to pay mortgage down payment this week.',
-        aiScore: 88,
-        aiBand: 'hot',
-        aiReasons: const ['highIntent', 'offplanInterest', 'urgentKeyword'],
-        subject: 'unit',
-        createdAt: _ago(minutes: 38),
-      ),
-      _lead(
-        store: store,
-        index: 2,
-        number: 'L-1039',
-        status: 'new',
-        intent: 'viewing',
-        phone: '+998900010039',
-        message:
-            'Please schedule a viewing for apartment 101, family of four, evenings after 18:00.',
-        aiScore: 82,
-        aiBand: 'hot',
-        aiReasons: const ['viewingRequested', 'specificUnit', 'slaBreach'],
-        subject: 'unit',
-        ownerUserId: me,
-        assignedManager: meName,
-        preferredAt: _ahead(hours: 22),
-        createdAt: _ago(hours: 3, minutes: 20),
-      ),
-      _lead(
-        store: store,
-        index: 3,
-        number: 'L-1035',
-        status: 'new',
-        intent: 'call',
-        phone: '+998900010035',
-        message: 'Call me about prices.',
-        aiScore: 48,
-        aiBand: 'warm',
-        aiReasons: const ['noResponse24h', 'lowSpecificity'],
-        createdAt: _ago(hours: 28),
-      ),
-      _lead(
-        store: store,
-        index: 4,
-        number: 'L-1031',
-        status: 'contacted',
-        intent: 'buy',
-        phone: '+998900010031',
-        message:
-            'Interested in a mortgage for a 3-room. Already pre-approved at the bank.',
-        aiScore: 76,
-        aiBand: 'hot',
-        aiReasons: const ['highIntent', 'mortgageInterest', 'funnelAdvanced'],
-        ownerUserId: me,
-        assignedManager: meName,
-        lastContactAt: _ago(hours: 6),
-        createdAt: _ago(days: 1, hours: 4),
-      ),
-      _lead(
-        store: store,
-        index: 5,
-        number: 'L-1028',
-        status: 'contacted',
-        intent: 'viewing',
-        phone: '+998900010028',
-        message: 'Wanted a viewing last week, no one called back.',
-        aiScore: 64,
-        aiBand: 'warm',
-        aiReasons: const ['viewingRequested', 'noResponse3d', 'stalled'],
-        createdAt: _ago(days: 4, hours: 2),
-      ),
-      _lead(
-        store: store,
-        index: 6,
-        number: 'L-1024',
-        status: 'scheduled',
-        intent: 'viewing',
-        phone: '+998900010024',
-        message:
-            'Viewing booked for the corner 2-room. Bringing spouse, asking about parking.',
-        aiScore: 74,
-        aiBand: 'hot',
-        aiReasons: const [
-          'viewingRequested',
-          'funnelAdvanced',
-          'preferredTimeSet',
-        ],
-        ownerUserId: me,
-        assignedManager: meName,
-        preferredAt: _ahead(hours: 18),
-        lastContactAt: _ago(hours: 20),
-        createdAt: _ago(days: 1, hours: 8),
-      ),
-      _lead(
-        store: store,
-        index: 7,
-        number: 'L-1019',
-        status: 'visited',
-        intent: 'buy',
-        phone: '+998900010019',
-        message: 'Toured yesterday. Comparing finishing options and floor 7 vs 12.',
-        aiScore: 61,
-        aiBand: 'warm',
-        aiReasons: const ['highIntent', 'funnelAdvanced'],
-        ownerUserId: me,
-        assignedManager: meName,
-        lastContactAt: _ago(hours: 22),
-        notes: 'Liked the layout. Will decide after talking to family.',
-        createdAt: _ago(days: 5),
-      ),
-      _lead(
-        store: store,
-        index: 8,
-        number: 'L-1014',
-        status: 'qualified',
-        intent: 'buy',
-        phone: '+998900010014',
-        message:
-            'Paying cash for two adjacent units. Need a reservation letter this week.',
-        aiScore: 84,
-        aiBand: 'hot',
-        aiReasons: const ['highIntent', 'cashBuyer', 'funnelAdvanced'],
-        ownerUserId: me,
-        assignedManager: meName,
-        lastContactAt: _ago(hours: 10),
-        createdAt: _ago(days: 8),
-      ),
-      _lead(
-        store: store,
-        index: 9,
-        number: 'L-1008',
-        status: 'won',
-        intent: 'buy_offplan',
-        phone: '+998900010008',
-        message: 'Signed the off-plan SPA. Deposit transferred.',
-        aiScore: 58,
-        aiBand: 'warm',
-        aiReasons: const ['offplanInterest', 'funnelAdvanced'],
-        ownerUserId: me,
-        assignedManager: meName,
-        lastContactAt: _ago(days: 1),
-        createdAt: _ago(days: 12),
-      ),
-      _lead(
-        store: store,
-        index: 10,
-        number: 'L-1003',
-        status: 'lost',
-        intent: 'buy',
-        phone: '+998900010003',
-        message: 'Went with another developer — closer to school.',
-        aiScore: 22,
-        aiBand: 'cold',
-        aiReasons: const ['lowSpecificity'],
-        lastContactAt: _ago(days: 6),
-        createdAt: _ago(days: 15),
-      ),
-      _lead(
-        store: store,
-        index: 11,
-        number: 'L-1048',
-        status: 'new',
-        intent: 'rent',
-        phone: '+998900010048',
-        message: 'Is there anything for rent?',
-        aiScore: 28,
-        aiBand: 'cold',
-        aiReasons: const ['lowSpecificity', 'recentActivity'],
-        createdAt: _ago(minutes: 12),
-      ),
-      _lead(
-        store: store,
-        index: 12,
-        number: 'L-1022',
-        status: 'contacted',
-        intent: 'buy_offplan',
-        phone: '+998900010022',
-        message:
-            'Looking at off-plan 1-rooms, budget around 70k, can visit this weekend.',
-        aiScore: 68,
-        aiBand: 'warm',
-        aiReasons: const ['offplanInterest', 'longMessage'],
-        ownerUserId: me,
-        assignedManager: meName,
-        lastContactAt: _ago(hours: 3),
-        createdAt: _ago(hours: 9),
-      ),
-      _lead(
-        store: store,
-        index: 13,
-        number: 'L-1016',
-        status: 'scheduled',
-        intent: 'viewing',
-        phone: '+998900010016',
-        message: 'Office viewing for a 4-person team, need parking for two cars.',
-        aiScore: 55,
-        aiBand: 'warm',
-        aiReasons: const ['viewingRequested', 'funnelAdvanced'],
-        preferredAt: _ahead(days: 1, hours: 4),
-        lastContactAt: _ago(hours: 30),
-        createdAt: _ago(days: 2, hours: 6),
-      ),
-      _lead(
-        store: store,
-        index: 14,
-        number: 'L-1045',
-        status: 'new',
-        intent: 'buy',
-        phone: '+998900010045',
-        message:
-            'ASAP cash buyer for a specific corner unit, send the floor plan today.',
-        aiScore: 91,
-        aiBand: 'hot',
-        aiReasons: const [
-          'highIntent',
-          'cashBuyer',
-          'urgentKeyword',
-          'slaBreach',
-          'noResponse3d',
-        ],
-        subject: 'unit',
-        createdAt: _ago(days: 3, hours: 2),
-      ),
-    ];
+    final projects = _anchorProjects(store);
+    final anchors = projects.isEmpty
+        ? <Map<String, dynamic>>[_projectAt(store, 0)]
+        : projects;
+
+    final items = <Map<String, dynamic>>[];
+    var index = 1;
+    for (var p = 0; p < anchors.length; p++) {
+      final project = anchors[p];
+      final assignee = _assigneeForProject(store, project);
+      final phoneA = '+99890001${(40 + p * 2).toString().padLeft(4, '0')}';
+      final phoneB = '+99890001${(41 + p * 2).toString().padLeft(4, '0')}';
+      items.add(
+        _lead(
+          index: index++,
+          project: project,
+          number: 'L-${1040 + p * 2}',
+          status: 'new',
+          intent: 'buy_offplan',
+          phone: phoneA,
+          message:
+              'Urgent: want the 2-room off-plan unit, ready to pay mortgage down payment this week.',
+          aiScore: 88,
+          aiBand: 'hot',
+          aiReasons: const ['highIntent', 'offplanInterest', 'urgentKeyword'],
+          subject: 'unit',
+          createdAt: _ago(minutes: 38 + p),
+        ),
+      );
+      items.add(
+        _lead(
+          index: index++,
+          project: project,
+          number: 'L-${1041 + p * 2}',
+          status: 'contacted',
+          intent: 'viewing',
+          phone: phoneB,
+          message:
+              'Please schedule a viewing for apartment 101, family of four, evenings after 18:00.',
+          aiScore: 76,
+          aiBand: 'hot',
+          aiReasons: const ['viewingRequested', 'specificUnit', 'funnelAdvanced'],
+          subject: 'unit',
+          ownerUserId: assignee.id,
+          assignedManager: assignee.name,
+          preferredAt: _ahead(hours: 22),
+          lastContactAt: _ago(hours: 6),
+          createdAt: _ago(hours: 3, minutes: 20 + p),
+        ),
+      );
+    }
+
     if (projectId == null || projectId.isEmpty) return items;
     return items.where((l) => l['projectId'] == projectId).toList();
   }
@@ -371,10 +218,11 @@ class DemoSnapshot {
         'createdAt': created,
       }),
     ];
-    if (leadId == '${idPrefix}lead-02' ||
-        leadId == '${idPrefix}lead-04' ||
-        leadId == '${idPrefix}lead-06' ||
-        leadId == '${idPrefix}lead-08') {
+    final leadNum = int.tryParse(
+      RegExp(r'lead-(\d+)$').firstMatch(leadId)?.group(1) ?? '',
+    );
+    // Second placeholder per project is the assigned "contacted" card.
+    if (leadNum != null && leadNum.isEven) {
       items.insert(
         0,
         mark({

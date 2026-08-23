@@ -1,6 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
-    show ImageRenderMethodForWeb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ibuild_core/ibuild_core.dart';
@@ -46,6 +44,26 @@ class AppNetworkImage extends StatelessWidget {
     );
   }
 
+  Widget _missing(BuildContext context) {
+    final colors = context.colors;
+    return Container(
+      width: width,
+      height: height,
+      color: colors.surfaceAlt,
+      child: Icon(Icons.image_outlined, color: colors.inkMuted),
+    );
+  }
+
+  Widget _broken(BuildContext context) {
+    final colors = context.colors;
+    return Container(
+      width: width,
+      height: height,
+      color: colors.surfaceAlt,
+      child: Icon(Icons.broken_image_outlined, color: colors.inkMuted),
+    );
+  }
+
   int _cacheWidth(BuildContext context) {
     if (memCacheWidth != null) return memCacheWidth!;
     final dpr = MediaQuery.devicePixelRatioOf(context);
@@ -64,46 +82,50 @@ class AppNetworkImage extends StatelessWidget {
     return null;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final resolved = resolveUrl(url);
-    if (resolved == null) {
-      return Container(
+  /// Web bypasses [CachedNetworkImage]/cache-manager (unreliable for large
+  /// residence PNGs); IO keeps disk caching. Both paths decode at [cacheWidth].
+  Widget _buildImage(BuildContext context, String resolved) {
+    final cacheW = _cacheWidth(context);
+    final cacheH = _cacheHeight(context);
+
+    if (kIsWeb) {
+      return Image.network(
+        resolved,
+        key: ValueKey(resolved),
         width: width,
         height: height,
-        color: colors.surfaceAlt,
-        child: Icon(Icons.image_outlined, color: colors.inkMuted),
+        fit: fit,
+        cacheWidth: cacheW,
+        cacheHeight: cacheH,
+        filterQuality: FilterQuality.low,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          if (wasSynchronouslyLoaded || frame != null) return child;
+          return _placeholder(context);
+        },
+        errorBuilder: (context, _, _) => _broken(context),
       );
     }
 
-    final image = CachedNetworkImage(
+    return CachedNetworkImage(
       imageUrl: resolved,
       width: width,
       height: height,
       fit: fit,
-      memCacheWidth: _cacheWidth(context),
-      memCacheHeight: _cacheHeight(context),
-      // Web defaults to ImageRenderMethodForWeb.HtmlImage, which uploads the
-      // *original* image as a GPU texture and silently ignores
-      // memCacheWidth/memCacheHeight above. With enough full-resolution
-      // photos live across screens, CanvasKit's single WebGL context runs
-      // out of GPU memory and gets dropped — every image already painted
-      // then renders solid black with no error (flutter/flutter#158093,
-      // #160199, #178524). HttpGet actually decodes at the requested size.
-      imageRenderMethodForWeb:
-          kIsWeb ? ImageRenderMethodForWeb.HttpGet : ImageRenderMethodForWeb.HtmlImage,
+      memCacheWidth: cacheW,
+      memCacheHeight: cacheH,
       fadeInDuration: Duration.zero,
       fadeOutDuration: Duration.zero,
       placeholder: (context, _) => _placeholder(context),
-      errorWidget: (context, _, _) => Container(
-        width: width,
-        height: height,
-        color: colors.surfaceAlt,
-        child: Icon(Icons.broken_image_outlined, color: colors.inkMuted),
-      ),
+      errorWidget: (context, _, _) => _broken(context),
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    final resolved = resolveUrl(url);
+    if (resolved == null) return _missing(context);
+
+    final image = _buildImage(context, resolved);
     if (!_lazyLoad(context)) return image;
 
     return LazyVisibility(

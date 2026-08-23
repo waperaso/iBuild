@@ -153,17 +153,14 @@ class AuthRepository {
     return user;
   }
 
-  Future<AdminUser> signInAsDemo() async {
+  Future<AdminUser> signInAsDemo({String profile = 'b2b_platform'}) async {
     // Drop any restored demo Bearer so the server guard doesn't treat this
     // re-entry POST as a blocked demo write.
     DemoSession.deactivate();
     setAccessTokenCache(null);
-    // Always land reviewers on the full platform admin workspace (every
-    // section populated from the seeded catalogue) instead of the residence
-    // admin's own-projects view, which is empty for a fresh demo account.
     final res = await _dio.post<Map<String, dynamic>>(
       '/auth/demo',
-      data: {'profile': 'b2b_platform'},
+      data: {'profile': profile},
     );
     final data = res.data!;
     final user = AdminUser.fromJson(data['user'] as Map<String, dynamic>);
@@ -296,8 +293,10 @@ class AuthController extends Notifier<AsyncValue<AdminUser?>> {
     _scheduleBanPoll();
   }
 
-  Future<void> signInAsDemo() async {
-    final user = await ref.read(authRepositoryProvider).signInAsDemo();
+  Future<void> signInAsDemo({String profile = 'b2b_platform'}) async {
+    final user = await ref
+        .read(authRepositoryProvider)
+        .signInAsDemo(profile: profile);
     state = AsyncValue.data(user);
     _scheduleBanPoll();
   }

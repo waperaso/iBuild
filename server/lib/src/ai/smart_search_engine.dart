@@ -1367,13 +1367,19 @@ class SmartSearchParser {
     // `не` flips a direction word, so the negated forms are claimed by the
     // ceiling list and the bare comparatives refuse to match after it —
     // otherwise «не дороже 80 тысяч» reads as a floor of $80 000.
+    // English "higher" / "higher than" are floors (min). Lookbehinds refuse
+    // them after "no "/"not " so "no higher than 40k" stays a ceiling; the
+    // explicit max phrases below also claim that wording from the start.
     const priceMinWords =
         r'от|начиная от|(?<!не )дороже|свыше|(?<!не )больше|(?<!не )выше|'
-        'минимум|мин|from|above|over|more than|min';
+        'минимум|мин|from|above|over|more than|'
+        r'(?<!no )(?<!not )higher than|(?<!no )(?<!not )higher|'
+        'at least|starting from|min';
     const priceMaxWords =
         'до|не дороже|не больше|не более|не выше|не превыша$_wordTail|'
         'дешевле|в пределах|бюджет$_wordTail|максимум|макс|'
-        'up to|under|below|max|no more than|not more than';
+        'up to|under|below|less than|max|no more than|not more than|'
+        'no higher than|not higher than';
     final priceRangeRe = RegExp(
       r'(?:от|между|from|between)?\s*(\d[\d\s.,]*)\s*(?:до|до\s|[-–]|to|и|and)\s*(\d[\d\s.,]*)\s*' +
           priceMagnitude +

@@ -20,6 +20,17 @@ const _demoAllowedWritePaths = {
   'v1/ai/b2b/chat',
 };
 
+/// Pitch helpers: unlock (legacy) and sequential photo 1 / photo 2.
+/// Handlers still refuse writes that would persist a live cycle.
+final _demoSitePhotoWritePath = RegExp(
+  r'^v1/admin/projects/[^/]+/site-photo-cycle/(unlock|photo-[ab])$',
+);
+
+bool _demoWriteAllowed(String path) {
+  if (_demoAllowedWritePaths.contains(path)) return true;
+  return _demoSitePhotoWritePath.hasMatch(path);
+}
+
 /// Blocks mutating API calls for demo reviewer accounts ([AuthContext.isDemo]).
 Middleware demoGuardMiddleware() {
   return (Handler inner) {
@@ -29,7 +40,7 @@ Middleware demoGuardMiddleware() {
         final method = request.method.toUpperCase();
         if (method != 'GET' && method != 'HEAD' && method != 'OPTIONS') {
           final path = request.url.path;
-          if (!_demoAllowedWritePaths.contains(path)) {
+          if (!_demoWriteAllowed(path)) {
             return jsonError(
               'DEMO_READ_ONLY',
               'Demo mode is view-only — changes are not saved.',

@@ -155,16 +155,16 @@ abstract class MockData {
       id: 'prj-nestone',
       name: 'NestOne',
       type: ProjectType.residentialComplex,
-      status: ProjectStatus.ready,
+      status: ProjectStatus.underConstruction,
       district: 'Shayxontohur',
-      address: 'Amir Temur shoh ko\'chasi, Shayxontohur, Tashkent',
+      address: 'Botyr Zakirov ko\'chasi 1B, Shayxontohur, Tashkent',
       lat: 41.31215655652716,
       lng: 69.25275117116448,
       developer: nestoneDeveloper,
       description:
-          'NestOne is a completed mixed-use complex in Shayxontohur: sale and rent '
-          'apartments in a 10-storey living tower plus Class-A offices with live '
-          'availability on an interactive floor grid.',
+          'NestOne is a mixed-use complex in Shayxontohur in the final stretch of '
+          'construction: sale and rent apartments in a 10-storey living tower plus '
+          'Class-A offices with live availability on an interactive floor grid.',
       amenities: const [
         'Underground parking',
         'Gym',
@@ -176,7 +176,7 @@ abstract class MockData {
       ],
       tags: const [
         'Premium',
-        'Ready to move',
+        'New build',
         'Apartments',
         'Offices',
         'Rent',
@@ -186,9 +186,9 @@ abstract class MockData {
       priceMax: 100000,
       rentMin: 565,
       rentMax: 1350,
-      constructionProgress: 100,
-      plannedProgress: 100,
-      completionDate: DateTime(2024, 12),
+      constructionProgress: 94,
+      plannedProgress: 96,
+      completionDate: DateTime(2026, 10),
       rating: 4.8,
       availableUnits: 30,
       totalUnits: 64,
@@ -207,8 +207,8 @@ abstract class MockData {
           projectId: 'prj-nestone',
           name: 'Living Tower',
           floors: 10,
-          constructionProgress: 100,
-          completionDate: DateTime(2024, 12),
+          constructionProgress: 95,
+          completionDate: DateTime(2026, 10),
           units: _livingUnits(),
         ),
         Building(
@@ -216,8 +216,8 @@ abstract class MockData {
           projectId: 'prj-nestone',
           name: 'Office Wing',
           floors: 8,
-          constructionProgress: 100,
-          completionDate: DateTime(2024, 12),
+          constructionProgress: 93,
+          completionDate: DateTime(2026, 10),
           units: _officeUnits(),
         ),
       ],

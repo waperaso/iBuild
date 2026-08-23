@@ -216,6 +216,8 @@ bool _isDemoAllowedMutation(String path) {
       path.contains('/auth/logout') ||
       path.contains('/auth/otp/') ||
       path.contains('/auth/refresh') ||
+      // Pitch helpers: unlock (legacy) and sequential photo 1 / photo 2.
+      RegExp(r'/site-photo-cycle/(unlock|photo-[ab])/?$').hasMatch(path) ||
       // The AI endpoints are POSTs that only read: the assistant answers
       // questions about existing data and stores nothing. Blocking them left
       // the demo staring at "the assistant is unavailable" — the server-side

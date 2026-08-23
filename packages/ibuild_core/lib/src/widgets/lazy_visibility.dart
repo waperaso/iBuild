@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 /// Builds [child] only when the widget is near or inside a scroll viewport.
 ///
@@ -37,7 +36,23 @@ class _LazyVisibilityState extends State<LazyVisibility> {
       _visible = true;
       return;
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
+    // First layout often has no size yet; retry a few frames so above-the-fold
+    // items (e.g. AI search thumbs) are not stuck on the placeholder until the
+    // user scrolls and a [ScrollNotification] fires.
+    _scheduleVisibilityChecks();
+  }
+
+  void _scheduleVisibilityChecks() {
+    var attempt = 0;
+    void tick() {
+      if (!mounted || _visible) return;
+      _updateVisibility();
+      if (_visible || attempt >= 8) return;
+      attempt++;
+      WidgetsBinding.instance.addPostFrameCallback((_) => tick());
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => tick());
   }
 
   bool _isNearViewport() {

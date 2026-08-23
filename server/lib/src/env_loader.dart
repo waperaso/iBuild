@@ -1,18 +1,43 @@
 import 'dart:io';
 
 Map<String, String>? _cached;
+Map<String, String>? _testOverrides;
 
 /// Process env over `.env` (cwd, then `server/.env`). Process vars win; cached.
-Map<String, String> appEnv() => _cached ??= _load();
+Map<String, String> appEnv() {
+  final base = _cached ??= _load();
+  final overrides = _testOverrides;
+  if (overrides == null || overrides.isEmpty) return base;
+  return {...base, ...overrides};
+}
 
 /// Clear cached env (tests).
-void resetAppEnvCache() => _cached = null;
+void resetAppEnvCache() {
+  _cached = null;
+  _testOverrides = null;
+}
+
+/// Test-only env overlays (merged on top of loaded env).
+void setAppEnvTestOverrides(Map<String, String>? overrides) {
+  _testOverrides = overrides;
+  // Keep file/process cache; overlays apply on each [appEnv] read.
+}
 
 /// `APP_ENV` lowercased ('' if unset). Gates prod-only secret checks.
 String appEnvName() => (appEnv()['APP_ENV'] ?? '').trim().toLowerCase();
 
 /// `APP_ENV=production`.
 bool get isProduction => appEnvName() == 'production';
+
+/// Open `/v1/auth/demo` for pitch/reviewer login.
+/// Off in production unless `DEMO_LOGIN_ENABLED=true`.
+/// On in non-production unless `DEMO_LOGIN_ENABLED=false`.
+bool get demoLoginEnabled {
+  final raw = (appEnv()['DEMO_LOGIN_ENABLED'] ?? '').trim().toLowerCase();
+  if (isProduction) return raw == 'true';
+  if (raw == 'false' || raw == '0' || raw == 'off') return false;
+  return true;
+}
 
 Map<String, String> _load() {
   final merged = <String, String>{};

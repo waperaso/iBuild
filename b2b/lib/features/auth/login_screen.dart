@@ -126,12 +126,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           const SizedBox(height: AppSpacing.md),
         ],
-        DemoEntryButton(
-          label: l10n.signInDemo,
-          icon: Icons.login_rounded,
-          variant: PillButtonVariant.accent,
-          expand: true,
-        ),
+        const DemoEntrySection(expand: true),
       ],
     );
 

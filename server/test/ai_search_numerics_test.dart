@@ -32,6 +32,29 @@ void main() {
       expect(pricier.priceMax, isNull);
     });
 
+    test('English "higher" / "higher than" are a price floor, not a ceiling', () {
+      for (final query in [
+        'the apartment higher 40 000\$',
+        'apartment higher than 40000',
+        'higher 40000\$',
+        'homes at least 50000',
+      ]) {
+        final c = SmartSearchParser.parse(query);
+        expect(c.priceMin, isNotNull, reason: query);
+        expect(c.priceMax, isNull, reason: query);
+      }
+      expect(SmartSearchParser.parse('higher 40 000\$').priceMin, 40000);
+      expect(SmartSearchParser.parse('apartment higher than 40000').priceMin, 40000);
+    });
+
+    test('English "no higher than" stays a ceiling', () {
+      final c = SmartSearchParser.parse('no higher than 40000');
+      expect(c.priceMax, 40000);
+      expect(c.priceMin, isNull);
+      expect(SmartSearchParser.parse('not higher than \$50,000').priceMax, 50000);
+      expect(SmartSearchParser.parse('less than 60000').priceMax, 60000);
+    });
+
     test('the Russian million and billion words scale the amount', () {
       final million = SmartSearchParser.parse('до 900 миллионов сум');
       expect(million.priceMax, 900000000);

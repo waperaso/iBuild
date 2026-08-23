@@ -423,17 +423,20 @@ class _AiInsightsSectionState extends State<AiInsightsSection> {
             borderRadius: BorderRadius.circular(AppRadii.sm),
             onTap: () => setState(() => _expanded = !_expanded),
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.xs),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xs,
+                vertical: AppSpacing.sm,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Flexible(
+                  Expanded(
                     child: Text(
                       l10n.crmAiInsightsTitle,
                       style: textTheme.titleMedium,
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: AppSpacing.sm),
                   Tooltip(
                     message: _expanded
                         ? l10n.crmAiInsightsCollapse
@@ -443,8 +446,8 @@ class _AiInsightsSectionState extends State<AiInsightsSection> {
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
                       child: Icon(
-                        Icons.arrow_drop_down,
-                        size: 24,
+                        Icons.expand_more,
+                        size: 22,
                         color: colors.inkMuted,
                       ),
                     ),

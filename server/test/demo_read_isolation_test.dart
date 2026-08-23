@@ -4,6 +4,7 @@ import 'package:shelf/shelf.dart';
 import 'package:test/test.dart';
 
 import '../lib/src/app.dart';
+import '../lib/src/env_loader.dart';
 import '../lib/src/store.dart';
 import 'test_fixtures.dart';
 
@@ -129,7 +130,19 @@ void main() {
         .where((l) => l['isDemoPlaceholder'] == true)
         .toList();
     expect(placeholders, isNotEmpty);
-    expect(placeholders.length, greaterThanOrEqualTo(10));
+    // Two demo leads per published project.
+    expect(
+      placeholders.length,
+      store.publishedProjects.length * 2,
+    );
+    final byProject = <String, int>{};
+    for (final lead in placeholders) {
+      final id = lead['projectId'] as String;
+      byProject[id] = (byProject[id] ?? 0) + 1;
+    }
+    for (final count in byProject.values) {
+      expect(count, 2);
+    }
     final liveIds = store.publishedProjects.map((p) => p['id']).toSet();
     for (final lead in placeholders) {
       expect(liveIds, contains(lead['projectId']));
@@ -297,6 +310,108 @@ void main() {
     expect(docs.statusCode, 200);
     final json = await _decode(docs);
     expect(json['data'], isNotEmpty);
+  });
+
+  test('residence demo is NestOne admin with CRM placeholders', () async {
+    final result = store.createDemoSession(profile: 'b2b_residence');
+    final token = result.accessToken!;
+    expect(result.user!['name'], 'NestOne Admin');
+    expect(result.user!['role'], 'residence_admin');
+
+    final meDev = await handler(
+      Request(
+        'GET',
+        Uri.parse('http://localhost/v1/developers/me'),
+        headers: {'authorization': 'Bearer $token'},
+      ),
+    );
+    expect(meDev.statusCode, 200);
+    final org = (await _decode(meDev))['data'] as Map;
+    expect(org['canPublish'], isTrue);
+    expect((org['subscription'] as Map?)?['status'], 'active');
+
+    final projectsRes = await handler(
+      Request(
+        'GET',
+        Uri.parse('http://localhost/v1/developers/me/projects'),
+        headers: {'authorization': 'Bearer $token'},
+      ),
+    );
+    expect(projectsRes.statusCode, 200);
+    final projects = ((await _decode(projectsRes))['data'] as List).cast<Map>();
+    expect(projects, isNotEmpty);
+    final projectId = projects.first['id'] as String;
+
+    final leadsRes = await handler(
+      Request(
+        'GET',
+        Uri.parse('http://localhost/v1/admin/projects/$projectId/leads'),
+        headers: {'authorization': 'Bearer $token'},
+      ),
+    );
+    expect(leadsRes.statusCode, 200);
+    final leads = ((await _decode(leadsRes))['data'] as List).cast<Map>();
+    final placeholders =
+        leads.where((l) => l['isDemoPlaceholder'] == true).toList();
+    expect(placeholders.length, greaterThanOrEqualTo(2));
+
+    final analyticsRes = await handler(
+      Request(
+        'GET',
+        Uri.parse('http://localhost/v1/admin/projects/$projectId/analytics'),
+        headers: {'authorization': 'Bearer $token'},
+      ),
+    );
+    expect(analyticsRes.statusCode, 200);
+    final analytics = (await _decode(analyticsRes))['data'] as Map;
+    expect(analytics['leadsTotal'] as int, greaterThanOrEqualTo(2));
+
+    final platformLeads = await handler(
+      Request(
+        'GET',
+        Uri.parse('http://localhost/v1/platform/leads'),
+        headers: {'authorization': 'Bearer $token'},
+      ),
+    );
+    expect(platformLeads.statusCode, 403);
+  });
+
+  test('POST /v1/auth/demo is blocked when DEMO_LOGIN_ENABLED=false', () async {
+    setAppEnvTestOverrides({'DEMO_LOGIN_ENABLED': 'false'});
+    addTearDown(() {
+      setAppEnvTestOverrides(null);
+    });
+    final response = await handler(
+      Request(
+        'POST',
+        Uri.parse('http://localhost/v1/auth/demo'),
+        headers: {'content-type': 'application/json'},
+        body: jsonEncode({'profile': 'b2b_platform'}),
+      ),
+    );
+    expect(response.statusCode, 403);
+    expect((await _decode(response))['error']['code'], 'FORBIDDEN');
+  });
+
+  test('POST /v1/auth/demo stays off in production without explicit enable',
+      () async {
+    setAppEnvTestOverrides({
+      'APP_ENV': 'production',
+      'DEMO_LOGIN_ENABLED': '',
+    });
+    addTearDown(() {
+      setAppEnvTestOverrides(null);
+    });
+    expect(demoLoginEnabled, isFalse);
+    final response = await handler(
+      Request(
+        'POST',
+        Uri.parse('http://localhost/v1/auth/demo'),
+        headers: {'content-type': 'application/json'},
+        body: jsonEncode({'profile': 'b2b_platform'}),
+      ),
+    );
+    expect(response.statusCode, 403);
   });
 }
 

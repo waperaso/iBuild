@@ -12,12 +12,14 @@ import 'features/platform/platform_active_projects.dart';
 import 'features/platform/platform_crm.dart';
 import 'features/platform/platform_home.dart';
 import 'features/platform/platform_moderation.dart';
+import 'features/platform/platform_site_photos.dart';
 import 'features/platform/platform_notifications.dart';
 import 'features/platform/platform_projects.dart';
 import 'features/platform/platform_tickets.dart';
 import 'features/residence/residence_home.dart';
 import 'features/residence/org_profile_screen.dart';
 import 'features/residence/project_detail_admin.dart';
+import 'features/residence/residence_site_photos.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/support/support_tickets.dart';
 import 'core/localization/locale_controller.dart';
@@ -166,6 +168,13 @@ final _routerProvider = Provider<GoRouter>((ref) {
                 _instantPage(key: state.pageKey, child: const PlatformHome()),
           ),
           GoRoute(
+            path: '/platform/site-photos',
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: const PlatformSitePhotos(),
+            ),
+          ),
+          GoRoute(
             path: '/platform/moderation',
             pageBuilder: (_, state) => _instantPage(
               key: state.pageKey,
@@ -217,6 +226,13 @@ final _routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (_, state) => _instantPage(
               key: state.pageKey,
               child: const OrgProfileScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/residence/site-photos',
+            pageBuilder: (_, state) => _instantPage(
+              key: state.pageKey,
+              child: const ResidenceSitePhotos(),
             ),
           ),
           GoRoute(

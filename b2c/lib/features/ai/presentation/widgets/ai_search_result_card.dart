@@ -85,6 +85,9 @@ class AiSearchResultCard extends StatelessWidget {
                     url: result.coverUrl,
                     width: thumbSize,
                     height: thumbSize,
+                    // Inline results are few and above the fold — don't wait on
+                    // lazy-visibility (can stick on the grey placeholder on web).
+                    lazy: false,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),

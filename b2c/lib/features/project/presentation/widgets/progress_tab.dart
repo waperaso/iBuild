@@ -5,6 +5,7 @@ import 'package:ibuild_core/ibuild_core.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_theme_ext.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/empty_state.dart';
@@ -13,6 +14,8 @@ import '../../providers/photo_reports_providers.dart';
 import 'media_gallery_viewer.dart';
 
 /// Construction-progress timeline from [photoReportsProvider], grouped by month.
+/// Buyer-facing: date and optional % only — no cycle status, AI verdicts, or
+/// verification chips (those stay on the B2B site-photo cycle card).
 class ProgressTab extends ConsumerWidget {
   const ProgressTab({super.key, required this.project});
 
@@ -92,34 +95,38 @@ class _ProgressComparison extends StatelessWidget {
     final actual = (project.constructionProgress ?? 0).clamp(0, 100);
     final planned = project.plannedProgress?.clamp(0, 100);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(l10n.overallProgressTitle, style: textTheme.titleMedium),
-        const SizedBox(height: AppSpacing.sm),
-        _ProgressBar(
-          label: l10n.actualProgressLabel,
-          percent: actual,
-          color: colors.accent,
-        ),
-        if (planned != null) ...[
+    return AppCard(
+      elevated: true,
+      border: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.overallProgressTitle, style: textTheme.titleMedium),
           const SizedBox(height: AppSpacing.sm),
           _ProgressBar(
-            label: l10n.plannedProgressLabel,
-            percent: planned,
-            color: colors.inkMuted,
+            label: l10n.actualProgressLabel,
+            percent: actual,
+            color: colors.accent,
           ),
-          const SizedBox(height: AppSpacing.sm),
-          _ScheduleVerdict(actual: actual, planned: planned),
+          if (planned != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            _ProgressBar(
+              label: l10n.plannedProgressLabel,
+              percent: planned,
+              color: colors.inkMuted,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _ScheduleVerdict(actual: actual, planned: planned),
+          ],
+          if (project.completionDate != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              l10n.completionDate(Formatters.date(project.completionDate!)),
+              style: textTheme.labelMedium?.copyWith(color: colors.inkMuted),
+            ),
+          ],
         ],
-        if (project.completionDate != null) ...[
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            l10n.completionDate(Formatters.date(project.completionDate!)),
-            style: textTheme.labelMedium?.copyWith(color: colors.inkMuted),
-          ),
-        ],
-      ],
+      ),
     );
   }
 }

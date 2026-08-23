@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ibuild_core/ibuild_core.dart';
 
 import '../theme/app_dimens.dart';
 import '../widgets/demo_mode.dart';
@@ -9,15 +8,35 @@ import '../widgets/pill_button.dart';
 import '../../features/auth/auth.dart';
 import '../../l10n/gen/app_localizations.dart';
 
+/// Demo login profile for B2B reviewers.
+enum DemoLoginProfile {
+  platform,
+  residence,
+}
+
+extension on DemoLoginProfile {
+  String get apiProfile => switch (this) {
+    DemoLoginProfile.platform => 'b2b_platform',
+    DemoLoginProfile.residence => 'b2b_residence',
+  };
+
+  String get homePath => switch (this) {
+    DemoLoginProfile.platform => '/platform',
+    DemoLoginProfile.residence => '/residence',
+  };
+}
+
 class DemoEntryButton extends ConsumerStatefulWidget {
   const DemoEntryButton({
     super.key,
+    required this.profile,
     this.expand = false,
     this.label,
     this.icon = Icons.play_circle_outline,
     this.variant = PillButtonVariant.outline,
   });
 
+  final DemoLoginProfile profile;
   final bool expand;
   final String? label;
   final IconData icon;
@@ -35,16 +54,13 @@ class _DemoEntryButtonState extends ConsumerState<DemoEntryButton> {
     final l10n = AppLocalizations.of(context);
     setState(() => _loading = true);
     try {
-      final existing = ref.read(authControllerProvider).value;
-      if (existing == null || !existing.isDemo) {
-        await ref.read(authControllerProvider.notifier).signInAsDemo();
-      } else {
-        DemoSession.activate();
-      }
+      await ref
+          .read(authControllerProvider.notifier)
+          .signInAsDemo(profile: widget.profile.apiProfile);
       if (!mounted) return;
       await showDemoModeDialog(context);
       if (!mounted) return;
-      context.go('/platform');
+      context.go(widget.profile.homePath);
     } catch (_) {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.maybeOf(context);
@@ -60,8 +76,12 @@ class _DemoEntryButtonState extends ConsumerState<DemoEntryButton> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final defaultLabel = switch (widget.profile) {
+      DemoLoginProfile.platform => l10n.signInDemoPlatform,
+      DemoLoginProfile.residence => l10n.signInDemoResidence,
+    };
     return PillButton(
-      label: widget.label ?? l10n.demoButton,
+      label: widget.label ?? defaultLabel,
       icon: widget.icon,
       variant: widget.variant,
       expand: widget.expand,
@@ -83,7 +103,19 @@ class DemoEntrySection extends StatelessWidget {
           expand ? CrossAxisAlignment.stretch : CrossAxisAlignment.center,
       children: [
         const SizedBox(height: AppSpacing.md),
-        DemoEntryButton(expand: expand),
+        DemoEntryButton(
+          profile: DemoLoginProfile.platform,
+          expand: expand,
+          icon: Icons.admin_panel_settings_outlined,
+          variant: PillButtonVariant.accent,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        DemoEntryButton(
+          profile: DemoLoginProfile.residence,
+          expand: expand,
+          icon: Icons.apartment_outlined,
+          variant: PillButtonVariant.outline,
+        ),
       ],
     );
   }
