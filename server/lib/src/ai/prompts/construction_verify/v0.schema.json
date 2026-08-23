@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "required": ["verdict", "confidence", "summary"],
+  "properties": {
+    "verdict": { "enum": ["confirm", "reject", "needs_review"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "summary": { "type": "string" },
+    "sameViewpoint": { "type": "boolean" },
+    "progressDelta": { "type": ["number", "null"] },
+    "flags": { "type": "array", "items": { "type": "string" } }
+  }
+}

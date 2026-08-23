@@ -1070,10 +1070,15 @@ _AdminScope _adminScope(Store store, AuthContext auth) {
   }
   final projects = store.projectsForDeveloperOwner(auth.userId);
   final projectIds = projects.map((p) => p['id']).toSet();
-  final leads = store.leads
+  final liveLeads = store.leads
       .where((l) => projectIds.contains(l['projectId']))
       .toList();
-  return _AdminScope(leads, projects);
+  // Residence demo gets NestOne CRM placeholders scoped to owned projects.
+  final leads = DemoOverlay.leads(auth, store, liveLeads);
+  return _AdminScope(
+    leads.where((l) => projectIds.contains(l['projectId'])).toList(),
+    projects,
+  );
 }
 
 /// Compact JSON-serializable snapshot of everything [auth] is authorized to

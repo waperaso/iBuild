@@ -1,0 +1,35 @@
+{
+  "photoA": {
+    "id": "phr-...",
+    "takenAt": "2026-08-01",
+    "filename": "photo_a.jpg",
+    "role": "baseline_file"
+  },
+  "photoB": {
+    "id": "phr-...",
+    "takenAt": "2026-08-15",
+    "filename": "photo_b.jpg",
+    "role": "followup_file"
+  },
+  "expectedState": {
+    "plannedProgress": 62,
+    "intervalDays": 14
+  },
+  "user_language": "ru",
+  "integrity": {
+    "source": "ibuild_local",
+    "passed": true,
+    "note": "Metadata, fingerprint, and geotag checks are owned by iBuild. Vision only judges pixels when this gate passes.",
+    "photoAFingerprintSha256": "…",
+    "photoBFingerprintSha256": "…",
+    "photoAPhash": "…",
+    "photoBPhash": "…",
+    "duplicateSuspect": false,
+    "findings": []
+  },
+  "checks": [
+    "image_authenticity_visual",
+    "same_building_visual",
+    "progress_delta_visual"
+  ]
+}
