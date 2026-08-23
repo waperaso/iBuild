@@ -37,6 +37,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ll need to sign in again to access your account.';
 
   @override
+  String get brandSubtitle => 'B2B';
+
+  @override
+  String get brandSubtitlePlatform => 'B2B | Platform admin';
+
+  @override
+  String get brandSubtitleResidence => 'B2B | Residence admin';
+
+  @override
   String get loginTitle => 'Admin sign in';
 
   @override
@@ -58,6 +67,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signInDemo => 'Sign in (demo)';
+
+  @override
+  String get signInDemoPlatform => 'Demo · Platform admin';
+
+  @override
+  String get signInDemoResidence => 'Demo · Residence admin';
 
   @override
   String get demoButton => 'Demo';
@@ -1720,6 +1735,428 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get siteCycleTitle => 'Site photos';
+
+  @override
+  String get siteCycleSubtitle =>
+      'Baseline → follow-up → check → decision. Two shots from the same place show visible construction progress.';
+
+  @override
+  String get siteCycleUploadA => 'Upload photo 1';
+
+  @override
+  String get siteCycleUploadB => 'Upload photo 2';
+
+  @override
+  String get siteCycleAwaitingA =>
+      'Upload the first photo of the site. Use a clear view of the main works — the next photo must be taken from this same spot.';
+
+  @override
+  String siteCycleWaiting(String date) {
+    return 'Baseline saved. The follow-up photo unlocks on $date.';
+  }
+
+  @override
+  String get siteCycleAwaitingB =>
+      'Upload the follow-up photo from the same place and angle as the baseline.';
+
+  @override
+  String get siteCycleInspector =>
+      'Both photos are with the platform for review.';
+
+  @override
+  String get siteCycleSlotA => 'Photo 1';
+
+  @override
+  String get siteCycleSlotB => 'Photo 2';
+
+  @override
+  String get siteCyclePipeA => 'Baseline';
+
+  @override
+  String get siteCyclePipeB => 'Follow-up';
+
+  @override
+  String get siteCyclePipeCheck => 'Check';
+
+  @override
+  String get siteCyclePipeDecision => 'Decision';
+
+  @override
+  String get siteCycleSlotWaiting => 'Waiting';
+
+  @override
+  String get siteCycleSlotUploaded => 'Uploaded';
+
+  @override
+  String get siteCycleEmptySlot => 'Not uploaded';
+
+  @override
+  String siteCycleUploadError(String error) {
+    return 'Upload failed: $error';
+  }
+
+  @override
+  String siteCycleCountdown(String remaining) {
+    return 'Follow-up unlocks in $remaining';
+  }
+
+  @override
+  String get siteCycleTooEarly =>
+      'The follow-up photo is not available yet. Wait until the unlock date.';
+
+  @override
+  String get siteCycleUnlockFollowUp => 'Unlock follow-up now';
+
+  @override
+  String siteCycleUnlockError(String error) {
+    return 'Could not unlock follow-up: $error';
+  }
+
+  @override
+  String get siteCycleWindowOpen =>
+      'You can upload the follow-up photo. Match the baseline viewpoint as closely as possible.';
+
+  @override
+  String get siteCycleSameViewpoint =>
+      'Stand in the same place as for the baseline. Keep the same camera height and framing.';
+
+  @override
+  String get siteCycleReferenceA => 'Baseline — match this view';
+
+  @override
+  String get siteCyclePickB => 'Choose follow-up photo';
+
+  @override
+  String get siteCycleConfirmB => 'Upload follow-up';
+
+  @override
+  String get siteCycleStubVerdict => 'Ready for a decision.';
+
+  @override
+  String get siteCycleHintInspector =>
+      'Both photos are with the platform. A specialist will confirm or reject the check.';
+
+  @override
+  String get siteCycleResultTitle => 'Check result';
+
+  @override
+  String get siteCycleAnalyzeTitle => 'Photo check';
+
+  @override
+  String get siteCycleAnalyzeRunning => 'Comparing the two photos…';
+
+  @override
+  String get siteCycleSummaryReady =>
+      'Ready for a human decision. Automated notes are a hint, not a final verdict.';
+
+  @override
+  String get siteCycleSummaryVisionFailed =>
+      'The automatic check did not finish. A specialist will review the pair manually.';
+
+  @override
+  String get siteCycleSummaryIntegrityFailed =>
+      'The photos need a closer look before anyone confirms them.';
+
+  @override
+  String get siteCycleSummaryVisionOff =>
+      'Automatic check is off. A specialist reviews the pair.';
+
+  @override
+  String get siteCycleCheckViewpoint => 'Same viewpoint';
+
+  @override
+  String get siteCycleCheckViewpointYes =>
+      'The follow-up looks taken from the same place and angle as the baseline.';
+
+  @override
+  String get siteCycleCheckViewpointNo =>
+      'The framing does not match. The follow-up should repeat the baseline view.';
+
+  @override
+  String get siteCycleCheckViewpointUnknown =>
+      'The automatic check could not judge the angle. A person will compare the frames.';
+
+  @override
+  String get siteCycleCheckDates => 'Dates in order';
+
+  @override
+  String get siteCycleCheckDatesYes =>
+      'The follow-up is dated after the baseline, as expected.';
+
+  @override
+  String get siteCycleCheckDatesNo =>
+      'The dates look out of order. The follow-up should be later than the baseline.';
+
+  @override
+  String get siteCycleCheckDatesUnknown =>
+      'Capture dates were not found in the files. Upload time is used instead.';
+
+  @override
+  String get siteCycleCheckProgress => 'Visible progress';
+
+  @override
+  String siteCycleCheckProgressValue(String delta) {
+    return 'About $delta percentage points of visible change between the shots.';
+  }
+
+  @override
+  String get siteCycleCheckProgressNone =>
+      'Little or no visible change between the two shots.';
+
+  @override
+  String get siteCycleCheckProgressUnknown =>
+      'Automatic estimate is not available. Compare the photos yourself.';
+
+  @override
+  String get siteCycleCheckNotes => 'Notes for review';
+
+  @override
+  String get siteCycleCheckNotesNone => 'No extra remarks.';
+
+  @override
+  String get siteCycleFlagVerifyError =>
+      'Automatic review stopped unexpectedly. This is not a reject — a person still decides.';
+
+  @override
+  String get siteCycleFlagDocumentationGap =>
+      'The files have no capture date or location tag. That is common for phone exports and is not a stop by itself.';
+
+  @override
+  String get siteCycleFlagVisionOff =>
+      'Automatic review is not turned on in this environment.';
+
+  @override
+  String get siteCycleFlagImagesUnavailable =>
+      'The photo files could not be read for automatic checks.';
+
+  @override
+  String get siteCycleFlagPossibleStaging =>
+      'The two files look unusually similar. Confirm they are real shots from different times.';
+
+  @override
+  String get siteCycleFlagImageUnusable =>
+      'A photo is too dark, blurry, or otherwise hard to read.';
+
+  @override
+  String get siteCycleFlagViewpointMismatch =>
+      'The camera position or framing probably changed.';
+
+  @override
+  String get siteCycleFlagNoProgress =>
+      'Almost no new work is visible between the shots.';
+
+  @override
+  String get siteCycleFlagHiddenWork =>
+      'Some claimed work is not visible in the frame.';
+
+  @override
+  String get siteCycleFlagWrongSite =>
+      'The follow-up may show a different place.';
+
+  @override
+  String get siteCycleFlagIntegrityConcern =>
+      'A local file check raised a remark for the reviewer.';
+
+  @override
+  String get siteCycleFlagGeneric =>
+      'There is an extra remark for the reviewer.';
+
+  @override
+  String get siteCycleResultSameViewpoint => 'Same viewpoint';
+
+  @override
+  String get siteCycleResultProgressDelta => 'Progress change';
+
+  @override
+  String get siteCycleResultFlags => 'Notes';
+
+  @override
+  String get siteCycleResultNone => '—';
+
+  @override
+  String get siteCycleHintConfirmed => 'This photo check was confirmed.';
+
+  @override
+  String get siteCycleHintRejected =>
+      'This photo check was rejected. Start a new cycle if you need another review.';
+
+  @override
+  String siteCycleLockedUntil(String date) {
+    return 'Follow-up photo unlocks on $date.';
+  }
+
+  @override
+  String siteCycleUploading(int percent) {
+    return 'Uploading… $percent%';
+  }
+
+  @override
+  String get siteCycleOverlayTitle => 'Checking photos';
+
+  @override
+  String get siteCycleOverlaySubtitle => 'Checking the photos.';
+
+  @override
+  String get siteCycleOverlayStepRead => 'Reading both photos';
+
+  @override
+  String get siteCycleOverlayStepView => 'Checking the same viewpoint';
+
+  @override
+  String get siteCycleOverlayStepDates => 'Checking dates';
+
+  @override
+  String get siteCycleOverlayStepProgress => 'Estimating visible progress';
+
+  @override
+  String get siteCycleOverlayStepNotes => 'Writing the inspector notes';
+
+  @override
+  String get siteCycleVerdictConfirm => 'AI: confirmed';
+
+  @override
+  String get siteCycleVerdictReject => 'AI: rejected';
+
+  @override
+  String get siteCycleVerdictReview => 'AI: needs review';
+
+  @override
+  String get siteCycleGetJson => 'Get JSON';
+
+  @override
+  String get siteCycleGetJsonTitle => 'Check request and response';
+
+  @override
+  String get siteCycleCopyJson => 'Copy';
+
+  @override
+  String get siteCycleCopied => 'Copied';
+
+  @override
+  String siteCycleReuploadLocked(String remaining) {
+    return 'Re-upload in $remaining';
+  }
+
+  @override
+  String get platformSitePhotosTitle => 'Site photos';
+
+  @override
+  String get platformSitePhotosSubtitle =>
+      'Construction photo checks across all residences.';
+
+  @override
+  String get platformSitePhotosFilterConfirmed => 'Confirmed';
+
+  @override
+  String get platformSitePhotosFilterRejected => 'Rejected';
+
+  @override
+  String get platformSitePhotosActionFailed => 'Could not update this check.';
+
+  @override
+  String get platformSitePhotosEmpty => 'No photo checks yet.';
+
+  @override
+  String get platformSitePhotosFilterAll => 'All';
+
+  @override
+  String get platformSitePhotosFilterA => 'Needs baseline';
+
+  @override
+  String get platformSitePhotosFilterWaiting => 'Waiting';
+
+  @override
+  String get platformSitePhotosFilterB => 'Needs follow-up';
+
+  @override
+  String get platformSitePhotosFilterInspector => 'In review';
+
+  @override
+  String get platformSitePhotosColProject => 'Residence';
+
+  @override
+  String get platformSitePhotosColDeveloper => 'Developer';
+
+  @override
+  String get platformSitePhotosColStatus => 'Status';
+
+  @override
+  String get platformSitePhotosColDue => 'Due';
+
+  @override
+  String get platformSitePhotosStubAiOff => 'Ready for your decision.';
+
+  @override
+  String get platformSitePhotosAnalyzing => 'Automated check in progress…';
+
+  @override
+  String get platformSitePhotosIntegrityFail =>
+      'Integrity checks flagged this pair — review findings before confirming.';
+
+  @override
+  String get platformSitePhotosConfirm => 'Confirm';
+
+  @override
+  String get platformSitePhotosOverturn => 'Reject';
+
+  @override
+  String get platformSitePhotosGov => 'Send to authorities';
+
+  @override
+  String get platformSitePhotosDay3 => 'In development';
+
+  @override
+  String get platformSitePhotosAudit => 'Check details';
+
+  @override
+  String get siteCycleStatusAwaitingA => 'Needs baseline';
+
+  @override
+  String get siteCycleStatusWaiting => 'Waiting';
+
+  @override
+  String get siteCycleStatusAwaitingB => 'Needs follow-up';
+
+  @override
+  String get siteCycleStatusInspector => 'In review';
+
+  @override
+  String get siteCycleStatusAnalyzing => 'Checking';
+
+  @override
+  String get siteCycleStatusConfirmed => 'Confirmed';
+
+  @override
+  String get siteCycleStatusRejected => 'Rejected';
+
+  @override
+  String get siteCycleStatusMissed => 'Window closed';
+
+  @override
+  String get siteCycleAnalyzingHint =>
+      'Checking the photos. This screen updates automatically.';
+
+  @override
+  String get siteCycleMissedHint =>
+      'The follow-up window closed without a second photo. Upload a new baseline to start again.';
+
+  @override
+  String get siteCycleMissedRestart => 'Start new cycle';
+
+  @override
+  String get siteCycleIntegrityTitle => 'Integrity';
+
+  @override
+  String get siteCycleIntegrityPassed => 'Passed';
+
+  @override
+  String get siteCycleIntegrityFailed => 'Needs attention';
+
+  @override
+  String get siteCycleFilterMissed => 'Missed';
+
+  @override
   String get statusAvailable => 'available';
 
   @override
@@ -1843,6 +2280,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navModeration => 'Moderation';
+
+  @override
+  String get navSitePhotos => 'Site photos';
+
+  @override
+  String get residenceSitePhotosSubtitle =>
+      'Upload a baseline, then a follow-up from the same spot. The platform checks the pair and a specialist makes the decision.';
 
   @override
   String get navCrm => 'CRM';
@@ -2597,10 +3041,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readinessStatusViolationFound => 'Violation found';
 
   @override
-  String get readinessCheckDialogTitle => 'AI construction readiness check';
+  String get readinessCheckDialogTitle => 'Construction readiness check';
 
   @override
-  String get readinessAnalyzing => 'Checking the photo with AI…';
+  String get readinessAnalyzing => 'Checking the photo…';
 
   @override
   String readinessConfidenceLabel(int percent) {
@@ -2608,7 +3052,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get readinessUnavailableTitle => 'AI check unavailable';
+  String get readinessUnavailableTitle => 'Check unavailable';
 
   @override
   String get readinessUnavailableMessage =>
@@ -2635,13 +3079,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readinessOverrideCommentHint =>
-      'Required — describe the discrepancy the AI flagged';
+      'Required — describe the discrepancy found in the check';
 
   @override
-  String get readinessDigestTitle => 'AI consultant on objects';
+  String get readinessDigestTitle => 'Site readiness';
 
   @override
-  String get readinessDigestEmpty => 'No AI-verified reports yet.';
+  String get readinessDigestEmpty => 'No verified reports yet.';
 
   @override
   String readinessDigestTrend(int confirmed, int total) {

@@ -37,10 +37,9 @@ class B2bAdaptiveShell extends ConsumerWidget {
   final Widget child;
 
   /// A system admin never owns a ЖК of their own — their menu is the
-  /// platform-wide governance surface (dashboard, moderation queue, ЖК
-  /// roster for oversight, CRM, tickets). A residence admin's menu stays
-  /// exactly what it was: their own projects, org profile, and a way to
-  /// reach the platform's support team.
+  /// platform-wide governance surface (dashboard, moderation queue, site
+  /// photos review, ЖК roster, CRM, tickets). A residence admin manages
+  /// their projects, org profile, construction photo uploads, and support.
   List<_B2bNavItem> _items(AppLocalizations l10n, AdminUser? user) {
     if (user?.isSystemAdmin == true) {
       return [
@@ -53,6 +52,11 @@ class B2bAdaptiveShell extends ConsumerWidget {
           label: l10n.navModeration,
           icon: Icons.fact_check_outlined,
           path: '/platform/moderation',
+        ),
+        _B2bNavItem(
+          label: l10n.navSitePhotos,
+          icon: Icons.photo_camera_outlined,
+          path: '/platform/site-photos',
         ),
         _B2bNavItem(
           label: l10n.navActiveProjects,
@@ -93,6 +97,11 @@ class B2bAdaptiveShell extends ConsumerWidget {
         path: '/residence/org',
       ),
       _B2bNavItem(
+        label: l10n.navSitePhotos,
+        icon: Icons.photo_camera_outlined,
+        path: '/residence/site-photos',
+      ),
+      _B2bNavItem(
         label: l10n.navTickets,
         icon: Icons.support_agent_outlined,
         path: '/support',
@@ -111,8 +120,10 @@ class B2bAdaptiveShell extends ConsumerWidget {
       return i >= 0 ? i : 0;
     }
     for (final path in [
+      '/residence/site-photos',
       '/residence/org',
       '/residence',
+      '/platform/site-photos',
       '/platform/moderation',
       '/platform/active',
       '/platform/projects',
@@ -253,8 +264,8 @@ class _DesktopShell extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(
+                Padding(
+                  padding: const EdgeInsets.only(
                     left: AppSpacing.md,
                     bottom: AppSpacing.xxl,
                   ),

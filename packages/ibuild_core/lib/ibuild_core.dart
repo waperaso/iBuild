@@ -9,6 +9,7 @@ export 'models/lead.dart';
 export 'models/media.dart';
 export 'models/offer.dart';
 export 'models/photo_report.dart';
+export 'models/site_photo_cycle.dart';
 export 'models/project.dart';
 export 'models/unit.dart';
 export 'src/demo_session.dart';

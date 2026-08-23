@@ -37,6 +37,15 @@ class AppLocalizationsRu extends AppLocalizations {
       'Чтобы продолжить работу, потребуется войти снова.';
 
   @override
+  String get brandSubtitle => 'B2B';
+
+  @override
+  String get brandSubtitlePlatform => 'B2B | Админ платформы';
+
+  @override
+  String get brandSubtitleResidence => 'B2B | Админ ЖК';
+
+  @override
   String get loginTitle => 'Вход для администратора';
 
   @override
@@ -59,6 +68,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get signInDemo => 'Войти (demo)';
+
+  @override
+  String get signInDemoPlatform => 'Демо · Админ платформы';
+
+  @override
+  String get signInDemoResidence => 'Демо · Админ ЖК';
 
   @override
   String get demoButton => 'Демо';
@@ -1722,6 +1737,425 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get siteCycleTitle => 'Фото стройки';
+
+  @override
+  String get siteCycleSubtitle =>
+      'База → контроль → проверка → решение. Два кадра с одной точки показывают видимый ход работ.';
+
+  @override
+  String get siteCycleUploadA => 'Загрузить фото 1';
+
+  @override
+  String get siteCycleUploadB => 'Загрузить фото 2';
+
+  @override
+  String get siteCycleAwaitingA =>
+      'Загрузите первый снимок объекта. Выберите ракурс, где хорошо видны основные работы — следующий снимок нужно будет сделать с той же точки.';
+
+  @override
+  String siteCycleWaiting(String date) {
+    return 'Базовое фото сохранено. Контрольный снимок откроется $date.';
+  }
+
+  @override
+  String get siteCycleAwaitingB =>
+      'Загрузите контрольное фото с той же точки и под тем же углом, что и базовое.';
+
+  @override
+  String get siteCycleInspector => 'Оба фото на проверке у платформы.';
+
+  @override
+  String get siteCycleSlotA => 'Фото 1';
+
+  @override
+  String get siteCycleSlotB => 'Фото 2';
+
+  @override
+  String get siteCyclePipeA => 'База';
+
+  @override
+  String get siteCyclePipeB => 'Контроль';
+
+  @override
+  String get siteCyclePipeCheck => 'Проверка';
+
+  @override
+  String get siteCyclePipeDecision => 'Решение';
+
+  @override
+  String get siteCycleSlotWaiting => 'Ожидание';
+
+  @override
+  String get siteCycleSlotUploaded => 'Загружено';
+
+  @override
+  String get siteCycleEmptySlot => 'Нет фото';
+
+  @override
+  String siteCycleUploadError(String error) {
+    return 'Ошибка загрузки: $error';
+  }
+
+  @override
+  String siteCycleCountdown(String remaining) {
+    return 'До контрольного фото: $remaining';
+  }
+
+  @override
+  String get siteCycleTooEarly =>
+      'Контрольное фото пока недоступно. Дождитесь даты разблокировки.';
+
+  @override
+  String get siteCycleUnlockFollowUp => 'Ускорить до контроля';
+
+  @override
+  String siteCycleUnlockError(String error) {
+    return 'Не удалось открыть контроль: $error';
+  }
+
+  @override
+  String get siteCycleWindowOpen =>
+      'Можно загрузить контрольное фото. Повторите ракурс базового снимка как можно точнее.';
+
+  @override
+  String get siteCycleSameViewpoint =>
+      'Встаньте туда же, где снимали базу. Сохраните высоту камеры и кадр.';
+
+  @override
+  String get siteCycleReferenceA => 'База — повторите этот вид';
+
+  @override
+  String get siteCyclePickB => 'Выбрать контрольное фото';
+
+  @override
+  String get siteCycleConfirmB => 'Загрузить контрольное';
+
+  @override
+  String get siteCycleStubVerdict => 'Можно принять решение.';
+
+  @override
+  String get siteCycleHintInspector =>
+      'Оба снимка у платформы. Специалист подтвердит или отклонит проверку.';
+
+  @override
+  String get siteCycleResultTitle => 'Результат проверки';
+
+  @override
+  String get siteCycleAnalyzeTitle => 'Проверка фото';
+
+  @override
+  String get siteCycleAnalyzeRunning => 'Сверяем два снимка…';
+
+  @override
+  String get siteCycleSummaryReady =>
+      'Можно принять решение. Автозаметки — подсказка, не окончательный вердикт.';
+
+  @override
+  String get siteCycleSummaryVisionFailed =>
+      'Автопроверка не завершилась. Специалист посмотрит пару вручную.';
+
+  @override
+  String get siteCycleSummaryIntegrityFailed =>
+      'Снимки нужно внимательнее посмотреть, прежде чем подтверждать.';
+
+  @override
+  String get siteCycleSummaryVisionOff =>
+      'Автопроверка выключена. Решение принимает человек.';
+
+  @override
+  String get siteCycleCheckViewpoint => 'Тот же ракурс';
+
+  @override
+  String get siteCycleCheckViewpointYes =>
+      'Контрольный снимок сделан с той же точки и под тем же углом, что и база.';
+
+  @override
+  String get siteCycleCheckViewpointNo =>
+      'Ракурс не совпадает. Контрольный кадр должен повторять базовый вид.';
+
+  @override
+  String get siteCycleCheckViewpointUnknown =>
+      'Автопроверка не смогла оценить угол. Человек сравнит кадры.';
+
+  @override
+  String get siteCycleCheckDates => 'Даты по порядку';
+
+  @override
+  String get siteCycleCheckDatesYes =>
+      'Контрольный снимок датирован позже базы — как и должно быть.';
+
+  @override
+  String get siteCycleCheckDatesNo =>
+      'Даты идут в неправильном порядке. Контрольный снимок должен быть позже базы.';
+
+  @override
+  String get siteCycleCheckDatesUnknown =>
+      'В файлах нет даты съёмки. Используем время загрузки.';
+
+  @override
+  String get siteCycleCheckProgress => 'Видимый прогресс';
+
+  @override
+  String siteCycleCheckProgressValue(String delta) {
+    return 'Примерно $delta п.п. видимых изменений между снимками.';
+  }
+
+  @override
+  String get siteCycleCheckProgressNone =>
+      'Между снимками почти нет видимых изменений.';
+
+  @override
+  String get siteCycleCheckProgressUnknown =>
+      'Автооценка недоступна. Сравните кадры сами.';
+
+  @override
+  String get siteCycleCheckNotes => 'Замечания к решению';
+
+  @override
+  String get siteCycleCheckNotesNone => 'Дополнительных замечаний нет.';
+
+  @override
+  String get siteCycleFlagVerifyError =>
+      'Автопроверка остановилась. Это не отказ — решение всё равно принимает человек.';
+
+  @override
+  String get siteCycleFlagDocumentationGap =>
+      'В файлах нет даты съёмки или геометки. Так бывает после выгрузки с телефона и само по себе не стоп.';
+
+  @override
+  String get siteCycleFlagVisionOff => 'Автопроверка в этой среде не включена.';
+
+  @override
+  String get siteCycleFlagImagesUnavailable =>
+      'Файлы фото не удалось прочитать для автопроверки.';
+
+  @override
+  String get siteCycleFlagPossibleStaging =>
+      'Два файла слишком похожи. Убедитесь, что это реальные кадры с разным временем.';
+
+  @override
+  String get siteCycleFlagImageUnusable =>
+      'Снимок слишком тёмный, размытый или плохо читается.';
+
+  @override
+  String get siteCycleFlagViewpointMismatch =>
+      'Камера, скорее всего, сняла с другой точки или в другом кадре.';
+
+  @override
+  String get siteCycleFlagNoProgress =>
+      'Между снимками почти не видно новых работ.';
+
+  @override
+  String get siteCycleFlagHiddenWork =>
+      'Часть заявленных работ на кадре не видна.';
+
+  @override
+  String get siteCycleFlagWrongSite =>
+      'Контрольный снимок может показывать другое место.';
+
+  @override
+  String get siteCycleFlagIntegrityConcern =>
+      'Локальная проверка файла оставила замечание для специалиста.';
+
+  @override
+  String get siteCycleFlagGeneric =>
+      'Есть дополнительное замечание для специалиста.';
+
+  @override
+  String get siteCycleResultSameViewpoint => 'Тот же ракурс';
+
+  @override
+  String get siteCycleResultProgressDelta => 'Изменение прогресса';
+
+  @override
+  String get siteCycleResultFlags => 'Замечания';
+
+  @override
+  String get siteCycleResultNone => '—';
+
+  @override
+  String get siteCycleHintConfirmed => 'Проверка подтверждена.';
+
+  @override
+  String get siteCycleHintRejected =>
+      'Проверка отклонена. Для новой проверки начните новый цикл.';
+
+  @override
+  String siteCycleLockedUntil(String date) {
+    return 'Контрольное фото откроется $date.';
+  }
+
+  @override
+  String siteCycleUploading(int percent) {
+    return 'Загрузка… $percent%';
+  }
+
+  @override
+  String get siteCycleOverlayTitle => 'Проверка фото';
+
+  @override
+  String get siteCycleOverlaySubtitle => 'Идёт проверка снимков.';
+
+  @override
+  String get siteCycleOverlayStepRead => 'Читаем оба фото';
+
+  @override
+  String get siteCycleOverlayStepView => 'Проверяем тот же ракурс';
+
+  @override
+  String get siteCycleOverlayStepDates => 'Проверяем даты';
+
+  @override
+  String get siteCycleOverlayStepProgress => 'Оцениваем видимый прогресс';
+
+  @override
+  String get siteCycleOverlayStepNotes => 'Пишем заметки для проверки';
+
+  @override
+  String get siteCycleVerdictConfirm => 'ИИ: подтверждено';
+
+  @override
+  String get siteCycleVerdictReject => 'ИИ: отклонено';
+
+  @override
+  String get siteCycleVerdictReview => 'ИИ: нужна проверка';
+
+  @override
+  String get siteCycleGetJson => 'Get JSON';
+
+  @override
+  String get siteCycleGetJsonTitle => 'Запрос и ответ проверки';
+
+  @override
+  String get siteCycleCopyJson => 'Копировать';
+
+  @override
+  String get siteCycleCopied => 'Скопировано';
+
+  @override
+  String siteCycleReuploadLocked(String remaining) {
+    return 'Повторная загрузка через $remaining';
+  }
+
+  @override
+  String get platformSitePhotosTitle => 'Фото стройки';
+
+  @override
+  String get platformSitePhotosSubtitle =>
+      'Проверки фото строительства по всем объектам.';
+
+  @override
+  String get platformSitePhotosFilterConfirmed => 'Подтверждено';
+
+  @override
+  String get platformSitePhotosFilterRejected => 'Отклонено';
+
+  @override
+  String get platformSitePhotosActionFailed => 'Не удалось обновить проверку.';
+
+  @override
+  String get platformSitePhotosEmpty => 'Проверок пока нет.';
+
+  @override
+  String get platformSitePhotosFilterAll => 'Все';
+
+  @override
+  String get platformSitePhotosFilterA => 'Нужна база';
+
+  @override
+  String get platformSitePhotosFilterWaiting => 'Ожидание';
+
+  @override
+  String get platformSitePhotosFilterB => 'Нужен контроль';
+
+  @override
+  String get platformSitePhotosFilterInspector => 'На проверке';
+
+  @override
+  String get platformSitePhotosColProject => 'Объект';
+
+  @override
+  String get platformSitePhotosColDeveloper => 'Застройщик';
+
+  @override
+  String get platformSitePhotosColStatus => 'Статус';
+
+  @override
+  String get platformSitePhotosColDue => 'Срок';
+
+  @override
+  String get platformSitePhotosStubAiOff => 'Можно принять решение.';
+
+  @override
+  String get platformSitePhotosAnalyzing => 'Идёт автоматическая проверка…';
+
+  @override
+  String get platformSitePhotosIntegrityFail =>
+      'Проверки целостности отметили пару фото — посмотрите замечания перед решением.';
+
+  @override
+  String get platformSitePhotosConfirm => 'Подтвердить';
+
+  @override
+  String get platformSitePhotosOverturn => 'Отклонить';
+
+  @override
+  String get platformSitePhotosGov => 'Отправить в госорганы';
+
+  @override
+  String get platformSitePhotosDay3 => 'Функция в разработке';
+
+  @override
+  String get platformSitePhotosAudit => 'Детали проверки';
+
+  @override
+  String get siteCycleStatusAwaitingA => 'Нужна база';
+
+  @override
+  String get siteCycleStatusWaiting => 'Ожидание';
+
+  @override
+  String get siteCycleStatusAwaitingB => 'Нужен контроль';
+
+  @override
+  String get siteCycleStatusInspector => 'На проверке';
+
+  @override
+  String get siteCycleStatusAnalyzing => 'Проверка';
+
+  @override
+  String get siteCycleStatusConfirmed => 'Подтверждено';
+
+  @override
+  String get siteCycleStatusRejected => 'Отклонено';
+
+  @override
+  String get siteCycleStatusMissed => 'Окно закрыто';
+
+  @override
+  String get siteCycleAnalyzingHint => 'Проверяем фото. Экран обновится сам.';
+
+  @override
+  String get siteCycleMissedHint =>
+      'Окно для контрольного фото закрылось. Загрузите новую базу, чтобы начать цикл заново.';
+
+  @override
+  String get siteCycleMissedRestart => 'Начать новый цикл';
+
+  @override
+  String get siteCycleIntegrityTitle => 'Целостность';
+
+  @override
+  String get siteCycleIntegrityPassed => 'Пройдено';
+
+  @override
+  String get siteCycleIntegrityFailed => 'Нужно внимание';
+
+  @override
+  String get siteCycleFilterMissed => 'Пропущено';
+
+  @override
   String get statusAvailable => 'свободен';
 
   @override
@@ -1845,6 +2279,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get navModeration => 'Модерация';
+
+  @override
+  String get navSitePhotos => 'Фото стройки';
+
+  @override
+  String get residenceSitePhotosSubtitle =>
+      'Загрузите базу, затем контроль с той же точки. Платформа сверяет пару, решение принимает специалист.';
 
   @override
   String get navCrm => 'CRM';
@@ -2598,10 +3039,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get readinessStatusViolationFound => 'Обнаружено нарушение';
 
   @override
-  String get readinessCheckDialogTitle => 'ИИ-проверка готовности объекта';
+  String get readinessCheckDialogTitle => 'Проверка готовности объекта';
 
   @override
-  String get readinessAnalyzing => 'Проверяем фото с помощью ИИ…';
+  String get readinessAnalyzing => 'Проверяем фото…';
 
   @override
   String readinessConfidenceLabel(int percent) {
@@ -2609,7 +3050,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get readinessUnavailableTitle => 'ИИ-проверка недоступна';
+  String get readinessUnavailableTitle => 'Проверка недоступна';
 
   @override
   String get readinessUnavailableMessage =>
@@ -2636,13 +3077,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get readinessOverrideCommentHint =>
-      'Обязательно — опишите несоответствие, найденное ИИ';
+      'Обязательно — опишите найденное несоответствие';
 
   @override
-  String get readinessDigestTitle => 'ИИ-консультант по объектам';
+  String get readinessDigestTitle => 'Готовность объектов';
 
   @override
-  String get readinessDigestEmpty => 'Пока нет отчётов, проверенных ИИ.';
+  String get readinessDigestEmpty => 'Пока нет проверенных отчётов.';
 
   @override
   String readinessDigestTrend(int confirmed, int total) {

@@ -37,6 +37,15 @@ class AppLocalizationsUz extends AppLocalizations {
       'Davom etish uchun qayta kirishingiz kerak bo\'ladi.';
 
   @override
+  String get brandSubtitle => 'B2B';
+
+  @override
+  String get brandSubtitlePlatform => 'B2B | Platforma admin';
+
+  @override
+  String get brandSubtitleResidence => 'B2B | TJ admin';
+
+  @override
   String get loginTitle => 'Administrator kirishi';
 
   @override
@@ -59,6 +68,12 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get signInDemo => 'Kirish (demo)';
+
+  @override
+  String get signInDemoPlatform => 'Demo · Platforma admin';
+
+  @override
+  String get signInDemoResidence => 'Demo · TJ admin';
 
   @override
   String get demoButton => 'Demo';
@@ -133,7 +148,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get applyStepDetails => 'Kompaniya maʼlumotlari';
 
   @override
-  String get applyOnboardingTitle => 'ЖКga kirishni sozlash';
+  String get applyOnboardingTitle => 'TJga kirishni sozlash';
 
   @override
   String get applyOnboardingSubtitle =>
@@ -141,7 +156,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get applyOnboardingPointWorkspace =>
-      'Har bir kompaniya uchun ЖКlar bo\'yicha bitta ish maydoni';
+      'Har bir kompaniya uchun TJlar bo\'yicha bitta ish maydoni';
 
   @override
   String get applyOnboardingPointAccess =>
@@ -190,7 +205,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get applyKindConstructionSubtitle =>
-      'Siz boshqa quruvchilar uchun quryapsiz (pudratchi) — obyektdagi ishlar, ombor va ЖКga kirishni muvofiqlashtiring.';
+      'Siz boshqa quruvchilar uchun quryapsiz (pudratchi) — obyektdagi ishlar, ombor va TJga kirishni muvofiqlashtiring.';
 
   @override
   String get applyAlsoContractorLabel => 'Pudratchi rolini ham birlashtiraman';
@@ -347,7 +362,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get navPlatform => 'Platforma';
 
   @override
-  String get navResidence => 'ЖК';
+  String get navResidence => 'TJ';
 
   @override
   String get navOrganization => 'Tashkilot';
@@ -1039,7 +1054,7 @@ class AppLocalizationsUz extends AppLocalizations {
   }
 
   @override
-  String get residenceTitle => 'ЖК boshqaruvi';
+  String get residenceTitle => 'TJ boshqaruvi';
 
   @override
   String get residenceSubtitle =>
@@ -1111,7 +1126,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get orgSubtitle =>
-      'Kompaniyangiz va ЖКlaringiz qanday koʻrinishini sozlang. Xaridorlarga nashr etish uchun faol Publisher obunasi talab qilinadi.';
+      'Kompaniyangiz va TJlaringiz qanday koʻrinishini sozlang. Xaridorlarga nashr etish uchun faol Publisher obunasi talab qilinadi.';
 
   @override
   String get orgNoProfile => 'Hozircha tashkilot profili yoʻq.';
@@ -1213,7 +1228,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get orgPublicPresenceTitle => 'Ommaviy profil';
 
   @override
-  String get orgAboutHint => 'Tashkilotingiz / ЖКlaringiz haqida';
+  String get orgAboutHint => 'Tashkilotingiz / TJlaringiz haqida';
 
   @override
   String get orgOfficeHint => 'Savdo ofisi manzili';
@@ -1383,10 +1398,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get projectPublishNeedsSubscription => 'Nashr uchun faol obuna kerak';
 
   @override
-  String get navActiveProjects => 'Faol ЖК';
+  String get navActiveProjects => 'Faol TJ';
 
   @override
-  String get activeProjectsTitle => 'Faol ЖК';
+  String get activeProjectsTitle => 'Faol TJ';
 
   @override
   String get activeProjectsSubtitle =>
@@ -1723,6 +1738,427 @@ class AppLocalizationsUz extends AppLocalizations {
   }
 
   @override
+  String get siteCycleTitle => 'Qurilish fotolari';
+
+  @override
+  String get siteCycleSubtitle =>
+      'Baza → nazorat → tekshiruv → qaror. Bir nuqtadan ikkita kadr koʻrinadigan ishlar progressini koʻrsatadi.';
+
+  @override
+  String get siteCycleUploadA => '1-fotoni yuklash';
+
+  @override
+  String get siteCycleUploadB => '2-fotoni yuklash';
+
+  @override
+  String get siteCycleAwaitingA =>
+      'Obyektning birinchi fotosini yuklang. Asosiy ishlar yaxshi koʻrinadigan rakursni tanlang — keyingi surat shu joydan olinadi.';
+
+  @override
+  String siteCycleWaiting(String date) {
+    return 'Baza fotosi saqlandi. Nazorat fotosi $date da ochiladi.';
+  }
+
+  @override
+  String get siteCycleAwaitingB =>
+      'Nazorat fotosini baza bilan bir xil joy va rakursdan yuklang.';
+
+  @override
+  String get siteCycleInspector => 'Ikkala foto platformada tekshiruvda.';
+
+  @override
+  String get siteCycleSlotA => 'Foto 1';
+
+  @override
+  String get siteCycleSlotB => 'Foto 2';
+
+  @override
+  String get siteCyclePipeA => 'Baza';
+
+  @override
+  String get siteCyclePipeB => 'Nazorat';
+
+  @override
+  String get siteCyclePipeCheck => 'Tekshiruv';
+
+  @override
+  String get siteCyclePipeDecision => 'Qaror';
+
+  @override
+  String get siteCycleSlotWaiting => 'Kutish';
+
+  @override
+  String get siteCycleSlotUploaded => 'Yuklangan';
+
+  @override
+  String get siteCycleEmptySlot => 'Yuklanmagan';
+
+  @override
+  String siteCycleUploadError(String error) {
+    return 'Yuklash xatosi: $error';
+  }
+
+  @override
+  String siteCycleCountdown(String remaining) {
+    return 'Nazorat ochilishiga: $remaining';
+  }
+
+  @override
+  String get siteCycleTooEarly =>
+      'Nazorat fotosi hali ochilmagan. Ochilish sanasini kuting.';
+
+  @override
+  String get siteCycleUnlockFollowUp => 'Nazoratgacha tezlashtirish';
+
+  @override
+  String siteCycleUnlockError(String error) {
+    return 'Nazoratni ochib boʻlmadi: $error';
+  }
+
+  @override
+  String get siteCycleWindowOpen =>
+      'Nazorat fotosini yuklash mumkin. Baza rakursini imkon qadar aniq takrorlang.';
+
+  @override
+  String get siteCycleSameViewpoint =>
+      'Baza olingan joyda turing. Kamera balandligi va kadrni saqlang.';
+
+  @override
+  String get siteCycleReferenceA => 'Baza — shu koʻrinishni takrorlang';
+
+  @override
+  String get siteCyclePickB => 'Nazorat fotosini tanlash';
+
+  @override
+  String get siteCycleConfirmB => 'Nazoratni yuklash';
+
+  @override
+  String get siteCycleStubVerdict => 'Qaror qabul qilish mumkin.';
+
+  @override
+  String get siteCycleHintInspector =>
+      'Ikkala surat platformada. Mutaxassis tekshiruvni tasdiqlaydi yoki rad etadi.';
+
+  @override
+  String get siteCycleResultTitle => 'Tekshiruv natijasi';
+
+  @override
+  String get siteCycleAnalyzeTitle => 'Foto tekshiruvi';
+
+  @override
+  String get siteCycleAnalyzeRunning => 'Ikki surat solishtirilmoqda…';
+
+  @override
+  String get siteCycleSummaryReady =>
+      'Qaror qabul qilish mumkin. Avtoizohlar — maslahat, yakuniy hukm emas.';
+
+  @override
+  String get siteCycleSummaryVisionFailed =>
+      'Avtomatik tekshiruv tugamadi. Mutaxassis juftlikni qoʻlda koʻradi.';
+
+  @override
+  String get siteCycleSummaryIntegrityFailed =>
+      'Fotolarni tasdiqlashdan oldin diqqatroq koʻrish kerak.';
+
+  @override
+  String get siteCycleSummaryVisionOff =>
+      'Avtomatik tekshiruv oʻchiq. Qarorni odam qabul qiladi.';
+
+  @override
+  String get siteCycleCheckViewpoint => 'Bir xil rakurs';
+
+  @override
+  String get siteCycleCheckViewpointYes =>
+      'Nazorat fotosi baza bilan bir xil joy va burchakdan olinganga oʻxshaydi.';
+
+  @override
+  String get siteCycleCheckViewpointNo =>
+      'Rakurs mos emas. Nazorat kadri baza koʻrinishini takrorlashi kerak.';
+
+  @override
+  String get siteCycleCheckViewpointUnknown =>
+      'Avtotekshiruv burchakni baholay olmadi. Odam kadrlarini solishtiradi.';
+
+  @override
+  String get siteCycleCheckDates => 'Sanalar tartibda';
+
+  @override
+  String get siteCycleCheckDatesYes =>
+      'Nazorat fotosi bazadan keyin sana qilingan — kutilganidek.';
+
+  @override
+  String get siteCycleCheckDatesNo =>
+      'Sanalar tartibsiz. Nazorat fotosi bazadan keyin boʻlishi kerak.';
+
+  @override
+  String get siteCycleCheckDatesUnknown =>
+      'Fayllarda surat sanasi yoʻq. Yuklash vaqti ishlatiladi.';
+
+  @override
+  String get siteCycleCheckProgress => 'Koʻrinadigan progress';
+
+  @override
+  String siteCycleCheckProgressValue(String delta) {
+    return 'Ikkala surat orasida taxminan $delta foiz band koʻrinadigan oʻzgarish.';
+  }
+
+  @override
+  String get siteCycleCheckProgressNone =>
+      'Ikkala surat orasida deyarli koʻrinadigan oʻzgarish yoʻq.';
+
+  @override
+  String get siteCycleCheckProgressUnknown =>
+      'Avto baho yoʻq. Fotolarni oʻzingiz solishtiring.';
+
+  @override
+  String get siteCycleCheckNotes => 'Qaror uchun izohlar';
+
+  @override
+  String get siteCycleCheckNotesNone => 'Qoʻshimcha izoh yoʻq.';
+
+  @override
+  String get siteCycleFlagVerifyError =>
+      'Avtotekshiruv kutilmaganda toʻxtadi. Bu rad etish emas — qarorni odam qabul qiladi.';
+
+  @override
+  String get siteCycleFlagDocumentationGap =>
+      'Fayllarda surat sanasi yoki joy belgisi yoʻq. Telefon eksportida tez-tez uchraydi va oʻzi toʻxtatmaydi.';
+
+  @override
+  String get siteCycleFlagVisionOff => 'Bu muhitda avtotekshiruv yoqilmagan.';
+
+  @override
+  String get siteCycleFlagImagesUnavailable =>
+      'Avtotekshiruv uchun foto fayllarini oʻqib boʻlmadi.';
+
+  @override
+  String get siteCycleFlagPossibleStaging =>
+      'Ikki fayl gʻayrioddiy oʻxshash. Haqiqiy, turli vaqtdagi kadrlar ekanini tekshiring.';
+
+  @override
+  String get siteCycleFlagImageUnusable =>
+      'Foto haddan tashqari qorongʻi, xira yoki yomon oʻqiladi.';
+
+  @override
+  String get siteCycleFlagViewpointMismatch =>
+      'Kamera joyi yoki kadr, ehtimol, oʻzgargan.';
+
+  @override
+  String get siteCycleFlagNoProgress =>
+      'Ikkala surat orasida deyarli yangi ish koʻrinmaydi.';
+
+  @override
+  String get siteCycleFlagHiddenWork =>
+      'Eʼlon qilingan ishning bir qismi kadrda koʻrinmaydi.';
+
+  @override
+  String get siteCycleFlagWrongSite =>
+      'Nazorat fotosi boshqa joyni koʻrsatishi mumkin.';
+
+  @override
+  String get siteCycleFlagIntegrityConcern =>
+      'Mahalliy fayl tekshiruvi mutaxassis uchun izoh qoldirdi.';
+
+  @override
+  String get siteCycleFlagGeneric => 'Mutaxassis uchun qoʻshimcha izoh bor.';
+
+  @override
+  String get siteCycleResultSameViewpoint => 'Bir xil rakurs';
+
+  @override
+  String get siteCycleResultProgressDelta => 'Progress oʻzgarishi';
+
+  @override
+  String get siteCycleResultFlags => 'Izohlar';
+
+  @override
+  String get siteCycleResultNone => '—';
+
+  @override
+  String get siteCycleHintConfirmed => 'Foto tekshiruvi tasdiqlandi.';
+
+  @override
+  String get siteCycleHintRejected =>
+      'Foto tekshiruvi rad etildi. Yangi tekshiruv kerak boʻlsa, yangi tsikl boshlang.';
+
+  @override
+  String siteCycleLockedUntil(String date) {
+    return 'Nazorat fotosi $date da ochiladi.';
+  }
+
+  @override
+  String siteCycleUploading(int percent) {
+    return 'Yuklanmoqda… $percent%';
+  }
+
+  @override
+  String get siteCycleOverlayTitle => 'Fotolar tekshirilmoqda';
+
+  @override
+  String get siteCycleOverlaySubtitle => 'Fotolar tekshirilmoqda.';
+
+  @override
+  String get siteCycleOverlayStepRead => 'Ikkala foto o‘qilmoqda';
+
+  @override
+  String get siteCycleOverlayStepView => 'Bir xil rakurs tekshirilmoqda';
+
+  @override
+  String get siteCycleOverlayStepDates => 'Sanalar tekshirilmoqda';
+
+  @override
+  String get siteCycleOverlayStepProgress =>
+      'Ko‘rinadigan progress baholanmoqda';
+
+  @override
+  String get siteCycleOverlayStepNotes => 'Tekshiruv izohlari yozilmoqda';
+
+  @override
+  String get siteCycleVerdictConfirm => 'SI: tasdiqlangan';
+
+  @override
+  String get siteCycleVerdictReject => 'SI: rad etilgan';
+
+  @override
+  String get siteCycleVerdictReview => 'SI: ko‘rib chiqish kerak';
+
+  @override
+  String get siteCycleGetJson => 'Get JSON';
+
+  @override
+  String get siteCycleGetJsonTitle => 'Tekshiruv so‘rovi va javobi';
+
+  @override
+  String get siteCycleCopyJson => 'Nusxa';
+
+  @override
+  String get siteCycleCopied => 'Nusxa olindi';
+
+  @override
+  String siteCycleReuploadLocked(String remaining) {
+    return 'Qayta yuklash: $remaining';
+  }
+
+  @override
+  String get platformSitePhotosTitle => 'Qurilish fotolari';
+
+  @override
+  String get platformSitePhotosSubtitle =>
+      'Barcha TJ boʻyicha qurilish foto tekshiruvlari.';
+
+  @override
+  String get platformSitePhotosFilterConfirmed => 'Tasdiqlangan';
+
+  @override
+  String get platformSitePhotosFilterRejected => 'Rad etilgan';
+
+  @override
+  String get platformSitePhotosActionFailed => 'Tekshiruvni yangilab boʻlmadi.';
+
+  @override
+  String get platformSitePhotosEmpty => 'Hali foto tekshiruvlari yoʻq.';
+
+  @override
+  String get platformSitePhotosFilterAll => 'Barchasi';
+
+  @override
+  String get platformSitePhotosFilterA => 'Baza kerak';
+
+  @override
+  String get platformSitePhotosFilterWaiting => 'Kutish';
+
+  @override
+  String get platformSitePhotosFilterB => 'Nazorat kerak';
+
+  @override
+  String get platformSitePhotosFilterInspector => 'Tekshiruvda';
+
+  @override
+  String get platformSitePhotosColProject => 'TJ';
+
+  @override
+  String get platformSitePhotosColDeveloper => 'Quruvchi';
+
+  @override
+  String get platformSitePhotosColStatus => 'Holat';
+
+  @override
+  String get platformSitePhotosColDue => 'Muddat';
+
+  @override
+  String get platformSitePhotosStubAiOff => 'Qaror qabul qilish mumkin.';
+
+  @override
+  String get platformSitePhotosAnalyzing =>
+      'Avtomatik tekshiruv davom etmoqda…';
+
+  @override
+  String get platformSitePhotosIntegrityFail =>
+      'Butunlik tekshiruvlari juftlikni belgiladi — qarordan oldin izohlarni ko‘ring.';
+
+  @override
+  String get platformSitePhotosConfirm => 'Tasdiqlash';
+
+  @override
+  String get platformSitePhotosOverturn => 'Rad etish';
+
+  @override
+  String get platformSitePhotosGov => 'Davlat organlariga yuborish';
+
+  @override
+  String get platformSitePhotosDay3 => 'Funksiya ishlanmoqda';
+
+  @override
+  String get platformSitePhotosAudit => 'Tekshiruv tafsilotlari';
+
+  @override
+  String get siteCycleStatusAwaitingA => 'Baza kerak';
+
+  @override
+  String get siteCycleStatusWaiting => 'Kutish';
+
+  @override
+  String get siteCycleStatusAwaitingB => 'Nazorat kerak';
+
+  @override
+  String get siteCycleStatusInspector => 'Tekshiruvda';
+
+  @override
+  String get siteCycleStatusAnalyzing => 'Tekshirilmoqda';
+
+  @override
+  String get siteCycleStatusConfirmed => 'Tasdiqlangan';
+
+  @override
+  String get siteCycleStatusRejected => 'Rad etilgan';
+
+  @override
+  String get siteCycleStatusMissed => 'Oyna yopildi';
+
+  @override
+  String get siteCycleAnalyzingHint =>
+      'Fotolar tekshirilmoqda. Ekran o‘zi yangilanadi.';
+
+  @override
+  String get siteCycleMissedHint =>
+      'Nazorat fotosi oynasi yopildi. Yangi sikl uchun bazani yuklang.';
+
+  @override
+  String get siteCycleMissedRestart => 'Yangi siklni boshlash';
+
+  @override
+  String get siteCycleIntegrityTitle => 'Butunlik';
+
+  @override
+  String get siteCycleIntegrityPassed => 'O‘tdi';
+
+  @override
+  String get siteCycleIntegrityFailed => 'Diqqat kerak';
+
+  @override
+  String get siteCycleFilterMissed => 'O‘tkazib yuborilgan';
+
+  @override
   String get statusAvailable => 'boʻsh';
 
   @override
@@ -1792,7 +2228,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get roleOrdinaryUser => 'oddiy foydalanuvchi';
 
   @override
-  String get roleResidenceAdmin => 'ЖК administratori';
+  String get roleResidenceAdmin => 'TJ administratori';
 
   @override
   String get roleSystemAdmin => 'platforma administratori';
@@ -1848,6 +2284,13 @@ class AppLocalizationsUz extends AppLocalizations {
   String get navModeration => 'Moderatsiya';
 
   @override
+  String get navSitePhotos => 'Qurilish fotolari';
+
+  @override
+  String get residenceSitePhotosSubtitle =>
+      'Avval baza, keyin shu nuqtadan nazorat yuklang. Platforma juftlikni solishtiradi, qarorni mutaxassis qabul qiladi.';
+
+  @override
   String get navCrm => 'CRM';
 
   @override
@@ -1858,10 +2301,10 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get moderationSubtitle =>
-      'Koʻrib chiqilishini kutayotgan yangi ЖК arizalari va sharhlar shikoyatlari.';
+      'Koʻrib chiqilishini kutayotgan yangi TJ arizalari va sharhlar shikoyatlari.';
 
   @override
-  String get adminProjectsTitle => 'ЖК boshqaruvi';
+  String get adminProjectsTitle => 'TJ boshqaruvi';
 
   @override
   String get adminProjectsSubtitle =>
@@ -1895,7 +2338,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get crmSubtitle =>
-      'Barcha ЖК bo\'yicha barcha murojaatlar — bitta loyiha emas, butun platforma bo\'yicha talab.';
+      'Barcha TJ bo\'yicha barcha murojaatlar — bitta loyiha emas, butun platforma bo\'yicha talab.';
 
   @override
   String get crmKanbanHint =>
@@ -2021,7 +2464,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get ticketsSubtitle =>
-      'Xaridorlar, ijarachilar, quruvchilar va ЖК administratorlaridan murojaatlar.';
+      'Xaridorlar, ijarachilar, quruvchilar va TJ administratorlaridan murojaatlar.';
 
   @override
   String get ticketsEmpty => 'Hozircha chiptalar yo\'q';
@@ -2200,7 +2643,7 @@ class AppLocalizationsUz extends AppLocalizations {
   }
 
   @override
-  String get crmBotMessageByProject => 'Lidlarini ko\'rish uchun ЖКни tanlang.';
+  String get crmBotMessageByProject => 'Lidlarini ko\'rish uchun TJni tanlang.';
 
   @override
   String get crmBotMessageByImportance =>
@@ -2287,7 +2730,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get crmBotOptionHotLeads => 'Issiq lidlar';
 
   @override
-  String get crmBotOptionByProject => 'ЖК bo\'yicha';
+  String get crmBotOptionByProject => 'TJ bo\'yicha';
 
   @override
   String get crmBotOptionByImportance => 'Muhimlik bo\'yicha';
@@ -2314,10 +2757,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get crmBotOptionBackToRoot => 'Boshiga qaytish';
 
   @override
-  String get crmBotOptionBackToProjects => 'ЖКларга qaytish';
+  String get crmBotOptionBackToProjects => 'TJlarga qaytish';
 
   @override
-  String get crmBotOptionBackToProjectMenu => 'ЖК menyusiga qaytish';
+  String get crmBotOptionBackToProjectMenu => 'TJ menyusiga qaytish';
 
   @override
   String get crmBotOptionNeedsResponse => 'Javob kutayotganlar';
@@ -2356,7 +2799,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get crmBotNodeHotLeads => 'Issiq lidlar';
 
   @override
-  String get crmBotNodeByProject => 'ЖК bo\'yicha';
+  String get crmBotNodeByProject => 'TJ bo\'yicha';
 
   @override
   String get crmBotNodeByImportance => 'Muhimlik bo\'yicha';
@@ -2607,10 +3050,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get readinessStatusViolationFound => 'Qoidabuzarlik topildi';
 
   @override
-  String get readinessCheckDialogTitle => 'AI qurilish tayyorligini tekshirish';
+  String get readinessCheckDialogTitle => 'Qurilish tayyorligini tekshirish';
 
   @override
-  String get readinessAnalyzing => 'Surat AI yordamida tekshirilmoqda…';
+  String get readinessAnalyzing => 'Surat tekshirilmoqda…';
 
   @override
   String readinessConfidenceLabel(int percent) {
@@ -2618,7 +3061,7 @@ class AppLocalizationsUz extends AppLocalizations {
   }
 
   @override
-  String get readinessUnavailableTitle => 'AI tekshiruvi mavjud emas';
+  String get readinessUnavailableTitle => 'Tekshiruv mavjud emas';
 
   @override
   String get readinessUnavailableMessage =>
@@ -2645,14 +3088,13 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get readinessOverrideCommentHint =>
-      'Majburiy — AI aniqlagan nomuvofiqlikni tavsiflang';
+      'Majburiy — topilgan nomuvofiqlikni tavsiflang';
 
   @override
-  String get readinessDigestTitle => 'Obyektlar bo\'yicha AI konsultant';
+  String get readinessDigestTitle => 'Obyektlar tayyorligi';
 
   @override
-  String get readinessDigestEmpty =>
-      'Hali AI tomonidan tekshirilgan hisobotlar yo\'q.';
+  String get readinessDigestEmpty => 'Hali tekshirilgan hisobotlar yo\'q.';
 
   @override
   String readinessDigestTrend(int confirmed, int total) {

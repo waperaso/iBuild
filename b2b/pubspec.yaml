@@ -28,6 +28,7 @@ dependencies:
   web: ^1.1.0
   cached_network_image: ^3.4.1
   cached_network_image_platform_interface: ^4.1.1
+  flutter_markdown_plus: ^1.0.7
 
 dev_dependencies:
   flutter_test:

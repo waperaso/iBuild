@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ibuild_core/ibuild_core.dart';
 
 import '../../core/api_client.dart';
 
@@ -560,6 +561,83 @@ class AdminApi {
 
   Future<void> deletePhotoReport(String id) =>
       _dio.delete('/admin/photo-reports/$id');
+
+  Future<SitePhotoCycle> sitePhotoCycle(String projectId) async {
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/admin/projects/$projectId/site-photo-cycle',
+    );
+    return SitePhotoCycle.fromJson(res.data!);
+  }
+
+  Future<SitePhotoCycle> unlockSitePhotoFollowUp(String projectId) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/admin/projects/$projectId/site-photo-cycle/unlock',
+    );
+    return SitePhotoCycle.fromJson(res.data!);
+  }
+
+  Future<SitePhotoCycle> uploadSitePhotoCycleSlot(
+    String projectId, {
+    required String slot,
+    required List<int> bytes,
+    required String filename,
+    required DateTime takenAt,
+    required String userLanguage,
+    void Function(int sent, int total)? onSendProgress,
+  }) async {
+    final form = FormData.fromMap({
+      'takenAt': takenAt.toIso8601String().split('T').first,
+      'userLanguage': userLanguage,
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
+    });
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/admin/projects/$projectId/site-photo-cycle/photo-$slot',
+      data: form,
+      onSendProgress: onSendProgress,
+    );
+    return SitePhotoCycle.fromJson(res.data!);
+  }
+
+  /// Demo pitch: server attaches the bundled photo for this slot in memory.
+  Future<SitePhotoCycle> attachDemoSitePhotoSlot(
+    String projectId, {
+    required String slot,
+    required String userLanguage,
+  }) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/admin/projects/$projectId/site-photo-cycle/photo-$slot',
+      data: {'userLanguage': userLanguage},
+    );
+    return SitePhotoCycle.fromJson(res.data!);
+  }
+
+  Future<List<Map<String, dynamic>>> platformSitePhotoCycles({
+    String? status,
+    String? query,
+  }) async {
+    final res = await _dio.get<List<dynamic>>(
+      '/platform/site-photo-cycles',
+      queryParameters: {
+        if (status != null && status.isNotEmpty) 'status': status,
+        if (query != null && query.isNotEmpty) 'q': query,
+      },
+    );
+    return (res.data ?? []).cast<Map<String, dynamic>>();
+  }
+
+  Future<SitePhotoCycle> confirmSitePhotoCycle(String cycleId) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/platform/site-photo-cycles/$cycleId/confirm',
+    );
+    return SitePhotoCycle.fromJson(res.data!);
+  }
+
+  Future<SitePhotoCycle> overturnSitePhotoCycle(String cycleId) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/platform/site-photo-cycles/$cycleId/overturn',
+    );
+    return SitePhotoCycle.fromJson(res.data!);
+  }
 
   /// Runs the AI readiness check on a photo before it is published (plan
   /// Part 4). Not saved as a report yet — the caller decides whether to

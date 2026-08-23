@@ -154,6 +154,24 @@ abstract class AppLocalizations {
   /// **'You\'ll need to sign in again to access your account.'**
   String get logoutConfirmMessage;
 
+  /// No description provided for @brandSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'B2B'**
+  String get brandSubtitle;
+
+  /// No description provided for @brandSubtitlePlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'B2B | Platform admin'**
+  String get brandSubtitlePlatform;
+
+  /// No description provided for @brandSubtitleResidence.
+  ///
+  /// In en, this message translates to:
+  /// **'B2B | Residence admin'**
+  String get brandSubtitleResidence;
+
   /// No description provided for @loginTitle.
   ///
   /// In en, this message translates to:
@@ -195,6 +213,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in (demo)'**
   String get signInDemo;
+
+  /// No description provided for @signInDemoPlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo · Platform admin'**
+  String get signInDemoPlatform;
+
+  /// No description provided for @signInDemoResidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo · Residence admin'**
+  String get signInDemoResidence;
 
   /// No description provided for @demoButton.
   ///
@@ -3065,6 +3095,744 @@ abstract class AppLocalizations {
   /// **'{percent}%'**
   String projectPhotoReportProgressBadge(int percent);
 
+  /// No description provided for @siteCycleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Site photos'**
+  String get siteCycleTitle;
+
+  /// No description provided for @siteCycleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Baseline → follow-up → check → decision. Two shots from the same place show visible construction progress.'**
+  String get siteCycleSubtitle;
+
+  /// No description provided for @siteCycleUploadA.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload photo 1'**
+  String get siteCycleUploadA;
+
+  /// No description provided for @siteCycleUploadB.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload photo 2'**
+  String get siteCycleUploadB;
+
+  /// No description provided for @siteCycleAwaitingA.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload the first photo of the site. Use a clear view of the main works — the next photo must be taken from this same spot.'**
+  String get siteCycleAwaitingA;
+
+  /// No description provided for @siteCycleWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Baseline saved. The follow-up photo unlocks on {date}.'**
+  String siteCycleWaiting(String date);
+
+  /// No description provided for @siteCycleAwaitingB.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload the follow-up photo from the same place and angle as the baseline.'**
+  String get siteCycleAwaitingB;
+
+  /// No description provided for @siteCycleInspector.
+  ///
+  /// In en, this message translates to:
+  /// **'Both photos are with the platform for review.'**
+  String get siteCycleInspector;
+
+  /// No description provided for @siteCycleSlotA.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo 1'**
+  String get siteCycleSlotA;
+
+  /// No description provided for @siteCycleSlotB.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo 2'**
+  String get siteCycleSlotB;
+
+  /// No description provided for @siteCyclePipeA.
+  ///
+  /// In en, this message translates to:
+  /// **'Baseline'**
+  String get siteCyclePipeA;
+
+  /// No description provided for @siteCyclePipeB.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up'**
+  String get siteCyclePipeB;
+
+  /// No description provided for @siteCyclePipeCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get siteCyclePipeCheck;
+
+  /// No description provided for @siteCyclePipeDecision.
+  ///
+  /// In en, this message translates to:
+  /// **'Decision'**
+  String get siteCyclePipeDecision;
+
+  /// No description provided for @siteCycleSlotWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get siteCycleSlotWaiting;
+
+  /// No description provided for @siteCycleSlotUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded'**
+  String get siteCycleSlotUploaded;
+
+  /// No description provided for @siteCycleEmptySlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Not uploaded'**
+  String get siteCycleEmptySlot;
+
+  /// No description provided for @siteCycleUploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed: {error}'**
+  String siteCycleUploadError(String error);
+
+  /// No description provided for @siteCycleCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up unlocks in {remaining}'**
+  String siteCycleCountdown(String remaining);
+
+  /// No description provided for @siteCycleTooEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'The follow-up photo is not available yet. Wait until the unlock date.'**
+  String get siteCycleTooEarly;
+
+  /// No description provided for @siteCycleUnlockFollowUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock follow-up now'**
+  String get siteCycleUnlockFollowUp;
+
+  /// No description provided for @siteCycleUnlockError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not unlock follow-up: {error}'**
+  String siteCycleUnlockError(String error);
+
+  /// No description provided for @siteCycleWindowOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'You can upload the follow-up photo. Match the baseline viewpoint as closely as possible.'**
+  String get siteCycleWindowOpen;
+
+  /// No description provided for @siteCycleSameViewpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Stand in the same place as for the baseline. Keep the same camera height and framing.'**
+  String get siteCycleSameViewpoint;
+
+  /// No description provided for @siteCycleReferenceA.
+  ///
+  /// In en, this message translates to:
+  /// **'Baseline — match this view'**
+  String get siteCycleReferenceA;
+
+  /// No description provided for @siteCyclePickB.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose follow-up photo'**
+  String get siteCyclePickB;
+
+  /// No description provided for @siteCycleConfirmB.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload follow-up'**
+  String get siteCycleConfirmB;
+
+  /// No description provided for @siteCycleStubVerdict.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for a decision.'**
+  String get siteCycleStubVerdict;
+
+  /// No description provided for @siteCycleHintInspector.
+  ///
+  /// In en, this message translates to:
+  /// **'Both photos are with the platform. A specialist will confirm or reject the check.'**
+  String get siteCycleHintInspector;
+
+  /// No description provided for @siteCycleResultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check result'**
+  String get siteCycleResultTitle;
+
+  /// No description provided for @siteCycleAnalyzeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo check'**
+  String get siteCycleAnalyzeTitle;
+
+  /// No description provided for @siteCycleAnalyzeRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparing the two photos…'**
+  String get siteCycleAnalyzeRunning;
+
+  /// No description provided for @siteCycleSummaryReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for a human decision. Automated notes are a hint, not a final verdict.'**
+  String get siteCycleSummaryReady;
+
+  /// No description provided for @siteCycleSummaryVisionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The automatic check did not finish. A specialist will review the pair manually.'**
+  String get siteCycleSummaryVisionFailed;
+
+  /// No description provided for @siteCycleSummaryIntegrityFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The photos need a closer look before anyone confirms them.'**
+  String get siteCycleSummaryIntegrityFailed;
+
+  /// No description provided for @siteCycleSummaryVisionOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic check is off. A specialist reviews the pair.'**
+  String get siteCycleSummaryVisionOff;
+
+  /// No description provided for @siteCycleCheckViewpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Same viewpoint'**
+  String get siteCycleCheckViewpoint;
+
+  /// No description provided for @siteCycleCheckViewpointYes.
+  ///
+  /// In en, this message translates to:
+  /// **'The follow-up looks taken from the same place and angle as the baseline.'**
+  String get siteCycleCheckViewpointYes;
+
+  /// No description provided for @siteCycleCheckViewpointNo.
+  ///
+  /// In en, this message translates to:
+  /// **'The framing does not match. The follow-up should repeat the baseline view.'**
+  String get siteCycleCheckViewpointNo;
+
+  /// No description provided for @siteCycleCheckViewpointUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The automatic check could not judge the angle. A person will compare the frames.'**
+  String get siteCycleCheckViewpointUnknown;
+
+  /// No description provided for @siteCycleCheckDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates in order'**
+  String get siteCycleCheckDates;
+
+  /// No description provided for @siteCycleCheckDatesYes.
+  ///
+  /// In en, this message translates to:
+  /// **'The follow-up is dated after the baseline, as expected.'**
+  String get siteCycleCheckDatesYes;
+
+  /// No description provided for @siteCycleCheckDatesNo.
+  ///
+  /// In en, this message translates to:
+  /// **'The dates look out of order. The follow-up should be later than the baseline.'**
+  String get siteCycleCheckDatesNo;
+
+  /// No description provided for @siteCycleCheckDatesUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture dates were not found in the files. Upload time is used instead.'**
+  String get siteCycleCheckDatesUnknown;
+
+  /// No description provided for @siteCycleCheckProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Visible progress'**
+  String get siteCycleCheckProgress;
+
+  /// No description provided for @siteCycleCheckProgressValue.
+  ///
+  /// In en, this message translates to:
+  /// **'About {delta} percentage points of visible change between the shots.'**
+  String siteCycleCheckProgressValue(String delta);
+
+  /// No description provided for @siteCycleCheckProgressNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Little or no visible change between the two shots.'**
+  String get siteCycleCheckProgressNone;
+
+  /// No description provided for @siteCycleCheckProgressUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic estimate is not available. Compare the photos yourself.'**
+  String get siteCycleCheckProgressUnknown;
+
+  /// No description provided for @siteCycleCheckNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes for review'**
+  String get siteCycleCheckNotes;
+
+  /// No description provided for @siteCycleCheckNotesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No extra remarks.'**
+  String get siteCycleCheckNotesNone;
+
+  /// No description provided for @siteCycleFlagVerifyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic review stopped unexpectedly. This is not a reject — a person still decides.'**
+  String get siteCycleFlagVerifyError;
+
+  /// No description provided for @siteCycleFlagDocumentationGap.
+  ///
+  /// In en, this message translates to:
+  /// **'The files have no capture date or location tag. That is common for phone exports and is not a stop by itself.'**
+  String get siteCycleFlagDocumentationGap;
+
+  /// No description provided for @siteCycleFlagVisionOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic review is not turned on in this environment.'**
+  String get siteCycleFlagVisionOff;
+
+  /// No description provided for @siteCycleFlagImagesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo files could not be read for automatic checks.'**
+  String get siteCycleFlagImagesUnavailable;
+
+  /// No description provided for @siteCycleFlagPossibleStaging.
+  ///
+  /// In en, this message translates to:
+  /// **'The two files look unusually similar. Confirm they are real shots from different times.'**
+  String get siteCycleFlagPossibleStaging;
+
+  /// No description provided for @siteCycleFlagImageUnusable.
+  ///
+  /// In en, this message translates to:
+  /// **'A photo is too dark, blurry, or otherwise hard to read.'**
+  String get siteCycleFlagImageUnusable;
+
+  /// No description provided for @siteCycleFlagViewpointMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera position or framing probably changed.'**
+  String get siteCycleFlagViewpointMismatch;
+
+  /// No description provided for @siteCycleFlagNoProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost no new work is visible between the shots.'**
+  String get siteCycleFlagNoProgress;
+
+  /// No description provided for @siteCycleFlagHiddenWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Some claimed work is not visible in the frame.'**
+  String get siteCycleFlagHiddenWork;
+
+  /// No description provided for @siteCycleFlagWrongSite.
+  ///
+  /// In en, this message translates to:
+  /// **'The follow-up may show a different place.'**
+  String get siteCycleFlagWrongSite;
+
+  /// No description provided for @siteCycleFlagIntegrityConcern.
+  ///
+  /// In en, this message translates to:
+  /// **'A local file check raised a remark for the reviewer.'**
+  String get siteCycleFlagIntegrityConcern;
+
+  /// No description provided for @siteCycleFlagGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'There is an extra remark for the reviewer.'**
+  String get siteCycleFlagGeneric;
+
+  /// No description provided for @siteCycleResultSameViewpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Same viewpoint'**
+  String get siteCycleResultSameViewpoint;
+
+  /// No description provided for @siteCycleResultProgressDelta.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress change'**
+  String get siteCycleResultProgressDelta;
+
+  /// No description provided for @siteCycleResultFlags.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get siteCycleResultFlags;
+
+  /// No description provided for @siteCycleResultNone.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get siteCycleResultNone;
+
+  /// No description provided for @siteCycleHintConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo check was confirmed.'**
+  String get siteCycleHintConfirmed;
+
+  /// No description provided for @siteCycleHintRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo check was rejected. Start a new cycle if you need another review.'**
+  String get siteCycleHintRejected;
+
+  /// No description provided for @siteCycleLockedUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up photo unlocks on {date}.'**
+  String siteCycleLockedUntil(String date);
+
+  /// No description provided for @siteCycleUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading… {percent}%'**
+  String siteCycleUploading(int percent);
+
+  /// No description provided for @siteCycleOverlayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking photos'**
+  String get siteCycleOverlayTitle;
+
+  /// No description provided for @siteCycleOverlaySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the photos.'**
+  String get siteCycleOverlaySubtitle;
+
+  /// No description provided for @siteCycleOverlayStepRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading both photos'**
+  String get siteCycleOverlayStepRead;
+
+  /// No description provided for @siteCycleOverlayStepView.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the same viewpoint'**
+  String get siteCycleOverlayStepView;
+
+  /// No description provided for @siteCycleOverlayStepDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking dates'**
+  String get siteCycleOverlayStepDates;
+
+  /// No description provided for @siteCycleOverlayStepProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimating visible progress'**
+  String get siteCycleOverlayStepProgress;
+
+  /// No description provided for @siteCycleOverlayStepNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing the inspector notes'**
+  String get siteCycleOverlayStepNotes;
+
+  /// No description provided for @siteCycleVerdictConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'AI: confirmed'**
+  String get siteCycleVerdictConfirm;
+
+  /// No description provided for @siteCycleVerdictReject.
+  ///
+  /// In en, this message translates to:
+  /// **'AI: rejected'**
+  String get siteCycleVerdictReject;
+
+  /// No description provided for @siteCycleVerdictReview.
+  ///
+  /// In en, this message translates to:
+  /// **'AI: needs review'**
+  String get siteCycleVerdictReview;
+
+  /// No description provided for @siteCycleGetJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Get JSON'**
+  String get siteCycleGetJson;
+
+  /// No description provided for @siteCycleGetJsonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check request and response'**
+  String get siteCycleGetJsonTitle;
+
+  /// No description provided for @siteCycleCopyJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get siteCycleCopyJson;
+
+  /// No description provided for @siteCycleCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get siteCycleCopied;
+
+  /// No description provided for @siteCycleReuploadLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-upload in {remaining}'**
+  String siteCycleReuploadLocked(String remaining);
+
+  /// No description provided for @platformSitePhotosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Site photos'**
+  String get platformSitePhotosTitle;
+
+  /// No description provided for @platformSitePhotosSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Construction photo checks across all residences.'**
+  String get platformSitePhotosSubtitle;
+
+  /// No description provided for @platformSitePhotosFilterConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get platformSitePhotosFilterConfirmed;
+
+  /// No description provided for @platformSitePhotosFilterRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get platformSitePhotosFilterRejected;
+
+  /// No description provided for @platformSitePhotosActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update this check.'**
+  String get platformSitePhotosActionFailed;
+
+  /// No description provided for @platformSitePhotosEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No photo checks yet.'**
+  String get platformSitePhotosEmpty;
+
+  /// No description provided for @platformSitePhotosFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get platformSitePhotosFilterAll;
+
+  /// No description provided for @platformSitePhotosFilterA.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs baseline'**
+  String get platformSitePhotosFilterA;
+
+  /// No description provided for @platformSitePhotosFilterWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get platformSitePhotosFilterWaiting;
+
+  /// No description provided for @platformSitePhotosFilterB.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs follow-up'**
+  String get platformSitePhotosFilterB;
+
+  /// No description provided for @platformSitePhotosFilterInspector.
+  ///
+  /// In en, this message translates to:
+  /// **'In review'**
+  String get platformSitePhotosFilterInspector;
+
+  /// No description provided for @platformSitePhotosColProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Residence'**
+  String get platformSitePhotosColProject;
+
+  /// No description provided for @platformSitePhotosColDeveloper.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get platformSitePhotosColDeveloper;
+
+  /// No description provided for @platformSitePhotosColStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get platformSitePhotosColStatus;
+
+  /// No description provided for @platformSitePhotosColDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get platformSitePhotosColDue;
+
+  /// No description provided for @platformSitePhotosStubAiOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for your decision.'**
+  String get platformSitePhotosStubAiOff;
+
+  /// No description provided for @platformSitePhotosAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated check in progress…'**
+  String get platformSitePhotosAnalyzing;
+
+  /// No description provided for @platformSitePhotosIntegrityFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Integrity checks flagged this pair — review findings before confirming.'**
+  String get platformSitePhotosIntegrityFail;
+
+  /// No description provided for @platformSitePhotosConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get platformSitePhotosConfirm;
+
+  /// No description provided for @platformSitePhotosOverturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get platformSitePhotosOverturn;
+
+  /// No description provided for @platformSitePhotosGov.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to authorities'**
+  String get platformSitePhotosGov;
+
+  /// No description provided for @platformSitePhotosDay3.
+  ///
+  /// In en, this message translates to:
+  /// **'In development'**
+  String get platformSitePhotosDay3;
+
+  /// No description provided for @platformSitePhotosAudit.
+  ///
+  /// In en, this message translates to:
+  /// **'Check details'**
+  String get platformSitePhotosAudit;
+
+  /// No description provided for @siteCycleStatusAwaitingA.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs baseline'**
+  String get siteCycleStatusAwaitingA;
+
+  /// No description provided for @siteCycleStatusWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get siteCycleStatusWaiting;
+
+  /// No description provided for @siteCycleStatusAwaitingB.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs follow-up'**
+  String get siteCycleStatusAwaitingB;
+
+  /// No description provided for @siteCycleStatusInspector.
+  ///
+  /// In en, this message translates to:
+  /// **'In review'**
+  String get siteCycleStatusInspector;
+
+  /// No description provided for @siteCycleStatusAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking'**
+  String get siteCycleStatusAnalyzing;
+
+  /// No description provided for @siteCycleStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get siteCycleStatusConfirmed;
+
+  /// No description provided for @siteCycleStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get siteCycleStatusRejected;
+
+  /// No description provided for @siteCycleStatusMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Window closed'**
+  String get siteCycleStatusMissed;
+
+  /// No description provided for @siteCycleAnalyzingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the photos. This screen updates automatically.'**
+  String get siteCycleAnalyzingHint;
+
+  /// No description provided for @siteCycleMissedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The follow-up window closed without a second photo. Upload a new baseline to start again.'**
+  String get siteCycleMissedHint;
+
+  /// No description provided for @siteCycleMissedRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start new cycle'**
+  String get siteCycleMissedRestart;
+
+  /// No description provided for @siteCycleIntegrityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Integrity'**
+  String get siteCycleIntegrityTitle;
+
+  /// No description provided for @siteCycleIntegrityPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'Passed'**
+  String get siteCycleIntegrityPassed;
+
+  /// No description provided for @siteCycleIntegrityFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get siteCycleIntegrityFailed;
+
+  /// No description provided for @siteCycleFilterMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get siteCycleFilterMissed;
+
   /// No description provided for @statusAvailable.
   ///
   /// In en, this message translates to:
@@ -3304,6 +4072,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Moderation'**
   String get navModeration;
+
+  /// No description provided for @navSitePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Site photos'**
+  String get navSitePhotos;
+
+  /// No description provided for @residenceSitePhotosSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a baseline, then a follow-up from the same spot. The platform checks the pair and a specialist makes the decision.'**
+  String get residenceSitePhotosSubtitle;
 
   /// No description provided for @navCrm.
   ///
@@ -4688,13 +5468,13 @@ abstract class AppLocalizations {
   /// No description provided for @readinessCheckDialogTitle.
   ///
   /// In en, this message translates to:
-  /// **'AI construction readiness check'**
+  /// **'Construction readiness check'**
   String get readinessCheckDialogTitle;
 
   /// No description provided for @readinessAnalyzing.
   ///
   /// In en, this message translates to:
-  /// **'Checking the photo with AI…'**
+  /// **'Checking the photo…'**
   String get readinessAnalyzing;
 
   /// No description provided for @readinessConfidenceLabel.
@@ -4706,7 +5486,7 @@ abstract class AppLocalizations {
   /// No description provided for @readinessUnavailableTitle.
   ///
   /// In en, this message translates to:
-  /// **'AI check unavailable'**
+  /// **'Check unavailable'**
   String get readinessUnavailableTitle;
 
   /// No description provided for @readinessUnavailableMessage.
@@ -4754,19 +5534,19 @@ abstract class AppLocalizations {
   /// No description provided for @readinessOverrideCommentHint.
   ///
   /// In en, this message translates to:
-  /// **'Required — describe the discrepancy the AI flagged'**
+  /// **'Required — describe the discrepancy found in the check'**
   String get readinessOverrideCommentHint;
 
   /// No description provided for @readinessDigestTitle.
   ///
   /// In en, this message translates to:
-  /// **'AI consultant on objects'**
+  /// **'Site readiness'**
   String get readinessDigestTitle;
 
   /// No description provided for @readinessDigestEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No AI-verified reports yet.'**
+  /// **'No verified reports yet.'**
   String get readinessDigestEmpty;
 
   /// No description provided for @readinessDigestTrend.

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +12,6 @@ import 'package:latlong2/latlong.dart';
 
 import '../../core/constants/districts.dart';
 import '../../core/env.dart';
-import '../../core/localization/locale_controller.dart';
 import '../../core/localization/status_labels.dart';
 import '../../core/localization/verification_codes.dart';
 import '../../core/network/ws_client.dart';
@@ -35,6 +33,7 @@ import '../ai_crm/ai_crm_providers.dart';
 import '../ai_crm/ai_crm_widgets.dart';
 import '../auth/auth.dart';
 import '../crm/crm_shared.dart';
+import 'site_photo_cycle_card.dart';
 
 // The residence project-detail admin screen was a ~1500-line "god file". Its
 // self-contained sub-widgets and dialogs are split into feature-scoped part
@@ -61,7 +60,6 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
   String _leadOwnerFilter = 'all';
   String _leadBandFilter = 'all';
   List<Map<String, dynamic>> _offers = [];
-  List<Map<String, dynamic>> _photoReports = [];
   Map<String, dynamic>? _analytics;
   String? _error;
   bool _loading = true;
@@ -73,8 +71,6 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
   bool _deleting = false;
   bool _gridView = true;
   String? _kindFilter;
-  bool _uploadingPhotoReport = false;
-  double _photoReportProgress = 0;
   late final TextEditingController _addressController;
   late final TextEditingController _otherDistrictController;
   late final TextEditingController _plannedProgressController;
@@ -386,7 +382,6 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
         ),
         api.projectOffers(widget.projectId),
         api.projectAnalytics(widget.projectId),
-        api.projectPhotoReports(widget.projectId),
       ]);
       setState(() {
         _project = project;
@@ -394,7 +389,6 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
         _leads = results[0] as List<Map<String, dynamic>>;
         _offers = results[1] as List<Map<String, dynamic>>;
         _analytics = results[2] as Map<String, dynamic>;
-        _photoReports = results[3] as List<Map<String, dynamic>>;
       });
     } catch (e) {
       setState(() => _error = e.toString());
@@ -582,136 +576,6 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
           ),
         );
       }
-    }
-  }
-
-  /// Multipart photo-report upload with live send progress. Before the real
-  /// upload, the picked photo goes through the AI readiness check (plan
-  /// Part 4, `POST /photo-reports/analyze`) via [_runReadinessCheck], which
-  /// gates whether/how the upload proceeds based on `overall_status`.
-  Future<void> _addPhotoReport() async {
-    final result = await FilePicker.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
-    if (result == null || result.files.isEmpty) return;
-    final picked = result.files.single;
-    final bytes = picked.bytes;
-    if (bytes == null || !mounted) return;
-
-    final spec = await showDialog<_PhotoReportSpec>(
-      context: context,
-      builder: (_) => const _PhotoReportDetailsDialog(),
-    );
-    if (spec == null || !mounted) return;
-
-    final outcome = await _runReadinessCheck(
-      bytes: bytes,
-      filename: picked.name,
-      spec: spec,
-    );
-    if (outcome == null || !mounted) return;
-
-    setState(() {
-      _uploadingPhotoReport = true;
-      _photoReportProgress = 0;
-    });
-    try {
-      await ref
-          .read(adminApiProvider)
-          .uploadPhotoReport(
-            widget.projectId,
-            bytes: bytes,
-            filename: picked.name,
-            takenAt: spec.takenAt,
-            progressPercent: spec.progressPercent,
-            declaredStage: spec.declaredStage,
-            comment: outcome.comment,
-            onSendProgress: (sent, total) {
-              if (total <= 0 || !mounted) return;
-              setState(() => _photoReportProgress = sent / total);
-            },
-          );
-      final reports = await ref
-          .read(adminApiProvider)
-          .projectPhotoReports(widget.projectId);
-      if (mounted) setState(() => _photoReports = reports);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context).projectPhotoReportUploadError('$e'),
-            ),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _uploadingPhotoReport = false);
-    }
-  }
-
-  /// Runs the AI readiness check (plan Part 4) on the picked photo before
-  /// the real upload. Returns `null` when the flow should stop entirely
-  /// (user cancelled, or chose "Переснять" after a block) — otherwise a
-  /// [_ReadinessOutcome] carrying the optional override comment to send with
-  /// the real upload. Never blocks the core workflow when the AI engine
-  /// itself is unavailable (still 501 until the sibling ships it): the
-  /// analyze call's own failure surfaces an "unavailable" choice to proceed
-  /// without a check rather than a crash or dead end.
-  Future<_ReadinessOutcome?> _runReadinessCheck({
-    required List<int> bytes,
-    required String filename,
-    required _PhotoReportSpec spec,
-  }) async {
-    final language = ref.read(localeControllerProvider).languageCode;
-    Map<String, dynamic>? analysis;
-    Object? error;
-    unawaited(
-      showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => const _AnalyzingDialog(),
-      ),
-    );
-    try {
-      analysis = await ref
-          .read(adminApiProvider)
-          .analyzePhotoReport(
-            widget.projectId,
-            bytes: bytes,
-            filename: filename,
-            declaredStage: spec.declaredStage,
-            progressPercent: spec.progressPercent,
-            userLanguage: language,
-          );
-    } catch (e) {
-      error = e;
-    }
-    if (!mounted) return null;
-    Navigator.of(context, rootNavigator: true).pop();
-    if (!mounted) return null;
-
-    if (error != null || analysis == null) {
-      final proceed = await showDialog<bool>(
-        context: context,
-        builder: (_) => const _ReadinessUnavailableDialog(),
-      );
-      return proceed == true ? const _ReadinessOutcome(comment: null) : null;
-    }
-
-    if (!mounted) return null;
-    return showDialog<_ReadinessOutcome>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => _VerificationResultDialog(analysis: analysis!),
-    );
-  }
-
-  Future<void> _deletePhotoReport(String id) async {
-    await ref.read(adminApiProvider).deletePhotoReport(id);
-    if (mounted) {
-      setState(() => _photoReports = _photoReports.where((r) => r['id'] != id).toList());
     }
   }
 
@@ -1088,6 +952,51 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
           _PlatformWarningBanner(note: _platformWarningNote(project)!),
         ],
         const SizedBox(height: AppSpacing.xxl),
+        SitePhotoCycleCard(projectId: widget.projectId),
+        const SizedBox(height: AppSpacing.xxl),
+        SectionHeader(title: l10n.projectScheduleSectionTitle),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          l10n.projectScheduleSubtitle,
+          style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _plannedProgressController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(3),
+                ],
+                decoration: InputDecoration(
+                  labelText: l10n.projectPlannedProgressLabel,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _plannedProgressController,
+                builder: (context, value, _) => _ScheduleGapHint(
+                  actual: (project['constructionProgress'] as num?)?.round() ?? 0,
+                  planned: int.tryParse(value.text.trim()),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Align(
+                alignment: Alignment.centerRight,
+                child: PillButton(
+                  label: l10n.projectScheduleSave,
+                  loading: _savingSchedule,
+                  onPressed: _savingSchedule ? null : _saveSchedule,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xxl),
         SectionHeader(title: l10n.projectLocationSectionTitle),
         const SizedBox(height: AppSpacing.md),
         AppCard(
@@ -1450,94 +1359,6 @@ class _ProjectDetailAdminState extends ConsumerState<ProjectDetailAdmin> {
             ),
           ),
         const SizedBox(height: AppSpacing.xxl),
-        SectionHeader(title: l10n.projectScheduleSectionTitle),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          l10n.projectScheduleSubtitle,
-          style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: _plannedProgressController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(3),
-                ],
-                decoration: InputDecoration(
-                  labelText: l10n.projectPlannedProgressLabel,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              ValueListenableBuilder<TextEditingValue>(
-                valueListenable: _plannedProgressController,
-                builder: (context, value, _) => _ScheduleGapHint(
-                  actual: (project['constructionProgress'] as num?)?.round() ?? 0,
-                  planned: int.tryParse(value.text.trim()),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Align(
-                alignment: Alignment.centerRight,
-                child: PillButton(
-                  label: l10n.projectScheduleSave,
-                  loading: _savingSchedule,
-                  onPressed: _savingSchedule ? null : _saveSchedule,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xxl),
-        SectionHeader(title: l10n.projectPhotoReportsTitle),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          l10n.projectPhotoReportsSubtitle,
-          style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _ReadinessDigest(reports: _photoReports),
-        const SizedBox(height: AppSpacing.md),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: PillButton(
-            label: l10n.projectAddPhotoReport,
-            icon: Icons.add_photo_alternate_outlined,
-            variant: PillButtonVariant.outline,
-            loading: _uploadingPhotoReport,
-            onPressed: _uploadingPhotoReport ? null : _addPhotoReport,
-          ),
-        ),
-        if (_uploadingPhotoReport) ...[
-          const SizedBox(height: AppSpacing.md),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadii.pill),
-            child: LinearProgressIndicator(value: _photoReportProgress),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            l10n.projectPhotoReportUploading(
-              (_photoReportProgress * 100).round(),
-            ),
-            style: textTheme.bodySmall?.copyWith(color: colors.inkMuted),
-          ),
-        ],
-        const SizedBox(height: AppSpacing.md),
-        if (_photoReports.isEmpty)
-          EmptyState(
-            compact: true,
-            icon: Icons.photo_library_outlined,
-            title: l10n.projectPhotoReportsEmpty,
-          )
-        else
-          _PhotoReportsByMonth(
-            reports: _photoReports,
-            onDelete: _deletePhotoReport,
-          ),
       ],
     );
 
