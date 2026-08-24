@@ -104,16 +104,16 @@ class DemoEntrySection extends StatelessWidget {
       children: [
         const SizedBox(height: AppSpacing.md),
         DemoEntryButton(
-          profile: DemoLoginProfile.platform,
+          profile: DemoLoginProfile.residence,
           expand: expand,
-          icon: Icons.admin_panel_settings_outlined,
+          icon: Icons.apartment_outlined,
           variant: PillButtonVariant.accent,
         ),
         const SizedBox(height: AppSpacing.sm),
         DemoEntryButton(
-          profile: DemoLoginProfile.residence,
+          profile: DemoLoginProfile.platform,
           expand: expand,
-          icon: Icons.apartment_outlined,
+          icon: Icons.admin_panel_settings_outlined,
           variant: PillButtonVariant.outline,
         ),
       ],
