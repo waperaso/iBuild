@@ -1438,10 +1438,23 @@ class Store {
     });
   }
 
+  String _demoSitePhotoUrl({
+    String? photoUrl,
+    String? sampleFile,
+    required String defaultFile,
+  }) {
+    if (photoUrl != null && photoUrl.trim().isNotEmpty) return photoUrl.trim();
+    final sample = sampleFile?.trim();
+    if (sample != null && kSitePhotoDemoSampleFiles.contains(sample)) {
+      return staticResidencePhoto(sample);
+    }
+    return staticResidencePhoto(defaultFile);
+  }
+
   Map<String, dynamic> _demoSitePhotoReport({
     required String projectId,
     required String cycleId,
-    required String filename,
+    required String photoUrl,
     required String role,
     required DateTime takenAt,
     required int progressPercent,
@@ -1449,7 +1462,7 @@ class Store {
     return <String, dynamic>{
       'id': 'pr-demo-${_uuid.v4()}',
       'projectId': projectId,
-      'photoUrl': staticResidencePhoto(filename),
+      'photoUrl': photoUrl,
       'takenAt': _dateOnly(takenAt),
       'takenAtIsManual': true,
       'progressPercent': progressPercent,
@@ -1462,7 +1475,14 @@ class Store {
 
   /// Pitch-only: attach bundled photo 1. Skips the 14-day wait so photo 2
   /// can be uploaded next. In-memory (`demoEphemeral`); does not persist.
-  void attachDemoSitePhotoBaseline(String cycleId, {String? userLanguage}) {
+  void attachDemoSitePhotoBaseline(
+    String cycleId, {
+    String? userLanguage,
+    String? photoUrl,
+    String? sampleFile,
+    DateTime? takenAt,
+    int? progressPercent,
+  }) {
     final cycle = sitePhotoCycleById(cycleId);
     if (cycle == null || cycle['demoEphemeral'] != true) {
       throw StateError('CYCLE_NOT_FOUND');
@@ -1471,31 +1491,42 @@ class Store {
     if (cycle['photoAId'] != null || cycle['status'] != 'awaiting_a') {
       throw StateError('ALREADY_HAS_A');
     }
-    final takenAt = DateTime.now().toUtc();
+    final shotAt = (takenAt ?? DateTime.now()).toUtc();
     final report = _demoSitePhotoReport(
       projectId: cycle['projectId'] as String,
       cycleId: cycleId,
-      filename: kSitePhotoDemoAFile,
+      photoUrl: _demoSitePhotoUrl(
+        photoUrl: photoUrl,
+        sampleFile: sampleFile,
+        defaultFile: kSitePhotoDemoAFile,
+      ),
       role: 'baseline_a',
-      takenAt: takenAt,
-      progressPercent: 90,
+      takenAt: shotAt,
+      progressPercent: progressPercent ?? 90,
     );
     photoReports.add(report);
     cycle['photoAId'] = report['id'];
     cycle['status'] = 'awaiting_b';
-    cycle['dueAt'] = takenAt.toIso8601String();
-    cycle['windowEndAt'] = takenAt
+    cycle['dueAt'] = shotAt.toIso8601String();
+    cycle['windowEndAt'] = shotAt
         .add(const Duration(minutes: kSitePhotoDemoGraceMinutes))
         .toIso8601String();
     if (userLanguage != null) {
       cycle['userLanguage'] = normalizeSitePhotoLanguage(userLanguage);
     }
-    cycle['updatedAt'] = takenAt.toIso8601String();
+    cycle['updatedAt'] = shotAt.toIso8601String();
   }
 
   /// Pitch-only: attach bundled photo 2 and start the check.
   /// In-memory (`demoEphemeral`); does not persist.
-  void attachDemoSitePhotoFollowUp(String cycleId, {String? userLanguage}) {
+  void attachDemoSitePhotoFollowUp(
+    String cycleId, {
+    String? userLanguage,
+    String? photoUrl,
+    String? sampleFile,
+    DateTime? takenAt,
+    int? progressPercent,
+  }) {
     final cycle = sitePhotoCycleById(cycleId);
     if (cycle == null || cycle['demoEphemeral'] != true) {
       throw StateError('CYCLE_NOT_FOUND');
@@ -1506,14 +1537,18 @@ class Store {
     if (cycle['status'] == 'waiting') throw StateError('TOO_EARLY');
     if (cycle['status'] == 'missed') throw StateError('WINDOW_CLOSED');
     if (cycle['status'] != 'awaiting_b') throw StateError('NOT_AWAITING_B');
-    final takenAt = DateTime.now().toUtc();
+    final shotAt = (takenAt ?? DateTime.now()).toUtc();
     final report = _demoSitePhotoReport(
       projectId: cycle['projectId'] as String,
       cycleId: cycleId,
-      filename: kSitePhotoDemoBFile,
+      photoUrl: _demoSitePhotoUrl(
+        photoUrl: photoUrl,
+        sampleFile: sampleFile,
+        defaultFile: kSitePhotoDemoBFile,
+      ),
       role: 'followup_b',
-      takenAt: takenAt,
-      progressPercent: 92,
+      takenAt: shotAt,
+      progressPercent: progressPercent ?? 92,
     );
     photoReports.add(report);
     if (userLanguage != null) {

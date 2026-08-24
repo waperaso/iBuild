@@ -410,6 +410,20 @@ void main() {
     await store.awaitPendingVerifyJobs();
   });
 
+  test('demo residence can pick alternate bundled sample for photo-a', () async {
+    final demo = store.createDemoSession(profile: 'b2b_residence');
+    final response = await handler(
+      _post(
+        '/v1/admin/projects/prj-nestone/site-photo-cycle/photo-a',
+        {'userLanguage': 'ru', 'sampleFile': 'nestone.png'},
+        token: demo.accessToken,
+      ),
+    );
+    expect(response.statusCode, 201);
+    final afterA = (await _decode(response))['data'] as Map;
+    expect((afterA['photoA'] as Map)['photoUrl'], contains('nestone.png'));
+  });
+
   test('demo staging does not mutate live NestOne cycle', () {
     final before = store.sitePhotoCycleForProject('prj-nestone');
     final beforeId = before?['id'];

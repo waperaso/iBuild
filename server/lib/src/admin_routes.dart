@@ -2744,16 +2744,81 @@ Future<Response> _handleDemoCyclePhotoUpload(
   }
 
   String? userLanguage;
+  String? sampleFile;
   final contentType = req.headers['content-type'] ?? '';
+  if (contentType.contains('multipart/form-data')) {
+    final parsed = await _handleMultipartPhotoReport(req);
+    if (parsed == null) {
+      return jsonError('VALIDATION_ERROR', 'file is required', status: 422);
+    }
+    userLanguage = parsed.userLanguage;
+    userLanguage = normalizeSitePhotoLanguage(
+      userLanguage ?? req.headers['accept-language'],
+    );
+    DateTime takenAt;
+    var takenAtIsManual = false;
+    if (parsed.takenAt != null && parsed.takenAt!.isNotEmpty) {
+      final parsedDate = DateTime.tryParse(parsed.takenAt!);
+      if (parsedDate == null) {
+        return jsonError(
+          'VALIDATION_ERROR',
+          'takenAt must be a valid date',
+          status: 422,
+        );
+      }
+      takenAt = parsedDate;
+      takenAtIsManual = true;
+    } else {
+      takenAt = DateTime.now();
+    }
+    try {
+      if (role == 'baseline_a') {
+        store.attachDemoSitePhotoBaseline(
+          cycle['id'] as String,
+          userLanguage: userLanguage,
+          photoUrl: parsed.url,
+          takenAt: takenAtIsManual ? takenAt : null,
+          progressPercent: parsed.progressPercent,
+        );
+      } else {
+        store.attachDemoSitePhotoFollowUp(
+          cycle['id'] as String,
+          userLanguage: userLanguage,
+          photoUrl: parsed.url,
+          takenAt: takenAtIsManual ? takenAt : null,
+          progressPercent: parsed.progressPercent,
+        );
+        _enqueueConstructionVerify(
+          store: store,
+          cycleId: cycle['id'] as String,
+          actorUserId: req.auth!.userId,
+          openAiClient: openAiClient,
+        );
+      }
+    } on StateError catch (e) {
+      return _cycleStateError(e);
+    }
+    final refreshed = store.sitePhotoCycleForProject(
+          projectId,
+          includeDemoEphemeral: true,
+        ) ??
+        cycle;
+    return jsonOk(
+      store.serializeSitePhotoCycle(
+        refreshed,
+        forPlatform: req.auth!.isSystemAdmin,
+      ),
+      status: 201,
+    );
+  }
+
   if (contentType.contains('application/json')) {
     try {
       final body = await req.readJson();
       userLanguage = body['userLanguage'] as String? ??
           body['user_language'] as String?;
+      sampleFile = body['sampleFile'] as String?;
     } catch (_) {}
-  } else if (contentType.contains('multipart/form-data')) {
-    final parsed = await _handleMultipartPhotoReport(req);
-    userLanguage = parsed?.userLanguage;
   }
   userLanguage = normalizeSitePhotoLanguage(
     userLanguage ?? req.headers['accept-language'],
@@ -2764,11 +2829,13 @@ Future<Response> _handleDemoCyclePhotoUpload(
       store.attachDemoSitePhotoBaseline(
         cycle['id'] as String,
         userLanguage: userLanguage,
+        sampleFile: sampleFile,
       );
     } else {
       store.attachDemoSitePhotoFollowUp(
         cycle['id'] as String,
         userLanguage: userLanguage,
+        sampleFile: sampleFile,
       );
       _enqueueConstructionVerify(
         store: store,

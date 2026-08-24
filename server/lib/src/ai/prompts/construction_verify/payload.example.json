@@ -15,6 +15,12 @@
     "plannedProgress": 62,
     "intervalDays": 14
   },
+  "temporal": {
+    "ok": true,
+    "reason": "interval_ok",
+    "gapDays": 14,
+    "expectedDays": 14
+  },
   "user_language": "ru",
   "integrity": {
     "source": "ibuild_local",
