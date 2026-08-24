@@ -434,6 +434,10 @@ String sitePhotoFlagExplanation(AppLocalizations l10n, String flag) {
     'hidden_work_not_visible' => l10n.siteCycleFlagHiddenWork,
     'wrong_site' => l10n.siteCycleFlagWrongSite,
     'integrity_concern' => l10n.siteCycleFlagIntegrityConcern,
+    'progress_implausible_for_interval' => l10n.siteCycleFlagProgressImplausible,
+    'regulatory_escalation_recommended' => l10n.siteCycleFlagRegulatoryEscalation,
+    'interval_too_short' => l10n.siteCycleFlagIntervalTooShort,
+    'b_before_a' => l10n.siteCycleFlagDatesReversed,
     _ => l10n.siteCycleFlagGeneric,
   };
 }

@@ -1792,6 +1792,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get siteCycleEmptySlot => 'Not uploaded';
 
   @override
+  String get siteCycleLibraryTitle => 'Test photo library';
+
+  @override
+  String get siteCycleLibrarySubtitle =>
+      'Pick a sample or upload your own photos for A/B verification tests.';
+
+  @override
+  String get siteCycleLibraryBuiltin => 'Samples';
+
+  @override
+  String get siteCycleLibraryMine => 'Your uploads';
+
+  @override
+  String get siteCycleLibraryAdd => 'Upload to library';
+
+  @override
+  String get siteCycleLibraryUse => 'Use this photo';
+
+  @override
+  String get siteCycleLibrarySampleA => 'Sample · baseline';
+
+  @override
+  String get siteCycleLibrarySampleB => 'Sample · follow-up';
+
+  @override
+  String get siteCycleLibrarySampleBefore => 'Before · baseline';
+
+  @override
+  String get siteCycleLibrarySampleAfter => 'After · follow-up';
+
+  @override
+  String get siteCycleLibraryTooLarge => 'Photo is too large (max 1.5 MB).';
+
+  @override
+  String siteCycleLibraryAddError(String error) {
+    return 'Could not add photo: $error';
+  }
+
+  @override
   String siteCycleUploadError(String error) {
     return 'Upload failed: $error';
   }
@@ -1957,6 +1996,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get siteCycleFlagIntegrityConcern =>
       'A local file check raised a remark for the reviewer.';
+
+  @override
+  String get siteCycleFlagProgressImplausible =>
+      'Visible progress does not match the time between photos — suspicious for this interval.';
+
+  @override
+  String get siteCycleFlagRegulatoryEscalation =>
+      'Consider escalating to construction oversight authorities.';
+
+  @override
+  String get siteCycleFlagIntervalTooShort =>
+      'Follow-up photo is dated too soon after the baseline.';
+
+  @override
+  String get siteCycleFlagDatesReversed =>
+      'Follow-up date is earlier than the baseline date.';
 
   @override
   String get siteCycleFlagGeneric =>

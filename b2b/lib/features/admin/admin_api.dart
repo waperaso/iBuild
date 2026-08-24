@@ -603,10 +603,15 @@ class AdminApi {
     String projectId, {
     required String slot,
     required String userLanguage,
+    String? sampleFile,
   }) async {
     final res = await _dio.post<Map<String, dynamic>>(
       '/admin/projects/$projectId/site-photo-cycle/photo-$slot',
-      data: {'userLanguage': userLanguage},
+      data: {
+        'userLanguage': userLanguage,
+        if (sampleFile != null && sampleFile.isNotEmpty)
+          'sampleFile': sampleFile,
+      },
     );
     return SitePhotoCycle.fromJson(res.data!);
   }

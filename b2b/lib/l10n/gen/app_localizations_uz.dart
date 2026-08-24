@@ -1794,6 +1794,45 @@ class AppLocalizationsUz extends AppLocalizations {
   String get siteCycleEmptySlot => 'Yuklanmagan';
 
   @override
+  String get siteCycleLibraryTitle => 'Test foto kutubxonasi';
+
+  @override
+  String get siteCycleLibrarySubtitle =>
+      'Namuna tanlang yoki A→B tekshiruvi uchun oʻz fotolaringizni yuklang.';
+
+  @override
+  String get siteCycleLibraryBuiltin => 'Namunalar';
+
+  @override
+  String get siteCycleLibraryMine => 'Sizning yuklamalaringiz';
+
+  @override
+  String get siteCycleLibraryAdd => 'Kutubxonaga yuklash';
+
+  @override
+  String get siteCycleLibraryUse => 'Shu fotoni ishlatish';
+
+  @override
+  String get siteCycleLibrarySampleA => 'Namuna · baza';
+
+  @override
+  String get siteCycleLibrarySampleB => 'Namuna · nazorat';
+
+  @override
+  String get siteCycleLibrarySampleBefore => 'Oldin · baza';
+
+  @override
+  String get siteCycleLibrarySampleAfter => 'Keyin · nazorat';
+
+  @override
+  String get siteCycleLibraryTooLarge => 'Foto juda katta (maks. 1,5 MB).';
+
+  @override
+  String siteCycleLibraryAddError(String error) {
+    return 'Fotoni qoʻshib boʻlmadi: $error';
+  }
+
+  @override
   String siteCycleUploadError(String error) {
     return 'Yuklash xatosi: $error';
   }
@@ -1958,6 +1997,21 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get siteCycleFlagIntegrityConcern =>
       'Mahalliy fayl tekshiruvi mutaxassis uchun izoh qoldirdi.';
+
+  @override
+  String get siteCycleFlagProgressImplausible =>
+      'Ko‘rinadigan progress fotolar orasidagi muddatga mos emas — shubhali.';
+
+  @override
+  String get siteCycleFlagRegulatoryEscalation =>
+      'Qurilish nazorat organlariga uzatish tavsiya etiladi.';
+
+  @override
+  String get siteCycleFlagIntervalTooShort =>
+      'Nazorat fotosi bazadan juda erta sanalangan.';
+
+  @override
+  String get siteCycleFlagDatesReversed => 'Nazorat sanasi bazadan oldin.';
 
   @override
   String get siteCycleFlagGeneric => 'Mutaxassis uchun qoʻshimcha izoh bor.';

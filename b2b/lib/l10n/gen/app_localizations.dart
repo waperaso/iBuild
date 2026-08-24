@@ -3197,6 +3197,78 @@ abstract class AppLocalizations {
   /// **'Not uploaded'**
   String get siteCycleEmptySlot;
 
+  /// No description provided for @siteCycleLibraryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test photo library'**
+  String get siteCycleLibraryTitle;
+
+  /// No description provided for @siteCycleLibrarySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a sample or upload your own photos for A/B verification tests.'**
+  String get siteCycleLibrarySubtitle;
+
+  /// No description provided for @siteCycleLibraryBuiltin.
+  ///
+  /// In en, this message translates to:
+  /// **'Samples'**
+  String get siteCycleLibraryBuiltin;
+
+  /// No description provided for @siteCycleLibraryMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Your uploads'**
+  String get siteCycleLibraryMine;
+
+  /// No description provided for @siteCycleLibraryAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload to library'**
+  String get siteCycleLibraryAdd;
+
+  /// No description provided for @siteCycleLibraryUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this photo'**
+  String get siteCycleLibraryUse;
+
+  /// No description provided for @siteCycleLibrarySampleA.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample · baseline'**
+  String get siteCycleLibrarySampleA;
+
+  /// No description provided for @siteCycleLibrarySampleB.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample · follow-up'**
+  String get siteCycleLibrarySampleB;
+
+  /// No description provided for @siteCycleLibrarySampleBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Before · baseline'**
+  String get siteCycleLibrarySampleBefore;
+
+  /// No description provided for @siteCycleLibrarySampleAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'After · follow-up'**
+  String get siteCycleLibrarySampleAfter;
+
+  /// No description provided for @siteCycleLibraryTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo is too large (max 1.5 MB).'**
+  String get siteCycleLibraryTooLarge;
+
+  /// No description provided for @siteCycleLibraryAddError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add photo: {error}'**
+  String siteCycleLibraryAddError(String error);
+
   /// No description provided for @siteCycleUploadError.
   ///
   /// In en, this message translates to:
@@ -3460,6 +3532,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A local file check raised a remark for the reviewer.'**
   String get siteCycleFlagIntegrityConcern;
+
+  /// No description provided for @siteCycleFlagProgressImplausible.
+  ///
+  /// In en, this message translates to:
+  /// **'Visible progress does not match the time between photos — suspicious for this interval.'**
+  String get siteCycleFlagProgressImplausible;
+
+  /// No description provided for @siteCycleFlagRegulatoryEscalation.
+  ///
+  /// In en, this message translates to:
+  /// **'Consider escalating to construction oversight authorities.'**
+  String get siteCycleFlagRegulatoryEscalation;
+
+  /// No description provided for @siteCycleFlagIntervalTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up photo is dated too soon after the baseline.'**
+  String get siteCycleFlagIntervalTooShort;
+
+  /// No description provided for @siteCycleFlagDatesReversed.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up date is earlier than the baseline date.'**
+  String get siteCycleFlagDatesReversed;
 
   /// No description provided for @siteCycleFlagGeneric.
   ///

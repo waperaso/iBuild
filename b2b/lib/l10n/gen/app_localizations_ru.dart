@@ -1793,6 +1793,45 @@ class AppLocalizationsRu extends AppLocalizations {
   String get siteCycleEmptySlot => 'Нет фото';
 
   @override
+  String get siteCycleLibraryTitle => 'Библиотека тестовых фото';
+
+  @override
+  String get siteCycleLibrarySubtitle =>
+      'Выберите образец или загрузите свои фото для проверки A→B.';
+
+  @override
+  String get siteCycleLibraryBuiltin => 'Образцы';
+
+  @override
+  String get siteCycleLibraryMine => 'Ваши загрузки';
+
+  @override
+  String get siteCycleLibraryAdd => 'Загрузить в библиотеку';
+
+  @override
+  String get siteCycleLibraryUse => 'Использовать фото';
+
+  @override
+  String get siteCycleLibrarySampleA => 'Образец · база';
+
+  @override
+  String get siteCycleLibrarySampleB => 'Образец · контроль';
+
+  @override
+  String get siteCycleLibrarySampleBefore => 'До · база';
+
+  @override
+  String get siteCycleLibrarySampleAfter => 'После · контроль';
+
+  @override
+  String get siteCycleLibraryTooLarge => 'Фото слишком большое (макс. 1,5 МБ).';
+
+  @override
+  String siteCycleLibraryAddError(String error) {
+    return 'Не удалось добавить фото: $error';
+  }
+
+  @override
   String siteCycleUploadError(String error) {
     return 'Ошибка загрузки: $error';
   }
@@ -1957,6 +1996,22 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get siteCycleFlagIntegrityConcern =>
       'Локальная проверка файла оставила замечание для специалиста.';
+
+  @override
+  String get siteCycleFlagProgressImplausible =>
+      'Видимый прогресс не соответствует сроку между снимками — подозрительно для такого интервала.';
+
+  @override
+  String get siteCycleFlagRegulatoryEscalation =>
+      'Рекомендуется передать в надзорные органы строительства.';
+
+  @override
+  String get siteCycleFlagIntervalTooShort =>
+      'Контрольный снимок датирован слишком рано после базового.';
+
+  @override
+  String get siteCycleFlagDatesReversed =>
+      'Дата контрольного снимка раньше базового.';
 
   @override
   String get siteCycleFlagGeneric =>

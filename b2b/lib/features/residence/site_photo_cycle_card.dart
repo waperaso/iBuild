@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ibuild_core/ibuild_core.dart';
@@ -12,9 +11,10 @@ import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_theme_ext.dart';
 import '../../core/widgets/pill_button.dart';
 import '../../core/widgets/section_header.dart';
-import '../../core/widgets/app_network_image.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../admin/admin_api.dart';
+import 'site_photo_library_picker.dart';
+import 'site_photo_test_library.dart';
 import 'site_photo_verify_chrome.dart';
 import 'site_photo_verify_overlay.dart';
 
@@ -198,18 +198,8 @@ class _SitePhotoCycleCardState extends ConsumerState<SitePhotoCycleCard> {
   }
 
   Future<void> _uploadA() async {
-    if (DemoSession.isActive) {
-      await _attachDemo('a');
-      return;
-    }
-    final picked = await FilePicker.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
-    if (picked == null || picked.files.isEmpty || !mounted) return;
-    final file = picked.files.single;
-    final bytes = file.bytes;
-    if (bytes == null) return;
+    final picked = await showSitePhotoLibraryPicker(context, ref);
+    if (picked == null || !mounted) return;
     final takenAt = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -217,30 +207,51 @@ class _SitePhotoCycleCardState extends ConsumerState<SitePhotoCycleCard> {
       lastDate: DateTime.now(),
     );
     if (takenAt == null || !mounted) return;
-    await _send(slot: 'a', bytes: bytes, filename: file.name, takenAt: takenAt);
+    await _applyLibraryPick(slot: 'a', pick: picked, takenAt: takenAt);
   }
 
   Future<void> _openUploadB() async {
     final cycle = _cycle;
     if (cycle?.photoA == null) return;
-    if (DemoSession.isActive) {
-      await _attachDemo('b');
+    final picked = await showSitePhotoLibraryPicker(
+      context,
+      ref,
+      referencePhoto: cycle!.photoA,
+    );
+    if (picked == null || !mounted) return;
+    final takenAt = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2018),
+      lastDate: DateTime.now(),
+    );
+    if (takenAt == null || !mounted) return;
+    await _applyLibraryPick(slot: 'b', pick: picked, takenAt: takenAt);
+  }
+
+  Future<void> _applyLibraryPick({
+    required String slot,
+    required SitePhotoLibraryPick pick,
+    required DateTime takenAt,
+  }) async {
+    if (DemoSession.isActive &&
+        pick.demoSampleFile != null &&
+        pick.entry.kind == SitePhotoLibraryKind.builtin) {
+      await _attachDemo(slot, sampleFile: pick.demoSampleFile);
       return;
     }
-    final result = await showDialog<_PickedPhotoB>(
-      context: context,
-      builder: (_) => _UploadPhotoBDialog(reference: cycle!.photoA!),
-    );
-    if (result == null || !mounted) return;
+    final bytes = pick.bytes;
+    final filename = pick.filename;
+    if (bytes == null || filename == null) return;
     await _send(
-      slot: 'b',
-      bytes: result.bytes,
-      filename: result.filename,
-      takenAt: result.takenAt,
+      slot: slot,
+      bytes: bytes,
+      filename: filename,
+      takenAt: takenAt,
     );
   }
 
-  Future<void> _attachDemo(String slot) async {
+  Future<void> _attachDemo(String slot, {String? sampleFile}) async {
     final l10n = AppLocalizations.of(context);
     setState(() {
       _uploading = true;
@@ -251,6 +262,7 @@ class _SitePhotoCycleCardState extends ConsumerState<SitePhotoCycleCard> {
         widget.projectId,
         slot: slot,
         userLanguage: _uiLanguage,
+        sampleFile: sampleFile,
       );
       if (!mounted) return;
       setState(() => _cycle = cycle);
@@ -496,174 +508,6 @@ class _SitePhotoCycleCardState extends ConsumerState<SitePhotoCycleCard> {
           else if (cycle.status == 'analyzing')
             const SizedBox.shrink(),
         ],
-      ],
-    );
-  }
-}
-
-class _PickedPhotoB {
-  const _PickedPhotoB({
-    required this.bytes,
-    required this.filename,
-    required this.takenAt,
-  });
-
-  final Uint8List bytes;
-  final String filename;
-  final DateTime takenAt;
-}
-
-class _UploadPhotoBDialog extends StatefulWidget {
-  const _UploadPhotoBDialog({required this.reference});
-
-  final SitePhotoRef reference;
-
-  @override
-  State<_UploadPhotoBDialog> createState() => _UploadPhotoBDialogState();
-}
-
-class _UploadPhotoBDialogState extends State<_UploadPhotoBDialog> {
-  Uint8List? _bytes;
-  String? _filename;
-  DateTime _takenAt = DateTime.now();
-
-  Future<void> _pick() async {
-    final picked = await FilePicker.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
-    if (picked == null || picked.files.isEmpty) return;
-    final file = picked.files.single;
-    if (file.bytes == null) return;
-    setState(() {
-      _bytes = file.bytes;
-      _filename = file.name;
-    });
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _takenAt,
-      firstDate: DateTime(2018),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) setState(() => _takenAt = picked);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = context.colors;
-    final textTheme = Theme.of(context).textTheme;
-    final canSubmit = _bytes != null && _filename != null;
-    final dialogW = (MediaQuery.sizeOf(context).width - 80).clamp(0.0, 560.0);
-    return AlertDialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      title: Text(l10n.siteCycleUploadB),
-      content: SizedBox(
-        width: dialogW,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-            Text(l10n.siteCycleSameViewpoint, style: textTheme.bodyMedium),
-            const SizedBox(height: AppSpacing.md),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.siteCycleReferenceA,
-                        style: textTheme.labelMedium,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadii.md),
-                        child: AspectRatio(
-                          aspectRatio: 4 / 3,
-                          child: AppNetworkImage(
-                            url: widget.reference.photoUrl,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l10n.siteCycleSlotB, style: textTheme.labelMedium),
-                      const SizedBox(height: AppSpacing.xs),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadii.md),
-                        child: AspectRatio(
-                          aspectRatio: 4 / 3,
-                          child: _bytes == null
-                              ? ColoredBox(
-                                  color: colors.surfaceAlt,
-                                  child: Center(
-                                    child: Text(l10n.siteCycleEmptySlot),
-                                  ),
-                                )
-                              : Image.memory(_bytes!, fit: BoxFit.cover),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: PillButton(
-                label: l10n.siteCyclePickB,
-                icon: Icons.photo_library_outlined,
-                variant: PillButtonVariant.outline,
-                onPressed: _pick,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            InkWell(
-              onTap: _pickDate,
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: l10n.projectPhotoReportDateLabel,
-                  suffixIcon: const Icon(Icons.calendar_today_outlined),
-                ),
-                child: Text(DateFormat.yMMMd().format(_takenAt)),
-              ),
-            ),
-          ],
-        ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.commonCancel),
-        ),
-        PillButton(
-          label: l10n.siteCycleConfirmB,
-          onPressed: !canSubmit
-              ? null
-              : () => Navigator.pop(
-                  context,
-                  _PickedPhotoB(
-                    bytes: _bytes!,
-                    filename: _filename!,
-                    takenAt: _takenAt,
-                  ),
-                ),
-        ),
       ],
     );
   }
