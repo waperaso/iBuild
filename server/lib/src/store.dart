@@ -3792,9 +3792,21 @@ class Store {
       'progressDelta': storedMap?['progressDelta'],
       'flags': storedMap?['flags'] ?? <String>[],
       'summary': summary,
+      // Structured report lives on lastResult / verifyExport.response;
+      // without these keys the B2B card falls back to the short checklist
+      // and hides conclusion / per-photo findings / risks / recommendations.
+      if (storedMap != null && storedMap['overallConclusion'] != null)
+        'overallConclusion': storedMap['overallConclusion'],
+      if (storedMap != null && storedMap['photoFindings'] != null)
+        'photoFindings': storedMap['photoFindings'],
+      if (storedMap != null && storedMap['risks'] != null)
+        'risks': storedMap['risks'],
+      if (storedMap != null && storedMap['recommendations'] != null)
+        'recommendations': storedMap['recommendations'],
       'temporal': storedMap?['temporal'] ?? passThrough,
       'normative': storedMap?['normative'] ?? passThrough,
-      if (storedMap?['integrity'] != null) 'integrity': storedMap!['integrity'],
+      if (storedMap != null && storedMap['integrity'] != null)
+        'integrity': storedMap['integrity'],
     };
   }
 

@@ -453,6 +453,25 @@ List<String> _resultRecommendations(Map<String, dynamic>? result) {
       .toList();
 }
 
+/// The inspect card reads structured fields off `result`. Older API
+/// responses put the same payload only on `verifyExport.response` (Get JSON
+/// had the full report while the page showed the short checklist). Merge
+/// so either side is enough to render the styled report.
+Map<String, dynamic>? sitePhotoDisplayResult(
+  Map<String, dynamic>? result,
+  Map<String, dynamic>? verifyExport,
+) {
+  final exportRaw = verifyExport?['response'];
+  final export = exportRaw is Map
+      ? Map<String, dynamic>.from(exportRaw)
+      : const <String, dynamic>{};
+  if (result == null && export.isEmpty) return null;
+  return <String, dynamic>{
+    ...export,
+    ...?result,
+  };
+}
+
 String sitePhotoFlagExplanation(AppLocalizations l10n, String flag) {
   return switch (flag) {
     'verify_error' => l10n.siteCycleFlagVerifyError,
@@ -685,13 +704,14 @@ class SitePhotoInspectResultCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
-    final raw = result?['summary']?.toString();
+    final display = sitePhotoDisplayResult(result, verifyExport);
+    final raw = display?['summary']?.toString();
     final showMarkdown = !_isMachineSummary(raw);
-    final conclusion = result?['overallConclusion']?.toString().trim();
+    final conclusion = display?['overallConclusion']?.toString().trim();
     final hasConclusion = conclusion != null && conclusion.isNotEmpty;
-    final findings = _resultPhotoFindings(result);
-    final risks = _resultRisks(result);
-    final recommendations = _resultRecommendations(result);
+    final findings = _resultPhotoFindings(display);
+    final risks = _resultRisks(display);
+    final recommendations = _resultRecommendations(display);
     final hasStructuredReport =
         hasConclusion || findings.isNotEmpty || risks.isNotEmpty || recommendations.isNotEmpty;
     return _VerifyPanel(

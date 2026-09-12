@@ -552,6 +552,45 @@ void main() {
     );
   });
 
+  test('GET result includes structured AI report fields', () async {
+    final owner = await _owner(
+      handler,
+      store,
+      phone: '+998907110016',
+      inn: '301210016',
+    );
+    await _reachInspector(handler, store, owner: owner);
+    final cycle = store.sitePhotoCycleForProject(owner.projectId)!;
+    final stored = Map<String, dynamic>.from(cycle['lastResult'] as Map);
+    stored['overallConclusion'] = 'Развёрнутый вывод для инспектора.';
+    stored['photoFindings'] = [
+      {'role': 'a', 'stage': 'Каркас', 'description': 'Описание A.'},
+      {'role': 'b', 'stage': 'Отделка', 'description': 'Описание B.'},
+    ];
+    stored['risks'] = [
+      {
+        'description': 'Разный ракурс',
+        'level': 'medium',
+        'normReference': null,
+        'recommendation': 'Переснять из одной точки.',
+      },
+    ];
+    stored['recommendations'] = ['Запросить повторную съёмку.'];
+    cycle['lastResult'] = stored;
+
+    final get = await handler(
+      _get(
+        '/v1/admin/projects/${owner.projectId}/site-photo-cycle',
+        token: owner.token,
+      ),
+    );
+    final result = (await _decode(get))['data']['result'] as Map;
+    expect(result['overallConclusion'], 'Развёрнутый вывод для инспектора.');
+    expect(result['photoFindings'], hasLength(2));
+    expect((result['risks'] as List).first, containsPair('level', 'medium'));
+    expect(result['recommendations'], ['Запросить повторную съёмку.']);
+  });
+
   test('system admin can overturn an inspector cycle', () async {
     store.ensureUser(phone: '+998901234567', role: 'system_admin');
     final adminToken = await _signIn(handler, '+998901234567');
