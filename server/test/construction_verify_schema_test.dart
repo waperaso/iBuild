@@ -111,6 +111,94 @@ void main() {
     expect(parsed!['verdict'], 'needs_review');
   });
 
+  test('accepts and passes through the structured report fields', () {
+    final parsed = parseConstructionVerifyJson('''
+      {
+        "verdict": "reject",
+        "confidence": 0.9,
+        "summary": "Different rooms.",
+        "sameViewpoint": false,
+        "progressDelta": null,
+        "overallConclusion": "Фото A и Фото B показывают разные помещения.",
+        "photoFindings": [
+          {"role": "a", "stage": "Каркас", "description": "Открытое пространство."},
+          {"role": "b", "stage": "Отделка", "description": "Готовая комната."}
+        ],
+        "risks": [
+          {
+            "description": "Разные помещения на A и B",
+            "level": "high",
+            "normReference": null,
+            "recommendation": "Запросить пересъёмку одного места."
+          }
+        ],
+        "recommendations": ["Запросить повторную загрузку фото B."],
+        "flags": ["different_location"]
+      }
+    ''');
+    expect(parsed, isNotNull);
+    expect(parsed!['overallConclusion'], contains('разные помещения'));
+    final findings = parsed['photoFindings'] as List;
+    expect(findings, hasLength(2));
+    expect((findings[0] as Map)['role'], 'a');
+    final risks = parsed['risks'] as List;
+    expect(risks, hasLength(1));
+    expect((risks[0] as Map)['level'], 'high');
+    expect((risks[0] as Map)['normReference'], isNull);
+    expect(parsed['recommendations'], contains('Запросить повторную загрузку фото B.'));
+  });
+
+  test('drops malformed structured items instead of failing the whole parse', () {
+    final parsed = parseConstructionVerifyJson('''
+      {
+        "verdict": "needs_review",
+        "confidence": 0.5,
+        "summary": "ok",
+        "photoFindings": [
+          {"role": "a", "stage": "Каркас", "description": "Ok."},
+          {"role": "c", "stage": "Bad role", "description": "Dropped."},
+          {"role": "b", "stage": "", "description": "Dropped: empty stage."}
+        ],
+        "risks": [
+          {"description": "Valid", "level": "low", "recommendation": "Ok"},
+          {"description": "Bad level", "level": "critical", "recommendation": "Dropped"}
+        ]
+      }
+    ''');
+    expect(parsed, isNotNull);
+    final findings = parsed!['photoFindings'] as List;
+    expect(findings, hasLength(1));
+    final risks = parsed['risks'] as List;
+    expect(risks, hasLength(1));
+    expect((risks[0] as Map)['level'], 'low');
+  });
+
+  test('rejects the response only when a structured field is the wrong type', () {
+    expect(
+      parseConstructionVerifyJson(
+        '{"verdict":"confirm","confidence":0.9,"summary":"ok","risks":"nope"}',
+      ),
+      isNull,
+    );
+    expect(
+      parseConstructionVerifyJson(
+        '{"verdict":"confirm","confidence":0.9,"summary":"ok",'
+        '"overallConclusion":123}',
+      ),
+      isNull,
+    );
+  });
+
+  test('omits structured keys entirely for legacy vendor responses', () {
+    final parsed = parseConstructionVerifyJson(
+      '{"verdict":"confirm","confidence":0.9,"summary":"ok"}',
+    );
+    expect(parsed, isNotNull);
+    expect(parsed!.containsKey('overallConclusion'), isFalse);
+    expect(parsed.containsKey('photoFindings'), isFalse);
+    expect(parsed.containsKey('risks'), isFalse);
+  });
+
   test('temporal check flags short intervals and B-before-A', () {
     final a = DateTime.utc(2026, 1, 1);
     final early = temporalCheck(

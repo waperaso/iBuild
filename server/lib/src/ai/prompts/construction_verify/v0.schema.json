@@ -7,6 +7,34 @@
     "summary": { "type": "string" },
     "sameViewpoint": { "type": "boolean" },
     "progressDelta": { "type": ["number", "null"] },
-    "flags": { "type": "array", "items": { "type": "string" } }
+    "flags": { "type": "array", "items": { "type": "string" } },
+    "overallConclusion": { "type": "string" },
+    "photoFindings": {
+      "type": "array",
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["role", "stage", "description"],
+        "properties": {
+          "role": { "enum": ["a", "b"] },
+          "stage": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description", "level", "recommendation"],
+        "properties": {
+          "description": { "type": "string" },
+          "level": { "enum": ["low", "medium", "high"] },
+          "normReference": { "type": ["string", "null"] },
+          "recommendation": { "type": "string" }
+        }
+      }
+    },
+    "recommendations": { "type": "array", "items": { "type": "string" } }
   }
 }
