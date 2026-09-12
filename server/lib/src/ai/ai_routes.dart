@@ -13,6 +13,7 @@ import '../store.dart';
 import 'ai_quota.dart';
 import 'lead_scoring_engine.dart';
 import 'openai_client.dart';
+import 'prompt_bundle.dart';
 import 'prompts.dart';
 import 'readiness_engine.dart';
 import 'search_suggester.dart';
@@ -808,6 +809,63 @@ void mountAiRoutes(
     return jsonOk({
       ...snapshot.toJson(),
       'available': client.isConfigured && snapshot.allowed,
+    });
+  });
+
+  /// `GET /v1/platform/ai/status` — system-admin-only wiring check for the
+  /// OpenAI integration. Added after an incident where the A→B construction
+  /// verify pipeline silently never called OpenAI for weeks (both
+  /// `AI_VISION_ENABLED`/`OPENAI_API_KEY` *and* the mounted construction-verify
+  /// prompt were missing on the server, and nothing surfaced that — every
+  /// cycle just quietly landed on `needs_review` with a `vision_disabled` /
+  /// `prompt_not_shipped` flag that nobody was watching).
+  ///
+  /// Call this right after every deploy and on a recurring health-check
+  /// timer (see `server/deploy/healthcheck-ai.sh`); alert if
+  /// `constructionVerifyReady` is `false`. Never returns the API key itself —
+  /// only booleans, model names, and the prompt's sha256 (so a silent prompt
+  /// edit is also visible as a hash change, not just a boolean).
+  ///
+  /// 401 `UNAUTHENTICATED`, 403 `FORBIDDEN` (system admin only — this leaks
+  /// infra config shape, not just app data).
+  ///
+  /// Response:
+  /// ```json
+  /// {
+  ///   "chatConfigured": true,          // OPENAI_API_KEY set, AI_ENABLED != false
+  ///   "visionEnabled": true,           // chatConfigured && AI_VISION_ENABLED=true
+  ///   "chatModel": "gpt-4o-mini",
+  ///   "visionModel": "gpt-4o",
+  ///   "constructionVerifyPromptShipped": true,   // real prompt, not the placeholder
+  ///   "constructionVerifyPromptId": "construction_verify/v0",
+  ///   "constructionVerifyPromptSha256": "…",
+  ///   "constructionVerifyReady": true  // visionEnabled && promptShipped
+  /// }
+  /// ```
+  router.get('/v1/platform/ai/status', (Request req) async {
+    final auth = req.auth;
+    if (auth == null) {
+      return jsonError(
+        'UNAUTHENTICATED',
+        'Authentication required',
+        status: 401,
+      );
+    }
+    if (!auth.isSystemAdmin) {
+      return jsonError('FORBIDDEN', 'System admin access required', status: 403);
+    }
+    final prompt = loadPromptBundle();
+    final visionEnabled = client.isVisionEnabled;
+    final promptShipped = prompt.isShipped;
+    return jsonOk({
+      'chatConfigured': client.isConfigured,
+      'visionEnabled': visionEnabled,
+      'chatModel': client.model,
+      'visionModel': client.visionModel,
+      'constructionVerifyPromptShipped': promptShipped,
+      'constructionVerifyPromptId': prompt.id,
+      'constructionVerifyPromptSha256': prompt.sha256hex,
+      'constructionVerifyReady': visionEnabled && promptShipped,
     });
   });
 
