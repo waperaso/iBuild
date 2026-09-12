@@ -44,7 +44,7 @@ void main() {
     );
     expect(out, contains('needs_review'));
     expect(captured, isNotNull);
-    expect(captured!['model'], 'gpt-4o');
+    expect(captured!['model'], 'gpt-5.6-luna');
     expect(captured!['response_format'], {'type': 'json_object'});
     final messages = captured!['messages'] as List;
     final content = (messages[1] as Map)['content'] as List;

@@ -835,7 +835,7 @@ void mountAiRoutes(
   ///   "chatConfigured": true,          // OPENAI_API_KEY set, AI_ENABLED != false
   ///   "visionEnabled": true,           // chatConfigured && AI_VISION_ENABLED=true
   ///   "chatModel": "gpt-4o-mini",
-  ///   "visionModel": "gpt-4o",
+  ///   "visionModel": "gpt-5.6-luna",
   ///   "constructionVerifyPromptShipped": true,   // real prompt, not the placeholder
   ///   "constructionVerifyPromptId": "construction_verify/v0",
   ///   "constructionVerifyPromptSha256": "…",

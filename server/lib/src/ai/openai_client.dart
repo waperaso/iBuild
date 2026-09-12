@@ -64,7 +64,7 @@ class OpenAiClient {
   static const _defaultModel = 'gpt-4o-mini';
 
   /// A vs B construction photos; override with `OPENAI_VISION_MODEL`.
-  static const _defaultVisionModel = 'gpt-4o';
+  static const _defaultVisionModel = 'gpt-5.6-luna';
   static const _defaultBaseUrl = 'https://api.openai.com/v1';
 
   /// Upstream is slow under load; below ~20s the client sees spurious failures.

@@ -114,8 +114,8 @@ Map<String, dynamic> buildSafeVerifyExport({
   };
 }
 
-/// Runs after photo B. Default path is stub → inspector. Real gpt-4o is used
-/// only when vision is on, the prompt is shipped, both images are local
+/// Runs after photo B. Default path is stub → inspector. Real vision (gpt-5.6-luna)
+/// is used only when vision is on, the prompt is shipped, both images are local
 /// files, **and** the local integrity gate passes (checksum / EXIF / geotag /
 /// perceptual duplicate). If the gate fails, OpenAI is not called. If it
 /// passes, Vision still runs. Never auto-confirms: a human always sees the cycle.
