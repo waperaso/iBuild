@@ -135,6 +135,40 @@ class OpenAiClient {
       isConfigured &&
       (appEnv()['AI_VISION_ENABLED'] ?? '').trim().toLowerCase() == 'true';
 
+  /// GPT-5+ / o-series reject Chat Completions `max_tokens` and any
+  /// `temperature` override. Detect by prefix so a later
+  /// `OPENAI_VISION_MODEL=gpt-5.6-terra` keeps working without another
+  /// client rewrite.
+  static bool usesReasoningApiParams(String model) {
+    final m = model.trim().toLowerCase();
+    return m.startsWith('gpt-5') ||
+        m.startsWith('gpt-6') ||
+        m.startsWith('o1') ||
+        m.startsWith('o3') ||
+        m.startsWith('o4');
+  }
+
+  Map<String, dynamic> _chatCompletionBody({
+    required String model,
+    required List<Map<String, dynamic>> messages,
+    required int maxTokens,
+    required double temperature,
+    Map<String, dynamic>? extra,
+  }) {
+    final body = <String, dynamic>{
+      'model': model,
+      'messages': messages,
+      if (extra != null) ...extra,
+    };
+    if (usesReasoningApiParams(model)) {
+      body['max_completion_tokens'] = maxTokens;
+    } else {
+      body['max_tokens'] = maxTokens;
+      body['temperature'] = temperature;
+    }
+    return body;
+  }
+
   /// Text chat completion. Returns the assistant message content.
   /// Throws [AiUnavailableException] on any upstream or transport failure.
   Future<String> complete({
@@ -144,15 +178,15 @@ class OpenAiClient {
     double temperature = 0.4,
     Duration timeout = defaultTimeout,
   }) => _postChatCompletion(
-    body: {
-      'model': model,
-      'max_tokens': maxTokens,
-      'temperature': temperature,
-      'messages': [
+    body: _chatCompletionBody(
+      model: model,
+      maxTokens: maxTokens,
+      temperature: temperature,
+      messages: [
         {'role': 'system', 'content': systemPrompt},
         ...messages.map((m) => m.toJson()),
       ],
-    },
+    ),
     timeout: timeout,
   );
 
@@ -167,11 +201,11 @@ class OpenAiClient {
     double temperature = 0.0,
     Duration timeout = defaultTimeout,
   }) => _postChatCompletion(
-    body: {
-      'model': model,
-      'max_tokens': maxTokens,
-      'temperature': temperature,
-      'messages': [
+    body: _chatCompletionBody(
+      model: model,
+      maxTokens: maxTokens,
+      temperature: temperature,
+      messages: [
         {'role': 'system', 'content': systemPrompt},
         {
           'role': 'user',
@@ -184,7 +218,7 @@ class OpenAiClient {
           ],
         },
       ],
-    },
+    ),
     timeout: timeout,
   );
 
@@ -203,12 +237,14 @@ class OpenAiClient {
       throw const AiUnavailableException();
     }
     return _postChatCompletion(
-      body: {
-        'model': visionModel,
-        'max_tokens': maxTokens,
-        'temperature': temperature,
-        'response_format': {'type': 'json_object'},
-        'messages': [
+      body: _chatCompletionBody(
+        model: visionModel,
+        maxTokens: maxTokens,
+        temperature: temperature,
+        extra: const {
+          'response_format': {'type': 'json_object'},
+        },
+        messages: [
           {'role': 'system', 'content': systemPrompt},
           {
             'role': 'user',
@@ -222,7 +258,7 @@ class OpenAiClient {
             ],
           },
         ],
-      },
+      ),
       timeout: timeout,
     );
   }
@@ -397,10 +433,9 @@ class OpenAiClient {
       stderr.writeln('[OpenAiClient] OPENAI_API_KEY is not set');
       throw const AiUnavailableException();
     }
-    final body = {
+    final body = <String, dynamic>{
       'model': visionModel,
       'max_output_tokens': maxTokens,
-      'temperature': temperature,
       'instructions': systemPrompt,
       'text': {
         'format': {'type': 'json_object'},
@@ -427,6 +462,14 @@ class OpenAiClient {
         },
       ],
     };
+    // GPT-5.6 Luna (and the rest of the reasoning family) rejects
+    // `temperature`. Keep a cheap reasoning budget so vision JSON still
+    // finishes inside [visionTimeout].
+    if (usesReasoningApiParams(visionModel)) {
+      body['reasoning'] = {'effort': 'low'};
+    } else {
+      body['temperature'] = temperature;
+    }
     final client = HttpClient()..connectionTimeout = timeout;
     try {
       final request = await client

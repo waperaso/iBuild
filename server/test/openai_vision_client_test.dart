@@ -7,6 +7,14 @@ import 'package:test/test.dart';
 import '../lib/src/ai/openai_client.dart';
 
 void main() {
+  test('usesReasoningApiParams covers GPT-5+ and o-series only', () {
+    expect(OpenAiClient.usesReasoningApiParams('gpt-5.6-luna'), isTrue);
+    expect(OpenAiClient.usesReasoningApiParams('gpt-5.6-terra'), isTrue);
+    expect(OpenAiClient.usesReasoningApiParams('o3'), isTrue);
+    expect(OpenAiClient.usesReasoningApiParams('gpt-4o'), isFalse);
+    expect(OpenAiClient.usesReasoningApiParams('gpt-4o-mini'), isFalse);
+  });
+
   test('completeWithImages posts two image_url parts and json_object mode', () async {
     Map<String, dynamic>? captured;
     final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
@@ -46,6 +54,9 @@ void main() {
     expect(captured, isNotNull);
     expect(captured!['model'], 'gpt-5.6-luna');
     expect(captured!['response_format'], {'type': 'json_object'});
+    expect(captured!.containsKey('max_tokens'), isFalse);
+    expect(captured!.containsKey('temperature'), isFalse);
+    expect(captured!['max_completion_tokens'], 1200);
     final messages = captured!['messages'] as List;
     final content = (messages[1] as Map)['content'] as List;
     expect(content.where((c) => (c as Map)['type'] == 'image_url').length, 2);
@@ -120,6 +131,9 @@ void main() {
     expect(fileParts.length, 2);
     expect((fileParts[0] as Map)['file_id'], 'file-1');
     expect((fileParts[1] as Map)['file_id'], 'file-2');
+    expect(responsesBody!.containsKey('temperature'), isFalse);
+    expect(responsesBody!['reasoning'], {'effort': 'low'});
+    expect(responsesBody!['max_output_tokens'], 2000);
     final textPart = content.cast<Map>().firstWhere(
       (c) => c['type'] == 'input_text',
     );
@@ -192,6 +206,9 @@ void main() {
     );
     expect(out, contains('fallback'));
     expect(chatBody, isNotNull);
+    expect(chatBody!.containsKey('max_tokens'), isFalse);
+    expect(chatBody!.containsKey('temperature'), isFalse);
+    expect(chatBody!['max_completion_tokens'], 2000);
     final content =
         ((chatBody!['messages'] as List)[1] as Map)['content'] as List;
     expect(content.where((c) => (c as Map)['type'] == 'image_url').length, 2);
