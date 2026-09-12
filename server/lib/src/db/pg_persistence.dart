@@ -1210,24 +1210,42 @@ class PgPersistence {
     final rows = await _db.execute(
       'SELECT * FROM site_photo_cycles ORDER BY updated_at DESC',
     );
-    return rows.map((r) {
-      final m = r.toColumnMap();
-      return {
-        'id': m['id'],
-        'projectId': m['project_id'],
-        'intervalDays': m['interval_days'] ?? 14,
-        'graceDays': m['grace_days'] ?? 3,
-        'status': m['status'],
-        'photoAId': m['photo_a_id'],
-        'photoBId': m['photo_b_id'],
-        'dueAt': _isoTs(m['due_at']),
-        'windowEndAt': _isoTs(m['window_end_at']),
-        'promptVersion': m['prompt_version'],
-        'vendorJobId': m['vendor_job_id'],
-        'createdAt': _isoTs(m['created_at']),
-        'updatedAt': _isoTs(m['updated_at']),
-      };
-    }).toList();
+    return rows.map((r) => _sitePhotoCycleFromRow(r.toColumnMap())).toList();
+  }
+
+  /// Decodes `last_result` / `verify_export` — the AI verdict, structured
+  /// report, and safe export. Without this, every API restart silently lost
+  /// the analysis for any cycle already past `analyzing` (see migration
+  /// 0021): the API only ever kept these two fields in memory.
+  Map<String, dynamic> _sitePhotoCycleFromRow(Map<String, dynamic> m) {
+    Map<String, dynamic>? _decodeJsonb(Object? raw) {
+      if (raw is Map) return Map<String, dynamic>.from(raw);
+      if (raw is String && raw.isNotEmpty) {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map) return Map<String, dynamic>.from(decoded);
+      }
+      return null;
+    }
+
+    final lastResult = _decodeJsonb(m['last_result']);
+    final verifyExport = _decodeJsonb(m['verify_export']);
+    return {
+      'id': m['id'],
+      'projectId': m['project_id'],
+      'intervalDays': m['interval_days'] ?? 14,
+      'graceDays': m['grace_days'] ?? 3,
+      'status': m['status'],
+      'photoAId': m['photo_a_id'],
+      'photoBId': m['photo_b_id'],
+      'dueAt': _isoTs(m['due_at']),
+      'windowEndAt': _isoTs(m['window_end_at']),
+      'promptVersion': m['prompt_version'],
+      'vendorJobId': m['vendor_job_id'],
+      'createdAt': _isoTs(m['created_at']),
+      'updatedAt': _isoTs(m['updated_at']),
+      if (lastResult != null) 'lastResult': lastResult,
+      if (verifyExport != null) 'verifyExport': verifyExport,
+    };
   }
 
   Future<void> saveSitePhotoCycle(Map<String, dynamic> cycle) =>
@@ -1237,11 +1255,12 @@ class PgPersistence {
             INSERT INTO site_photo_cycles (
               id, project_id, interval_days, grace_days, status,
               photo_a_id, photo_b_id, due_at, window_end_at,
-              prompt_version, vendor_job_id, created_at, updated_at
+              prompt_version, vendor_job_id, last_result, verify_export,
+              created_at, updated_at
             ) VALUES (
               @id, @projectId, @intervalDays, @graceDays, @status,
               @photoAId, @photoBId, @dueAt::timestamptz, @windowEndAt::timestamptz,
-              @promptVersion, @vendorJobId,
+              @promptVersion, @vendorJobId, @lastResult::jsonb, @verifyExport::jsonb,
               COALESCE(@createdAt::timestamptz, now()),
               COALESCE(@updatedAt::timestamptz, now())
             )
@@ -1255,6 +1274,8 @@ class PgPersistence {
               window_end_at = EXCLUDED.window_end_at,
               prompt_version = EXCLUDED.prompt_version,
               vendor_job_id = EXCLUDED.vendor_job_id,
+              last_result = EXCLUDED.last_result,
+              verify_export = EXCLUDED.verify_export,
               updated_at = EXCLUDED.updated_at
           '''),
           parameters: {
@@ -1278,6 +1299,16 @@ class PgPersistence {
               cycle['promptVersion'] as String?,
             ),
             'vendorJobId': TypedValue(Type.text, cycle['vendorJobId'] as String?),
+            'lastResult': TypedValue(
+              Type.text,
+              cycle['lastResult'] == null ? null : jsonEncode(cycle['lastResult']),
+            ),
+            'verifyExport': TypedValue(
+              Type.text,
+              cycle['verifyExport'] == null
+                  ? null
+                  : jsonEncode(cycle['verifyExport']),
+            ),
             'createdAt': TypedValue(Type.text, cycle['createdAt'] as String?),
             'updatedAt': TypedValue(Type.text, cycle['updatedAt'] as String?),
           },
