@@ -325,7 +325,12 @@ class OpenAiClient {
     required String systemPrompt,
     required String userText,
     required List<OpenAiImageFile> images,
-    int maxTokens = 1200,
+    // The construction-verify envelope now carries a structured report
+    // (overallConclusion + per-photo findings + a risks table +
+    // recommendations), which routinely runs longer than the old
+    // markdown-only summary — keep headroom so it is never truncated
+    // mid-JSON.
+    int maxTokens = 2000,
     double temperature = 0.0,
     Duration timeout = visionTimeout,
   }) async {

@@ -97,6 +97,13 @@ Map<String, dynamic> buildSafeVerifyExport({
       'sameViewpoint': parsedFields['sameViewpoint'],
       'progressDelta': parsedFields['progressDelta'],
       'flags': parsedFields['flags'],
+      if (parsedFields['overallConclusion'] != null)
+        'overallConclusion': parsedFields['overallConclusion'],
+      if (parsedFields['photoFindings'] != null)
+        'photoFindings': parsedFields['photoFindings'],
+      if (parsedFields['risks'] != null) 'risks': parsedFields['risks'],
+      if (parsedFields['recommendations'] != null)
+        'recommendations': parsedFields['recommendations'],
     },
     'vendor': {
       'promptVersion': promptVersion,
@@ -284,6 +291,10 @@ Future<void> runConstructionVerifyJob({
           'sameViewpoint': parsed['sameViewpoint'],
           'progressDelta': parsed['progressDelta'],
           'flags': flags,
+          'overallConclusion': parsed['overallConclusion'],
+          'photoFindings': parsed['photoFindings'],
+          'risks': parsed['risks'],
+          'recommendations': parsed['recommendations'],
         };
       }
     } else {
@@ -358,6 +369,13 @@ Future<void> runConstructionVerifyJob({
     'flags': parsedFields['flags'] ?? <String>[],
     'summary': parsedFields['summary'] ??
         constructionVerifyFallbackSummary('stub', userLanguage),
+    if (parsedFields['overallConclusion'] != null)
+      'overallConclusion': parsedFields['overallConclusion'],
+    if (parsedFields['photoFindings'] != null)
+      'photoFindings': parsedFields['photoFindings'],
+    if (parsedFields['risks'] != null) 'risks': parsedFields['risks'],
+    if (parsedFields['recommendations'] != null)
+      'recommendations': parsedFields['recommendations'],
     'temporal': temporal,
     'normative': normative,
     if (integrity != null)
