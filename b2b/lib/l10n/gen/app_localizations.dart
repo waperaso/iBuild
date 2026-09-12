@@ -3476,8 +3476,14 @@ abstract class AppLocalizations {
   /// No description provided for @siteCycleFlagDocumentationGap.
   ///
   /// In en, this message translates to:
-  /// **'The files have no capture date or location tag. That is common for phone exports and is not a stop by itself.'**
+  /// **'The files have no capture date or location tag. That is common for phone exports and does not block the review by itself, but the reviewer should cross-check other evidence.'**
   String get siteCycleFlagDocumentationGap;
+
+  /// No description provided for @siteCycleFlagDifferentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo A and Photo B were taken in different rooms or areas — progress cannot be compared between them. Request a re-shoot of the same location.'**
+  String get siteCycleFlagDifferentLocation;
 
   /// No description provided for @siteCycleFlagVisionOff.
   ///
@@ -3586,6 +3592,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'—'**
   String get siteCycleResultNone;
+
+  /// No description provided for @siteCycleOverallConclusion.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall conclusion'**
+  String get siteCycleOverallConclusion;
+
+  /// No description provided for @siteCyclePhotoStageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Construction stage'**
+  String get siteCyclePhotoStageLabel;
+
+  /// No description provided for @siteCyclePhotoDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'General description'**
+  String get siteCyclePhotoDescriptionLabel;
+
+  /// No description provided for @siteCycleRisksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Identified risks'**
+  String get siteCycleRisksTitle;
+
+  /// No description provided for @siteCycleRiskColumnNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'#'**
+  String get siteCycleRiskColumnNumber;
+
+  /// No description provided for @siteCycleRiskColumnDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk description'**
+  String get siteCycleRiskColumnDescription;
+
+  /// No description provided for @siteCycleRiskColumnLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get siteCycleRiskColumnLevel;
+
+  /// No description provided for @siteCycleRiskColumnNorm.
+  ///
+  /// In en, this message translates to:
+  /// **'Norm'**
+  String get siteCycleRiskColumnNorm;
+
+  /// No description provided for @siteCycleRiskColumnRecommendation.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommendation'**
+  String get siteCycleRiskColumnRecommendation;
+
+  /// No description provided for @siteCycleRiskLevelHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get siteCycleRiskLevelHigh;
+
+  /// No description provided for @siteCycleRiskLevelMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get siteCycleRiskLevelMedium;
+
+  /// No description provided for @siteCycleRiskLevelLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get siteCycleRiskLevelLow;
+
+  /// No description provided for @siteCycleRiskNormUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get siteCycleRiskNormUnknown;
+
+  /// No description provided for @siteCycleRecommendationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall conclusions and recommendations'**
+  String get siteCycleRecommendationsTitle;
 
   /// No description provided for @siteCycleHintConfirmed.
   ///

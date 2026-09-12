@@ -1961,7 +1961,11 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get siteCycleFlagDocumentationGap =>
-      'Fayllarda surat sanasi yoki joy belgisi yoʻq. Telefon eksportida tez-tez uchraydi va oʻzi toʻxtatmaydi.';
+      'Fayllarda surat sanasi yoki joy belgisi yoʻq. Telefon eksportida tez-tez uchraydi va oʻzi tekshiruvni toʻxtatmaydi, lekin mutaxassis boshqa maʼlumotlar bilan solishtirishi kerak.';
+
+  @override
+  String get siteCycleFlagDifferentLocation =>
+      'Foto A va Foto B turli xonalarda yoki turli uchastkalarda olingan — ular orasida progressni solishtirib boʻlmaydi. Bir xil joyning fotosini qayta soʻrang.';
 
   @override
   String get siteCycleFlagVisionOff => 'Bu muhitda avtotekshiruv yoqilmagan.';
@@ -2027,6 +2031,48 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get siteCycleResultNone => '—';
+
+  @override
+  String get siteCycleOverallConclusion => 'Umumiy xulosa';
+
+  @override
+  String get siteCyclePhotoStageLabel => 'Qurilish bosqichi';
+
+  @override
+  String get siteCyclePhotoDescriptionLabel => 'Umumiy tavsif';
+
+  @override
+  String get siteCycleRisksTitle => 'Aniqlangan xavflar';
+
+  @override
+  String get siteCycleRiskColumnNumber => '№';
+
+  @override
+  String get siteCycleRiskColumnDescription => 'Xavf tavsifi';
+
+  @override
+  String get siteCycleRiskColumnLevel => 'Daraja';
+
+  @override
+  String get siteCycleRiskColumnNorm => 'Norma';
+
+  @override
+  String get siteCycleRiskColumnRecommendation => 'Tavsiya';
+
+  @override
+  String get siteCycleRiskLevelHigh => 'Yuqori';
+
+  @override
+  String get siteCycleRiskLevelMedium => 'Oʻrta';
+
+  @override
+  String get siteCycleRiskLevelLow => 'Past';
+
+  @override
+  String get siteCycleRiskNormUnknown => '—';
+
+  @override
+  String get siteCycleRecommendationsTitle => 'Umumiy xulosa va tavsiyalar';
 
   @override
   String get siteCycleHintConfirmed => 'Foto tekshiruvi tasdiqlandi.';

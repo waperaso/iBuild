@@ -420,6 +420,39 @@ List<String> _resultFlags(Map<String, dynamic>? result) {
       .toList();
 }
 
+/// Structured findings the model may attach per photo (stage + description).
+/// Older/stub/error results never carry these — callers should fall back to
+/// the raw `summary` markdown block in that case.
+List<Map<String, dynamic>> _resultPhotoFindings(Map<String, dynamic>? result) {
+  final raw = result?['photoFindings'];
+  if (raw is! List) return const [];
+  return raw
+      .whereType<Map>()
+      .map((e) => Map<String, dynamic>.from(e))
+      .toList();
+}
+
+/// Structured risk rows (description/level/norm/recommendation) rendered as
+/// a table. Absent on older/stub/error results.
+List<Map<String, dynamic>> _resultRisks(Map<String, dynamic>? result) {
+  final raw = result?['risks'];
+  if (raw is! List) return const [];
+  return raw
+      .whereType<Map>()
+      .map((e) => Map<String, dynamic>.from(e))
+      .toList();
+}
+
+/// Cycle-level, numbered recommendations distinct from the per-risk ones.
+List<String> _resultRecommendations(Map<String, dynamic>? result) {
+  final raw = result?['recommendations'];
+  if (raw is! List) return const [];
+  return raw
+      .map((e) => e.toString().trim())
+      .where((e) => e.isNotEmpty)
+      .toList();
+}
+
 String sitePhotoFlagExplanation(AppLocalizations l10n, String flag) {
   return switch (flag) {
     'verify_error' => l10n.siteCycleFlagVerifyError,
@@ -430,6 +463,7 @@ String sitePhotoFlagExplanation(AppLocalizations l10n, String flag) {
     'possible_staging' => l10n.siteCycleFlagPossibleStaging,
     'image_unusable' => l10n.siteCycleFlagImageUnusable,
     'viewpoint_mismatch' => l10n.siteCycleFlagViewpointMismatch,
+    'different_location' => l10n.siteCycleFlagDifferentLocation,
     'no_visible_progress' => l10n.siteCycleFlagNoProgress,
     'hidden_work_not_visible' => l10n.siteCycleFlagHiddenWork,
     'wrong_site' => l10n.siteCycleFlagWrongSite,
@@ -653,6 +687,13 @@ class SitePhotoInspectResultCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final raw = result?['summary']?.toString();
     final showMarkdown = !_isMachineSummary(raw);
+    final conclusion = result?['overallConclusion']?.toString().trim();
+    final hasConclusion = conclusion != null && conclusion.isNotEmpty;
+    final findings = _resultPhotoFindings(result);
+    final risks = _resultRisks(result);
+    final recommendations = _resultRecommendations(result);
+    final hasStructuredReport =
+        hasConclusion || findings.isNotEmpty || risks.isNotEmpty || recommendations.isNotEmpty;
     return _VerifyPanel(
       icon: Icons.how_to_reg_outlined,
       title: l10n.siteCycleResultTitle,
@@ -660,7 +701,24 @@ class SitePhotoInspectResultCard extends StatelessWidget {
       progress: false,
       leading: SitePhotoVerdictChip(result: result),
       extra: [
-        if (showMarkdown) ...[
+        if (hasStructuredReport) ...[
+          if (hasConclusion) ...[
+            const SizedBox(height: AppSpacing.md),
+            _ConclusionCallout(title: l10n.siteCycleOverallConclusion, text: conclusion),
+          ],
+          for (final finding in findings) ...[
+            const SizedBox(height: AppSpacing.md),
+            _PhotoFindingSection(l10n: l10n, finding: finding),
+          ],
+          if (risks.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            _RisksSection(l10n: l10n, risks: risks),
+          ],
+          if (recommendations.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            _RecommendationsSection(l10n: l10n, items: recommendations),
+          ],
+        ] else if (showMarkdown) ...[
           const SizedBox(height: AppSpacing.md),
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),
@@ -875,6 +933,288 @@ class _VerifyPanel extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// "Общий вывод" — the decisive, human-readable headline finding, styled as
+/// a highlighted callout so it reads before anything else in the report.
+class _ConclusionCallout extends StatelessWidget {
+  const _ConclusionCallout({required this.title, required this.text});
+
+  final String title;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: colors.accent.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: colors.accent.withValues(alpha: 0.28)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: colors.accent,
+              letterSpacing: 0.2,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            text,
+            style: textTheme.bodyMedium?.copyWith(height: 1.5, color: colors.ink),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One "ФОТО N — <этап>" section: stage label plus a general description of
+/// what is actually visible in that specific photo.
+class _PhotoFindingSection extends StatelessWidget {
+  const _PhotoFindingSection({required this.l10n, required this.finding});
+
+  final AppLocalizations l10n;
+  final Map<String, dynamic> finding;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    final role = finding['role']?.toString();
+    final label = role == 'b' ? l10n.siteCycleSlotB : l10n.siteCycleSlotA;
+    final stage = finding['stage']?.toString().trim() ?? '';
+    final description = finding['description']?.toString().trim() ?? '';
+    final header = stage.isEmpty ? label : '$label — $stage';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.only(bottom: 6),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: colors.outline.withValues(alpha: 0.4)),
+            ),
+          ),
+          child: Text(
+            header.toUpperCase(),
+            style: textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: colors.ink,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+        if (stage.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          RichText(
+            text: TextSpan(
+              style: textTheme.bodySmall?.copyWith(color: colors.ink, height: 1.4),
+              children: [
+                TextSpan(
+                  text: '${l10n.siteCyclePhotoStageLabel}: ',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                TextSpan(text: stage),
+              ],
+            ),
+          ),
+        ],
+        if (description.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            l10n.siteCyclePhotoDescriptionLabel,
+            style: textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colors.inkMuted,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            description,
+            style: textTheme.bodyMedium?.copyWith(height: 1.5, color: colors.ink),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// "Выявленные риски" — a real table (№ / description / level / norm /
+/// recommendation) instead of a flat bullet list, matching the structured
+/// report the platform inspector expects.
+class _RisksSection extends StatelessWidget {
+  const _RisksSection({required this.l10n, required this.risks});
+
+  final AppLocalizations l10n;
+  final List<Map<String, dynamic>> risks;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    final headerStyle = textTheme.labelMedium?.copyWith(
+      fontWeight: FontWeight.w800,
+      color: colors.inkMuted,
+    );
+    final cellStyle = textTheme.bodySmall?.copyWith(color: colors.ink, height: 1.4);
+
+    Widget cell(Widget child) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      child: child,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.siteCycleRisksTitle,
+          style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: colors.outline.withValues(alpha: 0.4)),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Table(
+            columnWidths: const {
+              0: FixedColumnWidth(28),
+              1: FlexColumnWidth(2.6),
+              2: FixedColumnWidth(88),
+              3: FlexColumnWidth(1.4),
+              4: FlexColumnWidth(2.2),
+            },
+            defaultVerticalAlignment: TableCellVerticalAlignment.top,
+            border: TableBorder(
+              horizontalInside: BorderSide(color: colors.outline.withValues(alpha: 0.25)),
+            ),
+            children: [
+              TableRow(
+                decoration: BoxDecoration(color: colors.surfaceAlt),
+                children: [
+                  cell(Text(l10n.siteCycleRiskColumnNumber, style: headerStyle)),
+                  cell(Text(l10n.siteCycleRiskColumnDescription, style: headerStyle)),
+                  cell(Text(l10n.siteCycleRiskColumnLevel, style: headerStyle)),
+                  cell(Text(l10n.siteCycleRiskColumnNorm, style: headerStyle)),
+                  cell(Text(l10n.siteCycleRiskColumnRecommendation, style: headerStyle)),
+                ],
+              ),
+              for (var i = 0; i < risks.length; i++)
+                TableRow(
+                  children: [
+                    cell(Text('${i + 1}', style: cellStyle)),
+                    cell(Text(risks[i]['description']?.toString() ?? '', style: cellStyle)),
+                    cell(_RiskLevelChip(l10n: l10n, level: risks[i]['level']?.toString())),
+                    cell(
+                      Text(
+                        _riskNormText(l10n, risks[i]['normReference']),
+                        style: cellStyle,
+                      ),
+                    ),
+                    cell(
+                      Text(risks[i]['recommendation']?.toString() ?? '', style: cellStyle),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+String _riskNormText(AppLocalizations l10n, Object? normReference) {
+  final text = normReference?.toString().trim() ?? '';
+  return text.isEmpty ? l10n.siteCycleRiskNormUnknown : text;
+}
+
+class _RiskLevelChip extends StatelessWidget {
+  const _RiskLevelChip({required this.l10n, required this.level});
+
+  final AppLocalizations l10n;
+  final String? level;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final (label, color) = switch (level) {
+      'high' => (l10n.siteCycleRiskLevelHigh, colors.danger),
+      'medium' => (l10n.siteCycleRiskLevelMedium, colors.warning),
+      'low' => (l10n.siteCycleRiskLevelLow, colors.success),
+      _ => (l10n.siteCycleRiskNormUnknown, colors.inkMuted),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(
+          context,
+        ).textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.w800),
+      ),
+    );
+  }
+}
+
+/// "Общие выводы и рекомендации" — numbered, cycle-level next steps.
+class _RecommendationsSection extends StatelessWidget {
+  const _RecommendationsSection({required this.l10n, required this.items});
+
+  final AppLocalizations l10n;
+  final List<String> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.siteCycleRecommendationsTitle,
+          style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 8),
+        for (var i = 0; i < items.length; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${i + 1}. ',
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: colors.ink,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    items[i],
+                    style: textTheme.bodyMedium?.copyWith(height: 1.5, color: colors.ink),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

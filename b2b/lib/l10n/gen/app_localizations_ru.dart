@@ -1960,7 +1960,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get siteCycleFlagDocumentationGap =>
-      'В файлах нет даты съёмки или геометки. Так бывает после выгрузки с телефона и само по себе не стоп.';
+      'В файлах не сохранились дата съёмки и геометка — это обычное следствие выгрузки с телефона и само по себе не блокирует проверку, но специалисту стоит свериться с другими данными.';
+
+  @override
+  String get siteCycleFlagDifferentLocation =>
+      'Фото A и Фото B сняты в разных помещениях или на разных участках — сравнивать прогресс между ними нельзя. Запросите повторную съёмку одного и того же места.';
 
   @override
   String get siteCycleFlagVisionOff => 'Автопроверка в этой среде не включена.';
@@ -2028,6 +2032,48 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get siteCycleResultNone => '—';
+
+  @override
+  String get siteCycleOverallConclusion => 'Общий вывод';
+
+  @override
+  String get siteCyclePhotoStageLabel => 'Этап строительства';
+
+  @override
+  String get siteCyclePhotoDescriptionLabel => 'Общее описание';
+
+  @override
+  String get siteCycleRisksTitle => 'Выявленные риски';
+
+  @override
+  String get siteCycleRiskColumnNumber => '№';
+
+  @override
+  String get siteCycleRiskColumnDescription => 'Описание риска';
+
+  @override
+  String get siteCycleRiskColumnLevel => 'Уровень';
+
+  @override
+  String get siteCycleRiskColumnNorm => 'Норма';
+
+  @override
+  String get siteCycleRiskColumnRecommendation => 'Рекомендация';
+
+  @override
+  String get siteCycleRiskLevelHigh => 'Высокий';
+
+  @override
+  String get siteCycleRiskLevelMedium => 'Средний';
+
+  @override
+  String get siteCycleRiskLevelLow => 'Низкий';
+
+  @override
+  String get siteCycleRiskNormUnknown => '—';
+
+  @override
+  String get siteCycleRecommendationsTitle => 'Общие выводы и рекомендации';
 
   @override
   String get siteCycleHintConfirmed => 'Проверка подтверждена.';

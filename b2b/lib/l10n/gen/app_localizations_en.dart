@@ -1959,7 +1959,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get siteCycleFlagDocumentationGap =>
-      'The files have no capture date or location tag. That is common for phone exports and is not a stop by itself.';
+      'The files have no capture date or location tag. That is common for phone exports and does not block the review by itself, but the reviewer should cross-check other evidence.';
+
+  @override
+  String get siteCycleFlagDifferentLocation =>
+      'Photo A and Photo B were taken in different rooms or areas — progress cannot be compared between them. Request a re-shoot of the same location.';
 
   @override
   String get siteCycleFlagVisionOff =>
@@ -2028,6 +2032,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get siteCycleResultNone => '—';
+
+  @override
+  String get siteCycleOverallConclusion => 'Overall conclusion';
+
+  @override
+  String get siteCyclePhotoStageLabel => 'Construction stage';
+
+  @override
+  String get siteCyclePhotoDescriptionLabel => 'General description';
+
+  @override
+  String get siteCycleRisksTitle => 'Identified risks';
+
+  @override
+  String get siteCycleRiskColumnNumber => '#';
+
+  @override
+  String get siteCycleRiskColumnDescription => 'Risk description';
+
+  @override
+  String get siteCycleRiskColumnLevel => 'Level';
+
+  @override
+  String get siteCycleRiskColumnNorm => 'Norm';
+
+  @override
+  String get siteCycleRiskColumnRecommendation => 'Recommendation';
+
+  @override
+  String get siteCycleRiskLevelHigh => 'High';
+
+  @override
+  String get siteCycleRiskLevelMedium => 'Medium';
+
+  @override
+  String get siteCycleRiskLevelLow => 'Low';
+
+  @override
+  String get siteCycleRiskNormUnknown => '—';
+
+  @override
+  String get siteCycleRecommendationsTitle =>
+      'Overall conclusions and recommendations';
 
   @override
   String get siteCycleHintConfirmed => 'This photo check was confirmed.';
