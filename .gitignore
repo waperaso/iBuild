@@ -1,124 +1,38 @@
-# =============================================================================
-# iBuild — .gitignore
-# =============================================================================
-# Public repo = application source only. Everything else stays on disk locally
-# or on the local-only branch `private/internal` (never push that branch).
-
-# --- Local dev tooling & IDE -------------------------------------------------
-.tools/
-.cursor/
-
-# --- Dart / Flutter ----------------------------------------------------------
 .dart_tool/
-**/.dart_tool/
+.packages
 build/
-**/build/
-*.iml
 .flutter-plugins
 .flutter-plugins-dependencies
-
-# Runtime media uploads from the Dart API
-server/uploads/
-
-# Machine-local server configuration
-server/.env
-.env
-.env.*
-!.env.example
-!**/.env.example
-
-# Local construction-verify prompt overlay (PKM 321). Not in git.
-server/lib/src/ai/prompts/construction_verify/*.local.txt
-
-# Flutter compile-time defines (copy from *.json.example)
-b2b/dart_defines.dev.json
-b2b/dart_defines.prod.json
-b2b/dart_defines.staging.json
-b2c/dart_defines.dev.json
-b2c/dart_defines.prod.json
-b2c/dart_defines.staging.json
-
-# pgAdmin export (passwords live in OS keychain / pgpass)
-server/pgadmin-servers.json
-
-# --- Node / presentation export tooling --------------------------------------
-node_modules/
-package-lock.json
-npm-debug.log*
-
-# Root presentation deck generator + exported decks (private / admissions)
-/presentation/
-export_pdf.js
-export_pptx.js
-*.pptx
-*.pdf
-!docs/**/*.pdf
-
-# --- Internal developer docs (keep locally / on private/internal branch) -----
-/docs/
-DEMO.md
-
-# --- Financial models & investor materials (NEVER public) --------------------
-/investment/
-/ibuild-wiki/
-INVESTOR_READINESS_ANALYSIS.md
-PRESENTATION_READINESS.md
-/IBUILD_APP_PLAN.md
-/iBuild_Prototype_Spec.html
-
-# --- Codebase analysis cache (local tooling output) --------------------------
-/graphify-out/
-
-# --- Ad-hoc verification scripts & screenshots (local tooling output) --------
-/.tmp_verify/
-
-# --- Marketing / catalogue assets (optional local only) ----------------------
-/residences-images/
-# Bundled catalogue photos live under server/ and ship in the Docker image.
-
-# Pitch / investor demo site (local only)
-www/pitch/
-
-# --- Local deploy build artifacts --------------------------------------------
-b2c-web.tgz
-b2b-web.tgz
-*.tgz
-
-# --- Third-party skill packs & agent junk ------------------------------------
-/skills/
-
-# --- Deploy/bootstrap scripts (server IPs, one-off ops) ----------------------
-scripts/_*.mjs
-scripts/setup-github-deploy-key.mjs
-scripts/_setup-sudoers.mjs
-
-# --- OS / editor junk --------------------------------------------------------
-__MACOSX/
-.DS_Store
-**/.DS_Store
-Thumbs.db
-Desktop.ini
-*.swp
-*.swo
-*~
 .idea/
 .vscode/
-*.log
+*.iml
+.env
+server/.env
+data/
+backups/
+.DS_Store
+.env.prod
 
-# --- Python (investment/ local runs) -----------------------------------------
-__pycache__/
-*.py[cod]
-*.pyo
-.Python
-.venv/
-venv/
+# Screenshots and demo captures
+demo-week/
+docs/screens/
+*.screenshot.png
+screenshots/
 
-# --- Secrets & keys ----------------------------------------------------------
-*.pem
-*.key
-id_rsa
-id_ed25519
-id_ed25519.pub
-*.ppk
-**/secrets/
-credentials.json
+# Private: backend, database, deployment, tests, internal docs
+server/
+deploy/
+scripts/
+backups/
+*.sql
+.env*
+docker-compose*.yml
+docs/api.md
+docs/daily/
+docs/production*.md
+docs/security-matrix.md
+docs/development*.md
+docs/week-*.md
+docs/estimate*.md
+docs/presentation*.md
+docs/promo*.md

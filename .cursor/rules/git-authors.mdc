@@ -1,0 +1,13 @@
+---
+description: Who may author commits in this repository
+alwaysApply: true
+---
+
+# Commit authorship
+
+- Commits are authored only by `waperaso` or `strike11`.
+  - `waperaso <79156709+waperaso@users.noreply.github.com>`
+  - `strike11 <54178564+strike11@users.noreply.github.com>`
+- Never add `Co-authored-by: Cursor <cursoragent@cursor.com>` or any other agent trailer, and never mention Cursor or an AI agent in commit messages.
+- Before committing, set the author explicitly (`git -c user.name=... -c user.email=... commit`) and check with `git log -1 --format='%an <%ae>%n%B'`.
+- Do not commit unless the user asks.
