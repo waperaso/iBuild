@@ -43,6 +43,27 @@ class HttpApiClient implements Api {
   }
 
   @override
+  Future<bool> demoEnabled() async {
+    try {
+      final response = await _send('GET', '/api/config');
+      if (response.statusCode != 200) return false;
+      return _ok(response)['demoEnabled'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<UserProfile> demoLogin(String role) async {
+    final csrf = await _send('GET', '/api/auth/csrf');
+    _csrf = _ok(csrf)['csrfToken'] as String?;
+    final response = await _send('POST', '/api/demo/login', body: {'role': role}, csrf: true);
+    final json = _ok(response);
+    _csrf = json['csrfToken'] as String?;
+    return UserProfile.fromJson(json);
+  }
+
+  @override
   Future<void> changePassword(String current, String next) async {
     _ok(await _send('POST', '/api/auth/password', body: {'current': current, 'next': next}, csrf: true));
   }

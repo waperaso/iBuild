@@ -35,6 +35,7 @@ Developer cabinet · bank cabinet · platform admin · shared API
 | Bank cabinet: queue, SLA timers, committee, rules and routes, reports | **live** |
 | Inspections ordered by the bank, loan desk and draw wizard | **live** |
 | Public registration of developers and banks, admin CRM with call log and checks | **live** |
+| Read-only demo: role buttons on the sign-in page, isolated from real companies | **live** |
 | Password change, forced change on first login, session and CSRF protection | **live** |
 | Email notifications and scheduled bank reports | **alpha** |
 | CSV registry of requests | **live** |

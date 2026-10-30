@@ -35,6 +35,7 @@ Quruvchi kabineti · bank kabineti · platforma admini · yagona API
 | Bank kabineti: navbat, SLA muddatlari, qoʻmita, qoidalar va marshrutlar, hisobotlar | **live** |
 | Bank buyurtmasi bilan inspeksiyalar, kredit stoli, transhni rasmiylashtirish ustasi | **live** |
 | Quruvchi va banklarning ochiq roʻyxatdan oʻtishi, qoʻngʻiroq va tekshiruvli admin CRM | **live** |
+| Faqat oʻqish uchun demo: kirish ekranida rol tugmalari, haqiqiy kompaniyalardan alohida | **live** |
 | Parolni almashtirish, birinchi kirishda majburiy almashtirish, sessiya va CSRF himoyasi | **live** |
 | Email xabarnomalar va jadval boʻyicha bank hisobotlari | **alpha** |
 | Arizalar reyestri CSV formatida | **live** |

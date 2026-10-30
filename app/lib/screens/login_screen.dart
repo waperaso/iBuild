@@ -18,12 +18,27 @@ class _LoginScreenState extends State<LoginScreen> {
   final _login = TextEditingController();
   final _password = TextEditingController();
   var _needCredentials = false;
+  var _demoOn = false;
+  var _asked = false;
 
   @override
   void dispose() {
     _login.dispose();
     _password.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadDemo() async {
+    final on = await SessionScope.of(context).api.demoEnabled();
+    if (mounted && on) setState(() => _demoOn = true);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_asked) return;
+    _asked = true;
+    _loadDemo();
   }
 
   Future<void> _submit() async {
@@ -133,6 +148,35 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
+                  if (_demoOn) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    IBuildCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(copy.demoTitle, style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            copy.demoHint,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          Wrap(
+                            spacing: AppSpacing.sm,
+                            runSpacing: AppSpacing.sm,
+                            children: [
+                              for (final role in const ['developer', 'contractor', 'tech', 'bank', 'admin'])
+                                OutlinedButton(
+                                  key: Key('demo-$role'),
+                                  onPressed: session.busy ? null : () => session.demoLogin(role),
+                                  child: Text(copy.demoRole(role)),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: AppSpacing.lg),
                   const Center(child: LanguageSwitch()),
                 ],

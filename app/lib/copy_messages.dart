@@ -36,6 +36,21 @@ const _knownMessages = <_Row>[
     'Sessiya eskirgan. Sahifani yangilang va qaytadan kiring.',
   ),
   (
+    'Это демо: данные учебные, изменения не сохраняются.',
+    'This is a demo: the data is for practice and changes are not saved.',
+    'Bu demo: maʼlumotlar oʻquv uchun, oʻzgarishlar saqlanmaydi.',
+  ),
+  (
+    'Выберите роль для демо.',
+    'Pick a role for the demo.',
+    'Demo uchun rolni tanlang.',
+  ),
+  (
+    'Демо сейчас недоступно.',
+    'The demo is not available right now.',
+    'Demo hozir mavjud emas.',
+  ),
+  (
     'Войдите, чтобы продолжить.',
     'Sign in to continue.',
     'Davom etish uchun tizimga kiring.',

@@ -91,6 +91,7 @@ class UserProfile {
     required this.memberships,
     this.platformAdmin = false,
     this.mustChangePassword = false,
+    this.isDemo = false,
     this.bank,
   });
 
@@ -103,6 +104,7 @@ class UserProfile {
   final List<Membership> memberships;
   final bool platformAdmin;
   final bool mustChangePassword;
+  final bool isDemo;
   final BankProfile? bank;
 
   bool get isBank => bank != null;
@@ -130,6 +132,7 @@ class UserProfile {
       active: json['active'] as bool? ?? true,
       platformAdmin: json['platformAdmin'] as bool? ?? false,
       mustChangePassword: json['mustChangePassword'] as bool? ?? false,
+      isDemo: json['demo'] as bool? ?? false,
       bank: bank is Map<String, dynamic>
           ? BankProfile.fromJson(bank)
           : bank is Map

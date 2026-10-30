@@ -21,6 +21,8 @@ class ApiException implements Exception {
 abstract class Api {
   Future<UserProfile?> me();
   Future<UserProfile> login(String login, String password);
+  Future<bool> demoEnabled();
+  Future<UserProfile> demoLogin(String role);
   Future<void> logout();
   Future<void> changePassword(String current, String next);
   Future<List<ProjectSummary>> projects();

@@ -87,6 +87,12 @@ class _IBuildAppState extends State<IBuildApp> {
                 themeMode: theme.mode,
                 themeAnimationDuration: Duration.zero,
                 routerConfig: _router!,
+                builder: (context, child) => Column(
+                  children: [
+                    if (session.user?.isDemo ?? false) _DemoStrip(session: session),
+                    Expanded(child: child ?? const SizedBox.shrink()),
+                  ],
+                ),
                 debugShowCheckedModeBanner: false,
               )
             : MaterialApp(
@@ -100,6 +106,46 @@ class _IBuildAppState extends State<IBuildApp> {
               ),
         ),
       ),
+      ),
+    );
+  }
+}
+
+/// Says on every screen that this is the read-only demo, and lets the visitor leave it.
+class _DemoStrip extends StatelessWidget {
+  const _DemoStrip({required this.session});
+
+  final SessionController session;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final copy = LocaleScope.copy(context);
+    return Material(
+      key: const Key('demo-strip'),
+      color: colors.warning.withValues(alpha: 0.18),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
+          child: Row(
+            children: [
+              Icon(Icons.visibility_outlined, size: 18, color: colors.warning),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  copy.demoBanner,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(color: colors.ink),
+                ),
+              ),
+              TextButton(
+                key: const Key('demo-exit'),
+                onPressed: session.logout,
+                child: Text(copy.demoExit),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

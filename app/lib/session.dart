@@ -51,6 +51,28 @@ class SessionController extends ChangeNotifier {
     }
   }
 
+  /// Opens the read-only demo as one of the roles.
+  Future<bool> demoLogin(String role) async {
+    busy = true;
+    error = null;
+    notifyListeners();
+    try {
+      user = await api.demoLogin(role);
+      projects = await api.projects();
+      error = null;
+      return true;
+    } on ApiException catch (failure) {
+      user = null;
+      projects = const [];
+      error = failure.message;
+      return false;
+    } finally {
+      busy = false;
+      ready = true;
+      notifyListeners();
+    }
+  }
+
   Future<void> changePassword(String current, String next) async {
     await api.changePassword(current, next);
     user = await api.me() ?? user;

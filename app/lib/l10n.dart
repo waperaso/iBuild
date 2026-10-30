@@ -6,6 +6,7 @@ import 'theme.dart';
 
 part 'copy_more.dart';
 part 'copy_register.dart';
+part 'copy_demo.dart';
 part 'copy_messages.dart';
 
 /// The three interface languages. Russian is the default.

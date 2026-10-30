@@ -20,6 +20,7 @@ class FakeApi implements Api {
     List<BudgetLine>? lines,
     List<ProjectMember>? members,
     List<ContractorFirm>? firms,
+    this.demoOn = false,
   }) : stored = List.of(projects ?? const []),
        lines = List.of(lines ?? const []),
        storedMembers = List.of(members ?? const []),
@@ -65,6 +66,20 @@ class FakeApi implements Api {
       throw const ApiException(401, 'Неверный логин или пароль.');
     }
     user = demoUser(AppRole.contractor);
+    stored = [demoProject(AppRole.contractor)];
+    return user!;
+  }
+
+  bool demoOn;
+  final demoRoles = <String>[];
+
+  @override
+  Future<bool> demoEnabled() async => demoOn;
+
+  @override
+  Future<UserProfile> demoLogin(String role) async {
+    demoRoles.add(role);
+    user = demoUser(AppRole.contractor, isDemo: true);
     stored = [demoProject(AppRole.contractor)];
     return user!;
   }
@@ -854,7 +869,7 @@ class FakeApi implements Api {
   }
 }
 
-UserProfile demoUser(AppRole role) {
+UserProfile demoUser(AppRole role, {bool isDemo = false}) {
   return UserProfile(
     id: 'user-1',
     name: role.name,
@@ -863,6 +878,7 @@ UserProfile demoUser(AppRole role) {
     companyName: 'Навои Девелопмент',
     active: true,
     memberships: const [],
+    isDemo: isDemo,
   ).let(role);
 }
 
@@ -876,6 +892,7 @@ extension on UserProfile {
       companyName: companyName,
       active: active,
       platformAdmin: platformAdmin,
+      isDemo: isDemo,
       bank: bank,
       memberships: [Membership(projectId: 'project-1', role: role)],
     );
