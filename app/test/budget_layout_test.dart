@@ -78,6 +78,7 @@ void main() {
     await tester.scrollUntilVisible(
       find.byKey(const Key('remove-line-line-1')),
       200,
+      scrollable: find.ancestor(of: find.byKey(const Key('remove-line-line-1')), matching: find.byType(Scrollable)).first,
     );
     await tester.tap(find.byKey(const Key('remove-line-line-1')));
     await tester.pumpAndSettle();
@@ -91,6 +92,7 @@ void main() {
     await tester.scrollUntilVisible(
       find.byKey(const Key('remove-member-member-1')),
       200,
+      scrollable: find.ancestor(of: find.byKey(const Key('remove-member-member-1')), matching: find.byType(Scrollable)).first,
     );
     await tester.tap(find.byKey(const Key('remove-member-member-1')));
     await tester.pumpAndSettle();

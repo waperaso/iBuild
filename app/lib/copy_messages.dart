@@ -4,6 +4,107 @@ part of 'l10n.dart';
 /// The Russian text must match the server text exactly.
 /// `app/test/server_messages_test.dart` checks that no server message is missing here.
 const _knownMessages = <_Row>[
+  // Mailbox and accounts
+  (
+    'Письмо не найдено',
+    'Letter not found',
+    'Xat topilmadi',
+  ),
+  (
+    'Выберите получателей: от 1 до 20',
+    'Choose recipients: from 1 to 20',
+    'Qabul qiluvchilarni tanlang: 1 dan 20 gacha',
+  ),
+  (
+    'Напишите тему письма, до 200 знаков',
+    'Write a subject, up to 200 characters',
+    'Xat mavzusini yozing, 200 belgigacha',
+  ),
+  (
+    'Напишите текст письма, до 10 000 знаков',
+    'Write the text, up to 10,000 characters',
+    'Xat matnini yozing, 10 000 belgigacha',
+  ),
+  (
+    'Не удалось найти переписку',
+    'The conversation could not be found',
+    'Yozishma topilmadi',
+  ),
+  (
+    'Переписка не найдена',
+    'Conversation not found',
+    'Yozishma topilmadi',
+  ),
+  (
+    'Слишком много писем за час. Подождите немного',
+    'Too many letters in an hour. Wait a little',
+    'Bir soatda juda ko‘p xat. Biroz kuting',
+  ),
+  (
+    'Нельзя написать самому себе',
+    'You cannot write to yourself',
+    'O‘zingizga yozib bo‘lmaydi',
+  ),
+  (
+    'Одному из получателей нельзя написать',
+    'One of the recipients cannot be written to',
+    'Qabul qiluvchilardan biriga yozib bo‘lmaydi',
+  ),
+  (
+    'Не удалось прочитать письмо',
+    'The letter could not be read',
+    'Xatni o‘qib bo‘lmadi',
+  ),
+  (
+    'Не удалось прочитать данные',
+    'The data could not be read',
+    'Ma’lumotni o‘qib bo‘lmadi',
+  ),
+  (
+    'Укажите имя человека',
+    'Enter the person’s name',
+    'Odam ismini kiriting',
+  ),
+  (
+    'Логин: от 3 знаков, без пробелов',
+    'Login: at least 3 characters, no spaces',
+    'Login: kamida 3 belgi, bo‘shliqsiz',
+  ),
+  (
+    'Выберите организацию',
+    'Choose an organisation',
+    'Tashkilotni tanlang',
+  ),
+  (
+    'Организация указана неверно',
+    'The organisation is wrong',
+    'Tashkilot noto‘g‘ri ko‘rsatilgan',
+  ),
+  (
+    'Для новой организации укажите название и ИНН',
+    'For a new organisation enter the name and tax ID',
+    'Yangi tashkilot uchun nomi va STIRni kiriting',
+  ),
+  (
+    'Организация не найдена',
+    'Organisation not found',
+    'Tashkilot topilmadi',
+  ),
+  (
+    'Выберите роль сотрудника банка',
+    'Choose the bank employee role',
+    'Bank xodimi rolini tanlang',
+  ),
+  (
+    'Выберите роль на объекте',
+    'Choose the role on the project',
+    'Obyektdagi rolni tanlang',
+  ),
+  (
+    'Такой логин или ИНН уже есть в системе',
+    'This login or tax ID already exists',
+    'Bunday login yoki STIR tizimda bor',
+  ),
   // Sign in and session
   (
     'Введите логин и пароль.',

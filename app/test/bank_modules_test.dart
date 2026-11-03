@@ -429,7 +429,7 @@ void main() {
     GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/bank/rules');
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('rules-denied')), findsOneWidget);
-    expect(api.jsonCalls, isEmpty);
+    expect(api.jsonCalls.where((c) => !c.$1.startsWith('/api/mail')), isEmpty);
   });
 
   testWidgets('rules: change a threshold and a stage, save as a new version', (tester) async {

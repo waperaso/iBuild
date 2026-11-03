@@ -79,8 +79,11 @@ class _DeskShellState extends State<_DeskShell> {
                             ),
                           ),
                   ),
-                  _NavList(compact: false, onDark: true, iconsOnly: collapsed),
-                  const Spacer(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: _NavList(compact: false, onDark: true, iconsOnly: collapsed),
+                    ),
+                  ),
                   if (!collapsed) const _SecurityNote(onDark: true),
                   if (!collapsed)
                     const Padding(
@@ -297,12 +300,13 @@ class _NavList extends StatelessWidget {
     final uri = GoRouterState.of(context).uri;
     final copy = LocaleScope.copy(context);
     final bank = SessionScope.of(context).user?.bank;
+    final mail = _mailNav(context, uri);
     if (bank != null) {
-      final items = _bankNav(context, uri, copy, bank.queueCount, bank.role);
+      final items = [..._bankNav(context, uri, copy, bank.queueCount, bank.role), mail];
       return _navBody(context, items, compact: compact, onDark: onDark, iconsOnly: iconsOnly);
     }
     if (SessionScope.of(context).user?.platformAdmin == true) {
-      return _navBody(context, _adminNav(context, uri, copy), compact: compact, onDark: onDark, iconsOnly: iconsOnly);
+      return _navBody(context, [..._adminNav(context, uri, copy), mail], compact: compact, onDark: onDark, iconsOnly: iconsOnly);
     }
     final items = [
       _NavSpec(
@@ -361,8 +365,23 @@ class _NavList extends StatelessWidget {
         location: '/queue',
         selected: uri.path == '/queue',
       ),
+      _mailNav(context, uri),
     ];
     return _navBody(context, items, compact: compact, onDark: onDark, iconsOnly: iconsOnly);
+  }
+
+  _NavSpec _mailNav(BuildContext context, Uri uri) {
+    final t = Tx.of(context);
+    final unread = SessionScope.of(context).mailUnread;
+    return _NavSpec(
+      key: const Key('nav-mail'),
+      label: t('Почта', 'Mail', 'Pochta'),
+      icon: Icons.mail_outline,
+      location: '/mail',
+      selected: uri.path == '/mail',
+      badge: unread > 0 ? '$unread' : null,
+      badgeKey: const Key('mail-badge'),
+    );
   }
 
   List<_NavSpec> _adminNav(BuildContext context, Uri uri, AppCopy copy) {
@@ -1140,6 +1159,7 @@ class _NavSpec {
     required this.location,
     required this.selected,
     this.badge,
+    this.badgeKey = const Key('bank-queue-badge'),
   });
 
   final Key key;
@@ -1148,6 +1168,7 @@ class _NavSpec {
   final String location;
   final bool selected;
   final String? badge;
+  final Key badgeKey;
 }
 
 class _NavButton extends StatelessWidget {
@@ -1191,7 +1212,7 @@ class _NavButton extends StatelessWidget {
                   child: spec.badge == null
                       ? Icon(spec.icon, size: 22, color: foreground)
                       : Badge(
-                          key: const Key('bank-queue-badge'),
+                          key: spec.badgeKey,
                           label: Text(spec.badge!),
                           child: Icon(spec.icon, size: 22, color: foreground),
                         ),
@@ -1213,7 +1234,7 @@ class _NavButton extends StatelessWidget {
                     if (spec.badge != null) ...[
                       const SizedBox(width: AppSpacing.sm),
                       DecoratedBox(
-                        key: const Key('bank-queue-badge'),
+                        key: spec.badgeKey,
                         decoration: BoxDecoration(
                           color: colors.accent,
                           borderRadius: BorderRadius.circular(AppRadii.pill),

@@ -17,6 +17,7 @@ String adminActionName(Tx t, String action) {
     'changes.approve' => t('Правка объекта одобрена', 'A project change approved', 'Obyekt tahriri ma’qullandi'),
     'changes.reject' => t('Правка объекта отклонена', 'A project change rejected', 'Obyekt tahriri rad etildi'),
     'users.active' => t('Изменён доступ пользователя', 'A user’s access changed', 'Foydalanuvchi kirishi o‘zgartirildi'),
+    'users' => t('Создан аккаунт', 'An account created', 'Hisob yaratildi'),
     'users.reset-password' => t('Выдан новый пароль', 'A new password issued', 'Yangi parol berildi'),
     _ => action,
   };
@@ -265,6 +266,105 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     if (ok) await reload();
   }
 
+  Future<void> _create(Future<void> Function() reload) async {
+    final t = Tx.of(context);
+    final api = SessionScope.of(context).api;
+    List<Map<String, dynamic>> companies = const [];
+    final loaded = await runAction(context, () async {
+      companies = (await api.getJson('/api/admin/companies')).list('items');
+    });
+    if (!loaded || !mounted) return;
+    final name = TextEditingController();
+    final login = TextEditingController();
+    String? company = widget.company.isNotEmpty && companies.any((c) => c.s('id') == widget.company) ? widget.company : null;
+    String? role;
+    final result = await showPlainDialog<Map<String, Object?>>(
+      context: context,
+      builder: (context) => StatefulBuilder(builder: (context, setLocal) {
+        final bank = companies.where((c) => c.s('id') == company).any((c) => c.s('kind') == 'bank');
+        final roles = bank
+            ? [
+                ('specialist', t('Специалист', 'Specialist', 'Mutaxassis')),
+                ('expert', t('Эксперт', 'Expert', 'Ekspert')),
+                ('head', t('Руководитель', 'Head', 'Rahbar')),
+                ('committee', t('Член комитета', 'Committee member', 'Qo‘mita a’zosi')),
+                ('risk', t('Риск-менеджер', 'Risk manager', 'Risk menejeri')),
+                ('audit', t('Аудит', 'Audit', 'Audit')),
+                ('admin', t('Администратор банка', 'Bank administrator', 'Bank administratori')),
+              ]
+            : [
+                ('director', t('Директор', 'Director', 'Direktor')),
+                ('tech', t('Технадзор', 'Technical supervisor', 'Texnik nazorat')),
+                ('observer', t('Наблюдатель', 'Observer', 'Kuzatuvchi')),
+              ];
+        if (role != null && !roles.any((r) => r.$1 == role)) role = null;
+        return AlertDialog(
+          title: Text(t('Новый аккаунт', 'New account', 'Yangi hisob')),
+          content: SizedBox(
+            width: 380,
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              DropdownButtonFormField<String>(
+                key: const Key('create-company'),
+                initialValue: company,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: t('Организация', 'Organisation', 'Tashkilot')),
+                items: [for (final c in companies) DropdownMenuItem(value: c.s('id'), child: Text(c.s('name'), overflow: TextOverflow.ellipsis))],
+                onChanged: (value) => setLocal(() => company = value),
+              ),
+              TextField(key: const Key('create-name'), controller: name, decoration: InputDecoration(labelText: t('Имя', 'Name', 'Ism'))),
+              TextField(key: const Key('create-login'), controller: login, decoration: InputDecoration(labelText: t('Логин или email', 'Login or email', 'Login yoki email'))),
+              DropdownButtonFormField<String>(
+                key: const Key('create-role'),
+                initialValue: role,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: t('Роль', 'Role', 'Rol')),
+                items: [for (final r in roles) DropdownMenuItem(value: r.$1, child: Text(r.$2))],
+                onChanged: (value) => setLocal(() => role = value),
+              ),
+            ]),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(t('Отмена', 'Cancel', 'Bekor qilish'))),
+            PrimaryButton(
+              key: const Key('create-confirm'),
+              label: t('Создать', 'Create', 'Yaratish'),
+              onPressed: () => Navigator.of(context).pop({'companyId': company, 'name': name.text.trim(), 'login': login.text.trim(), 'role': role}),
+            ),
+          ],
+        );
+      }),
+    );
+    name.dispose();
+    login.dispose();
+    if (result == null || !mounted) return;
+    String? password;
+    final ok = await runAction(context, () async {
+      final answer = await api.postJson('/api/admin/users', {for (final e in result.entries) e.key: e.value ?? ''});
+      password = answer.s('password');
+    });
+    if (!ok || password == null || !mounted) return;
+    await reload();
+    if (!mounted) return;
+    await showPlainDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t('Аккаунт создан', 'Account created', 'Hisob yaratildi')),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('${result['name']} · ${result['login']}'),
+          const SizedBox(height: AppSpacing.md),
+          SelectableText(password!, key: const Key('new-password'), style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: AppSpacing.md),
+          Text(t('Передайте пароль человеку лично. При первом входе он сменит его на свой.', 'Hand the password over in person. At the first sign-in the person replaces it.', 'Parolni shaxsan topshiring. Birinchi kirishda inson uni o‘zinikiga almashtiradi.'),
+              style: Theme.of(context).textTheme.bodySmall),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Clipboard.setData(ClipboardData(text: password!)), child: Text(t('Скопировать', 'Copy', 'Nusxalash'))),
+          PrimaryButton(key: const Key('password-close'), label: t('Готово', 'Done', 'Tayyor'), onPressed: () => Navigator.of(context).pop()),
+        ],
+      ),
+    );
+  }
+
   Future<void> _reset(Map<String, dynamic> user) async {
     final t = Tx.of(context);
     final api = SessionScope.of(context).api;
@@ -327,7 +427,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               subtitle: widget.company.isEmpty
                   ? t('Все учётные записи платформы', 'All accounts of the platform', 'Platformaning barcha hisoblari')
                   : t('Сотрудники выбранной организации', 'People of the chosen organisation', 'Tanlangan tashkilot xodimlari'),
-              trailing: widget.company.isEmpty ? null : TextButton(key: const Key('users-all'), onPressed: () => context.go('/admin/users'), child: Text(t('Показать всех', 'Show everyone', 'Hammasini ko‘rsatish'))),
+              trailing: Wrap(spacing: AppSpacing.sm, children: [
+                if (widget.company.isNotEmpty) TextButton(key: const Key('users-all'), onPressed: () => context.go('/admin/users'), child: Text(t('Показать всех', 'Show everyone', 'Hammasini ko‘rsatish'))),
+                PrimaryButton(key: const Key('user-create'), label: t('Создать аккаунт', 'Create account', 'Hisob yaratish'), onPressed: () => _create(reload)),
+              ]),
             ),
             SizedBox(
               width: 320,

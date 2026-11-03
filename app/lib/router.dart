@@ -11,6 +11,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/inspections_screen.dart';
 import 'screens/draw_wizard_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/mail_screen.dart';
 import 'screens/moderation_screen.dart';
 import 'screens/password_screen.dart';
 import 'screens/applications_screen.dart';
@@ -65,7 +66,7 @@ bool _adminPath(String path) {
 }
 
 GoRouter buildRouter(SessionController session) {
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: '/login',
     refreshListenable: session,
     redirect: (context, state) {
@@ -84,7 +85,7 @@ GoRouter buildRouter(SessionController session) {
       if (path == '/login' || path == '/boot') {
         return bank ? '/bank/queue' : (admin ? '/admin' : '/home');
       }
-      if (path == '/password') return null;
+      if (path == '/password' || path == '/mail') return null;
       if (bank && _developerPath(path)) return '/bank/queue';
       if (!bank && path.startsWith('/bank')) return admin ? '/admin' : '/home';
       // The administrator of the platform has a workspace of its own.
@@ -251,6 +252,10 @@ GoRouter buildRouter(SessionController session) {
             pageBuilder: (context, state) => _instant(state, const AdminEventsScreen()),
           ),
           GoRoute(
+            path: '/mail',
+            pageBuilder: (context, state) => _instant(state, const MailScreen()),
+          ),
+          GoRoute(
             path: '/admin/mail',
             pageBuilder: (context, state) => _instant(state, const AdminMailScreen()),
           ),
@@ -329,6 +334,9 @@ GoRouter buildRouter(SessionController session) {
       ),
     ],
   );
+  // A new page is a good moment to look for new letters.
+  router.routerDelegate.addListener(() => session.refreshMail());
+  return router;
 }
 
 class BootScreen extends StatelessWidget {

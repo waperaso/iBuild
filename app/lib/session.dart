@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import 'api.dart';
@@ -15,11 +17,42 @@ class SessionController extends ChangeNotifier {
   bool busy = false;
   String? error;
 
+  /// Unread letters of the signed-in person, shown on the mail button.
+  int mailUnread = 0;
+  DateTime? _mailAsked;
+
+  /// Asks the server for the number of unread letters. Quiet when it fails and
+  /// not more often than every few seconds unless [force] is set.
+  Future<void> refreshMail({bool force = false}) async {
+    if (user == null) {
+      if (mailUnread != 0) {
+        mailUnread = 0;
+        notifyListeners();
+      }
+      return;
+    }
+    final now = DateTime.now();
+    final last = _mailAsked;
+    if (!force && last != null && now.difference(last) < const Duration(seconds: 5)) return;
+    _mailAsked = now;
+    try {
+      final answer = await api.getJson('/api/mail/unread');
+      final count = (answer['count'] as num?)?.toInt() ?? 0;
+      if (count != mailUnread) {
+        mailUnread = count;
+        notifyListeners();
+      }
+    } catch (_) {
+      // The badge is a convenience; a failure must not disturb the screen.
+    }
+  }
+
   Future<void> restore() async {
     try {
       user = await api.me();
       projects = user == null ? const [] : await api.projects();
       error = null;
+      if (user != null) unawaited(refreshMail(force: true));
     } on ApiException catch (failure) {
       user = null;
       projects = const [];
@@ -38,6 +71,7 @@ class SessionController extends ChangeNotifier {
       user = await api.login(login, password);
       projects = await api.projects();
       error = null;
+      unawaited(refreshMail(force: true));
       return true;
     } on ApiException catch (failure) {
       user = null;
@@ -86,6 +120,7 @@ class SessionController extends ChangeNotifier {
       // The screen still returns to the login form.
     }
     user = null;
+    mailUnread = 0;
     projects = const [];
     currentProjectId = null;
     error = null;
