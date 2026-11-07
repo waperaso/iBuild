@@ -379,6 +379,67 @@ Future<void> _openClock(Session tx, String id, String stageSql, {required bool p
   );
 }
 
+/// The expert visit of this tranche is done. The tranche leaves inspection and
+/// the specialist may decide. A tranche on any other stage is left as it is.
+Future<bool> bankReleaseExpertVisit(Session tx, String id, String bankId) async {
+  final rows = await tx.execute(
+    Sql.named('SELECT stage FROM bank_tranches WHERE id = @id::uuid AND bank_id = @bank::uuid'),
+    parameters: {'id': id, 'bank': bankId},
+  );
+  if (rows.isEmpty || rows.first[0] != 'inspection') return false;
+  final holder = await tx.execute(
+    Sql.named('''
+      SELECT s.user_id::text, u.name
+      FROM bank_staff s JOIN users u ON u.id = s.user_id
+      WHERE s.bank_id = @bank::uuid AND s.role = 'specialist' AND s.active
+      ORDER BY (
+        SELECT count(*) FROM bank_tranches t
+        WHERE t.holder_user_id = s.user_id AND t.outcome IS NULL
+      ), u.name
+      LIMIT 1
+    '''),
+    parameters: {'bank': bankId},
+  );
+  await tx.execute(
+    Sql.named('''
+      UPDATE bank_approval_steps
+      SET status = 'done', decided_at = now(), actor_label = 'Осмотр зафиксирован'
+      WHERE tranche_id = @id::uuid AND code = 'expert' AND status = 'pending'
+    '''),
+    parameters: {'id': id},
+  );
+  await tx.execute(
+    Sql.named('''
+      UPDATE bank_tranches
+      SET stage = 'specialist',
+          stage_label = 'Решение специалиста',
+          holder_user_id = @holder::uuid,
+          holder_label = @label,
+          problems_label = CASE WHEN problems_label = 'Ждёт осмотра' THEN '' ELSE problems_label END,
+          signal = CASE WHEN signal = 'inspection' THEN 'none' ELSE signal END,
+          sla_days = bank_stage_days(rules_version_id, 'specialist', sla_days),
+          elapsed_days = 0,
+          elapsed_hours = 0
+      WHERE id = @id::uuid
+    '''),
+    parameters: {
+      'id': id,
+      'holder': holder.isEmpty ? null : holder.first[0],
+      'label': holder.isEmpty ? '' : '${holder.first[1]}, кредитный специалист',
+    },
+  );
+  await bankMoveClock(tx, id, 'specialist');
+  await bankAudit(
+    tx,
+    bankId: bankId,
+    trancheId: id,
+    actorLabel: 'Система',
+    action: 'inspection_reported',
+    detail: {'stage': 'specialist'},
+  );
+  return true;
+}
+
 /// The tranche enters a new stage: the old interval ends, the new one starts and
 /// the stage deadline counts from now.
 Future<void> bankMoveClock(Session tx, String id, String stage) async {

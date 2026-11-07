@@ -677,7 +677,7 @@ Future<Response> _inspections(Request request, AppDatabase db) async {
              i.status AS status, i.scheduled_on AS scheduled, i.completed_on AS completed,
              i.expert_label AS expert, i.expert_user_id::text AS expert_id, i.risk AS risk,
              i.recommendation AS recommendation, i.note AS note, i.expected_finish AS finish,
-             t.tranche_no AS tranche_no
+             t.id::text AS tranche_id, t.request_id::text AS request_id, t.tranche_no AS tranche_no
       FROM bank_inspections i JOIN projects p ON p.id = i.project_id
       LEFT JOIN bank_tranches t ON t.id = i.tranche_id
       WHERE i.bank_id = @bank::uuid
@@ -714,12 +714,24 @@ Future<Response> _inspections(Request request, AppDatabase db) async {
     ''',
     {'bank': ctx.bankId},
   );
+  final tranches = await bankRows(
+    db,
+    '''
+      SELECT t.id::text AS id, t.project_id::text AS project_id, t.request_id::text AS request_id,
+             t.tranche_no AS no
+      FROM bank_tranches t
+      WHERE t.bank_id = @bank::uuid AND t.outcome IS NULL AND t.stage = 'inspection'
+      ORDER BY t.tranche_no
+    ''',
+    {'bank': ctx.bankId},
+  );
   int count(String status) => items.where((item) => item['status'] == status).length;
   return bankOk({
     'items': items,
     'counts': {'planned': count('planned'), 'done': count('done'), 'overdue': count('overdue')},
     'experts': experts,
     'objects': objects,
+    'tranches': tranches,
     'canPlan': _writers.contains(ctx.actor.role),
     'canComplete': ctx.actor.role == 'expert' || ctx.actor.role == 'admin',
   });
@@ -743,6 +755,43 @@ Future<Response> _planInspection(Request request, AppDatabase db) async {
     {'id': project, 'bank': ctx.bankId},
   );
   if (exists.isEmpty) return jsonError(404, 'not_found', 'Объект не найден');
+
+  final waiting = await bankRows(
+    db,
+    '''
+      SELECT id::text AS id, request_id::text AS request_id
+      FROM bank_tranches
+      WHERE project_id = @project::uuid AND bank_id = @bank::uuid
+        AND outcome IS NULL AND stage = 'inspection'
+      ORDER BY tranche_no
+    ''',
+    {'project': project, 'bank': ctx.bankId},
+  );
+  final requested = body['trancheId'];
+  String? trancheId;
+  if (requested is String && requested.isNotEmpty) {
+    if (!bankIsUuid(requested)) return jsonError(400, 'validation', 'Выберите транш, который ждёт осмотра');
+    final match = waiting.where((row) => row['id'] == requested);
+    if (match.isEmpty) {
+      final owned = await bankRows(
+        db,
+        '''
+          SELECT project_id::text AS project_id, stage
+          FROM bank_tranches WHERE id = @id::uuid AND bank_id = @bank::uuid
+        ''',
+        {'id': requested, 'bank': ctx.bankId},
+      );
+      if (owned.isEmpty || owned.first['project_id'] != project) {
+        return jsonError(404, 'not_found', 'Транш не относится к этому объекту');
+      }
+      return jsonError(400, 'validation', 'Этот транш не ждёт осмотра');
+    }
+    trancheId = requested;
+  } else if (waiting.length == 1) {
+    trancheId = waiting.first['id'] as String;
+  } else if (waiting.length > 1) {
+    return jsonError(400, 'validation', 'Выберите транш, который ждёт осмотра');
+  }
 
   var expertId = body['expertUserId'];
   Map<String, Object?>? expert;
@@ -769,11 +818,15 @@ Future<Response> _planInspection(Request request, AppDatabase db) async {
   final rows = await bankRows(
     db,
     '''
-      INSERT INTO bank_inspections (project_id, bank_id, kind, scheduled_on, expert_user_id, expert_label, created_by)
-      VALUES (@project::uuid, @bank::uuid, @kind, @day::date, @expert::uuid, @label, @user::uuid)
+      INSERT INTO bank_inspections (
+        tranche_id, project_id, bank_id, kind, scheduled_on, expert_user_id, expert_label, created_by
+      ) VALUES (
+        @tranche::uuid, @project::uuid, @bank::uuid, @kind, @day::date, @expert::uuid, @label, @user::uuid
+      )
       RETURNING id::text AS id
     ''',
     {
+      'tranche': trancheId,
       'project': project,
       'bank': ctx.bankId,
       'kind': kind,
@@ -783,8 +836,24 @@ Future<Response> _planInspection(Request request, AppDatabase db) async {
       'user': ctx.actor.userId,
     },
   );
-  await bankEvent(db, ctx, 'inspection_planned', projectId: project, detail: {'day': day, 'kind': kind, 'expert': expert?['name']});
-  return jsonResponse(201, {'id': rows.first['id']});
+  String? requestId;
+  for (final row in waiting) {
+    if (row['id'] == trancheId) requestId = row['request_id'] as String?;
+  }
+  await bankEvent(
+    db,
+    ctx,
+    'inspection_planned',
+    trancheId: trancheId,
+    projectId: project,
+    detail: {
+      'day': day,
+      'kind': kind,
+      'expert': expert?['name'],
+      if (requestId != null) 'requestId': requestId,
+    },
+  );
+  return jsonResponse(201, {'id': rows.first['id'], 'trancheId': trancheId});
 }
 
 Future<Response> _completeInspection(Request request, AppDatabase db, String id) async {
@@ -815,7 +884,7 @@ Future<Response> _completeInspection(Request request, AppDatabase db, String id)
           note = @note, expected_finish = @finish::date
       WHERE id = @id::uuid AND bank_id = @bank::uuid AND status = 'planned'
         AND (@role = 'admin' OR expert_user_id = @user::uuid)
-      RETURNING project_id::text AS project_id
+      RETURNING project_id::text AS project_id, tranche_id::text AS tranche_id
     ''',
     {
       'id': id,
@@ -829,9 +898,19 @@ Future<Response> _completeInspection(Request request, AppDatabase db, String id)
     },
   );
   if (rows.isEmpty) return jsonError(409, 'not_open', 'Этот осмотр уже закрыт или назначен другому эксперту');
-  await bankEvent(db, ctx, 'inspection_done', projectId: rows.first['project_id']! as String,
-      detail: {'risk': risk, 'recommendation': recommendation, 'finish': finish});
-  return bankOk({'ok': true});
+  final trancheId = rows.first['tranche_id'] as String?;
+  final advanced = trancheId == null
+      ? false
+      : await db.owner.runTx((tx) => bankReleaseExpertVisit(tx, trancheId, ctx.bankId));
+  await bankEvent(
+    db,
+    ctx,
+    'inspection_done',
+    trancheId: trancheId,
+    projectId: rows.first['project_id']! as String,
+    detail: {'risk': risk, 'recommendation': recommendation, 'finish': finish, 'advanced': advanced},
+  );
+  return bankOk({'ok': true, 'advanced': advanced, 'trancheId': trancheId});
 }
 
 String _periodKey(String due) => due;

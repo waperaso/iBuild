@@ -208,7 +208,7 @@ Future<void> _sync(Session tx, String requestId) async {
   );
 
   // Moves from the wait for inspection to the work of the specialist.
-  final moved = await _advance(tx, trancheId, bankId, inspected);
+  await _advance(tx, trancheId, bankId, inspected);
   await bankRecompute(tx, trancheId);
   await tx.execute(
     Sql.named('''
@@ -228,16 +228,6 @@ Future<void> _sync(Session tx, String requestId) async {
       actorLabel: 'Система',
       action: 'tranche_created',
       detail: {'source': 'developer_draw', 'checks': results.where((r) => !r.passed).length},
-    );
-  }
-  if (moved) {
-    await bankAudit(
-      tx,
-      bankId: bankId,
-      trancheId: trancheId,
-      actorLabel: 'Система',
-      action: 'inspection_reported',
-      detail: {'stage': 'specialist'},
     );
   }
 }
@@ -370,54 +360,9 @@ Future<String> _create(Session tx, Map<String, Object?> head, String bankId) asy
 }
 
 /// The inspection of the expert came in: the tranche goes to the specialist.
-Future<bool> _advance(Session tx, String id, String bankId, bool inspected) async {
-  if (!inspected) return false;
-  final rows = await tx.execute(
-    Sql.named('SELECT stage FROM bank_tranches WHERE id = @id::uuid'),
-    parameters: {'id': id},
-  );
-  if (rows.first[0] != 'inspection') return false;
-  final holder = await tx.execute(
-    Sql.named('''
-      SELECT s.user_id::text, u.name
-      FROM bank_staff s JOIN users u ON u.id = s.user_id
-      WHERE s.bank_id = @bank::uuid AND s.role = 'specialist' AND s.active
-      ORDER BY (
-        SELECT count(*) FROM bank_tranches t
-        WHERE t.holder_user_id = s.user_id AND t.outcome IS NULL
-      ), u.name
-      LIMIT 1
-    '''),
-    parameters: {'bank': bankId},
-  );
-  await tx.execute(
-    Sql.named('''
-      UPDATE bank_approval_steps
-      SET status = 'done', decided_at = now(), actor_label = 'Осмотр зафиксирован'
-      WHERE tranche_id = @id::uuid AND code = 'expert' AND status = 'pending'
-    '''),
-    parameters: {'id': id},
-  );
-  await tx.execute(
-    Sql.named('''
-      UPDATE bank_tranches
-      SET stage = 'specialist',
-          stage_label = 'Решение специалиста',
-          holder_user_id = @holder::uuid,
-          holder_label = @label,
-          sla_days = bank_stage_days(rules_version_id, 'specialist', sla_days),
-          elapsed_days = 0,
-          elapsed_hours = 0
-      WHERE id = @id::uuid
-    '''),
-    parameters: {
-      'id': id,
-      'holder': holder.isEmpty ? null : holder.first[0],
-      'label': holder.isEmpty ? '' : '${holder.first[1]}, кредитный специалист',
-    },
-  );
-  await bankMoveClock(tx, id, 'specialist');
-  return true;
+Future<bool> _advance(Session tx, String id, String bankId, bool inspected) {
+  if (!inspected) return Future<bool>.value(false);
+  return bankReleaseExpertVisit(tx, id, bankId);
 }
 
 Future<List<RuleLine>> _syncLines(Session tx, String trancheId, String requestId) async {

@@ -21,7 +21,11 @@ class _BankInspectionsScreenState extends State<BankInspectionsScreen> {
   Future<void> _plan(Map<String, dynamic> data, Future<void> Function() reload) async {
     final done = await showPlainDialog<bool>(
       context: context,
-      builder: (context) => _PlanDialog(objects: data.list('objects'), experts: data.list('experts')),
+      builder: (context) => _PlanDialog(
+        objects: data.list('objects'),
+        experts: data.list('experts'),
+        tranches: data.list('tranches'),
+      ),
     );
     if (done == true) await reload();
   }
@@ -102,7 +106,8 @@ class _BankInspectionsScreenState extends State<BankInspectionsScreen> {
                                   child: Text(item.s('project_name'), style: theme.textTheme.titleSmall),
                                 ),
                                 Text(
-                                  '${inspectionKind(t, item.s('kind'))} · ${item.s('expert').isEmpty ? t('эксперт не назначен', 'no expert assigned', 'ekspert tayinlanmagan') : item.s('expert')}',
+                                  '${inspectionKind(t, item.s('kind'))} · ${item.s('expert').isEmpty ? t('эксперт не назначен', 'no expert assigned', 'ekspert tayinlanmagan') : item.s('expert')}'
+                                  '${item.s('tranche_no').isEmpty ? '' : ' · ${t('транш', 'tranche', 'transh')} ${item.s('tranche_no')}'}',
                                   style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted),
                                 ),
                                 if (item.s('status') == 'done')
@@ -139,10 +144,11 @@ class _BankInspectionsScreenState extends State<BankInspectionsScreen> {
 }
 
 class _PlanDialog extends StatefulWidget {
-  const _PlanDialog({required this.objects, required this.experts});
+  const _PlanDialog({required this.objects, required this.experts, required this.tranches});
 
   final List<Map<String, dynamic>> objects;
   final List<Map<String, dynamic>> experts;
+  final List<Map<String, dynamic>> tranches;
 
   @override
   State<_PlanDialog> createState() => _PlanDialogState();
@@ -151,15 +157,25 @@ class _PlanDialog extends StatefulWidget {
 class _PlanDialogState extends State<_PlanDialog> {
   String? _project;
   String _expert = '';
+  String _tranche = '';
   String _kind = 'control';
   String _day = '';
   String? _error;
   bool _busy = false;
 
+  List<Map<String, dynamic>> get _waiting => [
+    for (final row in widget.tranches)
+      if (row.s('project_id') == _project) row,
+  ];
+
   Future<void> _save() async {
     final t = Tx.of(context);
     if (_project == null || _day.isEmpty) {
       setState(() => _error = t('Выберите объект и дату осмотра', 'Choose a project and an inspection date', 'Obyekt va ko‘rik sanasini tanlang'));
+      return;
+    }
+    if (_waiting.length > 1 && _tranche.isEmpty) {
+      setState(() => _error = t('Выберите транш, который ждёт осмотра', 'Choose the tranche that is waiting for the inspection', 'Ko‘rikni kutayotgan transhni tanlang'));
       return;
     }
     setState(() {
@@ -168,11 +184,13 @@ class _PlanDialogState extends State<_PlanDialog> {
     });
     final api = SessionScope.of(context).api;
     final navigator = Navigator.of(context);
+    final trancheId = _tranche.isNotEmpty ? _tranche : (_waiting.length == 1 ? _waiting.first.s('id') : '');
     final ok = await runAction(context, () => api.postJson('/api/bank/inspections', {
           'projectId': _project,
           'scheduledOn': _day,
           'kind': _kind,
           if (_expert.isNotEmpty) 'expertUserId': _expert,
+          if (trancheId.isNotEmpty) 'trancheId': trancheId,
         }));
     if (!mounted) return;
     if (ok) {
@@ -201,8 +219,41 @@ class _PlanDialogState extends State<_PlanDialog> {
                 initialValue: _project,
                 decoration: InputDecoration(labelText: t('Объект', 'Project', 'Obyekt')),
                 items: [for (final o in widget.objects) DropdownMenuItem(value: o.s('id'), child: Text(o.s('name'), overflow: TextOverflow.ellipsis))],
-                onChanged: (value) => setState(() => _project = value),
+                onChanged: (value) => setState(() {
+                  _project = value;
+                  final mine = [
+                    for (final row in widget.tranches)
+                      if (row.s('project_id') == value) row,
+                  ];
+                  _tranche = mine.length == 1 ? mine.first.s('id') : '';
+                }),
               ),
+              if (_waiting.length > 1) ...[
+                const SizedBox(height: AppSpacing.md),
+                DropdownButtonFormField<String>(
+                  key: const Key('plan-tranche'),
+                  isExpanded: true,
+                  initialValue: _tranche,
+                  decoration: InputDecoration(labelText: t('Транш', 'Tranche', 'Transh')),
+                  items: [
+                    DropdownMenuItem(value: '', child: Text(t('Выберите транш', 'Choose a tranche', 'Transhni tanlang'))),
+                    for (final row in _waiting)
+                      DropdownMenuItem(
+                        value: row.s('id'),
+                        child: Text('${t('Транш', 'Tranche', 'Transh')} ${row.s('no')}', overflow: TextOverflow.ellipsis),
+                      ),
+                  ],
+                  onChanged: (value) => setState(() => _tranche = value ?? ''),
+                ),
+              ],
+              if (_waiting.length == 1)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.md),
+                  child: Text(
+                    '${t('Транш', 'Tranche', 'Transh')} ${_waiting.first.s('no')}',
+                    key: const Key('plan-tranche-bound'),
+                  ),
+                ),
               const SizedBox(height: AppSpacing.md),
               DropdownButtonFormField<String>(
                 key: const Key('plan-kind'),

@@ -296,6 +296,162 @@ void main() {
       expect(card.status, 200);
     });
 
+    test('closing the bank visit of one tranche opens only that specialist decision', () async {
+      final director = await signIn('a.director');
+      final specialist = await signIn('a.observer');
+      final bankId = (await rows('''
+        SELECT s.bank_id::text FROM bank_staff s
+        JOIN users u ON u.id = s.user_id WHERE u.login = 'a.expert'
+      ''')).first.first! as String;
+
+      Future<({String projectId, String sourceId})> openProject(String name, String csv) async {
+        final created = await dev(director, 'POST', '/api/projects', {'name': name, 'address': 'Ташкент, тест'});
+        expect(created.status, 201, reason: jsonEncode(created.body));
+        final projectId = created.body!['id'] as String;
+        final firms = (await dev(director, 'GET', '/api/contractor-firms')).body!['firms'] as List;
+        final firmId = (firms.first as Map)['id'] as String;
+        expect((await dev(director, 'POST', '/api/projects/$projectId/budget/import', {
+          'contractorFirmId': firmId,
+          'csv': csv,
+        })).status, 201);
+        final source = await dev(director, 'POST', '/api/projects/$projectId/sources',
+            {'name': 'Кредитная линия', 'kind': 'loan', 'amount': '2000000.00'});
+        expect(source.status, 201, reason: jsonEncode(source.body));
+        await rows('''
+          INSERT INTO project_facilities (project_id, bank_id, developer_name, credit_limit, issued_amount)
+          VALUES (@p::uuid, @b::uuid, 'QA', 5000000.00, 0)
+        ''', {'p': projectId, 'b': bankId});
+        return (projectId: projectId, sourceId: source.body!['id'] as String);
+      }
+
+      Future<({String drawId, String trancheId})> submitDraw(
+        String projectId,
+        String sourceId,
+        String title,
+      ) async {
+        final draw = await dev(director, 'POST', '/api/draws', {'projectId': projectId, 'name': title});
+        expect(draw.status, 201, reason: jsonEncode(draw.body));
+        final drawId = draw.body!['id'] as String;
+        final loan = await dev(director, 'GET', '/api/projects/$projectId/loan');
+        final line = (loan.body!['lines'] as List).cast<Map<String, dynamic>>().firstWhere((row) => row['title'] == title);
+        final requirements = ((await dev(director, 'GET', '/api/draws/$drawId')).body!['requirements'] as List).cast<Map<String, dynamic>>();
+        final saved = await dev(director, 'PATCH', '/api/draws/$drawId', {
+          'signedName': 'Директор',
+          'lines': [
+            {
+              'budgetItemId': line['id'],
+              'requested': '500000.00',
+              'retainageWithheld': '0.00',
+              'retainageReleased': '0.00',
+              'storedMaterials': '0.00',
+            },
+          ],
+          'sources': [
+            {'sourceId': sourceId, 'amount': '500000.00'},
+          ],
+          'requirements': [
+            for (final item in requirements)
+              if (item['required'] == true) {'itemId': item['item_id'], 'status': 'attached'},
+          ],
+        });
+        expect(saved.status, 200, reason: jsonEncode(saved.body));
+        expect((await dev(director, 'POST', '/api/draws/$drawId/submit')).status, 200);
+        final tranche = await rows(
+          'SELECT id::text, stage FROM bank_tranches WHERE request_id = @r::uuid',
+          {'r': drawId},
+        );
+        expect(tranche.single[1], 'inspection');
+        return (drawId: drawId, trancheId: tranche.single[0]! as String);
+      }
+
+      final home = await openProject(
+        'QA Full Click 2026',
+        '01,Тестовый фундамент,hard,use,1000000.00\n02,Вторая работа,hard,use,1000000.00',
+      );
+      final first = await submitDraw(home.projectId, home.sourceId, 'Тестовый фундамент');
+      final extra = await submitDraw(home.projectId, home.sourceId, 'Вторая работа');
+      final other = await openProject('Второй объект', '01,Второй объект,hard,use,1000000.00');
+      final second = await submitDraw(other.projectId, other.sourceId, 'Второй объект');
+      final listed = await specialist.send('GET', '/api/bank/inspections');
+      final waiting = (listed.body!['tranches'] as List).cast<Map>();
+      expect(waiting.map((row) => row['id']), containsAll([first.trancheId, extra.trancheId, second.trancheId]));
+
+      expect((await dev(director, 'POST', '/api/bank/inspections', {
+        'projectId': home.projectId,
+        'scheduledOn': '2026-11-10',
+      })).status, 404);
+
+      final needsChoice = await dev(specialist, 'POST', '/api/bank/inspections', {
+        'projectId': home.projectId,
+        'scheduledOn': '2026-11-10',
+        'kind': 'control',
+      });
+      expect(needsChoice.status, 400);
+      expect(needsChoice.body!['message'], 'Выберите транш, который ждёт осмотра');
+
+      final planned = await dev(specialist, 'POST', '/api/bank/inspections', {
+        'projectId': home.projectId,
+        'scheduledOn': '2026-11-10',
+        'kind': 'control',
+        'trancheId': first.trancheId,
+      });
+      expect(planned.status, 201, reason: jsonEncode(planned.body));
+      expect(planned.body!['trancheId'], first.trancheId);
+      final link = await rows('''
+        SELECT tranche_id::text, (SELECT request_id::text FROM bank_tranches WHERE id = tranche_id)
+        FROM bank_inspections WHERE id = @id::uuid
+      ''', {'id': planned.body!['id']});
+      expect(link.single, [first.trancheId, first.drawId]);
+
+      final otherBank = await dev(specialist, 'POST', '/api/bank/inspections', {
+        'projectId': home.projectId,
+        'scheduledOn': '2026-11-10',
+        'trancheId': second.trancheId,
+      });
+      expect(otherBank.status, 404);
+
+      final head = await signIn('a.head1');
+      expect((await dev(head, 'POST', '/api/bank/inspections/${planned.body!['id']}/complete', {
+        'risk': 'ok',
+        'recommendation': 'issue',
+        'note': 'QA full click: работы подтверждены, рекомендовано выдать транш.',
+      })).status, 403);
+
+      final expertLogin = (await rows(
+        'SELECT u.login FROM bank_inspections i JOIN users u ON u.id = i.expert_user_id WHERE i.id = @id::uuid',
+        {'id': planned.body!['id']},
+      )).single.first! as String;
+      final expert = await signIn(expertLogin);
+      final closed = await dev(expert, 'POST', '/api/bank/inspections/${planned.body!['id']}/complete', {
+        'risk': 'ok',
+        'recommendation': 'issue',
+        'note': 'QA full click: работы подтверждены, рекомендовано выдать транш.',
+      });
+      expect(closed.status, 200, reason: jsonEncode(closed.body));
+      expect(closed.body!['advanced'], true);
+
+      final moved = (await rows(
+        'SELECT stage, stage_label, problems_label FROM bank_tranches WHERE id = @id::uuid',
+        {'id': first.trancheId},
+      )).single;
+      expect(moved[0], 'specialist');
+      expect(moved[1], 'Решение специалиста');
+      expect(moved[2], isNot('Ждёт осмотра'));
+      expect((await rows("SELECT status FROM bank_approval_steps WHERE tranche_id = @id::uuid AND code = 'expert'", {'id': first.trancheId})).single.first, 'done');
+      expect((await rows('SELECT stage FROM bank_tranches WHERE id = @id::uuid', {'id': extra.trancheId})).single.first, 'inspection');
+      expect((await rows('SELECT stage FROM bank_tranches WHERE id = @id::uuid', {'id': second.trancheId})).single.first, 'inspection');
+
+      final card = await specialist.send('GET', '/api/bank/tranches/${first.trancheId}');
+      expect((card.body!['permissions'] as Map)['canDecide'], true);
+      final expertCard = await expert.send('GET', '/api/bank/tranches/${first.trancheId}');
+      expect((expertCard.body!['permissions'] as Map)['canDecide'], false);
+      expect((await dev(expert, 'POST', '/api/bank/tranches/${first.trancheId}/decision',
+          {'kind': 'return_all', 'note': 'Эксперт не решает'}, 'visit-key-0001')).status, 403);
+      final decision = await dev(specialist, 'POST', '/api/bank/tranches/${first.trancheId}/decision',
+          {'kind': 'return_all', 'note': 'После осмотра'}, 'visit-key-0002');
+      expect(decision.status, 200, reason: jsonEncode(decision.body));
+    });
+
     test('backfill closes only expert steps that are already past inspection', () async {
       final banks = await rows('''
         SELECT c.id::text, (

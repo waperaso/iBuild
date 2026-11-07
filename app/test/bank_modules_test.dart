@@ -320,7 +320,7 @@ void main() {
     // Nothing chosen: the form refuses and sends nothing.
     await tester.tap(find.byKey(const Key('complete-save')));
     await tester.pumpAndSettle();
-    expect(find.text('Укажите риск и рекомендацию'), findsOneWidget);
+    expect(find.text('Укажите уровень риска и рекомендацию эксперта.'), findsOneWidget);
     expect(api.jsonCalls.where((c) => c.$2 != null), isEmpty);
 
     await tester.tap(find.byKey(const Key('risk-watch')));
@@ -332,6 +332,73 @@ void main() {
     final sent = api.jsonCalls.lastWhere((c) => c.$2 != null);
     expect(sent.$1, '/api/bank/inspections/i-plan/complete');
     expect(sent.$2, {'risk': 'watch', 'recommendation': 'withhold', 'note': 'Отстаём'});
+  });
+
+  testWidgets('planning binds the visit to the tranche that is waiting', (tester) async {
+    final one = FakeApi(user: _bankAs('specialist'))
+      ..jsonAnswers['/api/bank/inspections'] = {
+        ..._inspections,
+        'tranches': [
+          {'id': 't1', 'project_id': 'p1', 'request_id': 'r1', 'no': 1},
+        ],
+      };
+    await pumpIBuildWith(tester, one);
+    await tester.tap(find.byKey(const Key('nav-bank-inspections')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan-inspection')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan-project')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ЖК Навои').last);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('plan-tranche-bound')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('plan-day')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ОК'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan-save')));
+    await tester.pumpAndSettle();
+    final sent = one.jsonCalls.lastWhere((call) => call.$1 == '/api/bank/inspections' && call.$2 != null);
+    expect(sent.$2!['trancheId'], 't1');
+    expect(sent.$2!['projectId'], 'p1');
+
+    final two = FakeApi(user: _bankAs('specialist'))
+      ..jsonAnswers['/api/bank/inspections'] = {
+        ..._inspections,
+        'items': [
+          {...(_inspections['items'] as List).first as Map, 'tranche_no': 1},
+        ],
+        'tranches': [
+          {'id': 't1', 'project_id': 'p1', 'request_id': 'r1', 'no': 1},
+          {'id': 't2', 'project_id': 'p1', 'request_id': 'r2', 'no': 2},
+        ],
+      };
+    await pumpIBuildWith(tester, two);
+    await tester.tap(find.byKey(const Key('nav-bank-inspections')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('транш 1'), findsWidgets);
+    await tester.tap(find.byKey(const Key('plan-inspection')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan-project')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ЖК Навои').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan-day')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ОК'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan-save')));
+    await tester.pumpAndSettle();
+    expect(find.text('Выберите транш, который ждёт осмотра'), findsOneWidget);
+    expect(two.jsonCalls.where((call) => call.$1 == '/api/bank/inspections' && call.$2 != null), isEmpty);
+    await tester.tap(find.byKey(const Key('plan-tranche')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Транш 2').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan-save')));
+    await tester.pumpAndSettle();
+    final chosen = two.jsonCalls.lastWhere((call) => call.$1 == '/api/bank/inspections' && call.$2 != null);
+    expect(chosen.$2!['trancheId'], 't2');
   });
 
   testWidgets('a specialist cannot close a visit and an admin can close any', (tester) async {
