@@ -42,9 +42,9 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Лимит'), findsWidgets);
-    expect(find.text('Ждёт выплаты'), findsWidgets);
+    expect(find.text('Зарезервировано'), findsWidgets);
     expect(find.text('Выплачено'), findsWidgets);
-    expect(find.text('Можно запросить'), findsWidgets);
+    expect(find.text('Доступно к запросу'), findsWidgets);
 
     await tester.tap(find.byKey(const Key('nav-requests')));
     await tester.pumpAndSettle();
@@ -63,7 +63,7 @@ void main() {
     expect(find.byKey(const Key('request-form')), findsOneWidget);
     expect(find.text('Сумма'), findsOneWidget);
     expect(find.text('Вид работ'), findsOneWidget);
-    expect(find.text('Что сделано'), findsOneWidget);
+    expect(find.text('Описание выполненных работ'), findsOneWidget);
     expect(find.text('Фото работы'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('logout-button')));

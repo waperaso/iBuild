@@ -39,7 +39,7 @@ Future<void> _fillBank(WidgetTester tester) async {
   await _type(tester, 'reg-contact_position', 'Начальник отдела');
   await _type(tester, 'reg-contact_phone', '+998 90 111 22 33');
   await _type(tester, 'reg-contact_email', 'dilnoza@example.uz');
-  await _pickChoice(tester, 'reg-authority_basis', 'Доверенности');
+  await _pickChoice(tester, 'reg-authority_basis', 'Доверенность');
   await _pickChoice(tester, 'reg-call_time', 'В любое время');
   await _pickChoice(tester, 'reg-language', 'Русский');
   await tester.tap(find.byKey(const Key('interest-escrow')));
@@ -128,7 +128,7 @@ void main() {
     // Both consents are still needed.
     await tester.tap(find.byKey(const Key('register-submit')));
     await tester.pumpAndSettle();
-    expect(find.text('Поставьте обе галочки, чтобы отправить заявку.'), findsOneWidget);
+    expect(find.text('Подтвердите согласие на обработку данных и достоверность сведений.'), findsOneWidget);
     expect(api.submissions, isEmpty);
 
     await tester.tap(find.byKey(const Key('consent-data')));

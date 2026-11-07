@@ -2,16 +2,20 @@ part of 'l10n.dart';
 
 /// Text for the read-only demo: the role buttons on the sign-in page and the strip on top.
 extension DemoCopy on AppCopy {
-  String get demoTitle => _t(('Посмотреть демо', 'Try the demo', 'Demoni koʻrish'));
+  String get demoTitle => _t((
+    'Демонстрационный кабинет',
+    'Demo workspace',
+    'Namoyish kabineti',
+  ));
   String get demoHint => _t((
-    'Войдите без пароля и посмотрите, как всё устроено. Данные учебные, ничего не сохраняется.',
-    'Sign in without a password and see how it works. The data is for practice and nothing is saved.',
-    'Parolsiz kiring va hammasi qanday ishlashini koʻring. Maʼlumotlar oʻquv uchun, hech narsa saqlanmaydi.',
+    'Выберите роль. В кабинете доступны примеры объектов и траншей для просмотра.',
+    'Choose a role to view sample projects and tranches.',
+    'Namunaviy obyektlar va transhlarni ko‘rish uchun rolni tanlang.',
   ));
   String get demoBanner => _t((
-    'Демо: данные учебные, изменения не сохраняются',
-    'Demo: practice data, changes are not saved',
-    'Demo: oʻquv maʼlumotlari, oʻzgarishlar saqlanmaydi',
+    'Демо · Только просмотр',
+    'Demo · View only',
+    'Demo · Faqat ko‘rish',
   ));
   String get demoExit => _t(('Выйти из демо', 'Leave demo', 'Demodan chiqish'));
 

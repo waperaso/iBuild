@@ -57,7 +57,7 @@ void main() {
     expect(_boxColor(tester, 'bank-stage-approval'), colors.outline);
     expect(_boxColor(tester, 'bank-stage-payout'), colors.outline);
     expect(find.text('Согласование'), findsOneWidget);
-    expect(find.text('Выплата'), findsOneWidget);
+    expect(find.text('ЭЦП и выплата'), findsOneWidget);
   });
 
   testWidgets('five numbers: requested, confirmed, blocked, to issue, limit left', (tester) async {
@@ -117,7 +117,7 @@ void main() {
     await _openNavoi(tester);
 
     expect(find.byKey(const Key('bank-passed-list')), findsNothing);
-    expect(find.text('Показать, что в порядке (8)'), findsOneWidget);
+    expect(find.text('Пройденные проверки (8)'), findsOneWidget);
     expect(find.text('Пройденная проверка номер 1'), findsNothing);
 
     await tester.ensureVisible(find.byKey(const Key('bank-passed-toggle')));
@@ -126,7 +126,7 @@ void main() {
     expect(find.byKey(const Key('bank-passed-list')), findsOneWidget);
     expect(find.text('Пройденная проверка номер 1'), findsOneWidget);
     expect(find.text('Пройденная проверка номер 8'), findsOneWidget);
-    expect(find.text('Скрыть то, что в порядке'), findsOneWidget);
+    expect(find.text('Скрыть пройденные проверки'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('bank-passed-toggle')));
     await tester.pumpAndSettle();
@@ -147,7 +147,7 @@ void main() {
 
     expect(find.text('Запросить документ'), findsOneWidget);
     expect(find.text('Запросить график работ'), findsOneWidget);
-    expect(find.text('Принять с обоснованием'), findsNWidgets(3));
+    expect(find.text('Зафиксировать исключение'), findsNWidgets(3));
     for (final button in tester.widgetList<OutlinedButton>(find.byWidgetPredicate((widget) {
       final key = widget.key;
       return widget is OutlinedButton && key is ValueKey<String> && key.value.startsWith('bank-action-');
@@ -196,11 +196,11 @@ void main() {
     await _openNavoi(tester);
 
     expect(
-      find.text('Одобрить 1 723,9 млн UZS, а 536,1 млн UZS вернуть на доработку'),
+      find.text('На согласование: 1 723,9 млн UZS · на доработку: 536,1 млн UZS'),
       findsOneWidget,
     );
-    expect(find.text('Вернуть застройщику целиком'), findsOneWidget);
-    expect(find.text('Заказать проверку на месте'), findsOneWidget);
+    expect(find.text('Вернуть транш застройщику'), findsOneWidget);
+    expect(find.text('Назначить контрольный осмотр'), findsOneWidget);
     expect(find.text('Приостановить финансирование'), findsOneWidget);
     for (final name in ['return', 'measure', 'suspend']) {
       expect(tester.widget<OutlinedButton>(find.byKey(Key('bank-decide-$name'))).onPressed, isNotNull);

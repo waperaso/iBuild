@@ -197,6 +197,18 @@ class BankStrings {
   );
   String get notFound => _t('Транш не найден', 'Tranche not found', 'Transh topilmadi');
 
+  // The server includes the outcome in the label for returned and rejected tranches.
+  String trancheStageLabel(String label) => switch (label) {
+    'Возвращена застройщику' => _t('Возвращён застройщику', 'Returned to developer', 'Quruvchiga qaytarildi'),
+    'Возвращена специалисту' => _t('Возвращён специалисту', 'Returned to specialist', 'Mutaxassisga qaytarildi'),
+    'Контрольный осмотр' => _t(label, 'Follow-up inspection', 'Nazorat ko‘rigi'),
+    'Финансирование приостановлено' => _t(label, 'Financing paused', 'Moliyalashtirish to‘xtatilgan'),
+    'Отклонён банком' => _t(label, 'Rejected by the bank', 'Bank rad etdi'),
+    'В разработке: ЭЦП и платёж' ||
+    'Ожидает подписи ЭЦП' => _t('ЭЦП и выплата — в разработке', 'Signature and payout in development', 'ERI va to‘lov ishlab chiqilmoqda'),
+    _ => AppCopy(language).known(label),
+  };
+
   String emptyTitle(String tab) {
     return switch (tab) {
       'all' => _t('Очередь пуста', 'The queue is empty', 'Navbat bo‘sh'),
@@ -264,7 +276,7 @@ class BankStrings {
       'inspection' => _t('Осмотр', 'Inspection', 'Ko‘rik'),
       'specialist' => _t('Решение специалиста', 'Specialist’s decision', 'Mutaxassis qarori'),
       'approval' => _t('Согласование', 'Sign-off', 'Kelishuv'),
-      'payout' => _t('Выплата', 'Payout', 'To‘lov'),
+      'payout' => _t('ЭЦП и выплата', 'Signature and payout', 'ERI va to‘lov'),
       _ => code,
     };
   }
@@ -275,14 +287,26 @@ class BankStrings {
   String get sumIssue => _t('К выплате', 'To pay out', 'To‘lash uchun');
   String get sumRemaining => _t('Останется в лимите', 'Left in the limit', 'Limitda qoladi');
 
-  String get checksTitle => _t('На что обратить внимание', 'What needs attention', 'Nimaga e’tibor berish kerak');
-  String get checksSubtitle => _t(
-    'Транш проверен автоматически по правилам банка',
-    'The tranche was checked automatically against the bank’s rules',
-    'Transh bank qoidalari bo‘yicha avtomatik tekshirildi',
+  String get checksTitle => _t(
+    'Проверка по правилам банка',
+    'Bank rule checks',
+    'Bank qoidalari bo‘yicha tekshiruv',
   );
-  String get noOpenChecks => _t('Замечаний нет. Всё в порядке.', 'No findings. Everything is fine.', 'Izoh yo‘q. Hammasi joyida.');
-  String showPassed(int count) => _t('Показать, что в порядке ($count)', 'Show what is fine ($count)', 'Joyidagilarini ko‘rsatish ($count)');
+  String get checksSubtitle => _t(
+    'Замечания и выполненные требования по этому траншу.',
+    'Findings and requirements met for this tranche.',
+    'Ushbu transh bo‘yicha izohlar va bajarilgan talablar.',
+  );
+  String get noOpenChecks => _t(
+    'Нет открытых замечаний.',
+    'No open findings.',
+    'Ochiq izohlar yo‘q.',
+  );
+  String showPassed(int count) => _t(
+    'Пройденные проверки ($count)',
+    'Passed checks ($count)',
+    'Muvaffaqiyatli tekshiruvlar ($count)',
+  );
   // Journal.
   String get journalTitle => _t('Журнал изменений', 'Change journal', 'O‘zgarishlar jurnali');
   String get journalShow => _t('Показать журнал', 'Show the journal', 'Jurnalni ko‘rsatish');
@@ -358,13 +382,17 @@ class BankStrings {
     }
   }
 
-  String get hidePassed => _t('Скрыть то, что в порядке', 'Hide what is fine', 'Joyidagilarini yashirish');
+  String get hidePassed => _t(
+    'Скрыть пройденные проверки',
+    'Hide passed checks',
+    'Muvaffaqiyatli tekshiruvlarni yashirish',
+  );
 
   String action(String code) {
     return switch (code) {
       'request_document' => _t('Запросить документ', 'Ask for a document', 'Hujjat so‘rash'),
       'request_schedule' => _t('Запросить график работ', 'Ask for a work schedule', 'Ish jadvalini so‘rash'),
-      'waive' => _t('Принять с обоснованием', 'Accept with a reason', 'Asos bilan qabul qilish'),
+      'waive' => _t('Зафиксировать исключение', 'Record an exception', 'Istisnoni qayd etish'),
       _ => code,
     };
   }
@@ -379,26 +407,38 @@ class BankStrings {
   String get total => _t('Итого', 'Total', 'Jami');
 
   String get decisionNote => _t(
-    'Специалист готовит решение, но деньги сам не выплачивает: решение идёт дальше на согласование.',
-    'The specialist prepares the decision but does not pay out the money: the decision goes on for sign-off.',
-    'Mutaxassis qarorni tayyorlaydi, lekin pulni o‘zi to‘lamaydi: qaror kelishuvga o‘tadi.',
+    'Специалист предлагает сумму к выплате и передаёт решение на согласование.',
+    'The specialist proposes a payout amount and submits the decision for approval.',
+    'Mutaxassis to‘lov summasini taklif qiladi va qarorni kelishuvga yuboradi.',
   );
   String approveAndReturn(String issue, String returned) => _t(
-    'Одобрить $issue, а $returned вернуть на доработку',
-    'Approve $issue and send $returned back for rework',
-    '$issue ni ma’qullash, $returned ni qayta ishlashga qaytarish',
+    'На согласование: $issue · на доработку: $returned',
+    'For approval: $issue · for revision: $returned',
+    'Kelishuvga: $issue · qayta ishlashga: $returned',
   );
-  String approveOnly(String issue) => _t('Одобрить $issue', 'Approve $issue', '$issue ni ma’qullash');
-  String get returnAll => _t('Вернуть застройщику целиком', 'Send it all back to the developer', 'Hammasini quruvchiga qaytarish');
-  String get orderInspection => _t('Заказать проверку на месте', 'Order a check on site', 'Joyida tekshiruvni buyurtma qilish');
+  String approveOnly(String issue) => _t(
+    'Передать на согласование: $issue',
+    'Submit for approval: $issue',
+    'Kelishuvga yuborish: $issue',
+  );
+  String get returnAll => _t(
+    'Вернуть транш застройщику',
+    'Return tranche to developer',
+    'Transhni quruvchiga qaytarish',
+  );
+  String get orderInspection => _t(
+    'Назначить контрольный осмотр',
+    'Schedule follow-up inspection',
+    'Nazorat ko‘rigini tayinlash',
+  );
   String get suspend => _t('Приостановить финансирование', 'Pause the financing', 'Moliyalashtirishni to‘xtatish');
 
   // Line evidence.
   String get colDetails => _t('Подробнее', 'Details', 'Batafsil');
   String expertInspection(String name, String date) => _t(
-    'Осмотр эксперта: $name, $date, подписано',
-    'Expert inspection: $name, $date, signed',
-    'Ekspert ko‘rigi: $name, $date, imzolangan',
+    'Осмотр: $date · эксперт: $name',
+    'Inspection: $date · expert: $name',
+    'Ko‘rik: $date · ekspert: $name',
   );
   String readinessWas(String percent, String previous) => _t(
     'Готовность $percent% (было $previous%)',
@@ -411,14 +451,18 @@ class BankStrings {
   String get yes => _t('да', 'yes', 'ha');
   String get no => _t('нет', 'no', 'yo‘q');
   String get noExpertEvidence => _t(
-    'Осмотра по этой статье нет. Сумма взята из акта и документов.',
-    'There is no inspection for this item. The amount comes from the act and the documents.',
-    'Bu modda ko‘rik yo‘q. Summa dalolatnoma va hujjatlardan olingan.',
+    'По этой статье нет заключения эксперта. Сумма рассчитана по акту и приложенным документам.',
+    'There is no expert report for this item. The amount is based on the work completion certificate and its supporting documents.',
+    'Bu modda bo‘yicha ekspert xulosasi yo‘q. Summa dalolatnoma va ilova qilingan hujjatlar asosida hisoblangan.',
   );
   String get photosTitle => _t('Фото с объекта', 'Photos from the site', 'Obyektdan suratlar');
   String get documentsTitle => _t('Документы', 'Documents', 'Hujjatlar');
   String get documentMissing => _t('не предъявлен', 'not provided', 'taqdim etilmagan');
-  String get howCounted => _t('Как посчитано', 'How it was counted', 'Qanday hisoblangan');
+  String get howCounted => _t(
+    'Расчёт суммы',
+    'Amount calculation',
+    'Summa hisobi',
+  );
   String formula({
     required String percent,
     required String plan,
@@ -441,14 +485,14 @@ class BankStrings {
   }
 
   String get choiceAboveConfirmed => _t(
-    'Выдать больше подтверждённого нельзя: «Запрошенное» недоступно, пока запрос выше суммы, которую подтвердил эксперт.',
-    'Paying more than confirmed is not allowed: “Requested” is off while the request is above what the expert confirmed.',
-    'Tasdiqlanganidan ko‘p to‘lash mumkin emas: so‘rov ekspert tasdiqlagandan yuqori bo‘lsa, “So‘ralgan” o‘chiq.',
+    'Запрошенная сумма выше подтверждённой. Выберите подтверждённую сумму или исключите статью из выплаты.',
+    'The requested amount exceeds the confirmed amount. Select the confirmed amount or exclude the item from the payout.',
+    'So‘ralgan summa tasdiqlangan summadan yuqori. Tasdiqlangan summani tanlang yoki moddani to‘lovdan chiqarib tashlang.',
   );
   String get lineBlockedNote => _t(
-    'Статья остановлена проверкой. Примите проверку с обоснованием или не выдавайте.',
-    'The item is stopped by a check. Accept the check with a reason or do not pay.',
-    'Modda tekshiruv bilan to‘xtatilgan. Tekshiruvni asos bilan qabul qiling yoki to‘lamang.',
+    'Выплата по статье заблокирована. Укажите основание для исключения или исключите статью из выплаты.',
+    'This item is blocked. Record a reason for making an exception or exclude the item from the payout.',
+    'Modda bo‘yicha to‘lov bloklangan. Istisno uchun asos kiriting yoki moddani to‘lovdan chiqarib tashlang.',
   );
 
   // Checks.
@@ -469,20 +513,24 @@ class BankStrings {
     };
   }
 
-  String get waiveTitle => _t('Принять проверку с обоснованием', 'Accept the check with a reason', 'Tekshiruvni asos bilan qabul qilish');
+  String get waiveTitle => _t(
+    'Зафиксировать исключение',
+    'Record an exception',
+    'Istisnoni qayd etish',
+  );
   String get waiveKept => _t(
-    'Исходная отметка проверки останется в карточке, а обоснование попадёт в журнал.',
-    'The original mark of the check stays in the card and the reason goes to the log.',
-    'Tekshiruvning dastlabki belgisi kartada qoladi, asos esa jurnalga yoziladi.',
+    'Замечание останется в карточке. Обоснование сохранится в журнале.',
+    'The finding stays on the card. Your reason is saved in the activity log.',
+    'Izoh kartada qoladi. Asos jurnalga yoziladi.',
   );
   String get waiveReasonLabel => _t('Основание', 'Basis', 'Asos');
   String get waiveCommentLabel => _t('Обоснование', 'Reason', 'Izoh');
   String get waiveCommentHint => _t('Что именно проверено и почему этого достаточно', 'What was checked and why it is enough', 'Nima tekshirilgani va nega bu yetarli');
   String get waiveCommentRequired => _t('Опишите обоснование: оно останется в журнале', 'Write the reason: it stays in the log', 'Asosni yozing: u jurnalda qoladi');
   String get waiveBlockWarning => _t(
-    'Блок, принятый с обоснованием, отправляет транш на кредитный комитет.',
-    'A block accepted with a reason sends the tranche to the credit committee.',
-    'Asos bilan qabul qilingan blok transhni kredit qo‘mitasiga yuboradi.',
+    'При исключении из блокирующего правила решение должен согласовать кредитный комитет.',
+    'An exception to a blocking rule requires credit committee approval.',
+    'Bloklovchi qoidadan istisno qilish uchun kredit qo‘mitasi roziligi kerak.',
   );
   String get cancel => _t('Отмена', 'Cancel', 'Bekor qilish');
   String get waiveSubmit => _t('Записать решение', 'Record the decision', 'Qarorni yozish');
@@ -492,15 +540,19 @@ class BankStrings {
   String get decisionClosed => _t('Решение сейчас недоступно: транш не на этапе специалиста.', 'The decision is not available now: the tranche is not at the specialist step.', 'Qaror hozir mavjud emas: transh mutaxassis bosqichida emas.');
   String get decisionSent => _t('Решение отправлено на согласование', 'The decision was sent for sign-off', 'Qaror kelishuvga yuborildi');
   String get openApproval => _t('Открыть маршрут согласования', 'Open the sign-off route', 'Kelishuv yo‘nalishini ochish');
-  String get waitingBanner => _t('Транш у застройщика. Срок банка остановлен.', 'The tranche is with the developer. The bank clock is stopped.', 'Transh quruvchida. Bank muddati to‘xtatilgan.');
+  String get waitingBanner => _t(
+    'Транш возвращён застройщику. Срок рассмотрения приостановлен.',
+    'The tranche was returned to the developer. The review clock is paused.',
+    'Transh quruvchiga qaytarildi. Ko‘rib chiqish muddati to‘xtatildi.',
+  );
   String get pausedBanner => _t('Финансирование объекта приостановлено.', 'Financing of the project is paused.', 'Obyektni moliyalashtirish to‘xtatilgan.');
   String get rejectedBanner => _t('Транш отклонён банком.', 'The tranche was rejected by the bank.', 'Transh bank tomonidan rad etildi.');
   String get resume => _t('Вернуть в работу', 'Put back to work', 'Ishga qaytarish');
   String get partialConfirmTitle => _t('Отправить решение на согласование', 'Send the decision for sign-off', 'Qarorni kelishuvga yuborish');
   String partialConfirmBody(String issue, String returned) => _t(
-    'К выплате $issue, на доработку $returned. Дальше решение уйдёт начальнику отдела.',
-    'To pay out $issue, $returned goes back for rework. The decision then goes to the head of the department.',
-    'To‘lash: $issue, qayta ishlashga: $returned. Keyin qaror bo‘lim boshlig‘iga yuboriladi.',
+    'Предложено к выплате: $issue. На доработку: $returned. Решение получит начальник отдела.',
+    'Proposed payout: $issue. For revision: $returned. The decision goes to the department head.',
+    'Taklif etilgan to‘lov: $issue. Qayta ishlashga: $returned. Qaror bo‘lim boshlig‘iga yuboriladi.',
   );
   String get send => _t('Отправить', 'Send', 'Yuborish');
   String get reasonLabel => _t('Причина', 'Reason', 'Sabab');
@@ -511,11 +563,15 @@ class BankStrings {
     'The developer will see the reason. The bank clock stops until the developer answers.',
     'Quruvchi sababni ko‘radi. U javob bermaguncha bank muddati to‘xtaydi.',
   );
-  String get measureTitle => _t('Заказать проверку на месте', 'Order a check on site', 'Joyida tekshiruvni buyurtma qilish');
+  String get measureTitle => _t(
+    'Назначить контрольный осмотр',
+    'Schedule follow-up inspection',
+    'Nazorat ko‘rigini tayinlash',
+  );
   String get measureBody => _t(
-    'Эксперт получит контрольный осмотр, транш уйдёт на этап осмотра.',
-    'The expert gets a control inspection and the tranche goes back to the inspection step.',
-    'Ekspert nazorat ko‘rigini oladi, transh ko‘rik bosqichiga qaytadi.',
+    'Транш вернётся на этап осмотра. Задание получит эксперт.',
+    'The tranche returns to the inspection stage. An expert receives the assignment.',
+    'Transh ko‘rik bosqichiga qaytadi. Topshiriq ekspertga yuboriladi.',
   );
   String get suspendTitle => _t('Приостановить финансирование', 'Pause the financing', 'Moliyalashtirishni to‘xtatish');
   String get suspendBody => _t(
@@ -534,8 +590,8 @@ class BankStrings {
       'specialist' => _t('Кредитный специалист', 'Credit specialist', 'Kredit mutaxassisi'),
       'head' => _t('Начальник отдела', 'Head of the department', 'Bo‘lim boshlig‘i'),
       'committee' => _t('Кредитный комитет', 'Credit committee', 'Kredit qo‘mitasi'),
-      'sign' => _t('Подпись ЭЦП (E-IMZO)', 'Digital signature (E-IMZO)', 'EHI imzosi (E-IMZO)'),
-      'payment' => _t('Платёж', 'Payment', 'To‘lov'),
+      'sign' => _t('ЭЦП — в разработке', 'Digital signature — in development', 'ERI — ishlab chiqilmoqda'),
+      'payment' => _t('Платёж — в разработке', 'Payment — in development', 'To‘lov — ishlab chiqilmoqda'),
       _ => code,
     };
   }
@@ -550,11 +606,15 @@ class BankStrings {
     };
   }
 
-  String expertSigned(String date) => _t('Заключение по осмотру $date подписано', 'The inspection conclusion of $date is signed', '$date dagi ko‘rik xulosasi imzolangan');
+  String expertSigned(String date) => _t(
+    'Заключение по осмотру от $date принято',
+    'Inspection report dated $date received',
+    '$date sanasidagi ko‘rik xulosasi qabul qilindi',
+  );
   String specialistPrepared(String issue, int waived) => _t(
-    'Подготовил решение: $issue, принято с обоснованием: $waived',
-    'Prepared the decision: $issue, accepted with a reason: $waived',
-    'Qarorni tayyorladi: $issue, asos bilan qabul qilingan: $waived',
+    'Предложено к выплате: $issue · исключений: $waived',
+    'Proposed payout: $issue · exceptions: $waived',
+    'Taklif etilgan to‘lov: $issue · istisnolar: $waived',
   );
   String groupNeeds(int size, int required) => _t(
     'Группа из $size ${_people(size)} · нужно $required ${_approvals(required)}',
@@ -584,7 +644,7 @@ class BankStrings {
   );
   String committeeWhy(String reason, String threshold) {
     return switch (reason) {
-      'waived_block' => _t('Есть блок, принятый с обоснованием', 'A block was accepted with a reason', 'Asos bilan qabul qilingan blok bor'),
+      'waived_block' => _t('Есть исключение из блокирующего правила', 'A blocking rule has an exception', 'Bloklovchi qoidadan istisno bor'),
       'amount_over' => _t('Сумма выше порога $threshold', 'The amount is above the threshold $threshold', 'Summa $threshold chegarasidan yuqori'),
       _ => '',
     };
@@ -596,11 +656,15 @@ class BankStrings {
     'Mavjud: $available, ta’tilda: ${names.join(', ')}',
   );
   String votesCount(int approved, int required) => _t('Согласий: $approved из $required', 'Approvals: $approved of $required', 'Kelishuvlar: $approved / $required');
-  String get signLocked => _t('Доступна только после всех согласований', 'Only available after all approvals', 'Faqat barcha kelishuvlardan keyin mavjud');
+  String get signLocked => _t(
+    'Подписание ЭЦП в iBuild пока недоступно.',
+    'Digital signing is not yet available in iBuild.',
+    'iBuild tizimida ERI bilan imzolash hozircha mavjud emas.',
+  );
   String get paymentNote => _t(
-    'Платёжные поручения создаёт АБС; iBuild обновляет «выдано» по каждой статье',
-    'Payment orders are created by the banking system; iBuild updates “paid” for each item',
-    'To‘lov topshiriqlarini ABT yaratadi; iBuild har bir modda bo‘yicha “to‘langan”ni yangilaydi',
+    'Интеграция с банковской системой в разработке. iBuild не отправляет платёжные поручения.',
+    'Banking integration is in development. iBuild does not send payment orders.',
+    'Bank tizimi bilan integratsiya ishlab chiqilmoqda. iBuild to‘lov topshiriqlarini yubormaydi.',
   );
   String get cardTitle => _t('Карточка решения', 'Decision card', 'Qaror kartasi');
   String get cardIssue => _t('К выплате', 'To pay out', 'To‘lash uchun');
@@ -619,7 +683,7 @@ class BankStrings {
       'on_leave' => _t('Вы в отпуске и не участвуете в согласовании', 'You are on leave and do not take part in the sign-off', 'Siz ta’tildasiz va kelishuvda qatnashmaysiz'),
       'preparer' => preparerCannot,
       'voted' => _t('Вы уже проголосовали', 'You have already voted', 'Siz allaqachon ovoz berdingiz'),
-      'external' => _t('Следующий шаг выполняется во внешней системе', 'The next step is done in an external system', 'Keyingi bosqich tashqi tizimda bajariladi'),
+      'external' => _t('Внешняя интеграция в разработке', 'External integration is in development', 'Tashqi integratsiya ishlab chiqilmoqda'),
       'closed' => _t('Транш закрыт', 'The tranche is closed', 'Transh yopilgan'),
       _ => _t('Транш сейчас не на согласовании', 'The tranche is not at sign-off now', 'Transh hozir kelishuvda emas'),
     };

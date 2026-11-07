@@ -47,7 +47,7 @@ void main() {
   testWidgets('sign-in and registration use Onest for Russian and Uzbek', (tester) async {
     await pumpIBuild(tester, size: const Size(1280, 900));
     expect(find.text('Войти'), findsOneWidget);
-    expect(find.text('Регистрация'), findsOneWidget);
+    expect(find.text('Подать заявку'), findsOneWidget);
     final context = tester.element(find.text('Войти'));
     expect(Theme.of(context).textTheme.bodyLarge?.fontFamily, 'Onest');
     expect(Theme.of(context).textTheme.labelLarge?.fontFamily, 'Onest');
@@ -55,7 +55,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('language-uz')));
     await tester.pumpAndSettle();
-    final uzbek = find.text('Ro\u2018yxatdan o\u2018tish');
+    final uzbek = find.text('Ariza yuborish');
     expect(uzbek, findsOneWidget);
     expect(DefaultTextStyle.of(tester.element(uzbek)).style.fontFamily, 'Onest');
   });

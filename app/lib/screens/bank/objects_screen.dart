@@ -328,7 +328,7 @@ class _ObjectBody extends StatelessWidget {
     if (rows.isEmpty) {
       return EmptyState(
         title: t('Траншей пока нет', 'No tranches yet', 'Transhlar hali yo‘q'),
-        body: t('Застройщик ещё не отправлял заявок в банк.', 'The developer has not sent any request to the bank.', 'Quruvchi hali bankka ariza yubormagan.'),
+        body: t('По объекту ещё не поступали транши.', 'No tranches have been submitted for this project.', 'Obyekt bo‘yicha hali transh yuborilmagan.'),
       );
     }
     return IBuildCard(
@@ -340,7 +340,7 @@ class _ObjectBody extends StatelessWidget {
             onTap: () => context.go('/bank/tranches/${row.s('id')}'),
             children: [
               SizedBox(width: 60, child: Text(BankStrings.of(context).trancheNo(row.i('no')), style: theme.textTheme.titleSmall)),
-              cellText(context, row.s('stage_label'), flex: 2),
+              cellText(context, BankStrings.of(context).trancheStageLabel(row.s('stage_label')), flex: 2),
               cellText(context, '${bankAmount(context, row['requested'])} ${bankUnit(context)}', align: TextAlign.end),
               cellText(context, fmtDay(row['submitted']), muted: true, align: TextAlign.end),
             ],
@@ -356,7 +356,7 @@ class _ObjectBody extends StatelessWidget {
     if (rows.isEmpty) {
       return EmptyState(
         title: t('Осмотров нет', 'No inspections', 'Ko‘riklar yo‘q'),
-        body: t('Назначить осмотр можно в разделе «Осмотры».', 'You can plan one in the Inspections section.', 'Ko‘rikni “Ko‘riklar” bo‘limida tayinlash mumkin.'),
+        body: t('Откройте «Осмотры», чтобы назначить выезд.', 'Open Inspections to schedule a site visit.', 'Joyiga chiqishni tayinlash uchun «Ko‘riklar» bo‘limini oching.'),
       );
     }
     return IBuildCard(

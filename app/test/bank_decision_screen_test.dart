@@ -44,7 +44,7 @@ void main() {
     await _tap(tester, 'bank-line-toggle-l2');
 
     expect(find.byKey(const Key('bank-line-l2-detail')), findsOneWidget);
-    expect(find.textContaining('Осмотр эксперта: А. Каримов, 23.10.2026, подписано'), findsOneWidget);
+    expect(find.textContaining('Осмотр: 23.10.2026 · эксперт: А. Каримов'), findsOneWidget);
     expect(_text(tester, 'bank-line-l2-readiness'), 'Готовность 62% (было 26%)');
     expect(_text(tester, 'bank-line-l2-risk'), 'Признак риска: да');
     expect(
@@ -129,7 +129,7 @@ void main() {
 
     await _tap(tester, 'bank-decide-approve');
     expect(find.byKey(const Key('bank-confirm-dialog')), findsOneWidget);
-    expect(find.textContaining('К выплате 1 723,9 млн UZS'), findsOneWidget);
+    expect(find.textContaining('Предложено к выплате: 1 723,9 млн UZS'), findsOneWidget);
     expect(find.byKey(const Key('bank-confirm-reason')), findsNothing);
     await _tap(tester, 'bank-confirm-submit');
 

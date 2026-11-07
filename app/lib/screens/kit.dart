@@ -74,9 +74,8 @@ String fmtTime(Object? value) {
 }
 
 String errorText(BuildContext context, Object error) {
-  if (error is ApiException) return LocaleScope.copy(context).known(error.message);
-  return Tx.of(context)('Что-то пошло не так. Попробуйте ещё раз.', 'Something went wrong. Please try again.',
-      'Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring.');
+  final copy = LocaleScope.copy(context);
+  return error is ApiException ? copy.known(error.message) : copy.serverError;
 }
 
 /// Loads one JSON path, shows a spinner or an error with a retry, and keeps the
@@ -376,7 +375,6 @@ Future<String?> pickDay(BuildContext context, {String? initial, DateTime? first,
 /// Asks, does, and shows the error in a snack when it fails.
 Future<bool> runAction(BuildContext context, Future<void> Function() action) async {
   final messenger = ScaffoldMessenger.of(context);
-  final message = Tx.of(context);
   final copy = LocaleScope.copy(context);
   try {
     await action();
@@ -385,10 +383,7 @@ Future<bool> runAction(BuildContext context, Future<void> Function() action) asy
     messenger.showSnackBar(SnackBar(content: Text(copy.known(failure.message))));
     return false;
   } catch (_) {
-    messenger.showSnackBar(SnackBar(
-      content: Text(message('Что-то пошло не так. Попробуйте ещё раз.', 'Something went wrong. Please try again.',
-          'Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring.')),
-    ));
+    messenger.showSnackBar(SnackBar(content: Text(copy.serverError)));
     return false;
   }
 }

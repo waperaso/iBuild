@@ -1,5 +1,89 @@
 part of 'l10n.dart';
 
+// API messages remain stable; presentation copy can evolve independently.
+const _messageCopy = <String, _Row>{
+  'Укажите имя человека': (
+    'Укажите имя сотрудника.',
+    'Enter the staff member’s name.',
+    'Xodimning ismini kiriting.',
+  ),
+  'Такого банка в iBuild нет.': (
+    'Банк с таким ИНН не найден в iBuild.',
+    'No bank with this tax ID was found in iBuild.',
+    'iBuild tizimida bu STIR bilan bank topilmadi.',
+  ),
+  'Сессия устарела. Обновите страницу и войдите снова.': (
+    'Срок сеанса истёк. Войдите заново.',
+    'Your session has expired. Sign in again.',
+    'Seans muddati tugadi. Qayta kiring.',
+  ),
+  'Это демо: данные учебные, изменения не сохраняются.': (
+    'В демо доступен только просмотр.',
+    'The demo is read-only.',
+    'Demoda faqat ko‘rish mumkin.',
+  ),
+  'Не получилось обработать запрос. Проверьте данные и попробуйте снова.': (
+    'Не удалось обработать запрос. Проверьте введённые данные.',
+    'The request could not be processed. Check the details you entered.',
+    'So‘rovni bajarib bo‘lmadi. Kiritilgan ma’lumotlarni tekshiring.',
+  ),
+  'Напишите, что за работа.': (
+    'Укажите название вида работ.',
+    'Enter a name for the work item.',
+    'Ish turi nomini kiriting.',
+  ),
+  'Сумма больше, чем можно запросить.': (
+    'Сумма транша превышает доступный остаток.',
+    'The tranche amount exceeds the available balance.',
+    'Transh summasi mavjud qoldiqdan oshadi.',
+  ),
+  'Транш уже изменили. Обновите страницу.': (
+    'Транш изменён в другом сеансе. Обновите страницу.',
+    'The tranche was changed in another session. Refresh the page.',
+    'Transh boshqa seansda o‘zgartirilgan. Sahifani yangilang.',
+  ),
+  'Подпишите транш перед отправкой.': (
+    'Перед отправкой укажите ФИО ответственного.',
+    'Enter the name of the person submitting before sending the tranche.',
+    'Transhni yuborishdan oldin mas’ul shaxsning F.I.Sh.ini kiriting.',
+  ),
+  'На объекте ещё нет источников денег. Добавьте источник в бюджете объекта, затем отправьте транш.': (
+    'Добавьте источник финансирования в бюджете объекта и повторите отправку.',
+    'Add a funding source to the project budget and submit again.',
+    'Obyekt byudjetiga moliyalashtirish manbasini qo‘shing va qayta yuboring.',
+  ),
+  'Источники денег задаёт застройщик в бюджете объекта. Попросите добавить источник, затем отправьте транш.': (
+    'Застройщик должен добавить источник финансирования в бюджет объекта.',
+    'The developer needs to add a funding source to the project budget.',
+    'Quruvchi obyekt byudjetiga moliyalashtirish manbasini qo‘shishi kerak.',
+  ),
+  'Файлы можно убирать только из черновика.': (
+    'Удалять файлы можно только из черновика.',
+    'Files can be removed only from a draft.',
+    'Fayllarni faqat qoralamadan o‘chirish mumkin.',
+  ),
+  'Подтвердите, что платёж ещё не ушёл.': (
+    'Подтвердите, что платёж не был проведён.',
+    'Confirm that the payment has not been made.',
+    'To‘lov amalga oshirilmaganini tasdiqlang.',
+  ),
+  'Что-то пошло не так. Попробуйте ещё раз.': (
+    'Не удалось выполнить действие. Повторите попытку.',
+    'The action could not be completed. Try again.',
+    'Amalni bajarib bo‘lmadi. Qayta urinib ko‘ring.',
+  ),
+  'Укажите риск и рекомендацию': (
+    'Укажите уровень риска и рекомендацию эксперта.',
+    'Select a risk level and an expert recommendation.',
+    'Xavf darajasi va ekspert tavsiyasini belgilang.',
+  ),
+  'Внешняя интеграция в разработке': (
+    'Внешняя интеграция в разработке.',
+    'The external integration is in development.',
+    'Tashqi integratsiya ishlab chiqilmoqda.',
+  ),
+};
+
 /// Messages the server sends (in Russian), with their English and Uzbek versions.
 /// The Russian text must match the server text exactly.
 /// `app/test/server_messages_test.dart` checks that no server message is missing here.
@@ -757,6 +841,21 @@ const _knownMessages = <_Row>[
     'Выберите объект и дату осмотра',
     'Choose a project and an inspection date',
     'Obyekt va ko‘rik sanasini tanlang',
+  ),
+  (
+    'Выберите транш, который ждёт осмотра',
+    'Choose the tranche that is waiting for the inspection',
+    'Ko‘rikni kutayotgan transhni tanlang',
+  ),
+  (
+    'Этот транш не ждёт осмотра',
+    'This tranche is not waiting for an inspection',
+    'Bu transh ko‘rikni kutmayapti',
+  ),
+  (
+    'Транш не относится к этому объекту',
+    'The tranche does not belong to this project',
+    'Transh bu obyektga tegishli emas',
   ),
   (
     'Выберите объект, вид и период отчёта',

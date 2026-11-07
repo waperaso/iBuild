@@ -312,7 +312,7 @@ class _RulesViewState extends State<_RulesView> {
               ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              t('Выплата в системе блокируется до ЭЦП и платёжки АБС: эта часть маршрута не настраивается.', 'The payout stays locked until the e-signature and the banking-system payment: this part of the route is fixed.', 'To‘lov ERI va ABT to‘lov topshirig‘igacha bloklanadi: marshrutning bu qismi sozlanmaydi.'),
+              t('Маршрут заканчивается внутренним согласованием. ЭЦП и отправка платежей из iBuild пока недоступны.', 'The configurable workflow ends with internal approval. Digital signing and sending payments from iBuild are not yet available.', 'Sozlanadigan jarayon ichki kelishuv bilan yakunlanadi. iBuild orqali ERI bilan imzolash va to‘lov yuborish hozircha mavjud emas.'),
               style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted),
             ),
           ]),

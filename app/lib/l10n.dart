@@ -53,9 +53,9 @@ class AppCopy {
   // ── Sign in ────────────────────────────────────────────────────────────
 
   String get tagline => _t((
-    'Деньги банка на стройку выплачиваются по мере готовности работ.',
-    'The bank pays for construction step by step, as the work gets done.',
-    'Bank qurilish uchun pulni ish tayyor bo‘lgani sari bosqichma-bosqich to‘laydi.',
+    'Финансирование строительства: от заявки на транш до учёта выплаты.',
+    'Construction financing, from tranche request to payout record.',
+    'Qurilishni moliyalashtirish: transh so‘rovidan to‘lovni qayd etishgacha.',
   ));
   String get signInTitle => _t(('Вход', 'Sign in', 'Kirish'));
   String get loginLabel => _t(('Логин', 'Login', 'Login'));
@@ -87,18 +87,18 @@ class AppCopy {
   String get bankRules => _t(('Правила банка', 'Bank rules', 'Bank qoidalari'));
   String get bankWaiting => _t(('Ждут решения банка', 'Waiting for the bank', 'Bank qarorini kutmoqda'));
   String get comingSoon => _t((
-    'Этот раздел появится в ближайшее время.',
-    'This section is coming soon.',
-    'Bu bo‘lim yaqin orada paydo bo‘ladi.',
+    'Раздел в разработке.',
+    'This section is in development.',
+    'Bo‘lim ishlab chiqilmoqda.',
   ));
 
   // ── Home ───────────────────────────────────────────────────────────────
 
   String get welcome => _t(('Добро пожаловать!', 'Welcome!', 'Xush kelibsiz!'));
   String get searchHint => _t((
-    'Что вы ищете? Например, «транш»',
-    'What are you looking for? For example, “tranche”',
-    'Nima qidiryapsiz? Masalan, “transh”',
+    'Поиск по разделам',
+    'Find a section',
+    'Bo‘limlarni qidirish',
   ));
   String get spheres => _t(('Разделы', 'Sections', 'Bo‘limlar'));
   String get allServices => _t(('Все объекты', 'All projects', 'Barcha obyektlar'));
@@ -106,7 +106,11 @@ class AppCopy {
   String get askTranche => _t(('Запросить транш', 'Request a tranche', 'Transh so‘rash'));
   String get openProjects => _t(('Мои объекты', 'My projects', 'Mening obyektlarim'));
   String get homeTranches => _t(('Транши', 'Tranches', 'Transhlar'));
-  String get homeMoney => _t(('Деньги', 'Money', 'Pul'));
+  String get homeMoney => _t((
+    'Финансирование',
+    'Financing',
+    'Moliyalashtirish',
+  ));
   String get homeControl => _t(('Контроль', 'Control', 'Nazorat'));
   String get queueEmptyTitle => _t(('Очередь пуста', 'Nothing in the queue', 'Navbat bo‘sh'));
   String get queueEmptyBody => _t((
@@ -115,9 +119,9 @@ class AppCopy {
     'Hozir sizning qaroringizni kutayotgan transh yo‘q.',
   ));
   String get queueSubtitle => _t((
-    'Здесь транши, которые ждут вашего действия.',
-    'These tranches are waiting for you.',
-    'Bu yerda sizning harakatingizni kutayotgan transhlar.',
+    'Транши, по которым требуется ваше решение.',
+    'Tranches that need your decision.',
+    'Qaroringiz talab qilinadigan transhlar.',
   ));
 
   /// Uzbek writes the Russian «ЖК» as «TJ».
@@ -129,21 +133,21 @@ class AppCopy {
   // ── Projects ───────────────────────────────────────────────────────────
 
   String get downloadRegistry => _t((
-    'Скачать список траншей',
-    'Download the tranche list',
-    'Transhlar ro‘yxatini yuklab olish',
+    'Скачать реестр траншей',
+    'Download tranche register',
+    'Transhlar reyestrini yuklab olish',
   ));
   String get createProject => _t(('Добавить объект', 'Add a project', 'Obyekt qo‘shish'));
   String get projectsSubtitle => _t((
-    'Стройки, которые банк финансирует вместе с застройщиком.',
-    'Construction sites the bank finances together with the developer.',
-    'Bank quruvchi bilan birga moliyalashtiradigan qurilishlar.',
+    'Строительные объекты, к которым у вас есть доступ.',
+    'Construction projects you have access to.',
+    'Sizga ruxsat berilgan qurilish obyektlari.',
   ));
   String get noProjects => _t(('Объектов пока нет', 'No projects yet', 'Hozircha obyekt yo‘q'));
   String get noProjectsBody => _t((
-    'Когда вас добавят на объект, он появится здесь.',
-    'When you are added to a project, it will show up here.',
-    'Sizni obyektga qo‘shishganda, u shu yerda paydo bo‘ladi.',
+    'Объекты появятся после назначения доступа.',
+    'Projects appear here once you are granted access.',
+    'Ruxsat berilgach, obyektlar shu yerda ko‘rinadi.',
   ));
   String get newProject => _t(('Новый объект', 'New project', 'Yangi obyekt'));
   String get name => _t(('Название', 'Name', 'Nomi'));
@@ -157,7 +161,11 @@ class AppCopy {
   String get save => _t(('Сохранить', 'Save', 'Saqlash'));
   String get role => _t(('Роль', 'Role', 'Rol'));
   String get status => _t(('Статус', 'Status', 'Holat'));
-  String get active => _t(('Идёт стройка', 'In progress', 'Davom etmoqda'));
+  String get active => _t((
+    'В работе',
+    'In progress',
+    'Jarayonda',
+  ));
   String get archived => _t(('В архиве', 'Archived', 'Arxivda'));
   String get projectUnavailable =>
       _t(('Объект недоступен', 'Project not available', 'Obyekt mavjud emas'));
@@ -170,9 +178,9 @@ class AppCopy {
   String get yourRole => _t(('Ваша роль:', 'Your role:', 'Sizning rolingiz:'));
   String get openProject => _t(('Открыть объект', 'Open a project', 'Obyektni ochish'));
   String get openProjectBody => _t((
-    'Бюджет, документы и участники относятся к конкретной стройке. Сначала выберите объект.',
-    'The budget, documents and people belong to one construction site. Pick a project first.',
-    'Byudjet, hujjatlar va ishtirokchilar aniq bir qurilishga tegishli. Avval obyektni tanlang.',
+    'Выберите объект, чтобы открыть его бюджет, документы или список участников.',
+    'Select a project to view its budget, documents or participants.',
+    'Byudjet, hujjatlar yoki ishtirokchilarni ko‘rish uchun obyektni tanlang.',
   ));
   String get portfolio => _t(('Портфель', 'Portfolio', 'Portfel'));
   String get needsAction => _t(('Ждёт вашего решения', 'Needs your decision', 'Sizning qaroringizni kutmoqda'));
@@ -182,13 +190,21 @@ class AppCopy {
   // ── Money ──────────────────────────────────────────────────────────────
 
   String get plan => _t(('Лимит', 'Limit', 'Limit'));
-  String get reserved => _t(('Ждёт выплаты', 'Awaiting payout', 'To‘lovni kutmoqda'));
+  String get reserved => _t((
+    'Зарезервировано',
+    'Reserved',
+    'Band qilingan',
+  ));
   String get paid => _t(('Выплачено', 'Paid out', 'To‘langan'));
-  String get available => _t(('Можно запросить', 'Available to request', 'So‘rash mumkin'));
+  String get available => _t((
+    'Доступно к запросу',
+    'Available to request',
+    'So‘rash mumkin',
+  ));
   String get formula => _t((
-    'Лимит — сумма, которую банк готов выделить на стройку. «Ждёт выплаты» — транши, которые банк ещё не оплатил. «Выплачено» — деньги, которые банк уже перевёл. «Можно запросить» — сколько ещё осталось.',
-    'The limit is the amount the bank is ready to give for the site. “Awaiting payout” is tranches the bank has not paid yet. “Paid out” is money the bank has already sent. “Available to request” is what is left.',
-    'Limit — bank qurilish uchun ajratishga tayyor summa. “To‘lovni kutmoqda” — bank hali to‘lamagan transhlar. “To‘langan” — bank allaqachon o‘tkazgan pul. “So‘rash mumkin” — qolgan summa.',
+    'Доступно к запросу: лимит за вычетом выплат и сумм по траншам в работе.',
+    'Available to request: the limit minus recorded payouts and amounts reserved for active tranches.',
+    'So‘rash mumkin bo‘lgan summa: limitdan to‘langan va jarayondagi transhlar uchun band qilingan summalar ayriladi.',
   ));
   String get planNotSet => _t((
     'Лимит ещё не назначен',
@@ -218,9 +234,9 @@ class AppCopy {
   ));
   String get noLines => _t(('Видов работ пока нет', 'No work items yet', 'Ish turlari hali yo‘q'));
   String get noLinesBody => _t((
-    'Вид работ — это, например, «Фундамент». У него есть сумма и подрядчик.',
-    'A work item is something like “Foundation”. It has an amount and a contractor.',
-    'Ish turi — masalan, “Poydevor”. Uning summasi va pudratchisi bor.',
+    'Добавьте вид работ, укажите сумму и выберите подрядчика.',
+    'Add a work item, enter the amount and select a contractor.',
+    'Ish turini qo‘shing, summani kiriting va pudratchini tanlang.',
   ));
   String get work => _t(('Вид работ', 'Work item', 'Ish turi'));
   String get contractor => _t(('Подрядчик', 'Contractor', 'Pudratchi'));
@@ -236,7 +252,7 @@ class AppCopy {
   String get inn => _t(('ИНН', 'Tax ID', 'STIR'));
   String get contact => _t(('Контакт', 'Contact', 'Aloqa'));
   String get lineTitle => _t(('Вид работ', 'Work item', 'Ish turi'));
-  String get workName => _t(('Что за работа', 'What is the work', 'Qanday ish'));
+  String get workName => _t(('Название вида работ', 'Work item name', 'Ish turi nomi'));
   String get amountUzs => _t(('Сумма, сум', 'Amount, UZS', 'Summa, so‘m'));
   String get assignment => _t(('Добавление на объект', 'Add to the project', 'Obyektga qo‘shish'));
   String get employee => _t(('Сотрудник', 'Person', 'Xodim'));
@@ -263,17 +279,17 @@ class AppCopy {
   // ── Tranche list and form ──────────────────────────────────────────────
 
   String get requestsSubtitle => _t((
-    'Транш — это часть денег, которую застройщик просит у банка за уже сделанную работу. Банк проверяет и либо платит, либо возвращает.',
-    'A tranche is a part of the money the developer asks the bank for work that is already done. The bank checks it and either pays or sends it back.',
-    'Transh — quruvchi allaqachon bajarilgan ish uchun bankdan so‘raydigan pulning bir qismi. Bank tekshiradi va yo to‘laydi, yo qaytaradi.',
+    'Черновики, заявки на финансирование и решения по траншам.',
+    'Drafts, funding requests and tranche decisions.',
+    'Qoralamalar, moliyalashtirish so‘rovlari va transhlar bo‘yicha qarorlar.',
   ));
   String get newRequest => _t(('Новый транш', 'New tranche', 'Yangi transh'));
   String get allProjects => _t(('Все объекты', 'All projects', 'Barcha obyektlar'));
   String get all => _t(('Все', 'All', 'Hammasi'));
   String get noRequestsForStatus => _t((
-    'Таких траншей нет',
-    'No tranches like this',
-    'Bunday transhlar yo‘q',
+    'Нет траншей с таким статусом',
+    'No tranches with this status',
+    'Bu holatda transhlar yo‘q',
   ));
   String get noRequestsForStatusBody => _t((
     'Попробуйте выбрать другой статус.',
@@ -282,9 +298,9 @@ class AppCopy {
   ));
   String get noRequests => _t(('Траншей пока нет', 'No tranches yet', 'Hozircha transh yo‘q'));
   String get noRequestsBody => _t((
-    'Чтобы запросить деньги, создайте транш и выберите вид работ.',
-    'To ask for money, create a tranche and pick a work item.',
-    'Pul so‘rash uchun transh yarating va ish turini tanlang.',
+    'Транши по доступным вам объектам появятся здесь.',
+    'Tranches for your projects will appear here.',
+    'Sizga ochiq obyektlar transhlari shu yerda ko‘rinadi.',
   ));
   String get projectRequestsEmpty => _t((
     'По этому объекту траншей ещё нет.',
@@ -306,9 +322,9 @@ class AppCopy {
     'Sizning rolingiz transh yarata olmaydi',
   ));
   String get formForContractorBody => _t((
-    'Откройте список траншей или очередь. Создавать транш могут застройщик и подрядчик.',
-    'Open the tranche list or the queue. A developer or a contractor can create a tranche.',
-    'Transhlar ro‘yxatini yoki navbatni oching. Transhni quruvchi yoki pudratchi yaratadi.',
+    'Создавать транши могут застройщики и подрядчики с доступом к объекту.',
+    'Developers and contractors with project access can create tranches.',
+    'Obyektga ruxsati bor quruvchilar va pudratchilar transh yaratishi mumkin.',
   ));
   String get amountHelper => _t((
     'Сумма в сумах',
@@ -316,27 +332,35 @@ class AppCopy {
     'Summa so‘mda',
   ));
   String get price => _t(('Сумма', 'Amount', 'Summa'));
-  String get description => _t(('Что сделано', 'What was done', 'Nima qilindi'));
+  String get description => _t((
+    'Описание выполненных работ',
+    'Work completed',
+    'Bajarilgan ishlar tavsifi',
+  ));
   String get whatFor => _t(('Вид работ', 'Work item', 'Ish turi'));
-  String get customType => _t(('Свой вид работ', 'Your own work item', 'O‘z ish turingiz'));
+  String get customType => _t((
+    'Другой вид работ',
+    'Other work item',
+    'Boshqa ish turi',
+  ));
   String get customTypeHint => _t(('Например, заливка', 'For example, concrete pouring', 'Masalan, quyma ishlari'));
   String get customTypeNote => _t((
-    'Нового вида работ нет в плане банка. Банк назначит для него лимит, и после этого транш можно будет отправить.',
-    'This work item is not in the bank’s plan yet. The bank will set a limit for it, and then you can send the tranche.',
-    'Bu ish turi bank rejasida yo‘q. Bank unga limit belgilaydi, shundan keyin transhni yuborish mumkin.',
+    'Сохраните черновик. Отправить транш можно после того, как банк установит лимит на этот вид работ.',
+    'Save the draft. You can submit it once the bank sets a limit for this work item.',
+    'Qoralamani saqlang. Bank ushbu ish turiga limit belgilagach, transhni yuborishingiz mumkin.',
   ));
   String get bankHasNoPlan => _t(('Банк ещё не назначил лимит', 'The bank has not set a limit yet', 'Bank hali limit belgilamagan'));
   String get photoEvidence => _t(('Фото работы', 'Photo of the work', 'Ish fotosi'));
   String get photoChosen => _t(('Фото выбрано', 'Photo chosen', 'Foto tanlandi'));
   String get photoEvidenceNote => _t((
-    'Фото показывает банку, что работа выполнена. Без фото транш отправить нельзя.',
-    'The photo shows the bank that the work is done. A tranche cannot be sent without a photo.',
-    'Foto bankka ish bajarilganini ko‘rsatadi. Fotosiz transhni yuborib bo‘lmaydi.',
+    'Для отправки нужно хотя бы одно фото выполненных работ.',
+    'Attach at least one photo of the completed work before submitting.',
+    'Yuborishdan oldin bajarilgan ishlardan kamida bitta surat ilova qiling.',
   ));
   String get photoNote => _t((
-    'Фото и PDF добавляются к черновику. Пока это черновик, деньги из бюджета не занимаются.',
-    'Photos and a PDF are added to the draft. While it is a draft, no money is set aside.',
-    'Foto va PDF qoralamaga qo‘shiladi. Qoralama bo‘lib turganda byudjetdan pul ajratilmaydi.',
+    'Черновик не резервирует сумму в бюджете. Фото и документы сохраняются вместе с ним.',
+    'A draft does not reserve any budget. Photos and documents are saved with it.',
+    'Qoralama byudjetdan mablag‘ band qilmaydi. Surat va hujjatlar qoralamada saqlanadi.',
   ));
   String get saveDraft => _t(('Сохранить черновик', 'Save as draft', 'Qoralamani saqlash'));
   String get filesTitle => _t(('Фото и документы', 'Photos and documents', 'Foto va hujjatlar'));
@@ -355,20 +379,28 @@ class AppCopy {
   String get requestedAmount => _t(('Сумма транша', 'Tranche amount', 'Transh summasi'));
   String get linePlan => _t(('Лимит по этим работам', 'Limit for this work', 'Shu ishlar uchun limit'));
   String get linePaid => _t(('Уже выплачено', 'Already paid out', 'Allaqachon to‘langan'));
-  String get lineReserved => _t(('Ждёт выплаты', 'Awaiting payout', 'To‘lovni kutmoqda'));
-  String get lineAvailable => _t(('Можно запросить', 'Available to request', 'So‘rash mumkin'));
+  String get lineReserved => _t((
+    'Зарезервировано',
+    'Reserved',
+    'Band qilingan',
+  ));
+  String get lineAvailable => _t((
+    'Доступно к запросу',
+    'Available to request',
+    'So‘rash mumkin',
+  ));
   String get sendTo => _t(('Кому', 'To', 'Kimga'));
   String get sendToTech => _t(('Отправить в банк', 'Send to the bank', 'Bankka yuborish'));
   String get bankParty => _t(('Банк', 'Bank', 'Bank'));
   String get sendHint => _t((
-    'После отправки банк проверит транш. Сумма сразу откладывается в бюджете, чтобы её нельзя было потратить дважды.',
-    'After you send it, the bank will check the tranche. The amount is set aside in the budget right away, so it cannot be spent twice.',
-    'Yuborganingizdan keyin bank transhni tekshiradi. Summa byudjetda darhol ajratib qo‘yiladi, shunda uni ikki marta sarflab bo‘lmaydi.',
+    'После отправки транш поступит в банк, а сумма будет зарезервирована в бюджете.',
+    'Submitting sends the tranche to the bank and reserves the amount in the budget.',
+    'Transh bankka yuboriladi va summa byudjetda band qilinadi.',
   ));
   String get addressedToBank => _t((
-    'Транш предназначен банку.',
-    'This tranche is meant for the bank.',
-    'Bu transh bank uchun.',
+    'Получатель — банк объекта.',
+    'This tranche goes to the project’s bank.',
+    'Transh obyekt bankiga yuboriladi.',
   ));
   String get sentToBank => _t(('Отправлен в банк', 'Sent to the bank', 'Bankka yuborilgan'));
   String recipientLine(String role, String name) {
@@ -390,51 +422,67 @@ class AppCopy {
   String get cancelRequest => _t(('Отозвать транш', 'Withdraw the tranche', 'Transhni qaytarib olish'));
   String get cancelRequestTitle => _t(('Отозвать транш?', 'Withdraw the tranche?', 'Transh qaytarib olinsinmi?'));
   String get cancelRequestBody => _t((
-    'Банк перестанет его проверять, а сумма снова станет доступной в бюджете.',
-    'The bank will stop checking it, and the amount becomes available in the budget again.',
-    'Bank uni tekshirishni to‘xtatadi, summa esa byudjetda yana ochiq bo‘ladi.',
+    'Банк прекратит рассмотрение транша. Сумма снова будет доступна в бюджете.',
+    'The bank will stop reviewing the tranche. The amount will become available again in the budget.',
+    'Bank transhni ko‘rib chiqishni to‘xtatadi. Summa byudjetda yana mavjud bo‘ladi.',
   ));
   String get approveWork => _t(('Подтвердить работу', 'Confirm the work', 'Ishni tasdiqlash'));
   String get rejectWork => _t(('Отклонить', 'Reject', 'Rad etish'));
   String get reasonLabel => _t(('Причина', 'Reason', 'Sabab'));
   String get agreeRequest => _t(('Одобрить транш', 'Approve the tranche', 'Transhni ma’qullash'));
   String get waitingForBank => _t((
-    'Работу проверили. Теперь транш ждёт решения банка.',
-    'The work has been checked. The tranche now waits for the bank’s decision.',
-    'Ish tekshirildi. Endi transh bank qarorini kutmoqda.',
+    'Работы подтверждены. Транш на рассмотрении в банке.',
+    'The work is confirmed. The bank is reviewing the tranche.',
+    'Ishlar tasdiqlandi. Bank transhni ko‘rib chiqmoqda.',
   ));
   String get waitingForBankNow => _t((
-    'Транш у банка. Как только банк решит, вы увидите это здесь.',
-    'The tranche is with the bank. You will see the decision here.',
-    'Transh bankda. Bank qaror qilishi bilan buni shu yerda ko‘rasiz.',
+    'Транш на рассмотрении. Решение банка появится в карточке.',
+    'The tranche is under review. The bank’s decision will appear here.',
+    'Transh ko‘rib chiqilmoqda. Bank qarori shu kartada ko‘rinadi.',
   ));
   String get waitingForRelease => _t((
-    'Банк одобрил транш. Осталось дождаться выплаты.',
-    'The bank approved the tranche. Now the payout is on its way.',
-    'Bank transhni ma’qulladi. Endi to‘lovni kutish qoldi.',
+    'Транш одобрен. Выплата ещё не зарегистрирована.',
+    'The tranche is approved. The payout has not been recorded yet.',
+    'Transh tasdiqlangan. To‘lov hali qayd etilmagan.',
   ));
-  String get keepRequest => _t(('Оставить как есть', 'Keep it', 'Qoldirish'));
-  String get recordPayment => _t(('Отметить выплату', 'Mark as paid', 'To‘lovni belgilash'));
+  String get keepRequest => _t((
+    'Не отзывать',
+    'Keep tranche',
+    'Qaytarib olmaslik',
+  ));
+  String get recordPayment => _t((
+    'Зарегистрировать выплату',
+    'Record payout',
+    'To‘lovni qayd etish',
+  ));
   String get paymentDate => _t(('Дата платежа', 'Payment date', 'To‘lov sanasi'));
   String get paymentNumber => _t(('Номер платежа', 'Payment number', 'To‘lov raqami'));
   String get paymentHint => _t((
-    'Деньги переводятся через ваш банк, не через iBuild. Здесь нужно указать дату и номер платежа и добавить подтверждение.',
-    'The money is sent through your bank, not through iBuild. Enter the payment date and number and add the confirmation.',
-    'Pul iBuild orqali emas, o‘z bankingiz orqali o‘tkaziladi. Bu yerda to‘lov sanasi va raqamini yozing va tasdiqlovchi hujjat qo‘shing.',
+    'Укажите дату и номер уже проведённого платежа, затем приложите подтверждение. iBuild не переводит деньги.',
+    'Enter the date and reference of a completed payment, then attach proof. iBuild does not transfer funds.',
+    'Amalga oshirilgan to‘lov sanasi va raqamini kiriting, so‘ng tasdiqlovchi hujjatni yuklang. iBuild pul o‘tkazmaydi.',
   ));
   String get paymentTitle => _t(('Выплата транша', 'Paying out the tranche', 'Transhni to‘lash'));
   String get attachProof => _t(('Добавить подтверждение', 'Add the confirmation', 'Tasdiqlovchi hujjat qo‘shish'));
   String get withdrawApproval => _t(('Отменить одобрение', 'Cancel the approval', 'Ma’qullashni bekor qilish'));
   String get withdrawTitle => _t(('Отменить одобрение?', 'Cancel the approval?', 'Ma’qullash bekor qilinsinmi?'));
   String get withdrawBody => _t((
-    'Платёж ещё не ушёл. Сумма снова станет доступной в бюджете.',
-    'The payment has not gone out yet. The amount becomes available in the budget again.',
-    'To‘lov hali ketmagan. Summa byudjetda yana ochiq bo‘ladi.',
+    'Отменяйте одобрение, только если выплаты не было. Сумма вернётся в доступный остаток.',
+    'Cancel the approval only if no payout has been made. The amount returns to the available balance.',
+    'To‘lov amalga oshirilmagan bo‘lsa, tasdiqni bekor qiling. Summa mavjud qoldiqqa qaytadi.',
   ));
-  String get newFromRejection => _t(('Создать новый транш на основе этого', 'Create a new tranche from this one', 'Shu asosida yangi transh yaratish'));
+  String get newFromRejection => _t((
+    'Создать черновик на основе транша',
+    'Create draft from this tranche',
+    'Shu transh asosida qoralama yaratish',
+  ));
   String get paymentLine => _t(('Платёж', 'Payment', 'To‘lov'));
   String get noRole => _t(('Нет роли на объекте', 'No role on a project', 'Obyektda roli yo‘q'));
-  String get serverError => _t(('Что-то пошло не так. Попробуйте ещё раз.', 'Something went wrong. Please try again.', 'Nimadir xato ketdi. Qayta urinib ko‘ring.'));
+  String get serverError => _t((
+    'Не удалось выполнить действие. Повторите попытку.',
+    'The action could not be completed. Try again.',
+    'Amalni bajarib bo‘lmadi. Qayta urinib ko‘ring.',
+  ));
   String get offline => _t((
     'Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.',
     'Cannot reach the server. Check your internet and try again.',
@@ -481,8 +529,8 @@ class AppCopy {
     return switch (code) {
       'draft' => _t(('Черновик', 'Draft', 'Qoralama')),
       'submitted' => _t(('Ждёт решения банка', 'Waiting for the bank', 'Bank qarorini kutmoqda')),
-      'tech_approved' => _t(('Работу проверили, ждёт банк', 'Work checked, waiting for the bank', 'Ish tekshirildi, bankni kutmoqda')),
-      'approved' => _t(('Одобрен, ждёт выплаты', 'Approved, waiting for payout', 'Ma’qullangan, to‘lovni kutmoqda')),
+      'tech_approved' => _t(('Работы подтверждены', 'Work confirmed', 'Ishlar tasdiqlangan')),
+      'approved' => _t(('Ожидает выплаты', 'Awaiting payout', 'To‘lov kutilmoqda')),
       'paid' => _t(('Выплачен', 'Paid out', 'To‘langan')),
       'rejected' => _t(('Отклонён', 'Rejected', 'Rad etilgan')),
       'cancelled' => _t(('Отозван', 'Withdrawn', 'Qaytarib olingan')),
@@ -499,10 +547,10 @@ class AppCopy {
       'submitted' => _t(('Транш отправлен', 'Tranche sent', 'Transh yuborildi')),
       'contact' => _t(('Банк написал застройщику', 'The bank wrote to the developer', 'Bank quruvchiga yozdi')),
       'cancelled' => _t(('Транш отозван', 'Tranche withdrawn', 'Transh qaytarib olindi')),
-      'tech_approved' => _t(('Работу проверили', 'The work was checked', 'Ish tekshirildi')),
+      'tech_approved' => _t(('Работы подтверждены', 'Work confirmed', 'Ishlar tasdiqlandi')),
       'rejected' => _t(('Транш отклонён', 'Tranche rejected', 'Transh rad etildi')),
       'approved' => _t(('Банк одобрил транш', 'The bank approved the tranche', 'Bank transhni ma’qulladi')),
-      'paid' => _t(('Выплата отмечена', 'Payout recorded', 'To‘lov belgilandi')),
+      'paid' => _t(('Выплата зарегистрирована', 'Payout recorded', 'To‘lov qayd etildi')),
       'director_rejected' => _t(('Банк отклонил транш', 'The bank rejected the tranche', 'Bank transhni rad etdi')),
       'approval_withdrawn' => _t(('Одобрение отменено', 'Approval cancelled', 'Ma’qullash bekor qilindi')),
       'payment_file_added' => _t(('Добавлено подтверждение платежа', 'Payment confirmation added', 'To‘lov tasdig‘i qo‘shildi')),
@@ -515,6 +563,8 @@ class AppCopy {
   /// Turns a message from the server into the reader’s language.
   /// Unknown messages are shown as they are.
   String known(String message) {
+    final copy = _messageCopy[message];
+    if (copy != null) return _t(copy);
     for (final row in _knownMessages) {
       if (row.$1 == message) return _t(row);
     }

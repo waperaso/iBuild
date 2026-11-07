@@ -20,28 +20,28 @@ extension MoreCopy on AppCopy {
   // ── Project card on the right ──────────────────────────────────────────
 
   String get changesOnReview => _t((
-    'Правки ждут проверки',
-    'Changes are under review',
-    'Tahrirlar ko‘rib chiqilmoqda',
+    'Изменения на проверке',
+    'Changes under review',
+    'O‘zgarishlar tekshirilmoqda',
   ));
   String get changesRejected => _t((
-    'Правки не приняли',
-    'Changes were not accepted',
-    'Tahrirlar qabul qilinmadi',
+    'Изменения отклонены',
+    'Changes rejected',
+    'O‘zgarishlar rad etildi',
   ));
   String get projectCard => _t(('Карточка объекта', 'Project card', 'Obyekt kartasi'));
   String get projectPhoto => _t(('Фото объекта', 'Project photo', 'Obyekt fotosi'));
   String get photoPicked => _t(('Фото выбрано', 'Photo chosen', 'Foto tanlandi'));
   String get sendForReview => _t(('Отправить на проверку', 'Send for review', 'Tekshiruvga yuborish'));
   String get projectPhotoRule => _t((
-    'Подойдёт фото JPEG, PNG или WebP, не больше 5 МБ.',
-    'Use a JPEG, PNG or WebP photo, up to 5 MB.',
-    'JPEG, PNG yoki WebP foto, 5 MB gacha mos keladi.',
+    'JPEG, PNG или WebP · до 5 МБ.',
+    'JPEG, PNG or WebP · up to 5 MB.',
+    'JPEG, PNG yoki WebP · 5 MB gacha.',
   ));
   String get projectCardNote => _t((
-    'Правки появятся в карточке после проверки администратором iBuild.',
-    'Your changes will appear on the card after an iBuild administrator reviews them.',
-    'Tahrirlar iBuild administratori tekshirgandan keyin kartada paydo bo‘ladi.',
+    'Изменения опубликуются после одобрения администратором iBuild.',
+    'Changes appear on the project card once an iBuild administrator approves them.',
+    'iBuild administratori tasdiqlagach, o‘zgarishlar obyekt kartasida ko‘rinadi.',
   ));
 
   // ── Home ───────────────────────────────────────────────────────────────
@@ -61,11 +61,15 @@ extension MoreCopy on AppCopy {
   // ── Money tables ───────────────────────────────────────────────────────
 
   String get moneyPlan => _t((
-    'Откуда деньги и на что они идут',
-    'Where the money comes from and where it goes',
-    'Pul qayerdan keladi va nimaga ketadi',
+    'План финансирования',
+    'Funding plan',
+    'Moliyalashtirish rejasi',
   ));
-  String get sources => _t(('Откуда деньги', 'Where the money comes from', 'Pul qayerdan keladi'));
+  String get sources => _t((
+    'Источники финансирования',
+    'Funding sources',
+    'Moliyalashtirish manbalari',
+  ));
 
   String sourceKind(String kind) {
     return switch (kind) {
@@ -104,31 +108,43 @@ extension MoreCopy on AppCopy {
   String get bankInn => _t(('ИНН банка', 'Bank tax ID', 'Bank STIR'));
   String get setCreditLimit => _t(('Назначить кредитный лимит', 'Set the credit limit', 'Kredit limitini belgilash'));
   String get addLineNeedsFirm => _t((
-    'Сначала добавьте подрядчика. Вид работ всегда закреплён за подрядчиком.',
-    'Add a contractor first. A work item always belongs to a contractor.',
-    'Avval pudratchi qo‘shing. Ish turi doim pudratchiga biriktiriladi.',
+    'Чтобы добавить вид работ, сначала создайте карточку подрядчика.',
+    'Create a contractor record before adding a work item.',
+    'Ish turini qo‘shishdan oldin pudratchi kartasini yarating.',
   ));
 
   String get noSourcesDirector => _t((
-    'На объекте ещё нет источников денег. Добавьте источник в бюджете объекта, затем отправьте транш.',
-    'This project has no money sources yet. Add a source in the project budget, then send the tranche.',
-    'Obyektda hali pul manbalari yo‘q. Manbani obyekt byudjetiga qo‘shing, so‘ng transhni yuboring.',
+    'Добавьте источник финансирования в бюджете объекта. Без него отправить транш нельзя.',
+    'Add a funding source in the project budget before submitting a tranche.',
+    'Transhni yuborishdan oldin obyekt byudjetiga moliyalashtirish manbasini qo‘shing.',
   ));
 
   String get noSourcesOther => _t((
-    'Источники денег задаёт застройщик в бюджете объекта. Попросите добавить источник, затем отправьте транш.',
-    'The developer sets money sources in the project budget. Ask them to add a source, then send the tranche.',
-    'Pul manbalarini obyekt byudjetida quruvchi belgilaydi. Manba qo‘shishni so‘rang, so‘ng transhni yuboring.',
+    'Попросите застройщика добавить источник финансирования в бюджет объекта.',
+    'Ask the developer to add a funding source to the project budget.',
+    'Quruvchidan obyekt byudjetiga moliyalashtirish manbasini qo‘shishini so‘rang.',
   ));
-  String get gridOriginal => _t(('Первоначально', 'Originally', 'Dastlab'));
+  String get gridOriginal => _t((
+    'Исходный бюджет',
+    'Original budget',
+    'Dastlabki byudjet',
+  ));
   String get gridChanges => _t(('Изменения', 'Changes', 'O‘zgarishlar'));
-  String get gridNow => _t(('Сейчас', 'Now', 'Hozir'));
+  String get gridNow => _t((
+    'Текущий бюджет',
+    'Current budget',
+    'Joriy byudjet',
+  ));
   String get gridPaid => _t(('Выплачено', 'Paid out', 'To‘langan'));
   String get gridLeft => _t(('Осталось', 'Left', 'Qoldi'));
 
   // ── Budget import ──────────────────────────────────────────────────────
 
-  String get importBudget => _t(('Загрузить бюджет из файла', 'Import a budget from a file', 'Byudjetni fayldan yuklash'));
+  String get importBudget => _t((
+    'Импортировать бюджет',
+    'Import budget',
+    'Byudjetni import qilish',
+  ));
   String get importFormat => _t((
     'В каждой строке через запятую: код, название, вид (hard — стройка, soft — прочие расходы), use (расход) или source (источник денег), сумма.',
     'One line per item, separated by commas: code, name, kind (hard for construction, soft for other costs), use (a cost) or source (where money comes from), amount.',
@@ -144,9 +160,9 @@ extension MoreCopy on AppCopy {
   // ── Tranches inside a project ──────────────────────────────────────────
 
   String get drawsEmptyBody => _t((
-    'Транш собирается сразу по всем видам работ.',
-    'A tranche is put together for all work items at once.',
-    'Transh barcha ish turlari bo‘yicha birdaniga tuziladi.',
+    'В один транш можно включить несколько видов работ.',
+    'A tranche can include more than one work item.',
+    'Bir transhga bir nechta ish turini kiritish mumkin.',
   ));
   String get drawRequested => _t(('Запрошено', 'Requested', 'So‘ralgan'));
   String get drawRecommended => _t(('Рекомендует инспектор', 'Inspector recommends', 'Inspektor tavsiyasi'));
@@ -159,13 +175,17 @@ extension MoreCopy on AppCopy {
   String get noteToInspector => _t(('Комментарий для инспектора', 'Note for the inspector', 'Inspektor uchun izoh'));
   String get percentDone => _t(('Готово, %', 'Done, %', 'Tayyor, %'));
   String get recommendAmount => _t((
-    'Сколько рекомендуете выплатить, сум',
-    'How much you recommend paying out, UZS',
-    'Qancha to‘lashni tavsiya qilasiz, so‘m',
+    'Рекомендуемая сумма выплаты, сум',
+    'Recommended payout, UZS',
+    'Tavsiya etilgan to‘lov summasi, so‘m',
   ));
   String get riskNone => _t(('Без отметки о риске', 'No risk mark', 'Xavf belgisisiz'));
   String get riskOk => _t(('Риск низкий', 'Low risk', 'Xavf past'));
-  String get riskWatch => _t(('Риск: нужно следить', 'Risk: keep an eye on it', 'Xavf: kuzatib borish kerak'));
+  String get riskWatch => _t((
+    'Требует контроля',
+    'Needs monitoring',
+    'Nazorat talab etiladi',
+  ));
   String get riskHigh => _t(('Риск высокий', 'High risk', 'Xavf yuqori'));
   String get inspectorComment => _t(('Комментарий инспектора', 'Inspector’s comment', 'Inspektor izohi'));
   String get sendInspection => _t(('Отправить отчёт об осмотре', 'Send the inspection report', 'Ko‘rik hisobotini yuborish'));
@@ -173,9 +193,9 @@ extension MoreCopy on AppCopy {
   // ── Documents ──────────────────────────────────────────────────────────
 
   String get documentsBank => _t((
-    'Документы, которые просит банк',
-    'Documents the bank asks for',
-    'Bank so‘raydigan hujjatlar',
+    'Требования банка к документам',
+    'Bank document requirements',
+    'Bankning hujjatlarga talablari',
   ));
   String get requiredYes => _t(('Обязательно', 'Required', 'Majburiy'));
   String get requiredNo => _t(('По желанию', 'Optional', 'Ixtiyoriy'));
@@ -211,7 +231,11 @@ extension MoreCopy on AppCopy {
 
   // ── Tranche card ───────────────────────────────────────────────────────
 
-  String get orderInspection => _t(('Заказать осмотр', 'Order an inspection', 'Ko‘rikni buyurtma qilish'));
+  String get orderInspection => _t((
+    'Назначить осмотр',
+    'Schedule inspection',
+    'Ko‘rikni tayinlash',
+  ));
   String inspectionNote(String line) => _t((
     'Проверить: $line',
     'Check: $line',
@@ -236,11 +260,27 @@ extension MoreCopy on AppCopy {
 
   String get drawDefaultName => _t(('Транш', 'Tranche', 'Transh'));
   String get toProject => _t(('К объекту', 'Back to the project', 'Obyektga'));
-  String get drawWizardTitle => _t(('Транш по всем видам работ', 'Tranche for all work items', 'Barcha ish turlari bo‘yicha transh'));
+  String get drawWizardTitle => _t((
+    'Транш по бюджету объекта',
+    'Project budget tranche',
+    'Obyekt byudjeti bo‘yicha transh',
+  ));
   String get drawName => _t(('Название транша', 'Tranche name', 'Transh nomi'));
-  String get finalDraw => _t(('Это последний транш', 'This is the last tranche', 'Bu oxirgi transh'));
-  String get drawHoldback => _t(('Придержать до конца работ', 'Hold back until the work ends', 'Ish tugaguncha ushlab turish'));
-  String get drawHoldbackRelease => _t(('Вернуть придержанное', 'Release what was held back', 'Ushlab turilganni qaytarish'));
+  String get finalDraw => _t((
+    'Заключительный транш',
+    'Final tranche',
+    'Yakuniy transh',
+  ));
+  String get drawHoldback => _t((
+    'Удержание до завершения работ',
+    'Retention until completion',
+    'Ishlar tugaguncha ushlab qolinadigan summa',
+  ));
+  String get drawHoldbackRelease => _t((
+    'К возврату из удержания',
+    'Retention to release',
+    'Ushlab qolingan summadan qaytarish',
+  ));
   String get drawStored => _t(('Материалы на площадке', 'Materials on site', 'Maydondagi materiallar'));
   String get drawShift => _t(('Перенести между видами работ', 'Move between work items', 'Ish turlari orasida ko‘chirish'));
   String inspectorSays(String value) => _t((
@@ -252,7 +292,11 @@ extension MoreCopy on AppCopy {
   String get docMissing => _t(('Не хватает', 'Missing', 'Yetishmaydi'));
   String get docAttached => _t(('Приложен', 'Attached', 'Qo‘shilgan'));
   String get docNotNeeded => _t(('Не нужен', 'Not needed', 'Kerak emas'));
-  String get signature => _t(('Подпись (имя и фамилия)', 'Signature (full name)', 'Imzo (ism va familiya)'));
+  String get signature => _t((
+    'ФИО ответственного',
+    'Name of the person submitting',
+    'Mas’ul shaxsning F.I.Sh.',
+  ));
   String get trimDraw => _t(('Уменьшить транш', 'Reduce the tranche', 'Transhni kamaytirish'));
   String get afterSending => _t(('После отправки', 'After sending', 'Yuborilgandan keyin'));
   String get commentLabel => _t(('Комментарий', 'Comment', 'Izoh'));
@@ -269,17 +313,21 @@ extension MoreCopy on AppCopy {
   // ── Inspections page ───────────────────────────────────────────────────
 
   String get inspectionsSubtitle => _t((
-    'Банк заказывает осмотр стройки. Застройщик отвечает, сколько работ готово и какую сумму стоит выплатить.',
-    'The bank orders a site inspection. The developer answers how much of the work is done and what amount is worth paying out.',
-    'Bank qurilishni ko‘rikdan o‘tkazishni buyurtma qiladi. Quruvchi ishning qanchasi tayyor ekanini va qancha to‘lash mumkinligini yozadi.',
+    'Назначенные осмотры и отчёты о выполненных работах.',
+    'Scheduled inspections and reports on completed work.',
+    'Tayinlangan ko‘riklar va bajarilgan ishlar bo‘yicha hisobotlar.',
   ));
   String get inspectionsEmpty => _t(('Осмотров пока нет', 'No inspections yet', 'Hozircha ko‘riklar yo‘q'));
   String get inspectionsEmptyBody => _t((
-    'Когда банк закажет осмотр, застройщик пришлёт отчёт по каждому виду работ.',
-    'When the bank orders an inspection, the developer sends a report for each work item.',
-    'Bank ko‘rikni buyurtma qilganda, quruvchi har bir ish turi bo‘yicha hisobot yuboradi.',
+    'Здесь появятся осмотры по вашим объектам.',
+    'Inspections for your projects will appear here.',
+    'Obyektlaringiz bo‘yicha ko‘riklar shu yerda ko‘rinadi.',
   ));
-  String get inspectionOrdered => _t(('Заказан', 'Ordered', 'Buyurtma qilingan'));
+  String get inspectionOrdered => _t((
+    'Назначен',
+    'Scheduled',
+    'Tayinlangan',
+  ));
   String get inspectionReported => _t(('Отчёт получен', 'Report received', 'Hisobot olindi'));
   String forTranche(String line) => _t(('По траншу: $line', 'For tranche: $line', 'Transh bo‘yicha: $line'));
   String get openProjectWithLimit => _t((
@@ -290,7 +338,11 @@ extension MoreCopy on AppCopy {
   String get dateHint => _t(('Например, 2026-11-05', 'For example, 2026-11-05', 'Masalan, 2026-11-05'));
   String get dateLabel => _t(('Дата', 'Date', 'Sana'));
   String get whatToCheck => _t(('Что проверить', 'What to check', 'Nimani tekshirish'));
-  String get orderIt => _t(('Заказать', 'Order', 'Buyurtma qilish'));
+  String get orderIt => _t((
+    'Назначить',
+    'Schedule',
+    'Tayinlash',
+  ));
   String get readyPercent => _t(('Готово, %', 'Done, %', 'Tayyor, %'));
   String get commentAndPhoto => _t(('Комментарий и описание фото', 'Comment and photo description', 'Izoh va foto tavsifi'));
   String get submitReport => _t(('Отправить отчёт', 'Send the report', 'Hisobotni yuborish'));
@@ -298,9 +350,9 @@ extension MoreCopy on AppCopy {
   // ── Review of project card changes (platform administrator) ────────────
 
   String get moderationSubtitle => _t((
-    'Правки карточки объекта появятся после того, как администратор iBuild их проверит.',
-    'Changes to a project card appear once an iBuild administrator has reviewed them.',
-    'Obyekt kartasidagi tahrirlar iBuild administratori tekshirgandan keyin paydo bo‘ladi.',
+    'Проверьте изменения карточек перед публикацией.',
+    'Review changes to project cards before they are published.',
+    'Obyekt kartalaridagi o‘zgarishlarni e’lon qilishdan oldin tekshiring.',
   ));
   String get moderationAdminOnly => _t((
     'Проверять правки может только администратор iBuild.',
@@ -309,9 +361,9 @@ extension MoreCopy on AppCopy {
   ));
   String get moderationEmpty => _t(('Новых правок нет', 'No new changes', 'Yangi tahrirlar yo‘q'));
   String get moderationEmptyBody => _t((
-    'Когда застройщик изменит карточку объекта, правка появится здесь.',
-    'When a developer edits a project card, the change shows up here.',
-    'Quruvchi obyekt kartasini o‘zgartirsa, tahrir shu yerda paydo bo‘ladi.',
+    'Все поступившие изменения рассмотрены.',
+    'No submitted changes need review.',
+    'Ko‘rib chiqilishi kerak bo‘lgan o‘zgarish yo‘q.',
   ));
   String currentNameIs(String name) => _t(('Сейчас: $name', 'Now: $name', 'Hozir: $name'));
   String proposedNameIs(String name) => _t(('Предлагают: $name', 'Proposed: $name', 'Taklif: $name'));
@@ -328,14 +380,14 @@ extension MoreCopy on AppCopy {
   ));
 
   String get techQueue => _t((
-    'Здесь транши, по которым нужно проверить сделанную работу.',
-    'These are tranches where the finished work needs to be checked.',
-    'Bu yerda bajarilgan ishni tekshirish kerak bo‘lgan transhlar.',
+    'Транши, по которым нужно подтвердить выполненные работы.',
+    'Tranches that need confirmation of completed work.',
+    'Bajarilgan ishlarni tasdiqlash talab qilinadigan transhlar.',
   ));
   String get bankQueueNote => _t((
-    'Здесь транши, которые ждут решения банка.',
-    'These are tranches waiting for the bank’s decision.',
-    'Bu yerda bank qarorini kutayotgan transhlar.',
+    'Транши на рассмотрении банка.',
+    'Tranches under review by the bank.',
+    'Bank ko‘rib chiqayotgan transhlar.',
   ));
 
   // ── Tranche forms ──────────────────────────────────────────────────────

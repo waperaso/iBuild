@@ -39,7 +39,7 @@ docker compose -f docker-compose.prod.yml exec api /app/bin/operator bootstrap-a
 `DEMO_ENABLED=true` создаёт учебный мир при запуске (он помечен `is_demo`): застройщик, подрядчик, технадзор, банк и администратор платформы. Любое изменение демо-сессией отклоняется. Реальный администратор в разделах «Компании», «Пользователи», «Заявки», «Журнал», «Почта» демо-данных не видит.
 
 ## Бэкапы
-`scripts/backup.sh` пишет дамп на хост (каталог `700`, файл `600`). В production-compose каталог бэкапов внутри контейнера базы только для чтения: процесс Postgres не перезаписывает уже снятые копии. Расписание — `scripts/install-backup-schedule.sh`. Восстановление — `scripts/restore.sh`: оно создаёт базу `ibuild_restore` и не меняет рабочую `ibuild`. Для боевого стека укажите его проект: `docker compose -p <проект> -f docker-compose.prod.yml exec -T db pg_dump -U ibuild -d ibuild --no-owner --format=custom`. Проверьте восстановление на копии до запуска.
+`scripts/backup.sh` пишет дамп на хост (каталог `700`, файл `600`). В production-compose каталог бэкапов внутри контейнера базы только для чтения: процесс Postgres не перезаписывает уже снятые копии. Для production передайте `IBUILD_COMPOSE_FILE=docker-compose.prod.yml` в backup/restore-скрипты. Расписание — `scripts/install-backup-schedule.sh`. Восстановление — `IBUILD_COMPOSE_FILE=docker-compose.prod.yml scripts/restore.sh <каталог>`: оно создаёт базу `ibuild_restore` и не меняет рабочую `ibuild`. Проверьте восстановление на копии до запуска.
 
 ## Чек-лист перед запуском
 - [ ] `/api/ready` отдаёт 200 по HTTPS.

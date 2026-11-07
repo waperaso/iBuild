@@ -41,8 +41,8 @@ class BankDevelopersScreen extends StatelessWidget {
           children: [
             PageTitle(
               title: LocaleScope.copy(context).bankDevelopers,
-              subtitle: t('Сводка по фактам, не рейтинг: отчёты, возвраты, скорость ответа',
-                  'A summary of facts, not a rating: reports, returns, response time', 'Faktlar yig‘indisi, reyting emas: hisobotlar, qaytarishlar, javob tezligi'),
+              subtitle: t('Отчётность, возвраты траншей и сроки ответа застройщиков.',
+                  'Developer reports, returned tranches and response times.', 'Quruvchilar hisoboti, qaytarilgan transhlar va javob muddatlari.'),
             ),
             if (items.isEmpty)
               EmptyState(
@@ -207,7 +207,7 @@ class _DeveloperBody extends StatelessWidget {
           child: recent.isEmpty
               ? Padding(
                   padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Text(t('Пока пусто.', 'Nothing yet.', 'Hozircha bo‘sh.'), style: theme.textTheme.bodyMedium?.copyWith(color: colors.inkMuted)),
+                  child: Text(t('История отчётности пуста.', 'No reporting history yet.', 'Hisobotlar tarixi bo‘sh.'), style: theme.textTheme.bodyMedium?.copyWith(color: colors.inkMuted)),
                 )
               : Column(children: [
                   for (final row in recent)

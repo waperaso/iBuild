@@ -3,13 +3,14 @@
 # The live database "ibuild" is not changed.
 set -eu
 root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+compose_file=${IBUILD_COMPOSE_FILE:-"$root/docker-compose.yml"}
 src=${1:?usage: scripts/restore.sh <backup-dir>}
 dump="$src/ibuild.dump"
 [ -f "$dump" ] || { printf '%s\n' "нет дампа: $dump" >&2; exit 1; }
 [ -d "$src/files" ] || { printf '%s\n' "нет файлов: $src/files" >&2; exit 1; }
 
 compose() {
-  docker compose -f "$root/docker-compose.yml" "$@"
+  docker compose -f "$compose_file" "$@"
 }
 
 compose exec -T db psql -U ibuild -d postgres -v ON_ERROR_STOP=1 <<'SQL'

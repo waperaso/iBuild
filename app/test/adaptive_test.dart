@@ -18,8 +18,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('project-table')), findsOneWidget);
     expect(find.byKey(const Key('project-cards')), findsNothing);
-    expect(find.text('Идёт стройка'), findsWidgets);
-    expect(find.text('Деньги банка на стройку выплачиваются по мере готовности работ.'), findsOneWidget);
+    expect(find.text('В работе'), findsWidgets);
+    expect(find.text('Финансирование строительства: от заявки на транш до учёта выплаты.'), findsOneWidget);
   });
 
   testWidgets('a tablet keeps a side rail and a readable project table', (tester) async {
@@ -82,7 +82,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('project-cards')), findsOneWidget);
     expect(find.byKey(const Key('project-table')), findsNothing);
-    expect(find.text('Идёт стройка'), findsWidgets);
+    expect(find.text('В работе'), findsWidgets);
   });
 
   testWidgets('a status filter with no rows shows an empty list', (

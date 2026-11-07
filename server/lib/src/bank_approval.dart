@@ -322,7 +322,7 @@ Future<void> _vote(
     }
   }
   if (current == null) {
-    throw const BankFailure(409, 'external', 'Следующий шаг выполняется во внешней системе');
+    throw const BankFailure(409, 'external', 'Внешняя интеграция в разработке');
   }
   final groupCode = _groupOfStep[current['code']]!;
   final member = await tx.execute(
@@ -460,8 +460,8 @@ Future<void> _vote(
   await tx.execute(
     Sql.named('''
       UPDATE bank_tranches
-      SET stage = 'payout', stage_label = 'Ожидает подписи ЭЦП',
-          holder_user_id = NULL, holder_label = 'ЭЦП и платёж во внешней системе',
+      SET stage = 'payout', stage_label = 'В разработке: ЭЦП и платёж',
+          holder_user_id = NULL, holder_label = 'ЭЦП и платёж (интеграция в разработке)',
           elapsed_days = 0, elapsed_hours = 0
       WHERE id = @id::uuid
     '''),

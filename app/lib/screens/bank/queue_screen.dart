@@ -326,7 +326,7 @@ class _TableRow extends StatelessWidget {
             ),
             Expanded(
               flex: _columnFlex[3],
-              child: Align(alignment: Alignment.centerLeft, child: BankPill(label: item.stageLabel)),
+              child: Align(alignment: Alignment.centerLeft, child: BankPill(label: strings.trancheStageLabel(item.stageLabel))),
             ),
             Expanded(
               flex: _columnFlex[4],
@@ -413,7 +413,7 @@ class _CardRow extends StatelessWidget {
               runSpacing: AppSpacing.sm,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                BankPill(label: item.stageLabel),
+                BankPill(label: strings.trancheStageLabel(item.stageLabel)),
                 Text(
                   strings.elapsed(item),
                   key: Key('bank-elapsed-${item.id}'),

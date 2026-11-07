@@ -45,7 +45,7 @@ void main() {
     await pumpIBuild(tester, user: _bankDemo(), size: const Size(664, 800));
     expectFullyVisible(tester, find.byKey(const Key('demo-banner')));
     expectFullyVisible(tester, find.byKey(const Key('demo-exit')));
-    expect(find.text('Демо: данные учебные, изменения не сохраняются'), findsOneWidget);
+    expect(find.text('Демо · Только просмотр'), findsOneWidget);
     expect(find.text('Выйти из демо'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

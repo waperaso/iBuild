@@ -330,7 +330,7 @@ class _Header extends StatelessWidget {
               key: const Key('bank-tranche-title'),
               style: theme.textTheme.titleLarge,
             ),
-            BankPill(label: tranche.stageLabel),
+            BankPill(label: strings.trancheStageLabel(tranche.stageLabel)),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),

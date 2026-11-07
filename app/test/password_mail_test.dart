@@ -38,7 +38,7 @@ void main() {
     await tester.enterText(find.byKey(const Key('pw-repeat')), 'short');
     await tester.tap(find.byKey(const Key('pw-save')));
     await tester.pumpAndSettle();
-    expect(find.textContaining('не короче 10'), findsOneWidget);
+    expect(find.textContaining('не менее 10'), findsOneWidget);
     expect(api.passwordCalls, isEmpty);
 
     await tester.enterText(find.byKey(const Key('pw-new')), 'A-long-new-pass-1');

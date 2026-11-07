@@ -13,8 +13,8 @@ const _groups = ['money', 'time', 'control', 'audit'];
 
 String reportGroupName(Tx t, String group) {
   return switch (group) {
-    'money' => t('Деньги', 'Money', 'Pul'),
-    'time' => t('Время', 'Time', 'Vaqt'),
+    'money' => t('Финансирование', 'Financing', 'Moliyalashtirish'),
+    'time' => t('Сроки рассмотрения', 'Review times', 'Ko‘rib chiqish muddatlari'),
     'control' => t('Контроль', 'Control', 'Nazorat'),
     _ => t('Аудит', 'Audit', 'Audit'),
   };
@@ -28,7 +28,7 @@ String reportGroupName(Tx t, String group) {
         t('Лимит, выдано, остаток по каждому объекту', 'Limit, paid and left for each project', 'Har bir obyekt bo‘yicha limit, to‘langan va qoldiq')
       ),
     'over_confirmed' => (
-        t('Выдано сверх подтверждённого', 'Paid above the confirmed', 'Tasdiqlangandan ortiq to‘langan'),
+        t('Выплаты сверх подтверждённой суммы', 'Payouts above confirmed amounts', 'Tasdiqlangan summadan ortiq to‘lovlar'),
         t('Где выплат больше, чем подтвердили осмотры', 'Where payouts exceed what inspections confirmed', 'To‘lovlar ko‘rik tasdiqlaganidan ko‘p joylar')
       ),
     'limit_expiry' => (
@@ -44,15 +44,15 @@ String reportGroupName(Tx t, String group) {
         t('Кто и на каком этапе превысил срок банка', 'Who went past the bank term, and at which step', 'Kim va qaysi bosqichda bank muddatidan oshdi')
       ),
     'forecast' => (
-        t('Прогноз сдачи против срока кредита', 'Completion forecast against the credit term', 'Topshirish prognozi va kredit muddati'),
-        t('Объекты, у которых сдача уходит', 'Projects that are running late', 'Topshirishi kechikayotgan obyektlar')
+        t('Срок сдачи и срок кредита', 'Completion forecast and loan term', 'Topshirish prognozi va kredit muddati'),
+        t('Объекты, которые могут не уложиться в срок кредита', 'Projects at risk of exceeding the loan term', 'Kredit muddatiga ulgurmasligi mumkin bo‘lgan obyektlar')
       ),
     'returns' => (
         t('Возвраты заявок и причины', 'Returned requests and reasons', 'Qaytarilgan arizalar va sabablar'),
         t('Что чаще всего возвращают застройщикам', 'What is returned to developers most often', 'Quruvchilarga ko‘proq nima qaytariladi')
       ),
     'discipline' => (
-        t('Дисциплина застройщиков', 'Developer discipline', 'Quruvchilar intizomi'),
+        t('Отчётность застройщиков', 'Developer reporting', 'Quruvchilar hisoboti'),
         t('Отчёты о продажах, квартальная отчётность', 'Sales reports, quarterly reporting', 'Sotuv hisobotlari, choraklik hisobot')
       ),
     'inspections' => (
@@ -61,10 +61,10 @@ String reportGroupName(Tx t, String group) {
       ),
     'decision_journal' => (
         t('Журнал решений', 'Journal of decisions', 'Qarorlar jurnali'),
-        t('Кто, когда и на каком основании выдал транш', 'Who paid a tranche, when and on what ground', 'Transhni kim, qachon va qanday asosda to‘lagan')
+        t('Решения по траншам: сотрудник, дата и основание', 'Tranche decisions: staff member, date and reason', 'Transh qarorlari: xodim, sana va asos')
       ),
     'waived' => (
-        t('Принято с обоснованием', 'Accepted with a reason', 'Asos bilan qabul qilingan'),
+        t('Исключения из правил', 'Rule exceptions', 'Qoidalardan istisnolar'),
         t('Все исключения: причина, комментарий, кто принял', 'All exceptions: reason, comment, who accepted', 'Barcha istisnolar: sabab, izoh, kim qabul qilgan')
       ),
     _ => (fallbackTitle, fallbackSubtitle),
@@ -89,8 +89,8 @@ class BankReportsScreen extends StatelessWidget {
           children: [
             PageTitle(
               title: LocaleScope.copy(context).bankReports,
-              subtitle: t('Откройте отчёт, выберите период и скачайте в Excel или PDF',
-                  'Open a report, pick a period and download it as Excel or PDF', 'Hisobotni oching, davrni tanlang va Excel yoki PDF sifatida yuklab oling'),
+              subtitle: t('Отчёты по портфелю, срокам и решениям. Выгрузка в Excel и PDF.',
+                  'Portfolio, review time and decision reports. Export to Excel or PDF.', 'Portfel, muddatlar va qarorlar bo‘yicha hisobotlar. Excel yoki PDF formatida yuklab olish.'),
             ),
             for (final group in _groups) ...[
               SectionTitle(reportGroupName(t, group)),
@@ -272,7 +272,7 @@ class _ReportViewState extends State<_ReportView> {
             const SizedBox(height: AppSpacing.lg),
             if (rows.isEmpty)
               EmptyState(
-                title: t('За период ничего нет', 'Nothing for this period', 'Bu davrda hech narsa yo‘q'),
+                title: t('Нет данных за выбранный период', 'No data for the selected period', 'Tanlangan davr uchun ma’lumot yo‘q'),
                 body: t('Измените период или фильтры.', 'Change the period or the filters.', 'Davr yoki filtrlarni o‘zgartiring.'),
               )
             else

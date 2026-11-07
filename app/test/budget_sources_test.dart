@@ -97,7 +97,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('draw-no-sources')), findsOneWidget);
     expect(
-      find.text('На объекте ещё нет источников денег. Добавьте источник в бюджете объекта, затем отправьте транш.'),
+      find.text('Добавьте источник финансирования в бюджете объекта. Без него отправить транш нельзя.'),
       findsOneWidget,
     );
 
@@ -106,7 +106,7 @@ void main() {
     GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/projects/project-1/draw');
     await tester.pumpAndSettle();
     expect(
-      find.text('Источники денег задаёт застройщик в бюджете объекта. Попросите добавить источник, затем отправьте транш.'),
+      find.text('Попросите застройщика добавить источник финансирования в бюджет объекта.'),
       findsOneWidget,
     );
   });

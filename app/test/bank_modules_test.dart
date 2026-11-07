@@ -461,7 +461,7 @@ void main() {
     for (final code in ['portfolio_summary', 'stage_time', 'returns', 'waived']) {
       expect(find.byKey(Key('report-$code')), findsOneWidget);
     }
-    expect(find.text('Деньги'), findsOneWidget);
+    expect(find.text('Финансирование'), findsOneWidget);
     expect(find.text('Аудит'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('report-portfolio_summary')));

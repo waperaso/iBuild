@@ -158,7 +158,7 @@ class _BankApprovalScreenState extends State<BankApprovalScreen> {
                 key: const Key('bank-approval-title'),
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
-              BankPill(label: approval.stageLabel),
+              BankPill(label: strings.trancheStageLabel(approval.stageLabel)),
             ],
           ),
           Text(

@@ -47,7 +47,7 @@ class AdminOverviewScreen extends StatelessWidget {
           children: [
             PageTitle(
               title: t('Обзор платформы', 'Platform overview', 'Platforma sharhi'),
-              subtitle: t('Что ждёт вашего решения и как живёт платформа', 'What waits for your decision and how the platform is doing', 'Qaroringizni nima kutmoqda va platforma qanday ishlayapti'),
+              subtitle: t('Заявки и правки на проверке, доступ пользователей и состояние системы.', 'Applications and changes awaiting review, user access and system status.', 'Tekshiriladigan arizalar va tahrirlar, foydalanuvchi ruxsatlari va tizim holati.'),
             ),
             if (open > 0 || counts.i('changes_pending') > 0)
               IBuildCard(
@@ -169,7 +169,7 @@ class _AdminCompaniesScreenState extends State<AdminCompaniesScreen> {
           children: [
             PageTitle(
               title: t('Компании и банки', 'Companies and banks', 'Kompaniyalar va banklar'),
-              subtitle: t('Все организации, допущенные на платформу', 'All organisations admitted to the platform', 'Platformaga qabul qilingan barcha tashkilotlar'),
+              subtitle: t('Застройщики и банки с доступом к iBuild.', 'Developers and banks with access to iBuild.', 'iBuild tizimiga kirish huquqi bor quruvchilar va banklar.'),
             ),
             Wrap(spacing: AppSpacing.lg, runSpacing: AppSpacing.md, crossAxisAlignment: WrapCrossAlignment.center, children: [
               FilterChips(
@@ -183,7 +183,7 @@ class _AdminCompaniesScreenState extends State<AdminCompaniesScreen> {
                 child: TextField(
                   key: const Key('companies-search'),
                   onSubmitted: (value) => setState(() => _query = value.trim()),
-                  decoration: InputDecoration(hintText: t('Название или ИНН, Enter', 'Name or TIN, Enter', 'Nomi yoki STIR, Enter'), prefixIcon: const Icon(Icons.search), isDense: true),
+                  decoration: InputDecoration(hintText: t('Название или ИНН', 'Name or tax ID', 'Nomi yoki STIR'), prefixIcon: const Icon(Icons.search), isDense: true),
                 ),
               ),
             ]),
@@ -534,7 +534,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               child: TextField(
                 key: const Key('users-search'),
                 onSubmitted: (value) => setState(() => _query = value.trim()),
-                decoration: InputDecoration(hintText: t('Имя, логин или компания, Enter', 'Name, login or company, Enter', 'Ism, login yoki kompaniya, Enter'), prefixIcon: const Icon(Icons.search), isDense: true),
+                decoration: InputDecoration(hintText: t('Имя, логин или организация', 'Name, username or organisation', 'Ism, login yoki tashkilot'), prefixIcon: const Icon(Icons.search), isDense: true),
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -639,7 +639,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
           children: [
             PageTitle(
               title: t('Журнал платформы', 'Platform journal', 'Platforma jurnali'),
-              subtitle: t('Каждое действие администраторов: решения по заявкам, правки, доступы', 'Every action of the administrators: decisions on applications, changes, access', 'Administratorlarning har bir harakati: arizalar, tahrirlar, kirish huquqlari'),
+              subtitle: t('Решения по заявкам, изменения карточек и действия с аккаунтами.', 'Application decisions, project card changes and account activity.', 'Arizalar bo‘yicha qarorlar, obyekt kartalari tahriri va hisob amallari.'),
             ),
             Wrap(spacing: AppSpacing.md, runSpacing: AppSpacing.md, children: [
               SizedBox(
@@ -658,7 +658,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                 child: TextField(
                   key: const Key('events-search'),
                   onSubmitted: (value) => setState(() => _query = value.trim()),
-                  decoration: InputDecoration(hintText: t('Кто сделал, Enter', 'Who did it, Enter', 'Kim qildi, Enter'), prefixIcon: const Icon(Icons.search), isDense: true),
+                  decoration: InputDecoration(hintText: t('Имя администратора', 'Administrator name', 'Administrator ismi'), prefixIcon: const Icon(Icons.search), isDense: true),
                 ),
               ),
             ]),
@@ -723,7 +723,7 @@ class AdminSystemScreen extends StatelessWidget {
           children: [
             PageTitle(
               title: t('Система', 'System', 'Tizim'),
-              subtitle: t('Здоровье сервера, базы и резервных копий', 'Health of the server, the database and the backups', 'Server, baza va zaxira nusxalar holati'),
+              subtitle: t('Состояние сервера, базы данных и резервных копий.', 'Server, database and backup status.', 'Server, ma’lumotlar bazasi va zaxira nusxalar holati.'),
               trailing: OutlinedButton.icon(key: const Key('system-refresh'), onPressed: reload, icon: const Icon(Icons.refresh, size: 18), label: Text(t('Обновить', 'Refresh', 'Yangilash'))),
             ),
             KpiRow(children: [
@@ -821,7 +821,7 @@ class _AdminMailScreenState extends State<AdminMailScreen> {
           children: [
             PageTitle(
               title: t('Почта', 'Mail', 'Pochta'),
-              subtitle: t('Все письма платформы: напоминания банка и отчёты по расписанию', 'Every letter of the platform: bank reminders and scheduled reports', 'Platformaning barcha xatlari: bank eslatmalari va jadval bo‘yicha hisobotlar'),
+              subtitle: t('Очередь исходящих писем: напоминания и отчёты.', 'Outgoing mail queue for reminders and reports.', 'Chiquvchi xatlar navbati: eslatmalar va hisobotlar.'),
             ),
             IBuildCard(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

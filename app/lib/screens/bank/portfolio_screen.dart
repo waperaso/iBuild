@@ -272,9 +272,9 @@ class _PortfolioBody extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    t('Данных пока мало: считаем по закрытым этапам этого квартала.',
-                        'Not enough data yet: counted from the steps closed this quarter.',
-                        'Ma’lumot hali kam: shu chorakda yopilgan bosqichlar bo‘yicha hisoblanadi.'),
+                    t('Средний срок появится после завершения этапов в текущем квартале.',
+                        'Average review time is shown once stages are completed this quarter.',
+                        'Joriy chorakda bosqichlar yakunlangach, o‘rtacha muddat ko‘rinadi.'),
                     style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted),
                   ),
                 ),

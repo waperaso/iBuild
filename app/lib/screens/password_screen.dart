@@ -35,7 +35,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
     final t = Tx.of(context);
     final session = SessionScope.of(context);
     if (_next.text.length < 10) {
-      setState(() => _error = t('Новый пароль: не короче 10 символов.', 'The new password needs at least 10 characters.', 'Yangi parol kamida 10 belgidan iborat bo‘lsin.'));
+      setState(() => _error = t('Введите новый пароль длиной не менее 10 символов.', 'Enter a new password with at least 10 characters.', 'Kamida 10 belgidan iborat yangi parol kiriting.'));
       return;
     }
     if (_next.text != _repeat.text) {
@@ -79,8 +79,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     forced
-                        ? t('Вы вошли с временным паролем. Придумайте свой, чтобы продолжить.', 'You signed in with a temporary password. Choose your own to continue.', 'Siz vaqtinchalik parol bilan kirdingiz. Davom etish uchun o‘zingiznikini tanlang.')
-                        : t('Другие устройства будут отключены.', 'Your other devices will be signed out.', 'Boshqa qurilmalardan chiqarib yuboriladi.'),
+                        ? t('Замените временный пароль, чтобы открыть кабинет.', 'Replace your temporary password to open your workspace.', 'Kabinetga kirish uchun vaqtinchalik parolni almashtiring.')
+                        : t('После смены пароля на других устройствах нужно войти заново.', 'After changing your password, sign in again on your other devices.', 'Parolni almashtirgach, boshqa qurilmalarda qayta kiring.'),
                     style: theme.textTheme.bodyMedium?.copyWith(color: context.colors.inkMuted),
                   ),
                   const SizedBox(height: AppSpacing.lg),

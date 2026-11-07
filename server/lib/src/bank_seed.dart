@@ -540,8 +540,8 @@ Future<void> _navoiSteps(AppDatabase db, String trancheId) async {
     ('specialist', 2, 'pending', 1, ''),
     ('head', 3, 'pending', 1, 'Группа из 3 человек, нужно 1 согласие'),
     ('committee', 4, 'skipped', 3, 'Сумма ниже порога, блоков с обоснованием нет'),
-    ('sign', 5, 'pending', 1, 'Внешняя подпись'),
-    ('payment', 6, 'pending', 1, 'Платёж во внешней системе'),
+    ('sign', 5, 'pending', 1, 'ЭЦП (интеграция в разработке)'),
+    ('payment', 6, 'pending', 1, 'Платёж (интеграция в разработке)'),
   ];
   for (final step in steps) {
     await db.pool.execute(

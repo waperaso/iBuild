@@ -61,7 +61,7 @@ void main() {
     expect(find.byKey(const Key('empty-inspections')), findsOneWidget);
     expect(find.text('Осмотров пока нет'), findsOneWidget);
     expect(
-      find.text('Когда банк закажет осмотр, застройщик пришлёт отчёт по каждому виду работ.'),
+      find.text('Здесь появятся осмотры по вашим объектам.'),
       findsOneWidget,
     );
     expect(find.byKey(const Key('gate-code')), findsNothing);

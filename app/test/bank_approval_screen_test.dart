@@ -50,10 +50,10 @@ void main() {
 
     expect(_text(tester, 'bank-approval-title'), 'Транш №2 · согласование');
     expect(_text(tester, 'bank-step-expert-status'), 'Готово');
-    expect(_text(tester, 'bank-step-expert-note'), 'Заключение по осмотру 23.10.2026 подписано');
+    expect(_text(tester, 'bank-step-expert-note'), 'Заключение по осмотру от 23.10.2026 принято');
     expect(
       _text(tester, 'bank-step-specialist-note'),
-      'Подготовил решение: 1 723,9 млн UZS, принято с обоснованием: 0',
+      'Предложено к выплате: 1 723,9 млн UZS · исключений: 0',
     );
     expect(_text(tester, 'bank-step-head-status'), 'Сейчас');
     expect(
@@ -70,8 +70,8 @@ void main() {
   testWidgets('the signature and the payment are locked and have no buttons', (tester) async {
     await _openApproval(tester);
 
-    expect(_text(tester, 'bank-step-sign-note'), 'Доступна только после всех согласований');
-    expect(_text(tester, 'bank-step-payment-note'), contains('Платёжные поручения создаёт АБС'));
+    expect(_text(tester, 'bank-step-sign-note'), 'Подписание ЭЦП в iBuild пока недоступно.');
+    expect(_text(tester, 'bank-step-payment-note'), contains('iBuild не отправляет платёжные поручения.'));
     for (final code in ['sign', 'payment']) {
       expect(
         find.descendant(
@@ -100,7 +100,7 @@ void main() {
 
     expect(_text(tester, 'bank-step-committee-status'), 'Ждёт');
     final note = _text(tester, 'bank-step-committee-note');
-    expect(note, contains('Есть блок, принятый с обоснованием'));
+    expect(note, contains('Есть исключение из блокирующего правила'));
     expect(note, contains('Группа из 5 человек · нужно 3 согласия'));
     expect(note, contains('Доступно 4, в отпуске: Директор по кредитованию'));
   });

@@ -109,16 +109,16 @@ const _phoneHelp = ('Номер, по которому мы позвоним.', 
 const developerSections = <RegSection>[
   RegSection(
     'org',
-    ('О компании', 'About the company', 'Kompaniya haqida'),
+    ('Данные компании', 'Company details', 'Kompaniya ma’lumotlari'),
     intro: (
       'Пишите так, как указано в свидетельстве о регистрации.',
       'Write it the way it is in the registration certificate.',
       'Ro‘yxatdan o‘tish guvohnomasidagidek yozing.',
     ),
     [
-      RegField('org_full_name', RegKind.text, ('Полное название', 'Full name', 'To‘liq nomi'), max: 300, wide: true),
+      RegField('org_full_name', RegKind.text, ('Полное наименование', 'Registered name', 'To‘liq nomi'), max: 300, wide: true),
       RegField('org_short_name', RegKind.text, ('Краткое название', 'Short name', 'Qisqa nomi'), required: false),
-      RegField('legal_form', RegKind.choice, ('Форма компании', 'Company type', 'Kompaniya shakli'), choices: [
+      RegField('legal_form', RegKind.choice, ('Организационно-правовая форма', 'Legal form', 'Tashkiliy-huquqiy shakl'), choices: [
         RegChoice('llc', ('ООО', 'LLC', 'MChJ')),
         RegChoice('jsc', ('Акционерное общество', 'Joint-stock company', 'Aksiyadorlik jamiyati')),
         RegChoice('private', ('Частное предприятие', 'Private enterprise', 'Xususiy korxona')),
@@ -128,10 +128,10 @@ const developerSections = <RegSection>[
       RegField('oked', RegKind.digits, ('Код ОКЭД', 'Activity code (OKED)', 'IFUT kodi'), required: false, length: 5, help: ('5 цифр, если знаете', '5 digits, if you know it', 'Bilsangiz, 5 ta raqam')),
       RegField('reg_number', RegKind.text, ('Номер регистрации', 'Registration number', 'Ro‘yxatdan o‘tish raqami'), max: 60),
       RegField('reg_date', RegKind.date, ('Дата регистрации', 'Registration date', 'Ro‘yxatdan o‘tgan sana')),
-      RegField('reg_authority', RegKind.text, ('Кто зарегистрировал', 'Registered by', 'Ro‘yxatdan o‘tkazgan organ')),
+      RegField('reg_authority', RegKind.text, ('Регистрирующий орган', 'Registration authority', 'Ro‘yxatdan o‘tkazuvchi organ')),
       RegField('charter_capital', RegKind.money, ('Уставный капитал', 'Charter capital', 'Ustav kapitali'), suffix: ('сум', 'UZS', 'so‘m')),
       RegField('legal_address', RegKind.text, ('Юридический адрес', 'Legal address', 'Yuridik manzil'), max: 500, wide: true),
-      RegField('actual_address', RegKind.text, ('Где находится офис', 'Office address', 'Ofis manzili'), max: 500, wide: true),
+      RegField('actual_address', RegKind.text, ('Фактический адрес', 'Office address', 'Amaldagi manzil'), max: 500, wide: true),
       RegField('region', RegKind.choice, ('Область или город', 'Region or city', 'Viloyat yoki shahar'), choices: _regions),
       RegField('website', RegKind.text, ('Сайт', 'Website', 'Veb-sayt'), required: false),
       RegField('org_phone', RegKind.phone, ('Телефон компании', 'Company phone', 'Kompaniya telefoni')),
@@ -146,14 +146,14 @@ const developerSections = <RegSection>[
       RegField('dir_position', RegKind.text, ('Должность', 'Position', 'Lavozim')),
       RegField('dir_pinfl', RegKind.digits, ('ПИНФЛ', 'Personal ID number (PINFL)', 'JShShIR'), length: 14, help: ('14 цифр', '14 digits', '14 ta raqam')),
       RegField('dir_passport', RegKind.text, ('Паспорт или ID-карта', 'Passport or ID card', 'Pasport yoki ID-karta'), max: 12, help: ('Две буквы и 7 цифр, например AA1234567', 'Two letters and 7 digits, for example AA1234567', 'Ikki harf va 7 ta raqam, masalan AA1234567')),
-      RegField('dir_passport_issued', RegKind.date, ('Когда выдан', 'Issued on', 'Berilgan sana')),
-      RegField('dir_passport_authority', RegKind.text, ('Кем выдан', 'Issued by', 'Kim bergan')),
+      RegField('dir_passport_issued', RegKind.date, ('Дата выдачи', 'Date of issue', 'Berilgan sana')),
+      RegField('dir_passport_authority', RegKind.text, ('Орган выдачи', 'Issuing authority', 'Hujjatni bergan organ')),
       RegField('dir_citizenship', RegKind.text, ('Гражданство', 'Citizenship', 'Fuqarolik'), max: 80),
       RegField('dir_phone', RegKind.phone, ('Телефон', 'Phone', 'Telefon')),
       RegField('dir_email', RegKind.email, ('Почта', 'Email', 'Pochta')),
       RegField('dir_basis', RegKind.choice, ('Действует на основании', 'Acts under', 'Quyidagi asosda ish yuritadi'), choices: [
-        RegChoice('charter', ('Устава', 'The charter', 'Ustav')),
-        RegChoice('poa', ('Доверенности', 'A power of attorney', 'Ishonchnoma')),
+        RegChoice('charter', ('Устав', 'Charter', 'Ustav')),
+        RegChoice('poa', ('Доверенность', 'Power of attorney', 'Ishonchnoma')),
       ]),
     ],
   ),
@@ -246,15 +246,15 @@ const developerSections = <RegSection>[
     [
       RegField('contact_name', RegKind.text, ('ФИО', 'Full name', 'F.I.Sh.')),
       RegField('contact_position', RegKind.text, ('Должность', 'Position', 'Lavozim')),
-      RegField('contact_phone', RegKind.phone, ('Телефон для звонка', 'Phone for the call', 'Qo‘ng‘iroq uchun telefon'), help: _phoneHelp),
+      RegField('contact_phone', RegKind.phone, ('Контактный телефон', 'Contact phone number', 'Aloqa telefoni'), help: _phoneHelp),
       RegField('contact_email', RegKind.email, ('Почта', 'Email', 'Pochta'), help: (
         'Эта почта станет вашим логином после одобрения.',
         'This email becomes your login once you are approved.',
         'Tasdiqlangach bu pochta loginingiz bo‘ladi.',
       )),
-      RegField('call_time', RegKind.choice, ('Когда звонить', 'When to call', 'Qachon qo‘ng‘iroq qilish'), choices: _callTimes),
+      RegField('call_time', RegKind.choice, ('Удобное время для звонка', 'Preferred call time', 'Qo‘ng‘iroq uchun qulay vaqt'), choices: _callTimes),
       RegField('language', RegKind.choice, ('Язык разговора', 'Language for the call', 'Suhbat tili'), choices: _languages),
-      RegField('comment', RegKind.long, ('Что ещё нам знать', 'Anything else we should know', 'Yana nimani bilishimiz kerak'), required: false, max: 1500, wide: true),
+      RegField('comment', RegKind.long, ('Комментарий к заявке', 'Application notes', 'Arizaga izoh'), required: false, max: 1500, wide: true),
     ],
   ),
 ];
@@ -309,16 +309,16 @@ const bankSections = <RegSection>[
     [
       RegField('contact_name', RegKind.text, ('ФИО', 'Full name', 'F.I.Sh.')),
       RegField('contact_position', RegKind.text, ('Должность', 'Position', 'Lavozim')),
-      RegField('contact_phone', RegKind.phone, ('Телефон для звонка', 'Phone for the call', 'Qo‘ng‘iroq uchun telefon'), help: _phoneHelp),
+      RegField('contact_phone', RegKind.phone, ('Контактный телефон', 'Contact phone number', 'Aloqa telefoni'), help: _phoneHelp),
       RegField('contact_email', RegKind.email, ('Почта', 'Email', 'Pochta')),
-      RegField('authority_basis', RegKind.choice, ('Вы представляете банк на основании', 'You represent the bank under', 'Siz bankni quyidagi asosda vakil qilasiz'), choices: [
-        RegChoice('poa', ('Доверенности', 'A power of attorney', 'Ishonchnoma')),
-        RegChoice('order', ('Приказа', 'An order', 'Buyruq')),
-        RegChoice('charter', ('Устава', 'The charter', 'Ustav')),
+      RegField('authority_basis', RegKind.choice, ('Основание полномочий', 'Basis of authority', 'Vakolat asosi'), choices: [
+        RegChoice('poa', ('Доверенность', 'Power of attorney', 'Ishonchnoma')),
+        RegChoice('order', ('Приказ', 'Appointment order', 'Buyruq')),
+        RegChoice('charter', ('Устав', 'Charter', 'Ustav')),
       ]),
-      RegField('call_time', RegKind.choice, ('Когда звонить', 'When to call', 'Qachon qo‘ng‘iroq qilish'), choices: _callTimes),
+      RegField('call_time', RegKind.choice, ('Удобное время для звонка', 'Preferred call time', 'Qo‘ng‘iroq uchun qulay vaqt'), choices: _callTimes),
       RegField('language', RegKind.choice, ('Язык разговора', 'Language for the call', 'Suhbat tili'), choices: _languages),
-      RegField('comment', RegKind.long, ('Что ещё нам знать', 'Anything else we should know', 'Yana nimani bilishimiz kerak'), required: false, max: 1500, wide: true),
+      RegField('comment', RegKind.long, ('Комментарий к заявке', 'Application notes', 'Arizaga izoh'), required: false, max: 1500, wide: true),
     ],
   ),
 ];
@@ -338,7 +338,7 @@ const developerDocs = <RegDoc>[
   RegDoc('license', ('Лицензии', 'Licences', 'Litsenziyalar'), ('Если для вашей работы они нужны.', 'If your work needs them.', 'Ishingiz uchun kerak bo‘lsa.'), required: false),
   RegDoc('poa', ('Доверенность', 'Power of attorney', 'Ishonchnoma'), ('Если заявку подаёт не руководитель.', 'If someone other than the head applies.', 'Ariza rahbar tomonidan berilmasa.'), required: false),
   RegDoc('bank_letter', ('Письмо банка по этому объекту', 'Bank letter about this project', 'Shu obyekt bo‘yicha bank xati'), ('Договор или письмо о финансировании или эскроу, если уже есть.', 'A financing or escrow agreement or letter, if you have one.', 'Moliyalashtirish yoki eskrou shartnomasi yoki xati, agar bo‘lsa.'), required: false),
-  RegDoc('other', ('Другие документы', 'Other documents', 'Boshqa hujjatlar'), ('Всё, что поможет нас убедить.', 'Anything that helps us check you.', 'Tekshirishda yordam beradigan boshqa hujjatlar.'), required: false),
+  RegDoc('other', ('Другие документы', 'Other documents', 'Boshqa hujjatlar'), ('Документы, которые дополняют сведения в заявке.', 'Documents that support the information in your application.', 'Arizadagi ma’lumotlarni to‘ldiruvchi hujjatlar.'), required: false),
 ];
 
 const bankDocs = <RegDoc>[
@@ -351,7 +351,7 @@ const bankDocs = <RegDoc>[
   RegDoc('lending_terms', ('Условия кредитования застройщиков', 'Developer lending terms', 'Quruvchilarni kreditlash shartlari'), ('Ставки, сроки, требования к залогу и своим средствам.', 'Rates, terms, collateral and own-funds requirements.', 'Foiz stavkalari, muddatlar, garov va o‘z mablag‘iga talablar.'), required: false),
   RegDoc('escrow_template', ('Типовой договор эскроу', 'Standard escrow agreement', 'Eskrou shartnomasining namunasi'), ('Если банк открывает эскроу-счета.', 'If the bank opens escrow accounts.', 'Bank eskrou hisoblarini ochsa.'), required: false),
   RegDoc('financials', ('Финансовая отчётность банка', 'Bank financial statements', 'Bankning moliyaviy hisoboti'), ('Последний годовой отчёт или аудиторское заключение.', 'The last annual report or audit opinion.', 'Oxirgi yillik hisobot yoki audit xulosasi.'), required: false),
-  RegDoc('other', ('Другие документы', 'Other documents', 'Boshqa hujjatlar'), ('Презентация, условия, всё полезное.', 'A presentation, terms, anything useful.', 'Taqdimot, shartlar va boshqa foydali narsalar.'), required: false),
+  RegDoc('other', ('Другие документы', 'Other documents', 'Boshqa hujjatlar'), ('Например, презентация банка или условия финансирования.', 'For example, a bank presentation or financing terms.', 'Masalan, bank taqdimoti yoki moliyalashtirish shartlari.'), required: false),
 ];
 
 List<RegSection> sectionsFor(String kind) => kind == 'bank' ? bankSections : developerSections;
@@ -364,7 +364,7 @@ Iterable<RegField> allFields(String kind) sync* {
 }
 
 const checkLabels = <String, Words>{
-  'registry': ('Данные компании и ИНН сверены с государственным реестром', 'Company details and tax number match the state register', 'Kompaniya ma’lumotlari va STIR davlat reyestri bilan solishtirildi'),
+  'registry': ('Данные организации и ИНН сверены вручную по выписке из реестра', 'Organisation details and tax ID verified manually against a registry extract', 'Tashkilot ma’lumotlari va STIR reyestrdan olingan ko‘chirma asosida qo‘lda tekshirildi'),
   'director': ('Руководитель и его полномочия подтверждены документами', 'The head and their authority are confirmed by documents', 'Rahbar va uning vakolatlari hujjatlar bilan tasdiqlandi'),
   'owners': ('Владельцы, их доли и конечный владелец установлены', 'Owners, their shares and the final owner are established', 'Egalar, ularning ulushlari va oxirgi benefitsiar aniqlandi'),
   'screening': ('Компания и владельцы проверены по перечням причастных к терроризму и отмыванию денег', 'Company and owners checked against the terrorism and money-laundering lists', 'Kompaniya va egalar terrorizm va pul yuvishga aloqador shaxslar ro‘yxati bo‘yicha tekshirildi'),
@@ -378,8 +378,8 @@ const checkLabels = <String, Words>{
 
 const statusLabels = <String, Words>{
   'new': ('Новая', 'New', 'Yangi'),
-  'calling': ('Прозвон', 'Calling', 'Qo‘ng‘iroq'),
-  'docs_requested': ('Ждём документы', 'Waiting for documents', 'Hujjatlar kutilmoqda'),
+  'calling': ('Связь с заявителем', 'Contacting applicant', 'Arizachi bilan bog‘lanish'),
+  'docs_requested': ('Ожидает документы', 'Awaiting documents', 'Hujjatlar kutilmoqda'),
   'in_review': ('Проверка', 'In review', 'Tekshiruvda'),
   'approved': ('Одобрена', 'Approved', 'Tasdiqlandi'),
   'rejected': ('Отклонена', 'Rejected', 'Rad etildi'),

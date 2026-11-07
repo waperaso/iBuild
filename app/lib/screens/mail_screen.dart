@@ -88,8 +88,8 @@ class _MailList extends StatelessWidget {
           children: [
             PageTitle(
               title: t('Почта', 'Mail', 'Pochta'),
-              subtitle: t('Письма внутри iBuild. На сервере тема и текст хранятся в зашифрованном виде.', 'Letters inside iBuild. Subject and text are stored encrypted on the server.', 'iBuild ichidagi xatlar. Mavzu va matn serverda shifrlangan holda saqlanadi.'),
-              trailing: PrimaryButton(key: const Key('mail-compose'), label: t('Написать', 'Write', 'Yozish'), onPressed: onCompose),
+              subtitle: t('Переписка с коллегами и партнёрами по объектам.', 'Messages with colleagues and project partners.', 'Hamkasblar va obyekt hamkorlari bilan yozishmalar.'),
+              trailing: PrimaryButton(key: const Key('mail-compose'), label: t('Новое письмо', 'Compose', 'Yangi xat'), onPressed: onCompose),
             ),
             Wrap(spacing: AppSpacing.sm, children: [
               ChoiceChip(key: const Key('mail-inbox'), label: Text(t('Входящие', 'Inbox', 'Kiruvchi')), selected: !sent, onSelected: (_) => onFolder('inbox')),
@@ -98,8 +98,8 @@ class _MailList extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             if (items.isEmpty)
               EmptyState(
-                title: sent ? t('Вы пока ничего не отправляли', 'You have not sent anything yet', 'Siz hali hech narsa yubormagansiz') : t('Писем нет', 'No letters', 'Xatlar yo‘q'),
-                body: t('Нажмите «Написать», чтобы начать переписку.', 'Press “Write” to start a conversation.', 'Yozishni boshlash uchun «Yozish» tugmasini bosing.'),
+                title: sent ? t('Нет отправленных писем', 'No sent messages', 'Yuborilgan xatlar yo‘q') : t('Нет входящих писем', 'No incoming messages', 'Kiruvchi xatlar yo‘q'),
+                body: t('Чтобы начать переписку, создайте письмо и выберите получателя.', 'To start a conversation, compose a message and select a recipient.', 'Yozishmani boshlash uchun xat yarating va oluvchini tanlang.'),
               )
             else
               IBuildCard(
@@ -284,14 +284,14 @@ class _MailComposeState extends State<_MailCompose> {
           children: [
             PageTitle(
               title: widget.reply == null ? t('Новое письмо', 'New letter', 'Yangi xat') : t('Ответ', 'Reply', 'Javob'),
-              subtitle: t('Писать можно коллегам, администратору iBuild и партнёрам по объектам.', 'You can write to colleagues, the iBuild administrator and partners on projects.', 'Hamkasblar, iBuild administratori va obyektlar bo‘yicha hamkorlarga yozish mumkin.'),
+              subtitle: t('Выберите получателя из списка доступных контактов.', 'Select a recipient from your available contacts.', 'Mavjud kontaktlardan oluvchini tanlang.'),
             ),
             IBuildCard(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(t('Кому', 'To', 'Kimga'), style: theme.textTheme.titleSmall),
                 const SizedBox(height: AppSpacing.sm),
                 if (contacts.isEmpty && _chosen.isEmpty)
-                  Text(t('Пока некому писать.', 'There is nobody to write to yet.', 'Hozircha yozadigan odam yo‘q.'), style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted))
+                  Text(t('Нет доступных получателей.', 'No recipients available.', 'Oluvchilar mavjud emas.'), style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted))
                 else
                   Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [
                     for (final person in contacts)

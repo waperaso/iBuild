@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'support.dart';
 
 Future<void> _openRegistrationDate(WidgetTester tester) async {
-  await tester.tap(find.text('Регистрация'));
+  await tester.tap(find.text('Подать заявку'));
   await tester.pumpAndSettle();
   await tester.tap(find.byKey(const Key('register-kind-developer')));
   await tester.pumpAndSettle();
@@ -41,7 +41,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('language-en')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Register'));
+    await tester.tap(find.text('Apply for access'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('register-kind-developer')));
     await tester.pumpAndSettle();
@@ -64,7 +64,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('language-uz')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Ro‘yxatdan o‘tish'));
+    await tester.tap(find.text('Ariza yuborish'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('register-kind-developer')));
     await tester.pumpAndSettle();
