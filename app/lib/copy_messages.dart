@@ -101,6 +101,71 @@ const _knownMessages = <_Row>[
     'Obyektdagi rolni tanlang',
   ),
   (
+    'Укажите объект и роль на нём.',
+    'Choose a project and the role on it.',
+    'Obyektni va undagi rolni ko‘rsating.',
+  ),
+  (
+    'Этот объект не принадлежит выбранной организации.',
+    'This project does not belong to the chosen organisation.',
+    'Bu obyekt tanlangan tashkilotga tegishli emas.',
+  ),
+  (
+    'Один человек не может получить две роли на одном объекте.',
+    'One person cannot have two roles on the same project.',
+    'Bir kishi bitta obyektda ikkita rol ololmaydi.',
+  ),
+  (
+    'Сотруднику банка роль задаётся в банке, а не на объекте застройщика.',
+    'A bank employee gets a role in the bank, not on a developer’s project.',
+    'Bank xodimining roli bankda belgilanadi, quruvchi obyektida emas.',
+  ),
+  (
+    'Напишите название и адрес первого объекта.',
+    'Write the name and address of the first project.',
+    'Birinchi obyektning nomi va manzilini yozing.',
+  ),
+  (
+    'У организации уже есть объекты. Отметьте их в списке.',
+    'The organisation already has projects. Tick them in the list.',
+    'Tashkilotda obyektlar bor. Ularni ro‘yxatda belgilang.',
+  ),
+  (
+    'Укажите ИНН банка из девяти цифр.',
+    'Enter the bank’s nine-digit tax ID.',
+    'Bank STIRini to‘qqizta raqam bilan yozing.',
+  ),
+  (
+    'Подключить банк может застройщик этого объекта.',
+    'The developer of this project can connect a bank.',
+    'Bankni shu obyekt quruvchisi ulay oladi.',
+  ),
+  (
+    'Такого банка в iBuild нет.',
+    'There is no such bank in iBuild.',
+    'iBuildda bunday bank yo‘q.',
+  ),
+  (
+    'Этот банк уже подключён к объекту.',
+    'This bank is already connected to the project.',
+    'Bu bank obyektga allaqachon ulangan.',
+  ),
+  (
+    'Лимит должен быть больше нуля.',
+    'The limit has to be greater than zero.',
+    'Limit noldan katta bo‘lishi kerak.',
+  ),
+  (
+    'Срок освоения укажите как ГГГГ-ММ-ДД.',
+    'Write the drawdown date as YYYY-MM-DD.',
+    'O‘zlashtirish muddatini YYYY-MM-DD ko‘rinishida yozing.',
+  ),
+  (
+    'Лимит не может быть меньше уже выданной суммы.',
+    'The limit cannot be smaller than the amount already paid out.',
+    'Limit allaqachon to‘langan summadan kichik bo‘lolmaydi.',
+  ),
+  (
     'Такой логин или ИНН уже есть в системе',
     'This login or tax ID already exists',
     'Bunday login yoki STIR tizimda bor',
@@ -383,6 +448,16 @@ const _knownMessages = <_Row>[
     'Банк вернул эту статью на доработку.',
     'The bank returned this line for rework.',
     'Bank bu moddani qayta ishlash uchun qaytardi.',
+  ),
+  (
+    'На объекте ещё нет источников денег. Добавьте источник в бюджете объекта, затем отправьте транш.',
+    'This project has no money sources yet. Add a source in the project budget, then send the tranche.',
+    'Obyektda hali pul manbalari yo‘q. Manbani obyekt byudjetiga qo‘shing, so‘ng transhni yuboring.',
+  ),
+  (
+    'Источники денег задаёт застройщик в бюджете объекта. Попросите добавить источник, затем отправьте транш.',
+    'The developer sets money sources in the project budget. Ask them to add a source, then send the tranche.',
+    'Pul manbalarini obyekt byudjetida quruvchi belgilaydi. Manba qo‘shishni so‘rang, so‘ng transhni yuboring.',
   ),
   (
     'Сумма источников не совпадает с суммой транша.',

@@ -8,6 +8,7 @@ import '../money.dart';
 import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
+import 'kit.dart';
 
 class SourcesUsesTable extends StatelessWidget {
   const SourcesUsesTable({super.key, required this.desk});
@@ -32,7 +33,7 @@ class SourcesUsesTable extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             for (final source in sources) ...[
               _GridLine(
-                code: source.kind,
+                code: copy.sourceKind(source.kind),
                 title: source.name,
                 kind: '',
                 original: moneyUzs(source.amount),
@@ -52,13 +53,13 @@ class SourcesUsesTable extends StatelessWidget {
             _GridLine(
               code: line.code,
               title: line.title,
-              kind: line.kind,
+              kind: copy.costKind(line.kind),
               original: moneyUzs(line.shownOriginal),
               adjusted: moneyUzs(line.adjusted),
               revised: moneyUzs(line.shownRevised),
               funded: moneyUzs(line.funded),
               remaining: moneyUzs(line.shownRemaining),
-              extra: copy.holdback(line.retainagePercent, line.percentComplete.isEmpty ? '—' : line.percentComplete),
+              extra: _budgetExtra(copy, line),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -133,11 +134,12 @@ class _BudgetToolsState extends State<BudgetTools> {
           DropdownButtonFormField<String>(
             key: const Key('copy-from-project'),
             initialValue: _fromProject,
+            isExpanded: true,
             decoration: InputDecoration(labelText: copy.copyFromProject),
             items: [
               for (final other in SessionScope.of(context).projects)
                 if (other.id != widget.project.id)
-                  DropdownMenuItem(value: other.id, child: Text(copy.place(other.name))),
+                  menuLine(other.id, copy.place(other.name)),
             ],
             onChanged: (value) => setState(() => _fromProject = value),
           ),
@@ -341,14 +343,23 @@ class _InspectionsPanelState extends State<InspectionsPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (widget.desk.inspections.isEmpty)
+          EmptyState(
+            key: const Key('empty-inspections'),
+            title: copy.inspectionsEmpty,
+            body: copy.inspectionsEmptyBody,
+          ),
         for (final report in widget.desk.inspections) ...[
           IBuildCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(report.scheduledOn, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.xs),
-                Text(copy.gateCodeIs(report.gateCode)),
+                if (report.scheduledOn.trim().isNotEmpty)
+                  Text(fmtDay(report.scheduledOn), style: Theme.of(context).textTheme.titleMedium),
+                if (report.gateCode.trim().isNotEmpty) ...[
+                  if (report.scheduledOn.trim().isNotEmpty) const SizedBox(height: AppSpacing.xs),
+                  Text(copy.gateCodeIs(report.gateCode.trim())),
+                ],
                 if (report.note.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.sm),
                   Text(report.note),
@@ -511,8 +522,8 @@ class _DocumentsPanelState extends State<DocumentsPanel> {
               children: [
                 Text(firm.name, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.sm),
-                Text(copy.insuranceUntilIs(firm.insuranceUntil.isEmpty ? '—' : firm.insuranceUntil)),
-                Text(copy.licenseUntilIs(firm.licenseUntil.isEmpty ? '—' : firm.licenseUntil)),
+                Text(copy.insuranceUntilIs(firm.insuranceUntil.isEmpty ? '—' : fmtDay(firm.insuranceUntil))),
+                Text(copy.licenseUntilIs(firm.licenseUntil.isEmpty ? '—' : fmtDay(firm.licenseUntil))),
               ],
             ),
           ),
@@ -565,6 +576,15 @@ class _DocumentsPanelState extends State<DocumentsPanel> {
       if (mounted) setState(() => _error = error.message);
     }
   }
+}
+
+String _budgetExtra(AppCopy copy, LoanLine line) {
+  final done = line.percentComplete.trim();
+  final retain = line.retainagePercent.trim();
+  final noProgress = done.isEmpty || done == '—';
+  final noRetainage = retain.isEmpty || retain == '0' || retain == '0.00' || retain == '0.0';
+  if (noProgress && noRetainage) return '';
+  return copy.holdback(noRetainage ? '0' : retain, noProgress ? '' : done);
 }
 
 class _GridLine extends StatelessWidget {

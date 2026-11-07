@@ -6,6 +6,7 @@ import '../models.dart';
 import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
+import 'kit.dart';
 
 class InspectionsScreen extends StatefulWidget {
   const InspectionsScreen({super.key});
@@ -79,7 +80,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
         if (bank) _orderForm(),
         if (_error != null) Text(copy.known(_error!)),
         if (_loading)
-          const SizedBox.shrink()
+          const PageWait()
         else if (_items.isEmpty)
           EmptyState(
             key: const Key('empty-inspections'),
@@ -96,7 +97,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                   Text(copy.place(item.projectName), style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: AppSpacing.xs),
                   Text(item.status == 'requested' ? copy.inspectionOrdered : copy.inspectionReported),
-                  if (item.scheduledOn.isNotEmpty) Text(item.scheduledOn),
+                  if (item.scheduledOn.isNotEmpty) Text(fmtDay(item.scheduledOn)),
                   if (item.requestLine.isNotEmpty) Text(copy.forTranche(item.requestLine)),
                   if (item.note.isNotEmpty) Text(item.note),
                   if (builder && item.status == 'requested') ...[
@@ -127,10 +128,11 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
           const SizedBox(height: AppSpacing.md),
           DropdownButtonFormField<String>(
             initialValue: _projectId,
+            isExpanded: true,
             decoration: InputDecoration(labelText: copy.project),
             items: [
               for (final project in projects)
-                DropdownMenuItem(value: project.id, child: Text(copy.place(project.name))),
+                menuLine(project.id, copy.place(project.name)),
             ],
             onChanged: (value) => setState(() => _projectId = value),
           ),

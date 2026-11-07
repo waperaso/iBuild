@@ -68,7 +68,9 @@ void main() {
       tester.element(find.byType(Scaffold).first),
     ).go('/requests/new');
     await tester.pumpAndSettle();
-    expect(find.text('Транш запрашивает застройщик'), findsOneWidget);
+    expect(find.text('У вашей роли нет права создавать транш'), findsOneWidget);
+    expect(find.text('Транш запрашивает застройщик'), findsNothing);
+    expect(find.text('Банк только рассматривает транши и сам их не создаёт.'), findsNothing);
   });
 
   testWidgets('a bank specialist gets the bank cabinet and a director does not', (tester) async {
@@ -110,5 +112,39 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('bank-queue-frame')), findsNothing);
     expect(find.byKey(const Key('nav-home')), findsOneWidget);
+  });
+
+  testWidgets('adding a person to a project offers technical supervision and does not assume director', (tester) async {
+    final api = await pumpIBuild(tester, user: demoUser(AppRole.director), size: const Size(1280, 900));
+    api.storedCompanyUsers = const [
+      CompanyUser(id: 'user-9', name: 'Новый сотрудник', login: 'new.person', active: true),
+    ];
+    await tester.tap(find.byKey(const Key('nav-projects')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ЖК Навои'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('project-tab-4')));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('add-member')),
+      200,
+      scrollable: find.ancestor(of: find.byKey(const Key('add-member')), matching: find.byType(Scrollable)).first,
+    );
+    await tester.tap(find.byKey(const Key('add-member')));
+    await tester.pumpAndSettle();
+
+    final button = tester.widget<TextButton>(find.byKey(const Key('assign-confirm')));
+    expect(button.onPressed, isNull);
+    await tester.tap(find.byKey(const Key('assign-role')));
+    await tester.pumpAndSettle();
+    expect(find.text('Технадзор'), findsWidgets);
+    expect(find.text('Застройщик'), findsWidgets);
+    expect(find.text('Подрядчик'), findsWidgets);
+    await tester.tap(find.text('Технадзор').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('assign-confirm')));
+    await tester.pumpAndSettle();
+    expect(api.addedMember?.role, 'tech');
+    expect(api.addedMember?.userId, 'user-9');
   });
 }

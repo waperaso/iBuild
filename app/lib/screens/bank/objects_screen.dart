@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../api.dart';
 import '../../l10n.dart';
+import '../../session_scope.dart';
 import '../../theme.dart';
 import '../../widgets.dart';
 import '../kit.dart';
@@ -136,6 +138,75 @@ class BankObjectScreen extends StatelessWidget {
   }
 }
 
+class _CreditLimitForm extends StatefulWidget {
+  const _CreditLimitForm({required this.projectId, required this.onSaved});
+
+  final String projectId;
+  final Future<void> Function() onSaved;
+
+  @override
+  State<_CreditLimitForm> createState() => _CreditLimitFormState();
+}
+
+class _CreditLimitFormState extends State<_CreditLimitForm> {
+  final _limit = TextEditingController();
+  final _until = TextEditingController();
+  String? _error;
+
+  @override
+  void dispose() {
+    _limit.dispose();
+    _until.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Tx.of(context);
+    return IBuildCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(t('Кредитный лимит', 'Credit limit', 'Kredit limiti'), style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            key: const Key('credit-limit'),
+            controller: _limit,
+            decoration: InputDecoration(labelText: t('Сумма лимита', 'Limit amount', 'Limit summasi')),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            key: const Key('credit-until'),
+            controller: _until,
+            decoration: InputDecoration(labelText: t('Срок освоения, ГГГГ-ММ-ДД', 'Drawdown until, YYYY-MM-DD', 'O‘zlashtirish muddati, YYYY-MM-DD')),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(_error!, style: TextStyle(color: context.colors.danger)),
+          ],
+          const SizedBox(height: AppSpacing.md),
+          PrimaryButton(
+            key: const Key('credit-limit-save'),
+            label: t('Сохранить лимит', 'Save the limit', 'Limitni saqlash'),
+            onPressed: () async {
+              try {
+                await SessionScope.of(context).api.postJson('/api/bank/objects/${widget.projectId}/limit', {
+                  'creditLimit': _limit.text.trim(),
+                  if (_until.text.trim().isNotEmpty) 'utilizeUntil': _until.text.trim(),
+                });
+                if (mounted) setState(() => _error = null);
+                await widget.onSaved();
+              } on ApiException catch (error) {
+                if (mounted) setState(() => _error = error.message);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ObjectBody extends StatelessWidget {
   const _ObjectBody({required this.data, required this.reload});
 
@@ -173,6 +244,10 @@ class _ObjectBody extends StatelessWidget {
           Kpi(label: t('Остаток лимита', 'Limit left', 'Limit qoldig‘i'), value: bankAmount(context, object['left']), hint: unit),
           Kpi(label: t('Срок освоения', 'Drawdown until', 'O‘zlashtirish muddati'), value: until.isEmpty ? '—' : fmtDay(until)),
         ]),
+        if (SessionScope.of(context).user?.bank?.role == 'admin') ...[
+          const SizedBox(height: AppSpacing.md),
+          _CreditLimitForm(projectId: object.s('id'), onSaved: reload),
+        ],
         SectionTitle(t('Что требует внимания', 'What needs attention', 'Nima e’tibor talab qiladi')),
         IBuildCard(
           padding: EdgeInsets.zero,

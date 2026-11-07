@@ -1,0 +1,15 @@
+server/.dart_tool
+app/.dart_tool
+.git
+**/.DS_Store
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.prod.example
+backups
+server/data
+**/*.dump
+# The production image copies the Flutter release (app/build/web).
+# Other build output stays out of the context.
+app/build/*
+!app/build/web

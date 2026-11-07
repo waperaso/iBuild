@@ -43,7 +43,11 @@ void main() {
       size: const Size(390, 900),
     );
     await openDemoProject(tester);
-    await tester.scrollUntilVisible(find.byKey(const Key('budget-cards')), 200);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('budget-cards')),
+      200,
+      scrollable: find.ancestor(of: find.byKey(const Key('budget-cards')), matching: find.byType(Scrollable)).first,
+    );
     expect(find.byKey(const Key('budget-cards')), findsOneWidget);
     expect(find.byKey(const Key('budget-table')), findsNothing);
     expect(find.byKey(const Key('add-budget-line')), findsNothing);

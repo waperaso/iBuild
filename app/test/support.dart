@@ -44,6 +44,8 @@ class FakeApi implements Api {
   List<ProjectSummary> stored;
   List<BudgetLine> lines;
   List<ProjectMember> storedMembers;
+  List<CompanyUser> storedCompanyUsers = const [];
+  ({String projectId, String userId, String role, String? firm})? addedMember;
   List<ContractorFirm> storedFirms;
   bool rejectPassword;
   String? deletedLineId;
@@ -144,7 +146,7 @@ class FakeApi implements Api {
   Future<List<ContractorFirm>> firms() async => storedFirms;
 
   @override
-  Future<List<CompanyUser>> companyUsers() async => const [];
+  Future<List<CompanyUser>> companyUsers() async => storedCompanyUsers;
 
   @override
   Future<void> createBudgetLine({
@@ -214,7 +216,9 @@ class FakeApi implements Api {
     required String userId,
     required String role,
     String? contractorFirmId,
-  }) async {}
+  }) async {
+    addedMember = (projectId: projectId, userId: userId, role: role, firm: contractorFirmId);
+  }
 
   @override
   Future<List<FundingRequest>> requests() async => [_draft];

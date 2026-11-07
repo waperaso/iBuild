@@ -46,7 +46,9 @@ void main() {
     expect(find.text('Документы'), findsWidgets);
     expect(find.text('Участники'), findsWidgets);
     expect(find.text('Бетон'), findsOneWidget);
-    expect(find.text('hard'), findsOneWidget);
+    expect(find.text('Стройка'), findsOneWidget);
+    expect(find.text('hard'), findsNothing);
+    expect(find.textContaining('готово —%'), findsNothing);
     expect(find.text('600.00 UZS'), findsWidgets);
     await tester.tap(find.byKey(const Key('project-tab-1')));
     await tester.pumpAndSettle();

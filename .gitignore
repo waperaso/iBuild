@@ -12,27 +12,10 @@ data/
 backups/
 .DS_Store
 .env.prod
+deploy/secrets/
 
 # Screenshots and demo captures
 demo-week/
 docs/screens/
 *.screenshot.png
 screenshots/
-
-# Private: backend, database, deployment, tests, internal docs
-server/
-deploy/
-scripts/
-backups/
-*.sql
-.env*
-docker-compose*.yml
-docs/api.md
-docs/daily/
-docs/production*.md
-docs/security-matrix.md
-docs/development*.md
-docs/week-*.md
-docs/estimate*.md
-docs/presentation*.md
-docs/promo*.md

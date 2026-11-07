@@ -77,7 +77,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
   Widget build(BuildContext context) {
     final session = SessionScope.of(context);
     final copy = LocaleScope.copy(context);
-    if (!_ready) return const SizedBox.expand();
+    if (!_ready) return const ScreenScroll(children: [PageWait()]);
     final projects = <String, String>{
       for (final project in session.projects) project.id: project.name,
       for (final item in _requests) item.projectId: item.projectName,
@@ -179,11 +179,11 @@ class _RequestsScreenState extends State<RequestsScreen> {
           DropdownButtonFormField<String>(
             key: const Key('request-project-filter'),
             initialValue: projects.containsKey(_projectId) ? _projectId! : '',
+            isExpanded: true,
             decoration: InputDecoration(labelText: copy.projects),
             items: [
-              DropdownMenuItem(value: '', child: Text(copy.allProjects)),
-              for (final entry in projects.entries)
-                DropdownMenuItem(value: entry.key, child: Text(entry.value)),
+              menuLine('', copy.allProjects),
+              for (final entry in projects.entries) menuLine(entry.key, entry.value),
             ],
             onChanged: (value) => setState(() {
               _projectId = value == null || value.isEmpty ? null : value;

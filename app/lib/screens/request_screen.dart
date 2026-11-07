@@ -501,7 +501,7 @@ class _RequestScreenState extends State<RequestScreen> {
   @override
   Widget build(BuildContext context) {
     if (!_ready || _request == null && _error == null) {
-      return const SizedBox.expand();
+      return const ScreenScroll(children: [PageWait()]);
     }
     final copy = LocaleScope.copy(context);
     final request = _request;
@@ -590,13 +590,11 @@ class _RequestScreenState extends State<RequestScreen> {
                   DropdownButtonFormField<String>(
                     key: ValueKey('draft-line-$_lineId'),
                     initialValue: _lineId,
+                    isExpanded: true,
                     decoration: InputDecoration(labelText: copy.lineTitle),
                     items: [
                       for (final line in _lines)
-                        DropdownMenuItem(
-                          value: line.id,
-                          child: Text('${line.title} · ${moneyUzs(line.amount)}'),
-                        ),
+                        menuLine(line.id, '${line.title} · ${moneyUzs(line.amount)}'),
                     ],
                     onChanged: (value) => setState(() => _lineId = value),
                   ),

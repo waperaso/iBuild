@@ -53,9 +53,9 @@ class DocumentsPage extends StatelessWidget {
               children: [
                 Text(LocaleScope.copy(context).place(data.project.name), style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: AppSpacing.sm),
-                Text(data.project.address),
+                Text(addressText(data.project.address)),
                 const SizedBox(height: AppSpacing.lg),
-                ObjectPassport(project: data.project, documents: data.documents),
+                ObjectPassport(project: data.project, documents: data.documents, documentsHeading: false),
               ],
             ),
           ),
@@ -78,6 +78,7 @@ class PeoplePage extends StatelessWidget {
         project: data.project,
         members: data.members,
         firms: data.firms,
+        showTitle: false,
         onChanged: reload,
       ),
     );
@@ -197,7 +198,7 @@ class _ProjectPageState extends State<_ProjectPage> {
           ),
         ]
         else if (_loading)
-          const SizedBox.shrink()
+          const PageWait()
         else if (_error != null)
           Text(copy.known(_error!))
         else

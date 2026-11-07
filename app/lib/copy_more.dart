@@ -66,11 +66,59 @@ extension MoreCopy on AppCopy {
     'Pul qayerdan keladi va nimaga ketadi',
   ));
   String get sources => _t(('Откуда деньги', 'Where the money comes from', 'Pul qayerdan keladi'));
+
+  String sourceKind(String kind) {
+    return switch (kind) {
+      'loan' => _t(('Кредит', 'Loan', 'Kredit')),
+      'equity' => _t(('Свои деньги', 'Own money', 'O‘z mablag‘i')),
+      'escrow' => _t(('Эскроу', 'Escrow', 'Eskrou')),
+      _ => kind,
+    };
+  }
   String get uses => _t(('Виды работ', 'Work items', 'Ish turlari'));
-  String holdback(String percent, String done) => _t((
-    'Придерживаем $percent% до конца работ · готово $done%',
-    'Holding back $percent% until the work ends · $done% done',
-    'Ish tugaguncha $percent% ushlab turiladi · tayyorlik $done%',
+  String costKind(String kind) {
+    return switch (kind) {
+      'hard' => _t(('Стройка', 'Construction', 'Qurilish')),
+      'soft' => _t(('Прочие расходы', 'Other costs', 'Boshqa xarajatlar')),
+      'contingency' => _t(('Резерв', 'Reserve', 'Zaxira')),
+      '' => '',
+      _ => kind,
+    };
+  }
+
+  String holdback(String percent, String done) {
+    final keep = _t((
+      'Придерживаем $percent% до конца работ',
+      'Holding back $percent% until the work ends',
+      'Ish tugaguncha $percent% ushlab turiladi',
+    ));
+    if (done.trim().isEmpty || done.trim() == '—') return keep;
+    return _t((
+      'Придерживаем $percent% до конца работ · готово $done%',
+      'Holding back $percent% until the work ends · $done% done',
+      'Ish tugaguncha $percent% ushlab turiladi · tayyorlik $done%',
+    ));
+  }
+
+  String get connectBank => _t(('Подключить банк', 'Connect a bank', 'Bankni ulash'));
+  String get bankInn => _t(('ИНН банка', 'Bank tax ID', 'Bank STIR'));
+  String get setCreditLimit => _t(('Назначить кредитный лимит', 'Set the credit limit', 'Kredit limitini belgilash'));
+  String get addLineNeedsFirm => _t((
+    'Сначала добавьте подрядчика. Вид работ всегда закреплён за подрядчиком.',
+    'Add a contractor first. A work item always belongs to a contractor.',
+    'Avval pudratchi qo‘shing. Ish turi doim pudratchiga biriktiriladi.',
+  ));
+
+  String get noSourcesDirector => _t((
+    'На объекте ещё нет источников денег. Добавьте источник в бюджете объекта, затем отправьте транш.',
+    'This project has no money sources yet. Add a source in the project budget, then send the tranche.',
+    'Obyektda hali pul manbalari yo‘q. Manbani obyekt byudjetiga qo‘shing, so‘ng transhni yuboring.',
+  ));
+
+  String get noSourcesOther => _t((
+    'Источники денег задаёт застройщик в бюджете объекта. Попросите добавить источник, затем отправьте транш.',
+    'The developer sets money sources in the project budget. Ask them to add a source, then send the tranche.',
+    'Pul manbalarini obyekt byudjetida quruvchi belgilaydi. Manba qo‘shishni so‘rang, so‘ng transhni yuboring.',
   ));
   String get gridOriginal => _t(('Первоначально', 'Originally', 'Dastlab'));
   String get gridChanges => _t(('Изменения', 'Changes', 'O‘zgarishlar'));

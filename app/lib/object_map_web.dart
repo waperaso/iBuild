@@ -3,6 +3,7 @@ import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 
+import 'object_map_url.dart';
 import 'theme.dart';
 
 final _maps = <String>{};
@@ -17,11 +18,7 @@ class ObjectMap extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewType = 'object-map-$latitude-$longitude';
     if (_maps.add(viewType)) {
-    final pad = 0.008;
-    final lat = double.tryParse(latitude) ?? 0;
-    final lon = double.tryParse(longitude) ?? 0;
-    final src =
-        'https://www.openstreetmap.org/export/embed.html?bbox=${lon - pad}%2C${lat - pad}%2C${lon + pad}%2C${lat + pad}&layer=mapnik&marker=$latitude%2C$longitude';
+    final src = objectMapEmbedUrl(latitude, longitude);
     ui_web.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
       return web.HTMLIFrameElement()
         ..src = src

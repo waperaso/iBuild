@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ibuild
+      POSTGRES_PASSWORD: ibuild
+      POSTGRES_DB: ibuild
+    ports:
+      - "5433:5432"
+    volumes:
+      - ibuild_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ibuild -d ibuild"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    environment:
+      DATABASE_URL: postgres://ibuild:ibuild@db:5432/ibuild?sslmode=disable
+      SEED_ON_START: "true"
+      DEMO_ENABLED: "true"
+      SEED_PASSWORD: ${SEED_PASSWORD:?Задайте SEED_PASSWORD в файле .env рядом с docker-compose.yml}
+      WEB_ROOT: /app/web
+      PORT: "8080"
+      HOST: 0.0.0.0
+      COOKIE_SECURE: "false"
+      MIGRATIONS_DIR: /app/migrations
+      FILE_ROOT: /app/data/files
+      MAIL_KEY: ${MAIL_KEY:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_SSL: ${SMTP_SSL:-false}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app/build/web:/app/web:ro
+      - ibuild_files:/app/data/files
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  ibuild_pg: {}
+  ibuild_files: {}

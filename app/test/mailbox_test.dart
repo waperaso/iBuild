@@ -101,7 +101,16 @@ void main() {
       ..jsonAnswers['/api/admin/users'] = {'items': <dynamic>[], 'ok': true, 'password': 'Zq7wLm2PxK9tRb'}
       ..jsonAnswers['/api/admin/companies'] = {
         'items': [
-          {'id': 'co1', 'name': 'Застройщик', 'kind': 'developer'},
+          {
+            'id': 'co1',
+            'name': 'Застройщик',
+            'kind': 'developer',
+            'projects': [
+              {'id': 'p1', 'name': 'ЖК Навои'},
+              {'id': 'p2', 'name': 'ЖК Чиланзар'},
+            ],
+            'firms': <Map<String, dynamic>>[],
+          },
         ],
       };
     await pumpIBuildWith(tester, api);
@@ -115,14 +124,24 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('create-name')), 'Новый Человек');
     await tester.enterText(find.byKey(const Key('create-login')), 'new.man');
-    await tester.tap(find.byKey(const Key('create-role')));
+    expect(find.byKey(const Key('create-role')), findsNothing);
+    expect(find.byKey(const Key('create-access-note')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('create-project-p1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('create-role-p1')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Технадзор').last);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('create-confirm')));
     await tester.pumpAndSettle();
     final sent = api.jsonCalls.lastWhere((c) => c.$1 == '/api/admin/users' && c.$2 != null).$2!;
-    expect(sent, {'companyId': 'co1', 'name': 'Новый Человек', 'login': 'new.man', 'role': 'tech'});
+    expect(sent['companyId'], 'co1');
+    expect(sent['name'], 'Новый Человек');
+    expect(sent['login'], 'new.man');
+    expect(sent.containsKey('role'), isFalse);
+    expect(sent['assignments'], [
+      {'projectId': 'p1', 'role': 'tech'},
+    ]);
     expect(find.text('Zq7wLm2PxK9tRb'), findsOneWidget);
   });
 }

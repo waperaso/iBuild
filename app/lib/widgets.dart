@@ -160,6 +160,35 @@ class StatusText extends StatelessWidget {
 
 enum StatusTone { neutral, good, wait, bad }
 
+/// Keeps a trailing house number on the same line as the street.
+String addressText(String address) {
+  return address.replaceAllMapped(
+    RegExp(r',\s+(\d[\dA-Za-zА-Яа-я/-]*)$'),
+    (match) => ',\u00A0${match[1]}',
+  );
+}
+
+/// A dropdown row that stays inside the field when the label is long.
+DropdownMenuItem<T> menuLine<T>(T value, String label) {
+  return DropdownMenuItem<T>(
+    value: value,
+    child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+  );
+}
+
+/// Shown while a screen is still asking the server, instead of a blank page.
+class PageWait extends StatelessWidget {
+  const PageWait({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
+      child: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
 final backLinkStyle = TextButton.styleFrom(
   padding: EdgeInsets.zero,
   minimumSize: Size.zero,

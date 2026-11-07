@@ -129,7 +129,9 @@ abstract class AppShadows {
 }
 
 abstract class AppTypography {
-  static const fontFamily = 'PlusJakartaSans';
+  /// Onest, one variable file, SIL OFL 1.1. Plus Jakarta Sans has no Cyrillic,
+  /// and CanvasKit does not use a system font once this family is set.
+  static const fontFamily = 'Onest';
 
   static TextTheme textTheme(Color ink) {
     final base = ThemeData.light().textTheme.apply(

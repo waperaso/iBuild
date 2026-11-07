@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import 'api.dart';
@@ -8,6 +9,14 @@ import 'router.dart';
 import 'session.dart';
 import 'session_scope.dart';
 import 'theme.dart';
+
+const _materialLocales = <Locale>[Locale('ru'), Locale('en'), Locale('uz')];
+
+const _materialDelegates = <LocalizationsDelegate<dynamic>>[
+  GlobalMaterialLocalizations.delegate,
+  GlobalWidgetsLocalizations.delegate,
+  GlobalCupertinoLocalizations.delegate,
+];
 
 class IBuildApp extends StatefulWidget {
   const IBuildApp({
@@ -42,6 +51,7 @@ class _IBuildAppState extends State<IBuildApp> {
     session = widget.session ?? SessionController(widget.api);
     session.addListener(_onSession);
     theme.addListener(_onSession);
+    locale.addListener(_onSession);
     if (widget.restoreOnStart && !session.ready) {
       session.restore();
     }
@@ -55,6 +65,7 @@ class _IBuildAppState extends State<IBuildApp> {
   void dispose() {
     session.removeListener(_onSession);
     theme.removeListener(_onSession);
+    locale.removeListener(_onSession);
     locale.dispose();
     theme.dispose();
     fx.dispose();
@@ -86,6 +97,9 @@ class _IBuildAppState extends State<IBuildApp> {
                 darkTheme: buildIBuildTheme(IBuildColors.dark),
                 themeMode: theme.mode,
                 themeAnimationDuration: Duration.zero,
+                locale: Locale(locale.language.name),
+                supportedLocales: _materialLocales,
+                localizationsDelegates: _materialDelegates,
                 routerConfig: _router!,
                 builder: (context, child) => Column(
                   children: [
@@ -101,6 +115,9 @@ class _IBuildAppState extends State<IBuildApp> {
                 darkTheme: buildIBuildTheme(IBuildColors.dark),
                 themeMode: theme.mode,
                 themeAnimationDuration: Duration.zero,
+                locale: Locale(locale.language.name),
+                supportedLocales: _materialLocales,
+                localizationsDelegates: _materialDelegates,
                 debugShowCheckedModeBanner: false,
                 home: const BootScreen(),
               ),
@@ -121,29 +138,65 @@ class _DemoStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final copy = LocaleScope.copy(context);
-    return Material(
-      key: const Key('demo-strip'),
-      color: colors.warning.withValues(alpha: 0.18),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
-          child: Row(
-            children: [
-              Icon(Icons.visibility_outlined, size: 18, color: colors.warning),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  copy.demoBanner,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(color: colors.ink),
-                ),
-              ),
-              TextButton(
-                key: const Key('demo-exit'),
-                onPressed: session.logout,
-                child: Text(copy.demoExit),
-              ),
-            ],
+    final status = Text(
+      copy.demoBanner,
+      key: const Key('demo-banner'),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.labelLarge?.copyWith(color: colors.ink),
+    );
+    final exit = TextButton(
+      key: const Key('demo-exit'),
+      style: TextButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        foregroundColor: colors.ink,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+      ),
+      onPressed: session.logout,
+      child: Text(copy.demoExit, maxLines: 1, overflow: TextOverflow.ellipsis),
+    );
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: Material(
+        key: const Key('demo-strip'),
+        color: Color.alphaBlend(colors.warning.withValues(alpha: 0.28), colors.surface),
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final icon = Icon(Icons.visibility_outlined, size: 18, color: colors.warning);
+                // A bank bar beside a narrow side rail used to squeeze this row
+                // until only the icon stayed on screen. Below 720 the exit drops
+                // to its own line so both the status and the way out stay visible.
+                if (constraints.maxWidth < 720) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          icon,
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(child: status),
+                        ],
+                      ),
+                      Align(alignment: Alignment.centerLeft, child: exit),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    icon,
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(child: status),
+                    exit,
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),

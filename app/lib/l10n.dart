@@ -301,14 +301,14 @@ class AppCopy {
   ));
   String get history => _t(('История', 'History', 'Tarix'));
   String get formForContractor => _t((
-    'Транш запрашивает застройщик',
-    'The developer requests the tranche',
-    'Transhni quruvchi so‘raydi',
+    'У вашей роли нет права создавать транш',
+    'Your role cannot create a tranche',
+    'Sizning rolingiz transh yarata olmaydi',
   ));
   String get formForContractorBody => _t((
-    'Банк только рассматривает транши и сам их не создаёт.',
-    'The bank only reviews tranches and does not create them.',
-    'Bank transhlarni faqat ko‘rib chiqadi, o‘zi yaratmaydi.',
+    'Откройте список траншей или очередь. Создавать транш могут застройщик и подрядчик.',
+    'Open the tranche list or the queue. A developer or a contractor can create a tranche.',
+    'Transhlar ro‘yxatini yoki navbatni oching. Transhni quruvchi yoki pudratchi yaratadi.',
   ));
   String get amountHelper => _t((
     'Сумма в сумах',
@@ -581,6 +581,7 @@ class LanguageSwitch extends StatelessWidget {
                   button: true,
                   selected: locale.language == language,
                   label: language.code,
+                  excludeSemantics: true,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,

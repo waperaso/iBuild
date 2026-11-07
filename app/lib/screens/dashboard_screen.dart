@@ -44,7 +44,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final session = SessionScope.of(context);
     final copy = LocaleScope.copy(context);
     final projects = session.projects;
-    final bank = session.user?.memberships.every((item) => item.role == AppRole.observer) == true;
     return ScreenScroll(
       children: [
         if (session.user?.isDirector == true)
@@ -57,7 +56,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         _Hub(
-          bank: bank,
           name: session.user?.name ?? 'iBuild',
           remainder: moneyUzs(moneySum(projects.map((item) => item.available))),
           reserved: moneyUzs(moneySum(projects.map((item) => item.reserved))),
@@ -119,7 +117,7 @@ class _QueueScreenState extends State<QueueScreen> {
         ),
         const SizedBox(height: AppSpacing.lg),
         if (_loading)
-          const SizedBox.shrink()
+          const PageWait()
         else if (_items.isEmpty)
           EmptyState(
             key: const Key('empty-queue'),
@@ -153,7 +151,6 @@ class _QueueScreenState extends State<QueueScreen> {
 
 class _Hub extends StatefulWidget {
   const _Hub({
-    required this.bank,
     required this.name,
     required this.remainder,
     required this.reserved,
@@ -163,7 +160,6 @@ class _Hub extends StatefulWidget {
     required this.empty,
   });
 
-  final bool bank;
   final String name;
   final String remainder;
   final String reserved;
@@ -194,22 +190,39 @@ class _HubState extends State<_Hub> {
   @override
   Widget build(BuildContext context) {
     final copy = LocaleScope.copy(context);
+    final user = SessionScope.of(context).user;
+    final canCreate = user?.isDirector == true || user?.isContractor == true;
     final shortcuts = [
-      _Shortcut(copy.askTranche, 'assets/tiles/tile_tranche.png', () => context.go(widget.bank ? '/requests' : '/requests/new')),
+      if (canCreate)
+        _Shortcut(
+          copy.askTranche,
+          'assets/tiles/tile_tranche.png',
+          () => context.go('/requests/new'),
+          key: const Key('home-ask-shortcut'),
+        )
+      else
+        _Shortcut(
+          copy.requests,
+          'assets/tiles/tile_tranche.png',
+          () => context.go('/requests'),
+          key: const Key('home-tranche-shortcut'),
+        ),
       _Shortcut(copy.budget, 'assets/tiles/tile_plan.png', () => context.go('/budget')),
       _Shortcut(copy.projects, 'assets/tiles/tile_object.png', () => context.go('/projects')),
       _Shortcut(copy.inspections, 'assets/tiles/tile_inspection.png', () => context.go('/inspections')),
       _Shortcut(copy.documents, 'assets/tiles/tile_documents.png', () => context.go('/documents')),
       _Shortcut(copy.queue, 'assets/tiles/tile_queue.png', () => context.go('/queue')),
     ].where((item) => _hit(item.title)).toList();
-    final ask = widget.bank ? '/requests' : '/requests/new';
     final spheres = [
       _Sphere(
         copy.requests,
         Icons.receipt_long_outlined,
         '/requests',
         [
-          _SphereLink(copy.askTranche, ask),
+          if (canCreate)
+            _SphereLink(copy.askTranche, '/requests/new', key: const Key('home-ask-link'))
+          else
+            _SphereLink(copy.requests, '/requests', key: const Key('home-tranche-link')),
           _SphereLink(copy.queue, '/queue'),
         ],
       ),
@@ -286,17 +299,33 @@ class _HubState extends State<_Hub> {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        SizedBox(
-          height: 132,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: shortcuts.length,
-            separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.md),
-            itemBuilder: (context, index) {
-              final item = shortcuts[index];
-              return SizedBox(width: 148, child: _ShortcutCard(item: item));
-            },
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth < 560) {
+              const gap = AppSpacing.md;
+              final width = (constraints.maxWidth - gap) / 2;
+              return Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                children: [
+                  for (final item in shortcuts)
+                    SizedBox(width: width, height: 112, child: _ShortcutCard(item: item)),
+                ],
+              );
+            }
+            return SizedBox(
+              height: 132,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: shortcuts.length,
+                separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.md),
+                itemBuilder: (context, index) {
+                  final item = shortcuts[index];
+                  return SizedBox(width: 148, child: _ShortcutCard(item: item));
+                },
+              ),
+            );
+          },
         ),
         const SizedBox(height: AppSpacing.lg),
         LayoutBuilder(
@@ -365,10 +394,11 @@ class _HubState extends State<_Hub> {
 }
 
 class _Shortcut {
-  const _Shortcut(this.title, this.asset, this.onTap);
+  const _Shortcut(this.title, this.asset, this.onTap, {this.key});
   final String title;
   final String asset;
   final VoidCallback onTap;
+  final Key? key;
 }
 
 class _ShortcutCard extends StatelessWidget {
@@ -381,6 +411,7 @@ class _ShortcutCard extends StatelessWidget {
     return IBuildCard(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: GestureDetector(
+        key: item.key,
         onTap: item.onTap,
         behavior: HitTestBehavior.opaque,
         child: Column(
@@ -401,9 +432,10 @@ class _ShortcutCard extends StatelessWidget {
 }
 
 class _SphereLink {
-  const _SphereLink(this.label, this.location);
+  const _SphereLink(this.label, this.location, {this.key});
   final String label;
   final String location;
+  final Key? key;
 }
 
 class _Sphere {
@@ -464,6 +496,7 @@ class _SphereCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           for (final link in sphere.links)
             TextButton(
+              key: link.key,
               style: linkStyle,
               onPressed: () => _open(context, link.location),
               child: Text(link.label, maxLines: 1, overflow: TextOverflow.ellipsis),

@@ -278,57 +278,154 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     final login = TextEditingController();
     String? company = widget.company.isNotEmpty && companies.any((c) => c.s('id') == widget.company) ? widget.company : null;
     String? role;
+    final chosen = <String, String>{};
+    final chosenFirm = <String, String>{};
+    String? formError;
     final result = await showPlainDialog<Map<String, Object?>>(
       context: context,
       builder: (context) => StatefulBuilder(builder: (context, setLocal) {
-        final bank = companies.where((c) => c.s('id') == company).any((c) => c.s('kind') == 'bank');
-        final roles = bank
-            ? [
-                ('specialist', t('Специалист', 'Specialist', 'Mutaxassis')),
-                ('expert', t('Эксперт', 'Expert', 'Ekspert')),
-                ('head', t('Руководитель', 'Head', 'Rahbar')),
-                ('committee', t('Член комитета', 'Committee member', 'Qo‘mita a’zosi')),
-                ('risk', t('Риск-менеджер', 'Risk manager', 'Risk menejeri')),
-                ('audit', t('Аудит', 'Audit', 'Audit')),
-                ('admin', t('Администратор банка', 'Bank administrator', 'Bank administratori')),
-              ]
-            : [
-                ('director', t('Директор', 'Director', 'Direktor')),
-                ('tech', t('Технадзор', 'Technical supervisor', 'Texnik nazorat')),
-                ('observer', t('Наблюдатель', 'Observer', 'Kuzatuvchi')),
-              ];
-        if (role != null && !roles.any((r) => r.$1 == role)) role = null;
+        final selected = companies.where((c) => c.s('id') == company);
+        final bank = selected.any((c) => c.s('kind') == 'bank');
+        final projects = selected.isEmpty ? const <Map<String, dynamic>>[] : selected.first.list('projects');
+        final firms = selected.isEmpty ? const <Map<String, dynamic>>[] : selected.first.list('firms');
+        final roles = [
+          ('director', t('Застройщик', 'Developer', 'Quruvchi')),
+          ('developer', t('Полный доступ', 'Full access', 'To‘liq kirish')),
+          ('tech', t('Технадзор', 'Technical supervisor', 'Texnik nazorat')),
+          ('observer', t('Банк', 'Bank', 'Bank')),
+          ('contractor', t('Подрядчик', 'Contractor', 'Pudratchi')),
+        ];
+        final bankRoles = [
+          ('specialist', t('Специалист', 'Specialist', 'Mutaxassis')),
+          ('expert', t('Эксперт', 'Expert', 'Ekspert')),
+          ('head', t('Руководитель', 'Head', 'Rahbar')),
+          ('committee', t('Член комитета', 'Committee member', 'Qo‘mita a’zosi')),
+          ('risk', t('Риск-менеджер', 'Risk manager', 'Risk menejeri')),
+          ('audit', t('Аудит', 'Audit', 'Audit')),
+          ('admin', t('Администратор банка', 'Bank administrator', 'Bank administratori')),
+        ];
+        if (role != null && bank && !bankRoles.any((r) => r.$1 == role)) role = null;
         return AlertDialog(
           title: Text(t('Новый аккаунт', 'New account', 'Yangi hisob')),
           content: SizedBox(
-            width: 380,
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              DropdownButtonFormField<String>(
-                key: const Key('create-company'),
-                initialValue: company,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: t('Организация', 'Organisation', 'Tashkilot')),
-                items: [for (final c in companies) DropdownMenuItem(value: c.s('id'), child: Text(c.s('name'), overflow: TextOverflow.ellipsis))],
-                onChanged: (value) => setLocal(() => company = value),
+            width: 440,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 480),
+              child: SingleChildScrollView(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  DropdownButtonFormField<String>(
+                    key: const Key('create-company'),
+                    initialValue: company,
+                    isExpanded: true,
+                    decoration: InputDecoration(labelText: t('Организация', 'Organisation', 'Tashkilot')),
+                    items: [for (final c in companies) DropdownMenuItem(value: c.s('id'), child: Text(c.s('name'), overflow: TextOverflow.ellipsis))],
+                    onChanged: (value) => setLocal(() {
+                      company = value;
+                      role = null;
+                      chosen.clear();
+                      chosenFirm.clear();
+                      formError = null;
+                    }),
+                  ),
+                  TextField(key: const Key('create-name'), controller: name, decoration: InputDecoration(labelText: t('Имя', 'Name', 'Ism'))),
+                  TextField(key: const Key('create-login'), controller: login, decoration: InputDecoration(labelText: t('Логин или email', 'Login or email', 'Login yoki email'))),
+                  if (bank)
+                    DropdownButtonFormField<String>(
+                      key: const Key('create-role'),
+                      initialValue: role,
+                      isExpanded: true,
+                      decoration: InputDecoration(labelText: t('Роль в банке', 'Role in the bank', 'Bankdagi rol')),
+                      items: [for (final r in bankRoles) DropdownMenuItem(value: r.$1, child: Text(r.$2))],
+                      onChanged: (value) => setLocal(() => role = value),
+                    )
+                  else ...[
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      projects.isEmpty
+                          ? t('У этой организации пока нет объектов. Аккаунт будет создан без доступа к стройкам.', 'This organisation has no projects yet. The account is created without access to a site.', 'Bu tashkilotda hali obyekt yo‘q. Hisob qurilishlarga kirishsiz yaratiladi.')
+                          : t('Отметьте объекты и выберите роль на каждом. Неотмеченный объект остаётся закрытым.', 'Tick the projects and choose a role on each one. An unticked project stays closed.', 'Obyektlarni belgilang va har birida rolni tanlang. Belgilanmagan obyekt yopiq qoladi.'),
+                      key: const Key('create-access-note'),
+                    ),
+                    for (final project in projects) ...[
+                      CheckboxListTile(
+                        key: Key('create-project-${project.s('id')}'),
+                        contentPadding: EdgeInsets.zero,
+                        value: chosen.containsKey(project.s('id')),
+                        title: Text(project.s('name')),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        onChanged: (value) => setLocal(() {
+                          formError = null;
+                          if (value == true) {
+                            chosen[project.s('id')] = '';
+                          } else {
+                            chosen.remove(project.s('id'));
+                            chosenFirm.remove(project.s('id'));
+                          }
+                        }),
+                      ),
+                      if (chosen.containsKey(project.s('id'))) ...[
+                        DropdownButtonFormField<String>(
+                          key: Key('create-role-${project.s('id')}'),
+                          initialValue: chosen[project.s('id')]!.isEmpty ? null : chosen[project.s('id')],
+                          isExpanded: true,
+                          decoration: InputDecoration(labelText: t('Роль на этом объекте', 'Role on this project', 'Shu obyektdagi rol')),
+                          items: [for (final r in roles) DropdownMenuItem(value: r.$1, child: Text(r.$2))],
+                          onChanged: (value) => setLocal(() => chosen[project.s('id')] = value ?? ''),
+                        ),
+                        if (chosen[project.s('id')] == 'contractor')
+                          DropdownButtonFormField<String>(
+                            key: Key('create-firm-${project.s('id')}'),
+                            initialValue: chosenFirm[project.s('id')],
+                            isExpanded: true,
+                            decoration: InputDecoration(labelText: t('Компания подрядчика', 'Contractor company', 'Pudratchi kompaniyasi')),
+                            items: [for (final firm in firms) DropdownMenuItem(value: firm.s('id'), child: Text(firm.s('name'), overflow: TextOverflow.ellipsis))],
+                            onChanged: (value) => setLocal(() => chosenFirm[project.s('id')] = value ?? ''),
+                          ),
+                      ],
+                    ],
+                  ],
+                  if (formError != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    Text(formError!, key: const Key('create-error')),
+                  ],
+                ]),
               ),
-              TextField(key: const Key('create-name'), controller: name, decoration: InputDecoration(labelText: t('Имя', 'Name', 'Ism'))),
-              TextField(key: const Key('create-login'), controller: login, decoration: InputDecoration(labelText: t('Логин или email', 'Login or email', 'Login yoki email'))),
-              DropdownButtonFormField<String>(
-                key: const Key('create-role'),
-                initialValue: role,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: t('Роль', 'Role', 'Rol')),
-                items: [for (final r in roles) DropdownMenuItem(value: r.$1, child: Text(r.$2))],
-                onChanged: (value) => setLocal(() => role = value),
-              ),
-            ]),
+            ),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(t('Отмена', 'Cancel', 'Bekor qilish'))),
             PrimaryButton(
               key: const Key('create-confirm'),
               label: t('Создать', 'Create', 'Yaratish'),
-              onPressed: () => Navigator.of(context).pop({'companyId': company, 'name': name.text.trim(), 'login': login.text.trim(), 'role': role}),
+              onPressed: () {
+                if (!bank) {
+                  for (final entry in chosen.entries) {
+                    if (entry.value.isEmpty) {
+                      setLocal(() => formError = t('Выберите роль на каждом отмеченном объекте.', 'Choose a role on every ticked project.', 'Belgilangan har bir obyektda rolni tanlang.'));
+                      return;
+                    }
+                    if (entry.value == 'contractor' && (chosenFirm[entry.key] ?? '').isEmpty) {
+                      setLocal(() => formError = t('Для подрядчика выберите его компанию.', 'For a contractor, choose their company.', 'Pudratchi uchun uning kompaniyasini tanlang.'));
+                      return;
+                    }
+                  }
+                }
+                Navigator.of(context).pop({
+                  'companyId': company,
+                  'name': name.text.trim(),
+                  'login': login.text.trim(),
+                  if (bank) 'role': role,
+                  if (!bank)
+                    'assignments': [
+                      for (final entry in chosen.entries)
+                        {
+                          'projectId': entry.key,
+                          'role': entry.value,
+                          if (entry.value == 'contractor') 'contractorFirmId': chosenFirm[entry.key] ?? '',
+                        },
+                    ],
+                });
+              },
             ),
           ],
         );

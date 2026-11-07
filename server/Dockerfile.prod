@@ -1,0 +1,37 @@
+# Production image: the API is compiled ahead of time and runs without root.
+# Build the web client first, from the repo root:
+#   (cd app && flutter build web --release --no-web-resources-cdn)
+# .dockerignore keeps app/build/web in the context and drops the rest of app/build.
+FROM dart:stable AS build
+WORKDIR /src
+COPY server/pubspec.yaml server/pubspec.lock ./
+RUN dart pub get
+COPY server/ ./
+RUN dart pub get --offline \
+ && mkdir -p /out \
+ && dart compile exe bin/server.dart -o /out/server \
+ && dart compile exe bin/operator.dart -o /out/operator
+
+FROM debian:stable-slim
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates curl \
+ && rm -rf /var/lib/apt/lists/* \
+ && useradd --system --uid 10001 --home /app ibuild \
+ && mkdir -p /app/data/files /app/web \
+ && chown -R ibuild /app/data
+WORKDIR /app
+COPY --from=build /out/server /out/operator /app/bin/
+COPY server/migrations /app/migrations
+COPY server/assets /app/assets
+COPY app/build/web /app/web
+ENV APP_ENV=production \
+    MIGRATIONS_DIR=/app/migrations \
+    WEB_ROOT=/app/web \
+    FILE_ROOT=/app/data/files \
+    HOST=0.0.0.0 \
+    PORT=8080
+USER ibuild
+EXPOSE 8080
+HEALTHCHECK --interval=15s --timeout=3s --retries=5 \
+  CMD curl -fsS http://127.0.0.1:8080/api/ready || exit 1
+CMD ["/app/bin/server"]

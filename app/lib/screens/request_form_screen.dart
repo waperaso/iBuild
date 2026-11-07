@@ -218,13 +218,11 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                 if (_projects.length > 1) ...[
                   DropdownButtonFormField<String>(
                     initialValue: _projectId,
+                    isExpanded: true,
                     decoration: InputDecoration(labelText: copy.projects),
                     items: [
                       for (final project in _projects)
-                        DropdownMenuItem(
-                          value: project.id,
-                          child: Text(copy.place(project.name)),
-                        ),
+                        menuLine(project.id, copy.place(project.name)),
                     ],
                     onChanged: (value) {
                       if (value == null) return;
@@ -248,15 +246,11 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                   DropdownButtonFormField<String>(
                     key: const Key('request-line'),
                     initialValue: _lineId,
+                    isExpanded: true,
                     decoration: InputDecoration(labelText: copy.whatFor),
                     items: [
                       for (final item in _lines)
-                        DropdownMenuItem(
-                          value: item.id,
-                          child: Text(
-                            '${item.title} · ${moneyUzs(item.amount)}',
-                          ),
-                        ),
+                        menuLine(item.id, '${item.title} · ${moneyUzs(item.amount)}'),
                     ],
                     onChanged: (value) => setState(() => _lineId = value),
                   ),

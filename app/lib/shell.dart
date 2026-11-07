@@ -241,46 +241,53 @@ class _PhoneBar extends StatelessWidget {
         AppSpacing.sm,
         AppSpacing.sm,
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const BrandMark(size: 36),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user?.name ?? 'iBuild',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium,
+          Row(
+            children: [
+              const BrandMark(size: 36),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user?.name ?? 'iBuild',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      user == null
+                          ? copy.tagline
+                          : '${copy.rolesOf(user)} · ${user.companyName}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+                    ),
+                  ],
                 ),
-                Text(
-                  user == null
-                      ? copy.tagline
-                      : '${copy.rolesOf(user)} · ${user.companyName}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: colors.inkMuted),
-                ),
-              ],
-            ),
+              ),
+              IconButton(
+                key: const Key('password-button'),
+                tooltip: copy.pick('Сменить пароль', 'Change password', 'Parolni almashtirish'),
+                onPressed: () => context.go('/password'),
+                icon: const Icon(Icons.key_outlined),
+              ),
+              IconButton(
+                key: const Key('logout-button'),
+                tooltip: copy.signOut,
+                onPressed: session.logout,
+                icon: const Icon(Icons.logout),
+              ),
+            ],
           ),
-          const _ThemeButton(),
-          const LanguageSwitch(),
-          IconButton(
-            key: const Key('password-button'),
-            tooltip: copy.pick('Сменить пароль', 'Change password', 'Parolni almashtirish'),
-            onPressed: () => context.go('/password'),
-            icon: const Icon(Icons.key_outlined),
-          ),
-          IconButton(
-            key: const Key('logout-button'),
-            tooltip: copy.signOut,
-            onPressed: session.logout,
-            icon: const Icon(Icons.logout),
+          const Row(
+            children: [
+              _ThemeButton(),
+              LanguageSwitch(),
+            ],
           ),
         ],
       ),
@@ -549,11 +556,13 @@ class _NavList extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.sm),
-          child: Row(
-            children: [
-              for (final item in items)
-                Expanded(child: _NavButton(spec: item, pill: true)),
-            ],
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final item in items) _NavButton(spec: item, pill: true),
+              ],
+            ),
           ),
         ),
       ),
@@ -609,29 +618,38 @@ class _TopBar extends StatelessWidget {
             : LayoutBuilder(
                 builder: (context, constraints) {
                   final showAll = !compact && constraints.maxWidth >= 860;
-                  return Row(
+                  final name = Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              copy.place(project.name),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              project.address,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: colors.inkMuted,
-                              ),
-                            ),
-                          ],
+                      Text(
+                        copy.place(project.name),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        addressText(project.address),
+                        maxLines: compact ? 2 : 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colors.inkMuted,
                         ),
                       ),
+                    ],
+                  );
+                  if (compact) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        name,
+                        const SizedBox(height: AppSpacing.sm),
+                        _BarMoney(label: copy.available, value: project.available),
+                      ],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      Expanded(child: name),
                       if (showAll) ...[
                         _BarMoney(label: copy.plan, value: project.plan),
                         _BarMoney(label: copy.reserved, value: project.reserved),
@@ -730,7 +748,6 @@ Widget _bankBar(BuildContext context, BankProfile bank) {
     bankAmount(context, bank.waitingAmount),
     bankUnit(context),
   );
-  final narrow = MediaQuery.sizeOf(context).width < kPhoneBreakpoint;
   final heading = Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -743,23 +760,30 @@ Widget _bankBar(BuildContext context, BankProfile bank) {
       ),
     ],
   );
-  final waiting = Column(
-    crossAxisAlignment: narrow ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-    children: [
-      Text(
-        copy.bankWaiting,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.inkMuted),
-      ),
-      Text(summary, key: const Key('bank-queue-summary')),
-    ],
-  );
+  Widget waiting({required bool stacked}) {
+    return Column(
+      crossAxisAlignment: stacked ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      children: [
+        Text(
+          copy.bankWaiting,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+        ),
+        Text(summary, key: const Key('bank-queue-summary'), maxLines: 2, overflow: TextOverflow.ellipsis),
+      ],
+    );
+  }
   return Material(
     key: const Key('bank-topbar'),
     color: colors.surface,
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-      child: narrow
-          ? Column(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // The window can be wider than this bar: a side rail already took
+          // its share. Stack the figures when the bar itself is short.
+          final stacked = constraints.maxWidth < 640;
+          if (stacked) {
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -771,18 +795,24 @@ Widget _bankBar(BuildContext context, BankProfile bank) {
                 ),
                 if (onQueue) ...[
                   const SizedBox(height: AppSpacing.md),
-                  waiting,
+                  waiting(stacked: true),
                 ],
               ],
-            )
-          : Row(
-              children: [
-                const _CurrencySwitch(),
-                const SizedBox(width: AppSpacing.lg),
-                Expanded(child: heading),
-                if (onQueue) waiting,
-              ],
-            ),
+            );
+          }
+          return Row(
+            children: [
+              const _CurrencySwitch(),
+              const SizedBox(width: AppSpacing.lg),
+              Expanded(child: heading),
+              if (onQueue)
+                Flexible(
+                  child: Align(alignment: Alignment.centerRight, child: waiting(stacked: false)),
+                ),
+            ],
+          );
+        },
+      ),
     ),
   );
 }
@@ -1184,6 +1214,16 @@ class _NavButton extends StatelessWidget {
   final bool onDark;
   final bool iconsOnly;
 
+  Widget _navIcon(Color foreground) {
+    final icon = Icon(spec.icon, size: 22, color: foreground);
+    if (spec.badge == null) return icon;
+    return Badge(
+      key: spec.badgeKey,
+      label: Text(spec.badge!),
+      child: icon,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -1203,20 +1243,29 @@ class _NavButton extends StatelessWidget {
         onTap: () => context.go(spec.location),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: pill || iconsOnly ? AppSpacing.sm : AppSpacing.lg,
+            horizontal: pill ? 2 : (iconsOnly ? AppSpacing.sm : AppSpacing.lg),
             vertical: pill ? AppSpacing.sm : 12,
           ),
-          child: pill || iconsOnly
-              ? Tooltip(
-                  message: spec.label,
-                  child: spec.badge == null
-                      ? Icon(spec.icon, size: 22, color: foreground)
-                      : Badge(
-                          key: spec.badgeKey,
-                          label: Text(spec.badge!),
-                          child: Icon(spec.icon, size: 22, color: foreground),
-                        ),
+          child: pill
+              ? SizedBox(
+                  width: 72,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _navIcon(foreground),
+                      const SizedBox(height: 2),
+                      Text(
+                        spec.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: foreground),
+                      ),
+                    ],
+                  ),
                 )
+              : iconsOnly
+              ? Tooltip(message: spec.label, child: _navIcon(foreground))
               : Row(
                   children: [
                     Icon(spec.icon, size: 22, color: foreground),

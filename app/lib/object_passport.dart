@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'l10n.dart';
 import 'models.dart';
+import 'screens/kit.dart';
 import 'object_map.dart';
 import 'theme.dart';
 
@@ -11,11 +12,13 @@ class ObjectPassport extends StatelessWidget {
     required this.project,
     this.documents = const [],
     this.compact = false,
+    this.documentsHeading = true,
   });
 
   final ProjectSummary project;
   final List<ProjectDocument> documents;
   final bool compact;
+  final bool documentsHeading;
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +45,16 @@ class ObjectPassport extends StatelessWidget {
         ...facts,
         if (!compact && documents.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
-          Text(copy.documents, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: AppSpacing.sm),
+          if (documentsHeading) ...[
+            Text(copy.documents, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: AppSpacing.sm),
+          ],
           for (final document in documents) ...[
             Text(document.title),
             Text(
               [
                 if (document.number.isNotEmpty) document.number,
-                if (document.issuedOn.isNotEmpty) document.issuedOn,
+                if (document.issuedOn.isNotEmpty) fmtDay(document.issuedOn),
                 if (document.note.isNotEmpty) document.note,
               ].join(' · '),
               style: muted,

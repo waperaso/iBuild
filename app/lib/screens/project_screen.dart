@@ -150,7 +150,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
     final colors = context.colors;
     final copy = LocaleScope.copy(context);
     if (_loading && _project == null) {
-      return const SizedBox.expand();
+      return const ScreenScroll(children: [PageWait()]);
     }
     if (_project == null) {
       return ScreenScroll(
@@ -183,7 +183,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
               Text(project.name, style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                project.address,
+                addressText(project.address),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -433,10 +433,29 @@ class BudgetSection extends StatelessWidget {
               PrimaryButton(
                 key: const Key('add-budget-line'),
                 label: bank ? copy.setLimit : copy.addLine,
-                onPressed: () => _addLine(context),
+                onPressed: director && firms.isEmpty ? null : () => _addLine(context),
               ),
           ],
         ),
+        if (director && firms.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.sm),
+            child: Text(
+              copy.addLineNeedsFirm,
+              key: const Key('add-line-needs-firm'),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.colors.inkMuted),
+            ),
+          ),
+        if (director)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              key: const Key('connect-bank'),
+              style: backLinkStyle,
+              onPressed: () => _connectBank(context),
+              child: Text(copy.connectBank),
+            ),
+          ),
         if (director)
           Align(
             alignment: Alignment.centerLeft,
@@ -508,6 +527,61 @@ class BudgetSection extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _connectBank(BuildContext context) async {
+    final inn = TextEditingController();
+    String? error;
+    await showPlainDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final copy = LocaleScope.copy(context);
+            return AlertDialog(
+              title: Text(copy.connectBank),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    key: const Key('connect-bank-inn'),
+                    controller: inn,
+                    decoration: InputDecoration(labelText: copy.bankInn),
+                  ),
+                  if (error != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    Text(copy.known(error!), style: TextStyle(color: context.colors.danger)),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(copy.cancel),
+                ),
+                PrimaryButton(
+                  key: const Key('connect-bank-save'),
+                  label: copy.save,
+                  onPressed: () async {
+                    try {
+                      await SessionScope.of(context).api.postJson(
+                        '/api/projects/${project.id}/bank',
+                        {'inn': inn.text.trim()},
+                      );
+                      if (dialogContext.mounted) Navigator.of(dialogContext).pop();
+                      await onChanged();
+                    } on ApiException catch (failure) {
+                      setState(() => error = failure.message);
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    inn.dispose();
   }
 
   Future<bool> _addFirm(BuildContext context) async {
@@ -589,17 +663,8 @@ class BudgetSection extends StatelessWidget {
   }
 
   Future<bool> _addLine(BuildContext context) async {
-    var currentFirms = firms;
-    var createdFirm = false;
-    if (currentFirms.isEmpty) {
-      createdFirm = await _addFirm(context);
-      if (!createdFirm || !context.mounted) return false;
-      currentFirms = await SessionScope.of(context).api.firms();
-      if (currentFirms.isEmpty || !context.mounted) return false;
-    }
-    final saved = await _lineDialog(context, firms: currentFirms);
-    if (createdFirm && !saved && context.mounted) await onChanged();
-    return saved;
+    if (firms.isEmpty) return false;
+    return _lineDialog(context, firms: firms);
   }
 
   Future<bool> _editLine(BuildContext context, BudgetLine line) {
@@ -1051,12 +1116,14 @@ class MembersSection extends StatelessWidget {
     required this.members,
     required this.firms,
     required this.onChanged,
+    this.showTitle = true,
   });
 
   final ProjectSummary project;
   final List<ProjectMember> members;
   final List<ContractorFirm> firms;
   final Future<void> Function() onChanged;
+  final bool showTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -1065,22 +1132,25 @@ class MembersSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              copy.members,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const Spacer(),
-            if (director)
-              PrimaryButton(
-                key: const Key('add-member'),
-                label: copy.assign,
-                onPressed: () => _assign(context),
-              ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.md),
+        if (showTitle || director) ...[
+          Row(
+            children: [
+              if (showTitle)
+                Text(
+                  copy.members,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              const Spacer(),
+              if (director)
+                PrimaryButton(
+                  key: const Key('add-member'),
+                  label: copy.assign,
+                  onPressed: () => _assign(context),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ],
         if (members.isEmpty)
           EmptyState(title: copy.noMembers, body: copy.noMembersBody)
         else
@@ -1164,8 +1234,8 @@ class MembersSection extends StatelessWidget {
       return;
     }
     var userId = available.first.id;
-    var role = 'director';
-    String? firmId = firms.isEmpty ? null : firms.first.id;
+    String? role;
+    String? firmId;
     String? error;
     var saved = false;
     await showPlainDialog<void>(
@@ -1197,22 +1267,50 @@ class MembersSection extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     DropdownButtonFormField<String>(
+                      key: const Key('assign-role'),
                       initialValue: role,
+                      isExpanded: true,
                       decoration: InputDecoration(labelText: copy.role),
                       items: [
-                        DropdownMenuItem(
-                          value: 'director',
-                          child: Text(copy.roleName(AppRole.director)),
-                        ),
-                        DropdownMenuItem(
-                          value: 'observer',
-                          child: Text(copy.roleName(AppRole.observer)),
-                        ),
+                        for (final item in const [
+                          AppRole.director,
+                          AppRole.developer,
+                          AppRole.tech,
+                          AppRole.observer,
+                          AppRole.contractor,
+                        ])
+                          DropdownMenuItem(
+                            value: item.name,
+                            child: Text(copy.roleName(item)),
+                          ),
                       ],
                       onChanged: (value) {
-                        if (value != null) setState(() => role = value);
+                        setState(() {
+                          role = value;
+                          error = null;
+                        });
                       },
                     ),
+                    if (role == 'contractor' && firms.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: AppSpacing.md),
+                        child: Text(copy.addLineNeedsFirm),
+                      ),
+                    if (role == 'contractor' && firms.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: AppSpacing.md),
+                        child: DropdownButtonFormField<String>(
+                          key: const Key('assign-firm'),
+                          initialValue: firmId,
+                          isExpanded: true,
+                          decoration: InputDecoration(labelText: copy.contractor),
+                          items: [
+                            for (final firm in firms)
+                              DropdownMenuItem(value: firm.id, child: Text(firm.name)),
+                          ],
+                          onChanged: (value) => setState(() => firmId = value),
+                        ),
+                      ),
                     if (error != null) ...[
                       const SizedBox(height: AppSpacing.md),
                       Text(
@@ -1229,12 +1327,15 @@ class MembersSection extends StatelessWidget {
                   child: Text(copy.cancel),
                 ),
                 TextButton(
-                  onPressed: () async {
+                  key: const Key('assign-confirm'),
+                  onPressed: role == null || (role == 'contractor' && (firmId == null || firms.isEmpty))
+                      ? null
+                      : () async {
                     try {
                       await SessionScope.of(context).api.addMember(
                         projectId: project.id,
                         userId: userId,
-                        role: role,
+                        role: role!,
                         contractorFirmId: role == 'contractor' ? firmId : null,
                       );
                       saved = true;

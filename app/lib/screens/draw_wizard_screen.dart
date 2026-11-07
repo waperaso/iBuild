@@ -8,6 +8,12 @@ import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
 
+String _noSourcesText(BuildContext context, AppCopy copy, String projectId) {
+  final project = SessionScope.of(context).findProject(projectId);
+  final director = project?.myRole == AppRole.director || project?.myRole == AppRole.developer;
+  return director ? copy.noSourcesDirector : copy.noSourcesOther;
+}
+
 class DrawWizardScreen extends StatefulWidget {
   const DrawWizardScreen({super.key, required this.projectId, this.drawId});
 
@@ -113,7 +119,7 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const SizedBox.expand();
+    if (_loading) return const ScreenScroll(children: [PageWait()]);
     final desk = _desk;
     final copy = LocaleScope.copy(context);
     if (desk == null) {
@@ -212,6 +218,12 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
                   )),
               ],
             ),
+          ),
+        ] else ...[
+          const SizedBox(height: AppSpacing.md),
+          IBuildCard(
+            key: const Key('draw-no-sources'),
+            child: Text(_noSourcesText(context, copy, widget.projectId)),
           ),
         ],
         if ((_draw?.requirements ?? const <DrawRequirementView>[]).isNotEmpty) ...[

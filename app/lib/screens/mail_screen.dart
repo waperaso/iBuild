@@ -239,6 +239,18 @@ class _MailComposeState extends State<_MailCompose> {
     super.dispose();
   }
 
+  Widget? _letterCounter(
+    BuildContext context, {
+    required int currentLength,
+    required bool isFocused,
+    required int? maxLength,
+  }) {
+    return Text(
+      '$currentLength/${maxLength ?? 0}',
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.colors.inkMuted),
+    );
+  }
+
   Future<void> _send() async {
     final t = Tx.of(context);
     final api = SessionScope.of(context).api;
@@ -295,6 +307,7 @@ class _MailComposeState extends State<_MailCompose> {
                   key: const Key('mail-subject'),
                   controller: _subject,
                   maxLength: 200,
+                  buildCounter: _letterCounter,
                   decoration: InputDecoration(labelText: t('Тема', 'Subject', 'Mavzu')),
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -304,6 +317,7 @@ class _MailComposeState extends State<_MailCompose> {
                   minLines: 6,
                   maxLines: 14,
                   maxLength: 10000,
+                  buildCounter: _letterCounter,
                   decoration: InputDecoration(labelText: t('Текст письма', 'Text of the letter', 'Xat matni'), alignLabelWithHint: true),
                 ),
                 const SizedBox(height: AppSpacing.md),

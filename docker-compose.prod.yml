@@ -1,0 +1,120 @@
+# Production: PostgreSQL, the API and Caddy (automatic HTTPS) in front.
+#   cp deploy/.env.prod.example .env.prod   # fill every value
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#
+# Secrets: set DB_PASSWORD / MAIL_KEY / SMTP_PASSWORD, or the matching *_FILE
+# host path, never both. A *_FILE is mounted at /run/secrets and is not copied
+# into the container environment. The API builds DATABASE_URL from DB_PASSWORD
+# unless DATABASE_URL itself is set.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+      - /run/postgresql
+    environment:
+      POSTGRES_USER: ibuild
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-}"
+      POSTGRES_PASSWORD_FILE: ${DB_PASSWORD_FILE:+/run/secrets/db_password}
+      POSTGRES_DB: ibuild
+    volumes:
+      - ibuild_pg:/var/lib/postgresql/data
+      - ./backups:/backups:ro
+      - ${DB_PASSWORD_FILE:-/dev/null}:/run/secrets/db_password:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ibuild -d ibuild"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile.prod
+    restart: unless-stopped
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/tmp
+    environment:
+      APP_ENV: production
+      APP_VERSION: ${APP_VERSION:-1}
+      DATABASE_URL: "${DATABASE_URL:-}"
+      DB_HOST: db
+      DB_USER: ibuild
+      DB_NAME: ibuild
+      DB_PASSWORD: "${DB_PASSWORD:-}"
+      DB_PASSWORD_FILE: ${DB_PASSWORD_FILE:+/run/secrets/db_password}
+      SEED_ON_START: "false"
+      # The read-only demo with role buttons on the sign-in page. Keep false for a pure production stand.
+      DEMO_ENABLED: ${DEMO_ENABLED:-false}
+      COOKIE_SECURE: "true"
+      BACKUP_DIR: /backups
+      # Key that seals letters in the database. Lose it and the letters cannot be read.
+      MAIL_KEY: "${MAIL_KEY:-}"
+      MAIL_KEY_FILE: ${MAIL_KEY_FILE:+/run/secrets/mail_key}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: "${SMTP_PASSWORD:-}"
+      SMTP_PASSWORD_FILE: ${SMTP_PASSWORD_FILE:+/run/secrets/smtp_password}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_SSL: ${SMTP_SSL:-false}
+      # Caddy overwrites X-Forwarded-For with the TCP client. Do not publish port 8080.
+      TRUST_PROXY: "true"
+    volumes:
+      - ibuild_files:/app/data/files
+      - ./backups:/backups:ro
+      - ${DB_PASSWORD_FILE:-/dev/null}:/run/secrets/db_password:ro
+      - ${MAIL_KEY_FILE:-/dev/null}:/run/secrets/mail_key:ro
+      - ${SMTP_PASSWORD_FILE:-/dev/null}:/run/secrets/smtp_password:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /config
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?Задайте DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - api
+
+volumes:
+  ibuild_pg: {}
+  ibuild_files: {}
+  caddy_data: {}
