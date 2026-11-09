@@ -68,8 +68,10 @@ Future<Response?> demoGuard(Request request, AppDatabase db) async {
   final token = readCookies(request)[sessionCookieName];
   if (token == null || token.isEmpty) return null;
   final lookup = await db.lookupSession(sha256Hex(token));
-  final user = lookup.user;
-  if (lookup.state != SessionState.ok || user == null || !user.isDemo) return null;
+  // Only a session started from the demo buttons is read-only. A pilot account
+  // that signed in with its password works normally, even though the seeded
+  // company it belongs to is also the one the demo shows.
+  if (lookup.state != SessionState.ok || !lookup.demoSession) return null;
   return jsonError(403, 'demo_read_only', demoBlockedMessage);
 }
 
@@ -126,6 +128,7 @@ void mountDemo(
         tokenHash: sha256Hex(sessionToken),
         csrfToken: csrf,
         expiresAt: DateTime.now().toUtc().add(env.demoSessionTtl),
+        demo: true,
       );
       return signedIn(user, sessionToken, csrf);
     });

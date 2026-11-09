@@ -820,7 +820,7 @@ class _AdminMailScreenState extends State<AdminMailScreen> {
           key: const Key('admin-mail-frame'),
           children: [
             PageTitle(
-              title: t('Почта', 'Mail', 'Pochta'),
+              title: t('Очередь писем', 'Mail queue', 'Xatlar navbati'),
               subtitle: t('Очередь исходящих писем: напоминания и отчёты.', 'Outgoing mail queue for reminders and reports.', 'Chiquvchi xatlar navbati: eslatmalar va hisobotlar.'),
             ),
             IBuildCard(

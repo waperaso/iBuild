@@ -17,6 +17,8 @@ Future<void> ensureBankCabinet(AppDatabase db, String password) async {
   if (existing != null) {
     await _decisionData(db);
     await _moreStaff(db, existing, password);
+    await ensureApprovalRoutes(db);
+    await ensureBankInspections(db);
     return;
   }
   if (password.isEmpty) {
@@ -532,6 +534,102 @@ Future<void> _check(
       'passed': passed,
     },
   );
+}
+
+/// Every tranche of the portfolio gets the same six-step route the bridge
+/// builds for a real one. Without it a tranche parked at the sign-off stage
+/// opens on an empty route that nobody can move. Only fills tranches that have
+/// no steps at all, so a second run and the Navoi demo route are untouched.
+/// A tranche standing at the inspection stage is waiting for an expert to go
+/// out and close the visit. Without a row here the "Inspections" screen is
+/// empty and those tranches can never move. One planned visit per waiting
+/// tranche, plus one that is already closed so the screen shows both states.
+Future<void> ensureBankInspections(AppDatabase db) async {
+  final seen = await db.owner.execute('SELECT count(*) FROM bank_inspections');
+  if ((seen.first[0]! as int) > 0) return;
+  final expert = await db.userIdByLogin('a.expert');
+  final author = await db.userIdByLogin('a.observer');
+  if (expert == null || author == null) return;
+  await db.owner.execute(
+    Sql.named(
+      "INSERT INTO bank_inspections "
+      '(tranche_id, project_id, bank_id, kind, status, scheduled_on, '
+      'expert_user_id, expert_label, created_by, note) '
+      "SELECT t.id, t.project_id, t.bank_id, 'control', 'planned', "
+      "(now() AT TIME ZONE 'Asia/Tashkent')::date + 2, "
+      "@expert::uuid, 'А. Каримов', @author::uuid, "
+      "'Проверить объём выполненных работ и материалы на площадке.' "
+      "FROM bank_tranches t WHERE t.stage = 'inspection'",
+    ),
+    parameters: {'expert': expert, 'author': author},
+  );
+  // One finished visit, so the screen opens with both states on it.
+  await db.owner.execute(
+    Sql.named(
+      "INSERT INTO bank_inspections "
+      '(tranche_id, project_id, bank_id, kind, status, scheduled_on, '
+      'expert_user_id, expert_label, created_by, note, completed_on, risk, recommendation) '
+      "SELECT t.id, t.project_id, t.bank_id, 'control', 'done', "
+      "(now() AT TIME ZONE 'Asia/Tashkent')::date - 17, "
+      "@expert::uuid, 'А. Каримов', @author::uuid, "
+      "'Объём работ по фундаменту подтверждён частично.', "
+      "(now() AT TIME ZONE 'Asia/Tashkent')::date - 17, 'watch', 'issue' "
+      "FROM bank_tranches t WHERE t.stage = 'specialist' LIMIT 1",
+    ),
+    parameters: {'expert': expert, 'author': author},
+  );
+}
+
+Future<void> ensureApprovalRoutes(AppDatabase db) async {
+  final rows = await db.owner.execute(
+    'SELECT t.id::text AS id, t.stage AS stage FROM bank_tranches t '
+    'WHERE NOT EXISTS (SELECT 1 FROM bank_approval_steps s WHERE s.tranche_id = t.id)',
+  );
+  // How far the route has already run for a tranche standing at this stage.
+  const doneThrough = <String, int>{
+    'submitted': 0,
+    'docs': 0,
+    'inspection': 0,
+    'specialist': 1,
+    'approval': 2,
+    'payout': 3,
+  };
+  const steps = <(String, int, int, String)>[
+    ('expert', 1, 1, ''),
+    ('specialist', 2, 1, ''),
+    ('head', 3, 1, 'Группа из 3 человек, нужно 1 согласие'),
+    ('committee', 4, 3, ''),
+    ('sign', 5, 1, 'ЭЦП (интеграция в разработке)'),
+    ('payment', 6, 1, 'Платёж (интеграция в разработке)'),
+  ];
+  for (final row in rows) {
+    final map = row.toColumnMap();
+    final id = map['id']! as String;
+    final done = doneThrough['${map['stage']}'] ?? 0;
+    for (final step in steps) {
+      final position = step.$2;
+      final status = position <= done
+          ? 'done'
+          : (step.$1 == 'sign' || step.$1 == 'payment')
+              ? 'waiting'
+              : 'pending';
+      await db.owner.execute(
+        Sql.named(
+          'INSERT INTO bank_approval_steps '
+          '(tranche_id, code, position, status, required_approvals, note) '
+          'VALUES (@tranche::uuid, @code, @position, @status, @required, @note)',
+        ),
+        parameters: {
+          'tranche': id,
+          'code': step.$1,
+          'position': position,
+          'status': status,
+          'required': step.$3,
+          'note': step.$4,
+        },
+      );
+    }
+  }
 }
 
 Future<void> _navoiSteps(AppDatabase db, String trancheId) async {

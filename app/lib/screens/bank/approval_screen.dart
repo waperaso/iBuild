@@ -217,6 +217,22 @@ class _Route extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Text(strings.routeTitle, style: Theme.of(context).textTheme.titleLarge),
           ),
+          // A tranche can reach this screen without a route behind it. Saying so
+          // beats a heading over empty space.
+          if (approval.steps.isEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                0,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
+              child: Text(
+                strings.routeEmpty,
+                key: const Key('bank-route-empty'),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
+              ),
+            ),
           for (final step in approval.steps) ...[
             Divider(height: 1, color: colors.outline),
             _StepTile(approval: approval, step: step),

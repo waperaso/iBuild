@@ -8,6 +8,7 @@ import '../money.dart';
 import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
+import 'kit.dart';
 import 'project_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -107,15 +108,13 @@ class _QueueScreenState extends State<QueueScreen> {
   @override
   Widget build(BuildContext context) {
     final copy = LocaleScope.copy(context);
+    final t = Tx.of(context);
+    final theme = Theme.of(context);
+    final colors = context.colors;
     return ScreenScroll(
+      key: const Key('queue-frame'),
       children: [
-        Text(copy.queue, style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          copy.queueSubtitle,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.colors.inkMuted),
-        ),
-        const SizedBox(height: AppSpacing.lg),
+        PageTitle(title: copy.queue, subtitle: copy.queueSubtitle),
         if (_loading)
           const PageWait()
         else if (_items.isEmpty)
@@ -124,26 +123,84 @@ class _QueueScreenState extends State<QueueScreen> {
             title: copy.queueEmptyTitle,
             body: copy.queueEmptyBody,
           )
-        else
-          for (final item in _items) ...[
-            IBuildCard(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: GestureDetector(
-                onTap: item.id.isEmpty ? null : () => context.go('/requests/${item.id}'),
-                behavior: HitTestBehavior.opaque,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item.line.isEmpty ? item.project : item.line, style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text('${copy.place(item.project)} · ${copy.requestStatus(item.status)}'),
-                    if (item.amount.isNotEmpty) Text(moneyUzs(item.amount)),
-                  ],
-                ),
-              ),
+        else ...[
+          KpiRow(children: [
+            Kpi(
+              label: t('Ждут вашей проверки', 'Waiting for your check', 'Tekshiruvingizni kutmoqda'),
+              value: '${_items.length}',
+              tone: _items.isEmpty ? null : colors.warning,
             ),
-            const SizedBox(height: AppSpacing.md),
-          ],
+            Kpi(
+              label: t('На сумму', 'Worth', 'Summasi'),
+              value: moneyUzs(moneySum(_items.map((item) => item.amount))),
+            ),
+          ]),
+          const SizedBox(height: AppSpacing.lg),
+          IBuildCard(
+            padding: EdgeInsets.zero,
+            child: Column(
+              key: const Key('queue-list'),
+              children: [
+                for (final item in _items)
+                  Column(
+                    children: [
+                      InkWell(
+                        key: Key('queue-open-${item.id}'),
+                        onTap: item.id.isEmpty ? null : () => context.go('/requests/${item.id}'),
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.line.isEmpty ? item.project : item.line,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.titleSmall,
+                                    ),
+                                    const SizedBox(height: AppSpacing.xs),
+                                    // The page is the queue, so every row waits
+                                    // for this person: the count above says so
+                                    // once instead of a label on each line.
+                                    Text(
+                                      copy.place(item.project),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(color: colors.inkMuted),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.lg),
+                              Text(
+                                item.amount.isEmpty ? '' : moneyUzs(item.amount),
+                                textAlign: TextAlign.right,
+                                style: theme.textTheme.titleSmall,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: AppSpacing.md),
+                                child: Icon(
+                                  Icons.chevron_right,
+                                  size: 20,
+                                  color: colors.inkMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Divider(height: 1, color: colors.outline),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

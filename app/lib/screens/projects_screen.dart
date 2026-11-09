@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../api.dart';
 import '../l10n.dart';
 import '../models.dart';
 import '../money.dart';
 import '../session_scope.dart';
+import 'kit.dart';
 import 'project_screen.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -251,7 +253,7 @@ class _ProjectColumns extends StatelessWidget {
         const SizedBox(width: _columnGap),
         Expanded(flex: 2, child: role),
         const SizedBox(width: _columnGap),
-        Expanded(flex: 3, child: available),
+        Expanded(flex: 4, child: available),
         const SizedBox(width: _columnGap),
         Expanded(flex: 2, child: status),
       ],
@@ -324,14 +326,42 @@ class _NoticeListState extends State<_NoticeList> {
   Widget build(BuildContext context) {
     if (_items.isEmpty) return const SizedBox.shrink();
     final copy = LocaleScope.copy(context);
+    final theme = Theme.of(context);
+    final colors = context.colors;
     return IBuildCard(
       key: const Key('notice-queue'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(copy.needsAction, style: Theme.of(context).textTheme.titleMedium),
+          Text(copy.needsAction, style: theme.textTheme.titleMedium),
+          const SizedBox(height: AppSpacing.sm),
+          // The list named the waiting tranches but led nowhere. Each line is
+          // now the way into the tranche it names.
           for (final item in _items)
-            Text('${copy.place(item.project)} · ${item.line} · ${copy.requestStatus(item.status)}'),
+            InkWell(
+              key: Key('notice-open-${item.id}'),
+              onTap: item.id.isEmpty ? null : () => context.go('/requests/${item.id}'),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${copy.place(item.project)} · ${item.line}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Tag(label: waitingText(context, item.status), color: colors.warning),
+                    Padding(
+                      padding: const EdgeInsets.only(left: AppSpacing.sm),
+                      child: Icon(Icons.chevron_right, size: 20, color: colors.inkMuted),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -379,11 +409,16 @@ class _TableRow extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          available: Text(
-            moneyUzs(project.available),
-            textAlign: TextAlign.right,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          // A sum in full UZS used to break across two lines in the middle of
+          // the number. It stays on one line and shrinks when it has to.
+          available: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Text(
+              moneyUzs(project.available),
+              textAlign: TextAlign.right,
+              maxLines: 1,
+            ),
           ),
           status: StatusText(
             label: copy.projectStatus(project.active),

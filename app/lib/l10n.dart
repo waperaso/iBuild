@@ -429,6 +429,12 @@ class AppCopy {
   String get approveWork => _t(('Подтвердить работу', 'Confirm the work', 'Ishni tasdiqlash'));
   String get rejectWork => _t(('Отклонить', 'Reject', 'Rad etish'));
   String get reasonLabel => _t(('Причина', 'Reason', 'Sabab'));
+  String get yourDecision => _t(('Ваше решение', 'Your decision', 'Sizning qaroringiz'));
+  String get yourDecisionHint => _t((
+    'Подтвердите объём выполненных работ или отклоните транш, указав причину.',
+    'Confirm the volume of completed work, or reject the tranche and say why.',
+    'Bajarilgan ish hajmini tasdiqlang yoki sababini ko‘rsatib transhni rad eting.',
+  ));
   String get agreeRequest => _t(('Одобрить транш', 'Approve the tranche', 'Transhni ma’qullash'));
   String get waitingForBank => _t((
     'Работы подтверждены. Транш на рассмотрении в банке.',

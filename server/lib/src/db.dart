@@ -260,12 +260,22 @@ class CompanyUser {
 enum SessionState { missing, expired, inactive, ok }
 
 class SessionLookup {
-  const SessionLookup(this.state, [this.user, this.csrfToken, this.memberships = const []]);
+  const SessionLookup(
+    this.state, [
+    this.user,
+    this.csrfToken,
+    this.memberships = const [],
+    this.demoSession = false,
+  ]);
 
   final SessionState state;
   final UserRecord? user;
   final String? csrfToken;
   final List<Membership> memberships;
+
+  /// True only for a session started from the demo buttons on the sign-in
+  /// page. Being read-only belongs to the session, not to the account.
+  final bool demoSession;
 }
 
 class RlsPool {
@@ -604,17 +614,19 @@ class AppDatabase {
     required String tokenHash,
     required String csrfToken,
     required DateTime expiresAt,
+    bool demo = false,
   }) {
     return pool.execute(
       Sql.named('''
-        INSERT INTO sessions (user_id, token_hash, csrf_token, expires_at)
-        VALUES (@userId::uuid, @tokenHash, @csrfToken, @expiresAt)
+        INSERT INTO sessions (user_id, token_hash, csrf_token, expires_at, demo)
+        VALUES (@userId::uuid, @tokenHash, @csrfToken, @expiresAt, @demo)
       '''),
       parameters: {
         'userId': userId,
         'tokenHash': tokenHash,
         'csrfToken': csrfToken,
         'expiresAt': expiresAt.toUtc(),
+        'demo': demo,
       },
     );
   }
@@ -651,7 +663,8 @@ class AppDatabase {
                u.active AS active,
                u.platform_admin AS platform_admin,
                u.must_change_password AS must_change_password,
-               u.is_demo AS is_demo
+               u.is_demo AS is_demo,
+               s.demo AS session_demo
         FROM sessions s
         JOIN users u ON u.id = s.user_id
         JOIN companies c ON c.id = u.company_id
@@ -672,6 +685,7 @@ class AppDatabase {
       user,
       map['csrf_token'] as String,
       memberships,
+      _asBool(map['session_demo']),
     );
   }
 

@@ -8,8 +8,14 @@
 
 Нужны Docker, Flutter и Dart. Порт `5432` на этой машине уже занят другим Postgres, поэтому база пилота публикуется на **5433**.
 
+Compose отдаёт веб-приложение из `app/build/web`, поэтому сначала собираем его,
+и обязательно с `--no-web-resources-cdn`: без этого флага Flutter тянет CanvasKit
+с `gstatic.com`, а Content-Security-Policy сервера такой запрос блокирует — страница
+остаётся пустой.
+
 ```bash
 cd ~/ibuild-new
+(cd app && flutter build web --release --no-web-resources-cdn)
 docker compose up -d --build
 ```
 
@@ -58,7 +64,7 @@ dart run bin/operator.dart set-active --login pilot.user --active false
 ## Проверки
 
 ```bash
-cd app && flutter test && flutter build web
+cd app && flutter test && flutter build web --release --no-web-resources-cdn
 cd ../server && dart test
 ```
 

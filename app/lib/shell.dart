@@ -53,6 +53,9 @@ class _DeskShellState extends State<_DeskShell> {
     final collapsed = tablet || _collapsed;
     return Scaffold(
       body: Row(
+        // The side rail and the project rail run the full height of the window;
+        // without this a rail that sizes to its content floats in the middle.
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
             key: const Key('side-nav'),
@@ -259,9 +262,13 @@ class _PhoneBar extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     Text(
+                      // Bank staff hold no project role, so asking for one gave
+                      // them "No role on a project" instead of their job title.
                       user == null
                           ? copy.tagline
-                          : '${copy.rolesOf(user)} · ${user.companyName}',
+                          : user.bank == null
+                              ? '${copy.rolesOf(user)} · ${user.companyName}'
+                              : '${user.bank!.title} · ${user.bank!.name}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.inkMuted),
@@ -437,10 +444,12 @@ class _NavList extends StatelessWidget {
         location: '/admin/events',
         selected: path == '/admin/events',
       ),
+      // The personal mailbox is also called "Почта"; this one is the queue of
+      // letters the platform sends out, so it carries its own name.
       _NavSpec(
         key: const Key('nav-admin-mail'),
-        label: t('Почта', 'Mail', 'Pochta'),
-        icon: Icons.mail_outline,
+        label: t('Очередь писем', 'Mail queue', 'Xatlar navbati'),
+        icon: Icons.outgoing_mail,
         location: '/admin/mail',
         selected: path == '/admin/mail',
       ),
@@ -880,25 +889,87 @@ class _ProjectRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final project = SessionScope.of(context).focusedProject;
+    final session = SessionScope.of(context);
+    final project = session.focusedProject;
+    final copy = LocaleScope.copy(context);
+    final theme = Theme.of(context);
     final colors = context.colors;
     return ColoredBox(
       key: const Key('project-rail'),
       color: colors.background,
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          Text(LocaleScope.copy(context).project, style: Theme.of(context).textTheme.titleMedium),
+          Text(copy.project, style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.lg),
-          if (project == null)
+          if (project != null)
+            _PinnedObject(key: ValueKey(project.id), project: project)
+          else ...[
             Text(
-              LocaleScope.copy(context).pickProject,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
-            )
-          else
-            _PinnedObject(key: ValueKey(project.id), project: project),
+              copy.pickProject,
+              style: theme.textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
+            ),
+            // Without this the rail was a column of empty pixels until the
+            // person had opened a project from somewhere else. The page that
+            // lists the projects needs no second list beside it.
+            if (session.projects.isNotEmpty &&
+                !GoRouterState.of(context).uri.path.startsWith('/projects')) ...[
+              const SizedBox(height: AppSpacing.md),
+              IBuildCard(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  key: const Key('rail-projects'),
+                  children: [
+                    for (final item in session.projects.take(8))
+                      Column(
+                        children: [
+                          InkWell(
+                            key: Key('rail-project-${item.id}'),
+                            onTap: () => context.go('/projects/${item.id}'),
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.md),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          copy.place(item.name),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: theme.textTheme.titleSmall,
+                                        ),
+                                        Text(
+                                          addressText(item.address),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(color: colors.inkMuted),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.chevron_right,
+                                    size: 20,
+                                    color: colors.inkMuted,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (item != session.projects.last)
+                            Divider(height: 1, color: colors.outline),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ],
           ],
         ),
       ),
@@ -1341,7 +1412,10 @@ class _AccountBlock extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: onDark ? colors.onAccent : colors.ink,
+                    // The side rail is the dark hero surface in both themes.
+                    // `onAccent` is the navy of that surface in the dark theme,
+                    // so a name painted with it disappeared into the rail.
+                    color: onDark ? colors.onHeroSurface : colors.ink,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
@@ -1353,7 +1427,9 @@ class _AccountBlock extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: onDark ? colors.onHeroSurface : colors.inkMuted,
+                    color: onDark
+                        ? colors.onHeroSurface.withValues(alpha: 0.72)
+                        : colors.inkMuted,
                   ),
                 ),
               ],

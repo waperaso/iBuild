@@ -6,7 +6,9 @@ import '../download.dart';
 import '../l10n.dart';
 import '../models.dart';
 import '../money.dart';
+import '../session.dart';
 import '../session_scope.dart';
+import 'kit.dart';
 import 'request_form_screen.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -35,6 +37,18 @@ class _RequestsScreenState extends State<RequestsScreen> {
     _projectId = widget.projectId;
     _filter = _queueFor(SessionScope.of(context).user);
     _load();
+  }
+
+  /// What this list is, for the person reading it: their own queue of work to
+  /// confirm, the tranches the bank is holding, or simply every tranche.
+  String _subtitle(SessionController session, AppCopy copy) {
+    final roles = session.user?.memberships.map((item) => item.role) ?? const <AppRole>[];
+    if (_filter == 'submitted' && roles.contains(AppRole.tech)) return copy.techQueue;
+    if (_filter == 'tech_approved' &&
+        (roles.contains(AppRole.observer) || roles.contains(AppRole.developer))) {
+      return copy.bankQueueNote;
+    }
+    return copy.requestsSubtitle;
   }
 
   String? _queueFor(UserProfile? user) {
@@ -96,67 +110,31 @@ class _RequestsScreenState extends State<RequestsScreen> {
         visible.isEmpty && _projectId == null && (_filter == null || _filter == 'draft');
     return ScreenScroll(
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                copy.requests,
-                style: Theme.of(context).textTheme.headlineMedium,
+        // The same page head the bank cabinet uses, so the actions sit at the
+        // right edge instead of floating in the middle of the column.
+        PageTitle(
+          title: copy.requests,
+          subtitle: _subtitle(session, copy),
+          trailing: Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              TextButton(
+                key: const Key('download-registry'),
+                onPressed: () => downloadRegistry(projectId: _projectId, status: _filter),
+                child: Text(copy.downloadRegistry),
               ),
-            ),
-            Flexible(
-              flex: 2,
-              child: Wrap(
-                alignment: WrapAlignment.end,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  TextButton(
-                    key: const Key('download-registry'),
-                    onPressed: () => downloadRegistry(projectId: _projectId, status: _filter),
-                    child: Text(copy.downloadRegistry),
-                  ),
-                  if (session.user?.isContractor == true || session.user?.isDirector == true)
-                    PrimaryButton(
-                      key: const Key('new-request'),
-                      label: copy.newRequest,
-                      onPressed: () => openRequestForm(context),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        if (_filter == 'submitted' &&
-            session.user?.memberships.any((item) => item.role == AppRole.tech) == true)
-          Text(
-            copy.techQueue,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: context.colors.inkMuted,
-            ),
-          )
-        else if (_filter == 'tech_approved' &&
-            session.user?.memberships.any(
-                  (item) => item.role == AppRole.observer || item.role == AppRole.developer,
-                ) ==
-                true)
-          Text(
-            copy.bankQueueNote,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: context.colors.inkMuted,
-            ),
-          )
-        else
-          Text(
-            copy.requestsSubtitle,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: context.colors.inkMuted,
-            ),
+              if (session.user?.isContractor == true || session.user?.isDirector == true)
+                PrimaryButton(
+                  key: const Key('new-request'),
+                  label: copy.newRequest,
+                  onPressed: () => openRequestForm(context),
+                ),
+            ],
           ),
-        const SizedBox(height: AppSpacing.md),
+        ),
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
@@ -168,7 +146,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
             ),
             for (final code in AppCopy.statusCodes)
               _Filter(
-                label: copy.requestStatus(code),
+                label: waitingText(context, code),
                 selected: _filter == code,
                 onTap: () => setState(() => _filter = code),
               ),
@@ -225,7 +203,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
                   children: [
                     Expanded(child: Text(moneyUzs(item.amount))),
                     StatusText(
-                      label: copy.requestStatus(item.status),
+                      label: waitingText(context, item.status),
                       tone: switch (item.status) {
                         'paid' || 'approved' || 'tech_approved' => StatusTone.good,
                         'rejected' || 'cancelled' => StatusTone.bad,

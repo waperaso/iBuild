@@ -67,7 +67,7 @@ Handler buildHandler({required AppDatabase db, required AppEnv env}) {
     final bank = await bankProfile(db, user.id);
     return jsonResponse(
       200,
-      _userJson(user, memberships, csrfToken: csrf, bank: bank),
+      _userJson(user, memberships, csrfToken: csrf, bank: bank, demoSession: true),
       setCookie: sessionCookie(sessionToken, secure: env.cookieSecure, maxAge: env.demoSessionTtl),
     );
   });
@@ -241,7 +241,16 @@ Future<Response> _me(Request request, AppDatabase db) async {
   if (lookup is Response) return lookup;
   final session = lookup as SessionLookup;
   final bank = await bankProfile(db, session.user!.id);
-  return jsonResponse(200, _userJson(session.user!, session.memberships, csrfToken: session.csrfToken, bank: bank));
+  return jsonResponse(
+    200,
+    _userJson(
+      session.user!,
+      session.memberships,
+      csrfToken: session.csrfToken,
+      bank: bank,
+      demoSession: session.demoSession,
+    ),
+  );
 }
 
 Future<Response> _listProjects(Request request, AppDatabase db) async {
@@ -656,6 +665,7 @@ Map<String, Object?> _userJson(
   List<Membership> memberships, {
   String? csrfToken,
   Map<String, Object?>? bank,
+  bool demoSession = false,
 }) {
   return {
     'id': user.id,
@@ -666,7 +676,7 @@ Map<String, Object?> _userJson(
     'active': user.active,
     'platformAdmin': user.platformAdmin,
     'mustChangePassword': user.mustChangePassword,
-    'demo': user.isDemo,
+    'demo': demoSession,
     if (csrfToken != null) 'csrfToken': csrfToken,
     if (bank != null) 'bank': bank,
     'memberships': [

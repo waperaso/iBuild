@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../api.dart';
 import '../l10n.dart';
+import '../models.dart';
 import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -233,7 +234,17 @@ class Kpi extends StatelessWidget {
         children: [
           Text(label, style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted)),
           const SizedBox(height: AppSpacing.xs),
-          Text(value, style: theme.textTheme.headlineMedium?.copyWith(color: tone)),
+          // A long value — a sum in full UZS — used to wrap and leave the cards
+          // in a row at different heights. It shrinks to stay on one line.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              maxLines: 1,
+              style: theme.textTheme.headlineMedium?.copyWith(color: tone),
+            ),
+          ),
           if (hint != null && hint!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xs),
@@ -261,6 +272,80 @@ class KpiRow extends StatelessWidget {
           spacing: AppSpacing.md,
           runSpacing: AppSpacing.md,
           children: [for (final child in children) SizedBox(width: width, child: child)],
+        );
+      },
+    );
+  }
+}
+
+/// Whether this person checks the work on site. A submitted tranche waits for
+/// them before it reaches the bank.
+bool viewerIsInspector(BuildContext context) {
+  final user = SessionScope.of(context).user;
+  if (user == null || user.bank != null) return false;
+  return user.memberships.any((item) => item.role == AppRole.tech);
+}
+
+/// What a tranche waits for, said from where this person stands: the engineer
+/// who checks the site is told it waits for them, not for the bank.
+String waitingText(BuildContext context, String status) {
+  final copy = LocaleScope.copy(context);
+  if (status == 'submitted' && viewerIsInspector(context)) return copy.awaitingYourCheck;
+  return copy.requestStatus(status);
+}
+
+/// A form card that stops growing once it is comfortable to read. A form that
+/// runs the whole width of a desktop column reads like a stretched phone page.
+class FormCard extends StatelessWidget {
+  const FormCard({super.key, required this.child, this.maxWidth = 720});
+
+  final Widget child;
+  final double maxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: IBuildCard(padding: const EdgeInsets.all(AppSpacing.lg), child: child),
+      ),
+    );
+  }
+}
+
+/// Short fields side by side while there is room, one under the other when
+/// there is not.
+class FieldGrid extends StatelessWidget {
+  const FieldGrid({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 520 || children.length < 2) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (index, child) in children.indexed) ...[
+                if (index > 0) const SizedBox(height: AppSpacing.md),
+                child,
+              ],
+            ],
+          );
+        }
+        final width =
+            (constraints.maxWidth - AppSpacing.md * (children.length - 1)) / children.length;
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final (index, child) in children.indexed) ...[
+              if (index > 0) const SizedBox(width: AppSpacing.md),
+              SizedBox(width: width, child: child),
+            ],
+          ],
         );
       },
     );

@@ -13,6 +13,7 @@ import '../money.dart';
 import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
+import 'kit.dart';
 
 class RequestScreen extends StatefulWidget {
   const RequestScreen({super.key, required this.id, this.initial});
@@ -535,7 +536,7 @@ class _RequestScreenState extends State<RequestScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               StatusText(
-                label: copy.requestStatus(request.status),
+                label: waitingText(context, request.status),
                 tone: _tone(request.status),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -629,6 +630,61 @@ class _RequestScreenState extends State<RequestScreen> {
             ],
           ),
         ),
+        // The person who checks the work on site comes to this page to decide.
+        // The decision sits right under the tranche, not past the evidence.
+        if ((_role == AppRole.tech || _role == AppRole.developer) &&
+            request.status == 'submitted') ...[
+          const SizedBox(height: AppSpacing.lg),
+          IBuildCard(
+            key: const Key('tech-decision'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(copy.yourDecision, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  copy.yourDecisionHint,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                TextField(
+                  key: const Key('decision-reason'),
+                  controller: _reason,
+                  minLines: 2,
+                  maxLines: 3,
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(labelText: copy.reasonLabel),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Wrap(
+                  spacing: AppSpacing.md,
+                  runSpacing: AppSpacing.sm,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    PrimaryButton(
+                      key: const Key('tech-approve'),
+                      label: copy.approveWork,
+                      busy: _saving,
+                      onPressed: () => _decide('approve'),
+                    ),
+                    OutlinedButton(
+                      key: const Key('tech-reject'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: colors.danger,
+                        minimumSize: const Size(64, 44),
+                        side: BorderSide(color: colors.outline),
+                      ),
+                      onPressed: _saving || _reason.text.trim().isEmpty
+                          ? null
+                          : () => _decide('reject'),
+                      child: Text(copy.rejectWork),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         IBuildCard(
           child: Column(
@@ -731,34 +787,6 @@ class _RequestScreenState extends State<RequestScreen> {
               key: const Key('cancel-request'),
               onPressed: _saving ? null : _cancel,
               child: Text(copy.cancelRequest),
-            ),
-          ),
-        ],
-        if ((_role == AppRole.tech || _role == AppRole.developer) &&
-            request.status == 'submitted') ...[
-          const SizedBox(height: AppSpacing.lg),
-          PrimaryButton(
-            key: const Key('tech-approve'),
-            label: copy.approveWork,
-            busy: _saving,
-            onPressed: () => _decide('approve'),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            key: const Key('decision-reason'),
-            controller: _reason,
-            minLines: 1,
-            maxLines: 3,
-            onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(labelText: copy.reasonLabel),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton(
-              key: const Key('tech-reject'),
-              onPressed: _saving || _reason.text.trim().isEmpty ? null : () => _decide('reject'),
-              child: Text(copy.rejectWork),
             ),
           ),
         ],

@@ -58,11 +58,58 @@ Future<void> seedIfEmpty(AppDatabase db, String password) async {
 
 /// Fills the anonymized pilot estimate when an older database has companies
 /// but no budget lines yet.
+/// The two pilot companies and the project each one works on. A seeded login
+/// without a project sees an empty cabinet, so these are restored when they go
+/// missing instead of being created once and never checked again.
+const pilotProjects = <({String inn, String name, String address})>[
+  (
+    inn: '300000001',
+    name: 'ЖК Навои',
+    address: 'Ташкент, Яккасарайский район, улица Бабура, 12',
+  ),
+  (
+    inn: '300000002',
+    name: 'ЖК Чиланзар',
+    address: 'Ташкент, Чиланзарский район, квартал 9, дом 4',
+  ),
+];
+
+/// Gives every seeded account back the project membership it is supposed to
+/// have, creating the project when it is gone. Changes nothing when the stand
+/// is already whole.
+Future<void> ensurePilotProjects(AppDatabase db) async {
+  for (final pilot in pilotProjects) {
+    final company = await db.companyIdByInn(pilot.inn);
+    if (company == null) continue;
+    final projectId = await db.projectIdByName(company, pilot.name) ??
+        await db.insertProject(
+          companyId: company,
+          name: pilot.name,
+          address: pilot.address,
+        );
+    final prefix = pilot.inn == '300000001' ? 'a.' : 'b.';
+    for (final account in seedAccounts) {
+      if (!account.login.startsWith(prefix)) continue;
+      if (!account.active) continue;
+      if (account.login == 'a.contractor2') continue;
+      final userId = await db.userIdByLogin(account.login);
+      if (userId == null) continue;
+      if (await db.memberExists(projectId, userId)) continue;
+      await db.insertMember(
+        projectId: projectId,
+        userId: userId,
+        role: account.role,
+      );
+    }
+  }
+}
+
 Future<void> seedPilotBudgetIfMissing(AppDatabase db, String password) async {
   if (await db.companyCount() == 0) return;
   for (final account in seedAccounts) {
     await db.renameUserByLogin(account.login, account.name);
   }
+  await ensurePilotProjects(db);
   final hash = hashPassword(password);
   final navoi = await db.companyIdByInn('300000001');
   final chilonzor = await db.companyIdByInn('300000002');

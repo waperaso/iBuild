@@ -677,6 +677,12 @@ class BankStrings {
   String get returnToSpecialist => _t('Вернуть специалисту', 'Return to the specialist', 'Mutaxassisga qaytarish');
   String get reject => _t('Отклонить', 'Reject', 'Rad etish');
   String get rejectTitle => _t('Отклонить транш', 'Reject the tranche', 'Transhni rad etish');
+  String get routeEmpty => _t(
+    'Маршрут согласования для этого транша ещё не построен.',
+    'The sign-off route for this tranche has not been built yet.',
+    'Bu transh uchun kelishuv marshruti hali tuzilmagan.',
+  );
+
   String blocker(String code) {
     return switch (code) {
       'not_member' => _t('Вы не входите в группу, которая согласует этот шаг', 'You are not in the group that approves this step', 'Siz bu bosqichni kelishadigan guruhga kirmaysiz'),

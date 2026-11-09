@@ -390,6 +390,14 @@ extension MoreCopy on AppCopy {
     'Bank ko‘rib chiqayotgan transhlar.',
   ));
 
+  /// A tranche that has been sent waits for the technical supervisor first.
+  /// Telling them it waits for the bank reads as though nothing is asked of them.
+  String get awaitingYourCheck => _t((
+    'Ждёт вашей проверки',
+    'Waiting for your check',
+    'Sizning tekshiruvingizni kutmoqda',
+  ));
+
   // ── Tranche forms ──────────────────────────────────────────────────────
 
   String get noPlanYet => _t(('Банк ещё не назначил лимит', 'The bank has not set a limit yet', 'Bank hali limit belgilamagan'));
