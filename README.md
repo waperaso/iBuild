@@ -1,88 +1,129 @@
 # iBuild
 
-Локальный стенд пилота: Flutter Web и Dart API на одном origin, PostgreSQL в Docker.
+**English** · [Русский](README.ru.md) · [Oʻzbekcha](README.uz.md)
 
-Старый продукт лежит отдельно в `~/ibuild-legacy` (клон [waperaso/iBuild](https://github.com/waperaso/iBuild.git), коммит `df7e8f8`). Его не меняем. Это витрина новостроек. Новый iBuild — учёт бюджета и заявок на оплату.
+Construction-loan monitoring. A bank releases a loan in tranches: the developer
+requests each one with evidence, a site inspector confirms the work, the bank
+decides what to fund, and every step stays in the journal.
 
-## Запуск
+Flutter Web and a Dart API on one origin, PostgreSQL in Docker.
 
-Нужны Docker, Flutter и Dart. Порт `5432` на этой машине уже занят другим Postgres, поэтому база пилота публикуется на **5433**.
+---
 
-Compose отдаёт веб-приложение из `app/build/web`, поэтому сначала собираем его,
-и обязательно с `--no-web-resources-cdn`: без этого флага Flutter тянет CanvasKit
-с `gstatic.com`, а Content-Security-Policy сервера такой запрос блокирует — страница
-остаётся пустой.
+## Quick start
+
+Needs Docker, Flutter and Dart.
+
+> **Build the web app with `--no-web-resources-cdn`.**
+> Without that flag Flutter loads CanvasKit from `gstatic.com`, the server's
+> Content-Security-Policy blocks the request, and the page stays blank.
 
 ```bash
-cd ~/ibuild-new
 (cd app && flutter build web --release --no-web-resources-cdn)
 docker compose up -d --build
+curl localhost:8080/api/ready
 ```
 
-Откройте http://localhost:8080.
+Then open <http://localhost:8080>.
 
-Локальный пароль всех сидов: `123456`.
+The database is published on **5433**, because `5432` is usually taken by
+another Postgres.
 
-| Логин | Роль | Компания |
-|---|---|---|
-| `a.director` | Застройщик | Навои Девелопмент |
-| `a.contractor` | Подрядчик | Навои Девелопмент |
-| `a.tech` | Технадзор | Навои Девелопмент |
-| `a.observer` | Банк (кредитный специалист) | Банк Навои |
-| `b.director` | Застройщик | Чиланзар Строй |
-| `b.contractor` | Подрядчик | Чиланзар Строй |
-| `b.tech` | Технадзор | Чиланзар Строй |
-| `b.observer` | Банк | Чиланзар Строй |
+---
 
-Кабинет банка (Банк Навои):
+## Demo accounts
 
-| Логин | Роль |
-|---|---|
-| `a.observer` | Кредитный специалист |
-| `a.expert` | Технический эксперт |
-| `a.head1`, `a.head2`, `a.head3` | Начальники отделов |
-| `a.committee1` … `a.committee5` | Кредитный комитет |
-| `a.risk` | Риск-менеджер |
-| `a.bankadmin` | Администратор банка (правила и маршруты) |
+Password for every seeded login is `SEED_PASSWORD` from `.env` — `123456` by default.
 
-Администратор платформы: `a.admin` (панель «ibuild admin»).
+### Developer side
 
-Сценарий показа продукта: `docs/presentation.ru.md`. Запуск в продакшн: `docs/production.ru.md`.
+`a.*` belong to Навои Девелопмент, `b.*` to Чиланзар Строй.
 
-`a.disabled` существует и не входит: учётная запись отключена.
+| Login | Role |
+| --- | --- |
+| `a.director` · `b.director` | Developer |
+| `a.contractor` · `b.contractor` | Contractor |
+| `a.tech` · `b.tech` | Site inspector |
 
-Оператор, без экрана регистрации:
+### Bank workspace
+
+| Login | Role |
+| --- | --- |
+| `a.observer` | Credit specialist |
+| `a.expert` | Technical expert |
+| `a.head1` … `a.head3` | Heads of department |
+| `a.committee1` … `a.committee5` | Credit committee |
+| `a.risk` | Risk manager |
+| `a.bankadmin` | Bank administrator — rules and sign-off routes |
+| `b.observer` | Credit specialist, second bank |
+
+### Platform
+
+| Login | Role |
+| --- | --- |
+| `a.admin` | iBuild administrator |
+| `a.disabled` | Disabled on purpose — cannot sign in |
+
+The sign-in page also offers a **read-only demo** for each role. A demo session
+may look at everything and change nothing.
+
+---
+
+## Checks
 
 ```bash
-cd server
-export DATABASE_URL='postgres://ibuild:ibuild@localhost:5433/ibuild?sslmode=disable'
-dart run bin/operator.dart create --inn 300000001 --login pilot.user --name "Имя" --password "secret"
-dart run bin/operator.dart reset-password --login pilot.user --password "secret"
-dart run bin/operator.dart set-active --login pilot.user --active false
+cd app    && flutter analyze && flutter test
+cd server && dart analyze    && dart test
 ```
 
-## Проверки
+Server tests need the pilot database on `5433`. They create and use
+`ibuild_test` and never touch `ibuild`.
 
-```bash
-cd app && flutter test && flutter build web --release --no-web-resources-cdn
-cd ../server && dart test
-```
+---
 
-## Копия и реестр
+## Backup
 
-Реестр заявок — `GET /api/requests.csv`. На экране траншей та же выгрузка учитывает выбранные объект и статус. Видны только заявки, которые эта роль и так может открыть.
-
-Копия снимается с запущенного стенда и кладётся в `backups/`. Восстановление идёт в отдельную базу `ibuild_restore`, рабочая база `ibuild` не перезаписывается. Скрипт проверяет, что у заявки на месте статус, сумма, история и фото.
+A copy is taken from the running stand into `backups/`. Restore goes into a
+separate `ibuild_restore` database, so the working `ibuild` is never
+overwritten. The script checks that a request keeps its status, amount, history
+and photo.
 
 ```bash
 dir=$(./scripts/backup.sh)
 ./scripts/restore.sh "$dir"
 ```
 
-Публичного HTTPS нет. Локальный Compose — стенд пилота, не боевой сервер.
+---
 
-## Что уже на стенде
+## Accounts without the sign-up screen
 
-Вход, две компании, объекты, фирмы подрядчика, назначения и бюджет финансирования: лимит, в транше, выдано, остаток. Застройщик правит бюджет, пока по объекту нет отправленного транша. Подрядчик видит свои статьи. Чужой объект — 404.
+```bash
+cd server
+export DATABASE_URL='postgres://ibuild:ibuild@localhost:5433/ibuild?sslmode=disable'
+dart run bin/operator.dart create --inn 300000001 --login pilot.user --name "Name" --password "secret"
+dart run bin/operator.dart reset-password --login pilot.user --password "secret"
+dart run bin/operator.dart set-active --login pilot.user --active false
+```
 
-Застройщик или подрядчик сохраняет черновик, прикладывает фото и отправляет транш на проверку. Технадзор подтверждает объём. Банк одобряет выдачу и записывает уже проведённый платёж либо снимает одобрение, если платёж не ушёл.
+---
+
+## Documentation
+
+| Document | What it covers |
+| --- | --- |
+| [docs/presentation.ru.md](docs/presentation.ru.md) | the 12–15 minute product showing |
+| [docs/audit-pre-demo.ru.md](docs/audit-pre-demo.ru.md) | pre-demo audit: what was fixed, what to watch |
+| [docs/production.ru.md](docs/production.ru.md) | going to production |
+| [docs/api.md](docs/api.md) | API contract |
+| [docs/security-matrix.md](docs/security-matrix.md) | who may do what |
+
+The request registry is `GET /api/requests.csv`. On the tranches screen the same
+export follows the chosen project and status, and shows only the requests the
+role could open anyway.
+
+---
+
+## Not a production server
+
+The Compose file here is a local pilot stand: no public HTTPS, demo data seeded
+on start. Production settings live in [docs/production.ru.md](docs/production.ru.md).
