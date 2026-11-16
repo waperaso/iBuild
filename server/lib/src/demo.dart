@@ -10,9 +10,10 @@ import 'passwords.dart';
 import 'registration.dart';
 import 'seed.dart';
 
-/// The demo is a separate, read-only world inside the same instance. Its
-/// companies, users and applications carry `is_demo`, nobody can sign in to it
-/// with a password, and every change attempt by a demo session is refused.
+/// The demo is a separate world inside the same instance. Its companies, users
+/// and applications carry `is_demo`. A session opened by a role button is
+/// read-only. When a seed password is supplied, the same accounts can also
+/// sign in with it and change only the demo world.
 
 /// Role button -> demo login.
 const demoLogins = <String, String>{
@@ -36,15 +37,17 @@ const _demoInns = [
 const demoBlockedMessage = 'Это демо: данные учебные, изменения не сохраняются.';
 
 /// Builds the demo world when it is missing. Safe to run on every start.
-Future<void> seedDemoWorld(AppDatabase db) async {
+///
+/// [password] is the presentation password. Empty means the accounts are
+/// created with a password that is thrown away, so only the role buttons work.
+Future<void> seedDemoWorld(AppDatabase db, {String password = ''}) async {
   final existing = await db.companyIdByInn('300000001');
   if (existing == null) {
-    // Nobody can sign in with this password: it is thrown away.
-    final password = randomToken();
-    await seedDemo(db, password);
-    await seedPilotBudgetIfMissing(db, password);
-    await ensurePlatformAdmin(db, password);
-    await ensureBankCabinet(db, password);
+    final secret = password.isEmpty ? randomToken() : password;
+    await seedDemo(db, secret);
+    await seedPilotBudgetIfMissing(db, secret);
+    await ensurePlatformAdmin(db, secret);
+    await ensureBankCabinet(db, secret);
   }
   await db.owner.execute(
     Sql.named('UPDATE companies SET is_demo = true WHERE inn = ANY(@inns)'),

@@ -22,7 +22,7 @@ Future<void> main() async {
     await ensureBankCabinet(db, env.seedPassword);
     if (!env.demoEnabled) await seedDemoApplications(db);
   }
-  if (env.demoEnabled) await seedDemoWorld(db);
+  if (env.demoEnabled) await seedDemoWorld(db, password: env.seedPassword);
   Vault.configure(env.mailKey);
   if (await sealLegacyMail(db) > 0) stdout.writeln('Старые письма в очереди зашифрованы');
   await bankReconcile(db);

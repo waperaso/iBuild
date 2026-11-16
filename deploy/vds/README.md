@@ -19,8 +19,9 @@ domains:
   api.ibuild.uz: API only, anything except /api/ returns 404
 api_bind: 127.0.0.1:8080
 database_bind: docker network only, not published
-demo: DEMO_ENABLED=false
+demo: DEMO_ENABLED=true
 seed: SEED_ON_START=false
+demo_password_file: /srv/ibuild/secrets/seed_password
 repo: https://github.com/waperaso/iBuild.git
 server_checkout: /srv/ibuild/src
 compose: /srv/ibuild/docker-compose.yml
@@ -41,7 +42,7 @@ timezone: Asia/Tashkent
 - Не открывает наружу порты 5432 и 8080.
 - Не включает `PasswordAuthentication` и не выключает ufw.
 - Не деплоит на `46.8.176.254`.
-- Не ставит `DEMO_ENABLED=true` и `SEED_ON_START=true` на этом сервере.
+- Не ставит `SEED_ON_START=true` на этом сервере. Демо включается отдельно: `DEMO_ENABLED=true`, пароль только в файле `seed_password`.
 - Не правит уже выпущенный сертификат руками и не удаляет `/etc/letsencrypt`.
 
 Приватный ключ лежит только на машине, с которой ставили сервер: `~/.ssh/ibuild_vds_ed25519`. На новый компьютер его копируют файлом, права `600`. В git его нет и не будет.
@@ -66,6 +67,7 @@ timezone: Asia/Tashkent
 
 - `/srv/ibuild/secrets/db_password`
 - `/srv/ibuild/secrets/mail_key`
+- `/srv/ibuild/secrets/seed_password` — пароль учебных логинов. В git его нет.
 
 Каталог секретов `700`, сами файлы `644`, чтобы пользователь контейнера `ibuild` (uid 10001) мог их прочитать. Другие пользователи хоста в каталог не входят.
 
@@ -199,6 +201,14 @@ chmod 600 /srv/ibuild/backups/manual.dump
 
 Восстанавливай только в новую базу, не в живую `ibuild`, пока человек явно не попросил заменить боевые данные.
 
+## Демо для тестов и показа
+
+`DEMO_ENABLED=true` при старте создаёт учебный мир, если его ещё нет. Боевая компания администратора (ИНН `000000000`, логин `admin`) не помечается учебной и свой пароль не меняет.
+
+Кнопки на экране входа открывают учебный мир только для просмотра: сохранить ничего нельзя. Тот же логин с паролем из `seed_password` входит обычной сессией и может менять только учебные компании.
+
+Логины, один пароль на всех: `a.director`, `a.contractor`, `a.tech`, `a.observer`, `a.admin`, `a.expert`, `a.head1`, `a.bankadmin`, `a.risk`, `a.committee1`. Второй объект: `b.director`, `b.contractor`, `b.tech`, `b.observer`.
+
 ## Что проверить после деплоя
 
 - `https://api.ibuild.uz/api/ready` → `{"ok":true}`
@@ -206,6 +216,8 @@ chmod 600 /srv/ibuild/backups/manual.dump
 - снаружи закрыты 5432 и 8080: `nc -z -G 5 46.8.195.36 5432` не подключается
 - `docker compose ps`: api healthy, db healthy, порт API `127.0.0.1:8080->8080`
 - вход в кабинет под своей учёткой, не под чужой
-- `POST https://admin.ibuild.uz/api/demo/login` остаётся `404`
+- `GET https://admin.ibuild.uz/api/config` отдаёт `demoEnabled: true`
+- вход `a.director` с паролем из `seed_password` возвращает 200 и может менять только учебные данные
+- кнопка демо на экране входа открывает тот же мир только для просмотра
 
 Локальный DNS может ещё несколько часов отдавать старый `46.8.176.254`. Проверяй через `--resolve ...:443:46.8.195.36` или `dig @1.1.1.1`. Авторитетные серверы `dns1.airnet.uz` и `dns2.airnet.uz` уже указывают на `46.8.195.36`.

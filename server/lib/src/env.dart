@@ -102,9 +102,11 @@ class AppEnv {
     final dbPassword = readSecret(source, 'DB_PASSWORD');
     final mail = readSecret(source, 'MAIL_KEY');
     final smtp = readSecret(source, 'SMTP_PASSWORD');
+    final seed = readSecret(source, 'SEED_PASSWORD');
     secretProblems.addAll(dbPassword.problems);
     secretProblems.addAll(mail.problems);
     secretProblems.addAll(smtp.problems);
+    secretProblems.addAll(seed.problems);
 
     final configuredUrl = read('DATABASE_URL', '');
     final String databaseUrl;
@@ -132,7 +134,7 @@ class AppEnv {
       host: read('HOST', '0.0.0.0'),
       port: int.parse(read('PORT', '8080')),
       seedOnStart: read('SEED_ON_START', 'false') == 'true',
-      seedPassword: read('SEED_PASSWORD', ''),
+      seedPassword: seed.value,
       webRoot: webRoot.isEmpty ? null : webRoot,
       cookieSecure: read('COOKIE_SECURE', 'false') == 'true',
       migrationsDir: read('MIGRATIONS_DIR', 'migrations'),

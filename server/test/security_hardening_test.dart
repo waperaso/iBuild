@@ -72,6 +72,24 @@ void main() {
       expect(env.databaseUrl, isNot(contains('p@ss:word')));
       expect(env.databaseUrl, contains('@db:5432/ibuild?sslmode=disable'));
       expect(env.trustProxy, isTrue);
+      expect(env.seedPassword, isEmpty);
+
+      final seedFile = File('${dir.path}/seed_password');
+      await seedFile.writeAsString('Pilot-2026-demo\n');
+      final seeded = AppEnv.parse({
+        'APP_ENV': 'production',
+        'COOKIE_SECURE': 'true',
+        'SEED_ON_START': 'false',
+        'DEMO_ENABLED': 'true',
+        'DB_HOST': 'db',
+        'DB_PASSWORD_FILE': file.path,
+        'MAIL_KEY': base64Encode(Uint8List(32)),
+        'SEED_PASSWORD_FILE': seedFile.path,
+      });
+      expect(seeded.productionProblems(), isEmpty);
+      expect(seeded.demoEnabled, isTrue);
+      expect(seeded.seedOnStart, isFalse);
+      expect(seeded.seedPassword, 'Pilot-2026-demo');
 
       final both = AppEnv.parse({'DB_PASSWORD': 'plain', 'DB_PASSWORD_FILE': file.path});
       expect(both.secretProblems, contains('DB_PASSWORD и DB_PASSWORD_FILE заданы вместе'));

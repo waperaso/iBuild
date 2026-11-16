@@ -54,7 +54,8 @@ services:
       DB_NAME: ibuild
       DB_PASSWORD_FILE: /run/secrets/db_password
       SEED_ON_START: "false"
-      DEMO_ENABLED: "false"
+      DEMO_ENABLED: "true"
+      SEED_PASSWORD_FILE: /run/secrets/seed_password
       COOKIE_SECURE: "true"
       BACKUP_DIR: /backups
       MAIL_KEY_FILE: /run/secrets/mail_key
@@ -66,6 +67,7 @@ services:
       - /srv/ibuild/backups:/backups:ro
       - /srv/ibuild/secrets/db_password:/run/secrets/db_password:ro
       - /srv/ibuild/secrets/mail_key:/run/secrets/mail_key:ro
+      - /srv/ibuild/secrets/seed_password:/run/secrets/seed_password:ro
     depends_on:
       db:
         condition: service_healthy
