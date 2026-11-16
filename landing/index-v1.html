@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="iBuild связывает бюджет стройки, заявки на транши, заключения экспертов и решения банка.">
+  <meta property="og:title" content="iBuild — от заявки на транш до решения банка">
+  <meta property="og:description" content="Проектное финансирование для банков и застройщиков. Посмотрите, как устроен процесс в iBuild.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/screens/review.png">
+  <title>iBuild — от заявки на транш до решения банка</title>
+  <link rel="icon" href="assets/brand/ibuild-logo.jpg">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="i18n.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main" data-copy="skip">К содержанию</a>
+  <header class="site-header" id="top">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="iBuild">
+        <img src="assets/brand/ibuild-logo.jpg" alt="" width="36" height="36">
+        <span>iBuild</span>
+      </a>
+      <nav class="header-links" aria-label="Навигация" data-label="nav">
+        <a href="#process" data-copy="navProcess">Как работает</a>
+        <a href="#roles" data-copy="navRoles">Для кого</a>
+      </nav>
+      <div class="header-actions">
+        <div class="languages" role="group" aria-label="Язык" data-label="language">
+          <button type="button" data-lang="ru" aria-pressed="true">RU</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+          <button type="button" data-lang="uz" aria-pressed="false">UZ</button>
+        </div>
+        <a class="login" href="/#/login" data-app="login"><span data-copy="login">Войти</span><span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span><span data-copy="category">На стадии разработки</span></p>
+          <h1 id="hero-title" data-copy="headline">От заявки на транш до решения банка</h1>
+          <p class="hero-lead" data-copy="lead">Застройщик подаёт заявку, эксперт фиксирует результаты осмотра, банк согласует сумму. Все материалы по траншу остаются в одной карточке.</p>
+          <div class="actions">
+            <a class="button button-dark" href="#process"><span data-copy="tour">Посмотреть процесс</span><span aria-hidden="true">↓</span></a>
+            <a class="button button-outline" href="/#/register" data-app="register"><span data-copy="apply">Подать заявку</span><span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+        <figure class="hero-preview">
+          <div class="frame-label"><span><i aria-hidden="true"></i><span data-copy="heroScreen">Кабинет банка</span></span><span data-copy="sample">Пример данных</span></div>
+          <a class="screen-open" href="assets/screens/review.png" data-zoom aria-label="Увеличить экран кабинета банка" data-label="zoomReview">
+            <img src="assets/screens/review.png" alt="Карточка транша в iBuild: запрошенная сумма, подтверждённый объём и замечания банка" data-alt="altReview" width="1920" height="1140" fetchpriority="high">
+            <span class="zoom-mark" aria-hidden="true">↗</span>
+          </a>
+        </figure>
+      </div>
+    </section>
+
+    <section class="process section container" id="process" aria-labelledby="process-title">
+      <div class="section-head">
+        <p class="eyebrow" data-copy="navProcess">Как работает</p>
+        <h2 id="process-title" data-copy="processTitle">Четыре шага одного транша</h2>
+        <p data-copy="processLead">Пройдите путь транша №2 на примере ЖК Навои.</p>
+      </div>
+      <div class="tour-layout">
+        <div class="steps" data-steps aria-label="Этапы работы с траншем" data-label="steps">
+          <a class="step" id="tab-request" href="#screen-request"><span class="step-num">01</span><span><strong data-copy="stepRequest">Заявка</strong><span class="step-detail" data-copy="textRequest">Застройщик выбирает вид работ, указывает сумму и прикладывает подтверждения.</span></span></a>
+          <a class="step" id="tab-inspection" href="#screen-inspection"><span class="step-num">02</span><span><strong data-copy="stepInspection">Осмотр</strong><span class="step-detail" data-copy="textInspection">Эксперт выезжает на объект и оставляет заключение по работам.</span></span></a>
+          <a class="step" id="tab-review" href="#screen-review"><span class="step-num">03</span><span><strong data-copy="stepReview">Решение</strong><span class="step-detail" data-copy="textReview">Специалист сверяет суммы, разбирает замечания и готовит решение.</span></span></a>
+          <a class="step" id="tab-approval" href="#screen-approval"><span class="step-num">04</span><span><strong data-copy="stepApproval">Согласование</strong><span class="step-detail" data-copy="textApproval">Банк согласует решение. Участники видят текущий этап транша.</span></span></a>
+        </div>
+        <div class="panels">
+          <figure class="screen-panel" id="screen-request">
+            <div class="frame-label"><span><i aria-hidden="true"></i><span data-copy="developerWorkspace">Кабинет застройщика</span></span><span>01 / 04</span></div>
+            <a class="screen-open" href="assets/screens/request.png" data-zoom aria-label="Увеличить экран заявки" data-label="zoomRequest"><img src="assets/screens/request.png" alt="Форма нового транша в iBuild" data-alt="altRequest" width="1920" height="1140" loading="lazy"><span class="zoom-mark" aria-hidden="true">↗</span></a>
+          </figure>
+          <figure class="screen-panel" id="screen-inspection">
+            <div class="frame-label"><span><i aria-hidden="true"></i><span data-copy="heroScreen">Кабинет банка</span></span><span>02 / 04</span></div>
+            <a class="screen-open" href="assets/screens/inspection.png" data-zoom aria-label="Увеличить экран осмотров" data-label="zoomInspection"><img src="assets/screens/inspection.png" alt="Журнал осмотров iBuild с заключением эксперта" data-alt="altInspection" width="1920" height="1140" loading="lazy"><span class="zoom-mark" aria-hidden="true">↗</span></a>
+          </figure>
+          <figure class="screen-panel" id="screen-review">
+            <div class="frame-label"><span><i aria-hidden="true"></i><span data-copy="heroScreen">Кабинет банка</span></span><span>03 / 04</span></div>
+            <a class="screen-open" href="assets/screens/review.png" data-zoom aria-label="Увеличить экран решения" data-label="zoomReview"><img src="assets/screens/review.png" alt="Карточка транша в iBuild: запрошенная сумма, подтверждённый объём и замечания банка" data-alt="altReview" width="1920" height="1140" loading="lazy"><span class="zoom-mark" aria-hidden="true">↗</span></a>
+          </figure>
+          <figure class="screen-panel" id="screen-approval">
+            <div class="frame-label"><span><i aria-hidden="true"></i><span data-copy="heroScreen">Кабинет банка</span></span><span>04 / 04</span></div>
+            <a class="screen-open" href="assets/screens/approval.png" data-zoom aria-label="Увеличить экран согласования" data-label="zoomApproval"><img src="assets/screens/approval.png" alt="Маршрут согласования транша в iBuild" data-alt="altApproval" width="1920" height="1140" loading="lazy"><span class="zoom-mark" aria-hidden="true">↗</span></a>
+          </figure>
+          <p class="screen-note" data-copy="screenNote">Экраны iBuild с тестовыми данными. Нажмите на экран, чтобы увеличить.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="roles section" id="roles" aria-labelledby="roles-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow" data-copy="navRoles">Для кого</p>
+          <h2 id="roles-title" data-copy="rolesTitle">У каждого своя часть работы</h2>
+        </div>
+        <div class="role-grid">
+          <article><span class="role-number">01</span><h3 data-copy="bank">Банк</h3><p data-copy="bankText">Видит портфель объектов, очередь траншей и причины возвратов.</p></article>
+          <article><span class="role-number">02</span><h3 data-copy="developer">Застройщик</h3><p data-copy="developerText">Ведёт бюджет, отправляет транши и отвечает на замечания банка.</p></article>
+          <article><span class="role-number">03</span><h3 data-copy="expert">Эксперт</h3><p data-copy="expertText">Получает задания на осмотр и фиксирует фактическую готовность работ.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="container closing">
+      <div><h2 data-copy="closingTitle">Подключите свою организацию</h2><p data-copy="closingText">Заявки принимаются от банков и застройщиков.</p></div>
+      <a class="button button-dark" href="/#/register" data-app="register"><span data-copy="apply">Подать заявку</span><span aria-hidden="true">↗</span></a>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container footer-inner"><a class="brand" href="#top" aria-label="iBuild"><span>iBuild</span></a><a class="login" href="/#/login" data-app="login"><span data-copy="login">Войти</span><span aria-hidden="true">↗</span></a></div></footer>
+  <dialog class="viewer" data-viewer aria-label="Экран iBuild" data-label="viewer">
+    <form method="dialog"><button class="close-viewer" aria-label="Закрыть" data-label="close">×</button></form>
+    <div class="viewer-scroll"><img data-full alt=""></div>
+  </dialog>
+</body>
+</html>

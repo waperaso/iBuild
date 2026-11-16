@@ -12,7 +12,17 @@ data/
 backups/
 .DS_Store
 .env.prod
+.env.*
+!.env.example
 deploy/secrets/
+
+# Operator keys and passwords stay on the server, never in git.
+*.pass
+*.pem
+*.p12
+*.key
+id_ed25519
+id_rsa
 
 # Screenshots and demo captures
 demo-week/

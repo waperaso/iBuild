@@ -1,0 +1,75 @@
+# VDS stack. nginx on the host owns 80 and 443. The API is only on localhost.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+      - /run/postgresql
+    environment:
+      POSTGRES_USER: ibuild
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: ibuild
+    volumes:
+      - ibuild_pg:/var/lib/postgresql/data
+      - /srv/ibuild/backups:/backups:ro
+      - /srv/ibuild/secrets/db_password:/run/secrets/db_password:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ibuild -d ibuild"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  api:
+    build:
+      context: /srv/ibuild/src
+      dockerfile: server/Dockerfile.prod
+    restart: unless-stopped
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/tmp
+    environment:
+      APP_ENV: production
+      APP_VERSION: "1"
+      DB_HOST: db
+      DB_USER: ibuild
+      DB_NAME: ibuild
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      SEED_ON_START: "false"
+      DEMO_ENABLED: "false"
+      COOKIE_SECURE: "true"
+      BACKUP_DIR: /backups
+      MAIL_KEY_FILE: /run/secrets/mail_key
+      TRUST_PROXY: "true"
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ibuild_files:/app/data/files
+      - /srv/ibuild/backups:/backups:ro
+      - /srv/ibuild/secrets/db_password:/run/secrets/db_password:ro
+      - /srv/ibuild/secrets/mail_key:/run/secrets/mail_key:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  ibuild_pg: {}
+  ibuild_files: {}
