@@ -280,7 +280,7 @@ void main() {
       final comments = await rows(
           'SELECT body FROM draw_comments WHERE request_id = @r::uuid ORDER BY created_at',
           {'r': drawId});
-      expect(comments.map((c) => c.first.toString()).join('|'), contains('Банк согласовал'));
+      expect(comments.map((c) => c.first.toString()).join('|'), contains('The bank approved'));
       expect(comments.length, greaterThanOrEqualTo(2));
 
       // 4. Every step left a trace: who, what, when.
@@ -436,7 +436,7 @@ void main() {
       )).single;
       expect(moved[0], 'specialist');
       expect(moved[1], 'Решение специалиста');
-      expect(moved[2], isNot('Ждёт осмотра'));
+      expect(moved[2], isNot('Awaiting inspection'));
       expect((await rows("SELECT status FROM bank_approval_steps WHERE tranche_id = @id::uuid AND code = 'expert'", {'id': first.trancheId})).single.first, 'done');
       expect((await rows('SELECT stage FROM bank_tranches WHERE id = @id::uuid', {'id': extra.trancheId})).single.first, 'inspection');
       expect((await rows('SELECT stage FROM bank_tranches WHERE id = @id::uuid', {'id': second.trancheId})).single.first, 'inspection');
@@ -478,11 +478,11 @@ void main() {
       }
       rulesA = await rulesFor(bankA, rulesA);
       rulesB = await rulesFor(bankB, rulesB);
-      final company = (await rows("SELECT company_id::text FROM projects WHERE name = 'ЖК Навои'")).first.first! as String;
+      final company = (await rows("SELECT company_id::text FROM projects WHERE name = 'Navoi Residences'")).first.first! as String;
       final director = (await rows("SELECT id::text FROM users WHERE login = 'a.director'")).first.first! as String;
       final item = (await rows('''
         SELECT id::text FROM budget_items
-        WHERE project_id = (SELECT id FROM projects WHERE name = 'ЖК Навои')
+        WHERE project_id = (SELECT id FROM projects WHERE name = 'Navoi Residences')
         LIMIT 1
       ''')).first.first! as String;
 
@@ -672,7 +672,7 @@ void main() {
 
       final paidStep = await step(paid);
       expect(paidStep[0], 'done');
-      expect(paidStep[1], 'Осмотр зафиксирован');
+      expect(paidStep[1], 'Inspection recorded');
       expect((paidStep[2]! as DateTime).toUtc(), DateTime.utc(2026, 11, 6, 12));
       expect((await step(waiting))[0], 'pending');
       final namedStep = await step(named);
@@ -713,7 +713,7 @@ void main() {
         (await rows("SELECT count(*) FROM bank_audit_events WHERE action = 'expert_step_closed'")).first.first,
         3,
       );
-      expect((await step(paid))[1], 'Осмотр зафиксирован');
+      expect((await step(paid))[1], 'Inspection recorded');
       expect((await step(waiting))[0], 'pending');
       expect((await rows('SELECT payment_number FROM funding_requests WHERE id = @t::uuid', {'t': paidRequest})).single.first, 'PP-KEEP');
     });

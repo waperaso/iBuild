@@ -141,7 +141,7 @@ void main() {
     await demo.post('/api/demo/login', {'role': 'admin'});
     final demoCompanies = ((await demo.get('/api/admin/companies')).json['items'] as List).map((e) => (e as Map)['name']).toList();
     expect(demoCompanies, isNot(contains('Реал Строй')));
-    expect(demoCompanies, contains('Банк Навои'));
+    expect(demoCompanies, contains('Navoi Bank'));
     final demoUsers = ((await demo.get('/api/admin/users')).json['items'] as List).map((e) => (e as Map)['login']).toList();
     expect(demoUsers, isNot(contains('real.admin')));
     final demoApps = ((await demo.get('/api/admin/applications')).json['items'] as List);

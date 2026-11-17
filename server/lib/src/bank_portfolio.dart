@@ -150,10 +150,12 @@ Future<List<Map<String, Object?>>> bankSignals(AppDatabase db, String bankId, {S
   final redDays = ((rules['forecastRedMonths'] as num?)?.toInt() ?? 6) * 30 - 30;
   final salesDue = bankLastSalesDue(midnight, _salesDays(rules));
 
+  // The app builds the sentence of a signal from its code and params
+  // (`bankSignalTitle`); the Russian title here is only a fallback.
   for (final facility in facilities) {
     final id = facility['project_id']! as String;
     if (facility['paused'] == true) {
-      add(facility, 'block', 'paused', 'Финансирование приостановлено', 'ГС п. 4.10', 'open');
+      add(facility, 'block', 'paused', 'Финансирование приостановлено', 'Rule 4.10', 'open');
     }
     final row = overBy[id];
     if (row != null) {
@@ -166,7 +168,7 @@ Future<List<Map<String, Object?>>> bankSignals(AppDatabase db, String bankId, {S
           extra * BigInt.from(20) > issue ? 'block' : 'warning',
           'over_confirmed',
           'Выдано на ${bankMillions(extra)} млн больше, чем подтверждено осмотрами',
-          'ГС п. 3.6',
+          'Rule 3.6',
           'stop_lines',
           params: {'amount': bankMillions(extra)},
         );
@@ -176,10 +178,10 @@ Future<List<Map<String, Object?>>> bankSignals(AppDatabase db, String bankId, {S
     if (until != null) {
       final left = until.difference(midnight).inDays;
       if (left < 0) {
-        add(facility, 'block', 'facility_ended', 'Срок освоения кредита закончился ${_ruDate(bankDay(until)!)}', 'ГС п. 3.7', 'open',
+        add(facility, 'block', 'facility_ended', 'Срок освоения кредита закончился ${_ruDate(bankDay(until)!)}', 'Rule 3.7', 'open',
             params: {'date': bankDay(until)});
       } else if (left <= 30) {
-        add(facility, 'warning', 'facility_ending', 'Срок освоения кредита заканчивается ${_ruDate(bankDay(until)!)}', 'ГС п. 3.7', 'open',
+        add(facility, 'warning', 'facility_ending', 'Срок освоения кредита заканчивается ${_ruDate(bankDay(until)!)}', 'Rule 3.7', 'open',
             params: {'date': bankDay(until)});
       }
     }
@@ -208,9 +210,9 @@ Future<List<Map<String, Object?>>> bankSignals(AppDatabase db, String bankId, {S
         late >= redDays ? 'block' : 'warning',
         'forecast_late',
         'Прогноз сдачи позже срока на $late дн.',
-        'УП-11',
+        'Decree UP-11',
         'request_schedule',
-        detail: 'Срок ${bankDay(until)}, прогноз эксперта ${bankDay(finish)}.',
+        detail: 'Term ${bankDay(until)}, expert forecast ${bankDay(finish)}.',
         params: {'days': late, 'until': bankDay(until), 'finish': bankDay(finish)},
       );
     }
@@ -225,7 +227,7 @@ Future<List<Map<String, Object?>>> bankSignals(AppDatabase db, String bankId, {S
   final filed = {for (final row in filings) row['project_id']! as String};
   for (final facility in facilities) {
     if (filed.contains(facility['project_id'])) continue;
-    add(facility, 'reminder', 'sales_report', 'Не сдан отчёт о продажах за ${_ruDate(salesDue)}', 'ГС п. 5.9', 'remind', params: {'date': salesDue});
+    add(facility, 'reminder', 'sales_report', 'Не сдан отчёт о продажах за ${_ruDate(salesDue)}', 'Rule 5.9', 'remind', params: {'date': salesDue});
   }
 
   // A visit that was planned and has not been done.
@@ -243,7 +245,7 @@ Future<List<Map<String, Object?>>> bankSignals(AppDatabase db, String bankId, {S
   for (final facility in facilities) {
     final day = lateBy[facility['project_id']];
     if (day == null) continue;
-    add(facility, 'warning', 'inspection_overdue', 'Просрочен осмотр от ${_ruDate(bankDay(day)!)}', 'ГС п. 3.6', 'schedule_inspection',
+    add(facility, 'warning', 'inspection_overdue', 'Просрочен осмотр от ${_ruDate(bankDay(day)!)}', 'Rule 3.6', 'schedule_inspection',
         params: {'date': bankDay(day)});
   }
 
@@ -329,6 +331,8 @@ Future<Response> _portfolio(Request request, AppDatabase db) async {
   final times = await bankStageTimes(db, bank, quarter);
   final rules = await bankRulesNow(db, bank);
 
+  // The titles of the deadlines stay in Russian: the app translates them by
+  // that wording (`_deadlineTitle` in portfolio_screen.dart).
   final deadlines = <Map<String, Object?>>[];
   final planned = await bankRows(
     db,
@@ -349,12 +353,12 @@ Future<Response> _portfolio(Request request, AppDatabase db) async {
     });
   }
   for (final due in _nextSalesDues(midnight, _salesDays(rules))) {
-    deadlines.add({'day': due, 'kind': 'sales_report', 'title': 'Отчёты о продажах по ${totals['objects']} объектам', 'note': 'ГС п. 5.9'});
+    deadlines.add({'day': due, 'kind': 'sales_report', 'title': 'Отчёты о продажах по ${totals['objects']} объектам', 'note': 'Rule 5.9'});
   }
   final quarterEnd = DateTime.utc(today.year, ((today.month - 1) ~/ 3) * 3 + 4, 1);
   final quarterlyDue = DateTime.utc(quarterEnd.year, quarterEnd.month + 1, 0);
   if (!quarterlyDue.isBefore(midnight)) {
-    deadlines.add({'day': _dayText(quarterlyDue), 'kind': 'quarterly', 'title': 'Квартальная отчётность застройщиков', 'note': 'ГС п. 6.4.11'});
+    deadlines.add({'day': _dayText(quarterlyDue), 'kind': 'quarterly', 'title': 'Квартальная отчётность застройщиков', 'note': 'Rule 6.4.11'});
   }
   final ending = await bankRows(
     db,
@@ -367,7 +371,7 @@ Future<Response> _portfolio(Request request, AppDatabase db) async {
     {'bank': bank},
   );
   for (final row in ending) {
-    deadlines.add({'day': bankDay(row['day']), 'kind': 'facility', 'title': 'Конец срока освоения кредита, ${row['name']}', 'note': 'ГС п. 3.7'});
+    deadlines.add({'day': bankDay(row['day']), 'kind': 'facility', 'title': 'Конец срока освоения кредита, ${row['name']}', 'note': 'Rule 3.7'});
   }
   deadlines.sort((a, b) => (a['day']! as String).compareTo(b['day']! as String));
 
@@ -626,9 +630,9 @@ Future<Response> _remind(Request request, AppDatabase db, String id) async {
     {'id': id},
   );
   const asks = {
-    'sales_report': 'Просим передать отчёт о продажах по объекту.',
-    'schedule': 'Просим обновить график работ по объекту.',
-    'documents': 'Просим передать недостающие документы по объекту.',
+    'sales_report': 'Please send the sales report for the project.',
+    'schedule': 'Please update the work schedule for the project.',
+    'documents': 'Please send the missing documents for the project.',
   };
   var status = 'no_recipient';
   if (info.isNotEmpty) {
@@ -636,8 +640,8 @@ Future<Response> _remind(Request request, AppDatabase db, String id) async {
       status = await sendMail(
         db,
         to: person['login']! as String,
-        subject: '${info.first['bank']}: напоминание по объекту «${info.first['project']}»',
-        body: 'Здравствуйте!\n\n${asks[kind]}\n\nОбъект: ${info.first['project']}\nОтправитель: ${ctx.actor.name}, ${info.first['bank']}\n\niBuild',
+        subject: '${info.first['bank']}: reminder about the project “${info.first['project']}”',
+        body: 'Hello,\n\n${asks[kind]}\n\nProject: ${info.first['project']}\nSender: ${ctx.actor.name}, ${info.first['bank']}\n\niBuild',
         kind: 'reminder',
         bankId: ctx.bankId,
       );
@@ -658,8 +662,8 @@ Future<Response> _remind(Request request, AppDatabase db, String id) async {
         db,
         senderId: ctx.actor.userId,
         recipientIds: [for (final row in inside) row['id']! as String],
-        subject: '${info.first['bank']}: напоминание по объекту «${info.first['project']}»',
-        body: '${asks[kind]}\n\nОбъект: ${info.first['project']}\nОтправитель: ${ctx.actor.name}, ${info.first['bank']}',
+        subject: '${info.first['bank']}: reminder about the project “${info.first['project']}”',
+        body: '${asks[kind]}\n\nProject: ${info.first['project']}\nSender: ${ctx.actor.name}, ${info.first['bank']}',
       );
     }
   }
@@ -832,7 +836,7 @@ Future<Response> _planInspection(Request request, AppDatabase db) async {
       'kind': kind,
       'day': day,
       'expert': expert == null ? null : expertId,
-      'label': expert == null ? '' : '${expert['name']}, эксперт',
+      'label': expert == null ? '' : '${expert['name']}, expert',
       'user': ctx.actor.userId,
     },
   );

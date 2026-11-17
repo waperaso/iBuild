@@ -53,15 +53,15 @@ void main() {
     expect((await mason.login('a.contractor', password)).status, 200);
     expect((await engineer.login('a.contractor2', password)).status, 200);
     final projectId = await _navoi(mason);
-    final itemId = await _line(mason, projectId, 'Фундамент');
+    final itemId = await _line(mason, projectId, 'Foundation');
     final sent = await _ready(mason, projectId, itemId, '25.00', '=CMD("чужая формула")');
     expect(sent.body!['status'], 'submitted');
     final csv = await mason.text('/api/requests.csv');
-    expect(csv.contains('Объект;Вид работ;Подрядчик;ID транша'), isTrue);
+    expect(csv.contains('Project;Work item;Contractor;Tranche ID'), isTrue);
     expect(csv, contains(sent.body!['id'] as String));
     expect(csv, contains('25.00'));
-    expect(csv, contains('Ждёт решения банка'));
-    expect(csv, contains('Навои Строй Монтаж'));
+    expect(csv, contains('Waiting for the bank'));
+    expect(csv, contains('Navoi Stroy Montazh'));
     expect(await engineer.text('/api/requests.csv'), isNot(contains(sent.body!['id'])));
     expect((await Client(handler).send('GET', '/api/requests.csv')).status, 401);
   });
@@ -72,8 +72,8 @@ void main() {
     expect((await mason.login('a.contractor', password)).status, 200);
     expect((await engineer.login('a.contractor2', password)).status, 200);
     final projectId = await _navoi(mason);
-    final itemId = await _line(engineer, projectId, 'Инженерия');
-    final foreign = await _line(mason, projectId, 'Фундамент');
+    final itemId = await _line(engineer, projectId, 'Building services');
+    final foreign = await _line(mason, projectId, 'Foundation');
     expect((await engineer.send('POST', '/api/requests', json: {
       'projectId': projectId,
       'budgetItemId': foreign,
@@ -83,7 +83,7 @@ void main() {
     final sent = await _ready(engineer, projectId, itemId, '15.00', 'Сети, секция А');
     final own = await engineer.text('/api/requests.csv');
     expect(own, contains(sent.body!['id'] as String));
-    expect(own, contains('Навои Инженерные Сети'));
+    expect(own, contains('Navoi Engineering Networks'));
     expect(await mason.text('/api/requests.csv'), isNot(contains(sent.body!['id'])));
   });
 
@@ -92,16 +92,16 @@ void main() {
     expect((await tech.login('a.tech', password)).status, 200);
     final projectId = await _navoi(tech);
     final csv = await tech.text('/api/requests.csv?status=submitted');
-    expect(csv, contains('Ждёт решения банка'));
-    expect(csv, contains('Фундамент'));
-    expect(csv, contains('Инженерия'));
+    expect(csv, contains('Waiting for the bank'));
+    expect(csv, contains('Foundation'));
+    expect(csv, contains('Building services'));
     expect((await tech.send('POST', '/api/requests', json: {
       'projectId': projectId,
-      'budgetItemId': await _line(tech, projectId, 'Фундамент'),
+      'budgetItemId': await _line(tech, projectId, 'Foundation'),
       'amount': '10.00',
       'description': 'технадзор не создаёт',
     })).status, 403);
-    final id = _idOf(csv, 'Фундамент');
+    final id = _idOf(csv, 'Foundation');
     final card = await tech.send('GET', '/api/requests/$id');
     expect((await tech.send('POST', '/api/requests/$id/pay', json: {
       'version': card.body!['version'],
@@ -124,7 +124,7 @@ void main() {
     final projectId = await _navoi(director);
     expect((await other.send('GET', '/api/projects/$projectId')).status, 404);
     final csvBefore = await mason.text('/api/requests.csv?status=submitted');
-    final id = _idOf(csvBefore, 'Фундамент');
+    final id = _idOf(csvBefore, 'Foundation');
     final card = await tech.send('GET', '/api/requests/$id');
     final checked = await tech.send('POST', '/api/requests/$id/tech', json: {
       'version': card.body!['version'],
@@ -155,7 +155,7 @@ void main() {
     expect(paid.status, 200, reason: paid.raw);
     final csv = await director.text('/api/requests.csv?status=paid&project=$projectId');
     expect(csv, contains(id));
-    expect(csv, contains('Выплачен'));
+    expect(csv, contains('Paid out'));
     expect(csv, contains('2026-10-19'));
     expect(csv, contains("'=ПП-19"));
     expect(await other.text('/api/requests.csv'), isNot(contains(id)));
@@ -170,9 +170,9 @@ void main() {
     expect((await disabled.login('a.disabled', password)).status, 403);
     final projectId = await _navoi(observer);
     final csv = await observer.text('/api/requests.csv?project=$projectId');
-    expect(csv, contains('Выплачен'));
-    expect(csv, contains('Ждёт решения банка'));
-    final id = _idOf(csv, 'Фундамент');
+    expect(csv, contains('Paid out'));
+    expect(csv, contains('Waiting for the bank'));
+    final id = _idOf(csv, 'Foundation');
     final card = await observer.send('GET', '/api/requests/$id');
     expect(card.status, 200);
     expect((await observer.send('POST', '/api/requests/$id/approve', json: {
@@ -180,7 +180,7 @@ void main() {
     }, idempotencyKey: 'bank-approve-001')).status, 409);
     expect((await observer.send('POST', '/api/requests', json: {
       'projectId': projectId,
-      'budgetItemId': await _line(observer, projectId, 'Фундамент'),
+      'budgetItemId': await _line(observer, projectId, 'Foundation'),
       'amount': '10.00',
       'description': 'банк не создаёт',
     })).status, 403);
@@ -192,7 +192,7 @@ void main() {
     final dev = Client(handler);
     expect((await dev.login('a.developer', password)).status, 200);
     final projectId = await _navoi(dev);
-    final itemId = await _line(dev, projectId, 'Кровля и фасад');
+    final itemId = await _line(dev, projectId, 'Roofing and facade');
 
     final draft = await dev.send('POST', '/api/requests', json: {
       'projectId': projectId,
@@ -254,7 +254,7 @@ void main() {
 
 Future<String> _navoi(Client client) async {
   final rows = (await client.send('GET', '/api/projects')).body!['projects'] as List;
-  return (rows.cast<Map<String, dynamic>>().firstWhere((item) => item['name'] == 'ЖК Навои'))['id']
+  return (rows.cast<Map<String, dynamic>>().firstWhere((item) => item['name'] == 'Navoi Residences'))['id']
       as String;
 }
 

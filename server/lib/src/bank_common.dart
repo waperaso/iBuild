@@ -156,14 +156,6 @@ Future<void> bankRemember(
 /// The stages in the order of the route.
 const bankStageOrder = ['submitted', 'docs', 'inspection', 'specialist', 'approval', 'payout'];
 
-String bankPlural(int count, String one, String few, String many) {
-  final mod10 = count % 10;
-  final mod100 = count % 100;
-  if (mod10 == 1 && mod100 != 11) return one;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
-  return many;
-}
-
 /// Everything that depends on the choices of the specialist is counted here,
 /// in one place, and only on the server: amounts per line, blocked, to issue,
 /// the label of problems and the need for the credit committee.
@@ -243,10 +235,10 @@ Future<void> bankRecompute(Session tx, String trancheId) async {
       }
     }
     final parts = <String>[
-      if (blocks > 0) '$blocks ${bankPlural(blocks, 'блок', 'блока', 'блоков')}',
+      if (blocks > 0) '$blocks ${blocks == 1 ? 'block' : 'blocks'}',
       if (warnings > 0)
-        '$warnings ${bankPlural(warnings, 'предупреждение', 'предупреждения', 'предупреждений')}',
-      if (waived > 0) 'Принято с обоснованием: $waived',
+        '$warnings ${warnings == 1 ? 'warning' : 'warnings'}',
+      if (waived > 0) 'Accepted with a reason: $waived',
     ];
     final signal = blocks > 0
         ? 'block'
@@ -403,7 +395,7 @@ Future<bool> bankReleaseExpertVisit(Session tx, String id, String bankId) async 
   await tx.execute(
     Sql.named('''
       UPDATE bank_approval_steps
-      SET status = 'done', decided_at = now(), actor_label = 'Осмотр зафиксирован'
+      SET status = 'done', decided_at = now(), actor_label = 'Inspection recorded'
       WHERE tranche_id = @id::uuid AND code = 'expert' AND status = 'pending'
     '''),
     parameters: {'id': id},
@@ -415,7 +407,7 @@ Future<bool> bankReleaseExpertVisit(Session tx, String id, String bankId) async 
           stage_label = 'Решение специалиста',
           holder_user_id = @holder::uuid,
           holder_label = @label,
-          problems_label = CASE WHEN problems_label = 'Ждёт осмотра' THEN '' ELSE problems_label END,
+          problems_label = CASE WHEN problems_label = 'Awaiting inspection' THEN '' ELSE problems_label END,
           signal = CASE WHEN signal = 'inspection' THEN 'none' ELSE signal END,
           sla_days = bank_stage_days(rules_version_id, 'specialist', sla_days),
           elapsed_days = 0,
@@ -425,7 +417,7 @@ Future<bool> bankReleaseExpertVisit(Session tx, String id, String bankId) async 
     parameters: {
       'id': id,
       'holder': holder.isEmpty ? null : holder.first[0],
-      'label': holder.isEmpty ? '' : '${holder.first[1]}, кредитный специалист',
+      'label': holder.isEmpty ? '' : '${holder.first[1]}, credit specialist',
     },
   );
   await bankMoveClock(tx, id, 'specialist');
@@ -433,7 +425,7 @@ Future<bool> bankReleaseExpertVisit(Session tx, String id, String bankId) async 
     tx,
     bankId: bankId,
     trancheId: id,
-    actorLabel: 'Система',
+    actorLabel: 'System',
     action: 'inspection_reported',
     detail: {'stage': 'specialist'},
   );

@@ -241,7 +241,7 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
         }
       }
       if (rest > 0) {
-        shown.add({'object': 'Остальные $rest объектов', 'developer': 'ниже порога', 'percent': '< $threshold'});
+        shown.add({'object': 'Other $rest projects', 'developer': 'below the threshold', 'percent': '< $threshold'});
       }
       return _Report(
         code,
@@ -259,7 +259,7 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
         shown,
         summary: [
           stat('Сверх подтверждённого, млн UZS', bankMillions(over), tone: over > BigInt.zero ? 'bad' : ''),
-          stat('Объектов выше порога', '${shown.length - (rest > 0 ? 1 : 0)} из ${rows.length}'),
+          stat('Объектов выше порога', '${shown.length - (rest > 0 ? 1 : 0)} of ${rows.length}'),
           stat('Порог показа, % от выданного', '$threshold%'),
         ],
         note: 'Порог задаётся в «Правилах». Банк не даёт выдать больше подтверждённого, поэтому отчёт показывает исключения, снятые вручную, и старые данные.',
@@ -325,7 +325,7 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
         db,
         '''
           SELECT p.name AS object, t.tranche_no AS tranche, t.stage AS stage, t.holder_label AS holder,
-                 (t.elapsed_days || ' д ' || t.elapsed_hours || ' ч') AS elapsed, t.sla_days AS sla
+                 (t.elapsed_days || ' d ' || t.elapsed_hours || ' h') AS elapsed, t.sla_days AS sla
           FROM bank_tranches t JOIN projects p ON p.id = t.project_id
           JOIN project_facilities f ON f.project_id = t.project_id AND f.bank_id = t.bank_id
           WHERE t.outcome IS NULL AND NOT t.waiting_developer
@@ -430,9 +430,9 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
         rows.add({
           'developer': dev['name'],
           'objects': dev['objects'],
-          'sales': '${sales['filed']} из ${sales['of']}',
-          'quarterly': '${quarterly['filed']} из ${quarterly['of']}',
-          'supervision': '${supervision['regular']} из ${supervision['of']}',
+          'sales': '${sales['filed']} of ${sales['of']}',
+          'quarterly': '${quarterly['filed']} of ${quarterly['of']}',
+          'supervision': '${supervision['regular']} of ${supervision['of']}',
         });
       }
       return _Report(
@@ -453,7 +453,7 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
       final rows = await bankRows(
         db,
         '''
-          SELECT COALESCE(NULLIF(i.expert_label, ''), 'Не назначен') AS expert,
+          SELECT COALESCE(NULLIF(i.expert_label, ''), 'Not assigned') AS expert,
                  count(*) FILTER (WHERE i.status = 'done') AS done,
                  count(*) FILTER (WHERE i.status = 'planned' AND i.scheduled_on >= $bankToday) AS planned,
                  count(*) FILTER (WHERE i.status = 'planned' AND i.scheduled_on < $bankToday) AS overdue

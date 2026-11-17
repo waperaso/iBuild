@@ -421,7 +421,7 @@ Future<LifeReply> _submit(
       return _fail(400, 'validation', addresseeRoleMessage);
     }
     forBank = person.role == 'observer';
-    auditReason = forBank ? 'В банк: ${person.name}' : person.name;
+    auditReason = forBank ? 'To the bank: ${person.name}' : person.name;
   }
   final photos = await session.execute(
     Sql.named('''

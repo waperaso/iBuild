@@ -214,7 +214,7 @@ Future<void> _sync(Session tx, String requestId) async {
     Sql.named('''
       UPDATE bank_tranches
       SET signal = CASE WHEN signal = 'none' THEN 'inspection' ELSE signal END,
-          problems_label = CASE WHEN problems_label = '' THEN 'Ждёт осмотра' ELSE problems_label END
+          problems_label = CASE WHEN problems_label = '' THEN 'Awaiting inspection' ELSE problems_label END
       WHERE id = @id::uuid AND stage = 'inspection'
     '''),
     parameters: {'id': trancheId},
@@ -225,7 +225,7 @@ Future<void> _sync(Session tx, String requestId) async {
       tx,
       bankId: bankId,
       trancheId: trancheId,
-      actorLabel: 'Система',
+      actorLabel: 'System',
       action: 'tranche_created',
       detail: {'source': 'developer_draw', 'checks': results.where((r) => !r.passed).length},
     );
@@ -308,7 +308,7 @@ Future<String> _create(Session tx, Map<String, Object?> head, String bankId) asy
   final label = inspected ? 'Решение специалиста' : 'Осмотр эксперта';
   final holderLabel = holderName.isEmpty
       ? ''
-      : (inspected ? '$holderName, кредитный специалист' : '$holderName, эксперт');
+      : (inspected ? '$holderName, credit specialist' : '$holderName, expert');
   final rows = await tx.execute(
     Sql.named('''
       INSERT INTO bank_tranches (
@@ -441,7 +441,7 @@ Future<List<RuleLine>> _syncLines(Session tx, String trancheId, String requestId
     final percentValue = inspected ? double.parse(percent.toString()) : null;
     final previous = map['previous_percent'];
     final note = inspected && previous != null
-        ? '${_delta(percentValue!, double.parse(previous.toString()))} с прошлого осмотра'
+        ? '${_delta(percentValue!, double.parse(previous.toString()))} since the last inspection'
         : '';
     final plan = map['plan'] as String?;
     String? remaining;
@@ -541,7 +541,7 @@ Future<void> _syncLineDetails(Session tx, String trancheId, String requestId) as
     Sql.named('''
       INSERT INTO bank_line_documents (line_id, title, state, sort_order)
       SELECT l.id,
-             'Отказ от претензий, счёт ' || p.number,
+             'Waiver of claims, invoice ' || p.number,
              CASE WHEN p.waiver = 'signed' THEN 'ok' ELSE 'missing' END,
              row_number() OVER (PARTITION BY l.id ORDER BY p.created_at)
       FROM payables p
@@ -555,7 +555,7 @@ Future<void> _syncLineDetails(Session tx, String trancheId, String requestId) as
     Sql.named('''
       INSERT INTO bank_line_documents (line_id, title, state, sort_order)
       SELECT l.id,
-             'Ведомость материалов на площадке',
+             'Statement of materials on site',
              CASE WHEN COALESCE((
                SELECT r.status FROM draw_requirements r
                JOIN checklist_items c ON c.id = r.item_id
@@ -579,7 +579,7 @@ Future<void> _syncLineDetails(Session tx, String trancheId, String requestId) as
     Sql.named('''
       INSERT INTO bank_line_payments (line_id, label, paid_on, amount)
       SELECT l.id,
-             'Транш №' || COALESCE(f.tranche_no::text, '?'),
+             'Tranche No. ' || COALESCE(f.tranche_no::text, '?'),
              COALESCE(f.paid_on, f.updated_at::date),
              COALESCE(o.approved_amount, o.requested - o.retainage_withheld + o.retainage_released)
       FROM bank_tranche_lines l
@@ -675,11 +675,11 @@ Future<void> bankWriteBack(AppDatabase db, String trancheId) async {
       for (final row in decisions) {
         final kind = row[1]! as String;
         final note = (row[3] as String? ?? '').trim();
-        final returned = bankMillions(bankCentsOf(_money(row[5])));
-        final issued = bankMillions(bankCentsOf(_money(row[6])));
+        final returned = bankMillionsEn(bankCentsOf(_money(row[5])));
+        final issued = bankMillionsEn(bankCentsOf(_money(row[6])));
         final summary = kind == 'return_all'
-            ? 'Банк вернул транш целиком.'
-            : 'Банк согласовал $issued млн, на доработку вернул $returned млн.';
+            ? 'The bank returned the whole tranche.'
+            : 'The bank approved $issued M and returned $returned M for rework.';
         await tx.execute(
           Sql.named('''
             INSERT INTO draw_comments (request_id, author_user_id, body)
@@ -709,7 +709,7 @@ Future<void> bankWriteBack(AppDatabase db, String trancheId) async {
                 'request': requestId,
                 'user': row[2],
                 'line': lineId,
-                'body': reason.isEmpty ? 'Банк вернул эту статью на доработку.' : 'Банк: $reason',
+                'body': reason.isEmpty ? 'The bank returned this line item for rework.' : 'Bank: $reason',
               },
             );
           }

@@ -37,7 +37,7 @@ Password for every seeded login is `SEED_PASSWORD` from `.env` — `123456` by d
 
 ### Developer side
 
-`a.*` belong to Навои Девелопмент, `b.*` to Чиланзар Строй.
+`a.*` belong to Navoi Development, `b.*` to Chilanzar Stroy.
 
 | Login | Role |
 | --- | --- |

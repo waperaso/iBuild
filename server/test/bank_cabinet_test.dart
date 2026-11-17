@@ -45,10 +45,10 @@ void main() {
     final specialist = Client(handler);
     final signed = await specialist.login('a.observer', password);
     expect(signed.status, 200);
-    expect(signed.body!['name'], 'Д. Рахимов');
+    expect(signed.body!['name'], 'D. Rakhimov');
     final bank = signed.body!['bank'] as Map<String, dynamic>;
     expect(bank['role'], 'specialist');
-    expect(bank['name'], 'Банк Навои');
+    expect(bank['name'], 'Navoi Bank');
     expect(bank['queueCount'], 2);
     expect(bank['trancheCount'], 12);
     expect(bank['waitingAmount'], '18740000000.00');
@@ -61,10 +61,10 @@ void main() {
     expect(counts['developer'], 3);
     expect(counts['overdue'], 1);
     final items = (queue.body!['items'] as List).cast<Map<String, dynamic>>();
-    final navoi = items.singleWhere((item) => item['projectName'] == 'ЖК Навои');
+    final navoi = items.singleWhere((item) => item['projectName'] == 'Navoi Residences');
     expect(navoi['trancheNo'], 2);
     expect(navoi['requestedAmount'], '2260000000.00');
-    expect(navoi['elapsedLabel'], '1 д 4 ч из 2 д');
+    expect(navoi['elapsedLabel'], '1 d 4 h of 2 d');
     expect(navoi['mine'], true);
     expect(navoi['overdue'], false);
     expect(items.where((item) => item['overdue'] == true).length, 1);
@@ -106,37 +106,37 @@ void main() {
     test('mine holds only own tranches: Navoi and Yunusabad', () async {
       final items = await tab('mine');
       expect(items.map((item) => item['projectName']).toList(),
-          ['ЖК Навои', 'ЖК Юнусабад Гарден']);
+          ['Navoi Residences', 'Yunusabad Garden']);
       expect(items.every((item) => item['mine'] == true), isTrue);
     });
 
     test('all shows all 12 tranches in queue order', () async {
       final items = await tab('all');
       expect(items.length, 12);
-      expect(items.first['projectName'], 'ЖК Навои');
+      expect(items.first['projectName'], 'Navoi Residences');
     });
 
     test('the developer tab shows only tranches waiting on the developer', () async {
       final items = await tab('developer');
       expect(items.map((item) => item['projectName']).toSet(),
-          {'ЖК Мирзо-Улугбек', 'ЖК Бектемир', 'ЖК Яккасарай'});
+          {'Mirzo-Ulugbek Residences', 'Bektemir Residences', 'Yakkasaray Residences'});
       expect(items.every((item) => item['signal'] == 'developer'), isTrue);
     });
 
     test('time at the developer is not bank time: no overdue tranche among them', () async {
       final items = await tab('developer');
-      final mirzo = items.singleWhere((item) => item['projectName'] == 'ЖК Мирзо-Улугбек');
+      final mirzo = items.singleWhere((item) => item['projectName'] == 'Mirzo-Ulugbek Residences');
       expect(mirzo['elapsedDays'], 6);
       expect(mirzo['slaDays'], 2);
       expect(mirzo['overdue'], false);
-      expect(mirzo['elapsedLabel'], '6 д у застройщика');
+      expect(mirzo['elapsedLabel'], '6 d with the developer');
     });
 
     test('overdue holds only Sergeli Nur: 4 days against 3', () async {
       final items = await tab('overdue');
       expect(items.length, 1);
       final sergeli = items.single;
-      expect(sergeli['projectName'], 'ЖК Сергели Нур');
+      expect(sergeli['projectName'], 'Sergeli Nur');
       expect(sergeli['elapsedDays'], 4);
       expect(sergeli['elapsedHours'], 0);
       expect(sergeli['slaDays'], 3);
@@ -177,15 +177,15 @@ void main() {
       final queue = await specialist.send('GET', '/api/bank/queue?tab=all');
       final navoi = (queue.body!['items'] as List)
           .cast<Map<String, dynamic>>()
-          .singleWhere((item) => item['projectName'] == 'ЖК Навои');
+          .singleWhere((item) => item['projectName'] == 'Navoi Residences');
       final response = await specialist.send('GET', '/api/bank/tranches/${navoi['id']}');
       expect(response.status, 200);
       card = response.body!;
     });
 
     test('the header carries the object, developer and facility', () {
-      expect(card['projectName'], 'ЖК Навои');
-      expect(card['developerName'], 'Навои Девелопмент');
+      expect(card['projectName'], 'Navoi Residences');
+      expect(card['developerName'], 'Navoi Development');
       expect(card['trancheNo'], 2);
       expect(card['stageLabel'], 'Решение специалиста');
       expect(card['creditLimit'], '17500000000.00');
@@ -232,8 +232,8 @@ void main() {
       expect(open.map((check) => check['level']).toList(),
           ['block', 'warning', 'warning', 'warning']);
       expect(passed.length, 8);
-      expect(passed.first['title'], 'Акт выполненных работ приложен');
-      expect(passed.first['basis'], 'ГС п. 3.5');
+      expect(passed.first['title'], 'Certificate of completed work attached');
+      expect(passed.first['basis'], 'Rule 3.5');
       expect(passed.every((check) => check['passed'] == true), isTrue);
     });
 
@@ -252,10 +252,10 @@ void main() {
     test('the budget lines carry readiness and the level of each', () {
       final lines = (card['lines'] as List).cast<Map<String, dynamic>>();
       expect(lines.map((line) => line['title']).toList(), [
-        'Котлован и земляные работы',
-        'Фундаментная плита',
-        'Каркас, 1–4 этажи',
-        'Арматура A500C и бетон на площадке',
+        'Excavation and earthworks',
+        'Foundation slab',
+        'Frame works, floors 1–4',
+        'Rebar A500C and concrete on site',
       ]);
       expect(lines.map((line) => line['level']).toList(), ['ok', 'warning', 'warning', 'block']);
       expect(lines.map((line) => line['readinessPercent']).toList(), ['100', '62', '12', null]);

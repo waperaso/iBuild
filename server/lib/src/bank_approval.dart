@@ -448,7 +448,7 @@ Future<void> _vote(
   if (remaining.isNotEmpty) {
     await tx.execute(
       Sql.named('''
-        UPDATE bank_tranches SET holder_label = 'Кредитный комитет', stage_label = 'Согласование'
+        UPDATE bank_tranches SET holder_label = 'Credit committee', stage_label = 'Согласование'
         WHERE id = @id::uuid
       '''),
       parameters: {'id': id},
@@ -461,7 +461,7 @@ Future<void> _vote(
     Sql.named('''
       UPDATE bank_tranches
       SET stage = 'payout', stage_label = 'В разработке: ЭЦП и платёж',
-          holder_user_id = NULL, holder_label = 'ЭЦП и платёж (интеграция в разработке)',
+          holder_user_id = NULL, holder_label = 'Signature and payment (integration in development)',
           elapsed_days = 0, elapsed_hours = 0
       WHERE id = @id::uuid
     '''),

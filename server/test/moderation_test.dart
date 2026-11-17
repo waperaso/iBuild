@@ -52,10 +52,10 @@ void main() {
     expect((await director.send('GET', '/api/auth/me')).body!['platformAdmin'], false);
     final projects = await director.send('GET', '/api/projects');
     final project = (projects.body!['projects'] as List).cast<Map<String, dynamic>>().singleWhere(
-      (item) => item['name'] == 'ЖК Навои',
+      (item) => item['name'] == 'Navoi Residences',
     );
     final projectId = project['id'] as String;
-    expect(project['name'], 'ЖК Навои');
+    expect(project['name'], 'Navoi Residences');
 
     final proposed = await director.send(
       'POST',
@@ -82,7 +82,7 @@ void main() {
     expect(again.status, 409);
 
     final still = await director.send('GET', '/api/projects/$projectId');
-    expect(still.body!['name'], 'ЖК Навои');
+    expect(still.body!['name'], 'Navoi Residences');
     expect(still.body!['hasPhoto'], false);
 
     final bank = Client(handler);
@@ -112,7 +112,7 @@ void main() {
     expect(queue.status, 200);
     final pending = (queue.body!['changes'] as List).cast<Map<String, dynamic>>();
     expect(pending.single['name'], 'ЖК Навои обновлён');
-    expect(pending.single['currentName'], 'ЖК Навои');
+    expect(pending.single['currentName'], 'Navoi Residences');
 
     final approved = await admin.send(
       'POST',

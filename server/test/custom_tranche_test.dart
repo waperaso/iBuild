@@ -46,7 +46,7 @@ void main() {
     expect((await director.login('a.director', password)).status, 200);
     final before = await director.send('GET', '/api/projects');
     final project = (before.body!['projects'] as List).cast<Map<String, dynamic>>().singleWhere(
-      (item) => item['name'] == 'ЖК Навои',
+      (item) => item['name'] == 'Navoi Residences',
     );
     final projectId = project['id'] as String;
     final plan = project['plan'];

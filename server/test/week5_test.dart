@@ -84,7 +84,7 @@ void main() {
     final projectId = await _projectId(mason);
     final budget = await mason.send('GET', '/api/projects/$projectId/budget');
     final foundation = ((budget.body!['items'] as List).cast<Map<String, dynamic>>())
-        .firstWhere((item) => item['title'] == 'Фундамент');
+        .firstWhere((item) => item['title'] == 'Foundation');
     final itemId = foundation['id'] as String;
 
     final paid = await _approved(mason, tech, bank, projectId, itemId, '1000.00', 'Бетон секции А');
@@ -291,7 +291,7 @@ Future<_Draft> _untilTech(
 Future<String> _projectId(Client client) async {
   final projects = await client.send('GET', '/api/projects');
   final list = (projects.body!['projects'] as List).cast<Map<String, dynamic>>();
-  return list.firstWhere((item) => item['name'] == 'ЖК Навои')['id'] as String;
+  return list.firstWhere((item) => item['name'] == 'Navoi Residences')['id'] as String;
 }
 
 Future<_Money> _money(Client client, String projectId) async {

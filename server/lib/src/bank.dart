@@ -223,13 +223,13 @@ String _elapsedLabel({
   required int hours,
   required int sla,
 }) {
-  if (waiting) return '$days д у застройщика';
+  if (waiting) return '$days d with the developer';
   final spent = hours == 0
-      ? '$days д'
+      ? '$days d'
       : days == 0
-          ? '$hours ч'
-          : '$days д $hours ч';
-  return '$spent из $sla д';
+          ? '$hours h'
+          : '$days d $hours h';
+  return '$spent of $sla d';
 }
 
 /// Who, what, when for one tranche, newest first. The bank reads only its own

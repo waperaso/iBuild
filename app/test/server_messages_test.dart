@@ -19,7 +19,7 @@ void main() {
     final missing = <String>{};
     for (final file in dir.listSync(recursive: true).whereType<File>()) {
       if (!file.path.endsWith('.dart')) continue;
-      // Demo data is written in Russian on purpose.
+      // Seed files hold demo data, not messages for a person.
       if (file.path.endsWith('seed.dart')) continue;
       final lines = file.readAsLinesSync();
       for (final line in lines) {

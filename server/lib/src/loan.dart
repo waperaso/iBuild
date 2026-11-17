@@ -350,11 +350,11 @@ Future<Response> _loan(Request request, AppDatabase db, String id) async {
 
 Future<void> _ensureChecklist(AppDatabase db, String projectId) async {
   const items = [
-    ('act', 'Акт выполненных работ', true),
-    ('invoice', 'Счёт', true),
-    ('retainage_log', 'Ведомость удержания', false),
-    ('stored_log', 'Материалы на площадке', false),
-    ('waiver', 'Отказ от претензий', true),
+    ('act', 'Certificate of completed work', true),
+    ('invoice', 'Invoice', true),
+    ('retainage_log', 'Retainage statement', false),
+    ('stored_log', 'Materials on site', false),
+    ('waiver', 'Waiver of claims', true),
   ];
   for (final item in items) {
     await db.pool.execute(
@@ -1128,24 +1128,24 @@ Future<Response> _package(Request request, AppDatabase db, String id) async {
   if (card.statusCode != 200) return card;
   final body = jsonDecode(await card.readAsString()) as Map<String, dynamic>;
   final buffer = StringBuffer()
-    ..writeln('Транш «${body['draw_name']}»')
-    ..writeln('Статус: ${body['status']}')
-    ..writeln('Запрошено, сум: ${body['requested']}')
-    ..writeln('К выплате, сум: ${body['amount']}')
-    ..writeln('Одобрено банком, сум: ${body['confirmed']}')
-    ..writeln('Подписал: ${body['signed_name']}')
-    ..writeln('--- Вид работ по строкам ---');
+    ..writeln('Tranche “${body['draw_name']}”')
+    ..writeln('Status: ${body['status']}')
+    ..writeln('Requested, UZS: ${body['requested']}')
+    ..writeln('To pay out, UZS: ${body['amount']}')
+    ..writeln('Approved by the bank, UZS: ${body['confirmed']}')
+    ..writeln('Signed by: ${body['signed_name']}')
+    ..writeln('--- Work items by line ---');
   for (final line in body['lines'] as List) {
     final row = line as Map<String, dynamic>;
     buffer.writeln(
-      '${row['budget_item_id']}: запрошено ${row['requested']}, '
-      'удержано ${row['retainage_withheld']}, возвращено ${row['retainage_released']}, '
-      'материалы на складе ${row['stored_materials']}, '
-      'рекомендация проверяющего ${row['inspector_recommend']}, '
-      'решение банка ${row['approved_amount']}',
+      '${row['budget_item_id']}: requested ${row['requested']}, '
+      'retained ${row['retainage_withheld']}, released ${row['retainage_released']}, '
+      'materials in storage ${row['stored_materials']}, '
+      'inspector recommendation ${row['inspector_recommend']}, '
+      'bank decision ${row['approved_amount']}',
     );
   }
-  buffer.writeln('--- Комментарии ---');
+  buffer.writeln('--- Comments ---');
   for (final comment in body['comments'] as List) {
     buffer.writeln((comment as Map<String, dynamic>)['body']);
   }
