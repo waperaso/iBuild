@@ -37,7 +37,7 @@
     const ticker = q('[data-ticker]');
     if (ticker) {
       const items = ['stepRequest', 'stepInspection', 'stepReview', 'stepApproval',
-        'control1', 'control2', 'control3', 'control4'].map(k => d[k]).filter(Boolean);
+        'bank', 'developer', 'expert'].map(k => d[k]).filter(Boolean);
       // two passes, so the -50% loop joins seamlessly
       ticker.innerHTML = [...items, ...items].map(t => `<span>${t}</span>`).join('');
     }
@@ -283,7 +283,7 @@
   }
 
   /* ─────────────── nav: current section ─────────────── */
-  const sections = ['#process', '#control', '#roles']
+  const sections = ['#process', '#roles']
     .map(h => ({ h, el: q(h) })).filter(s => s.el);
   const links = new Map(qa('.nav-links a').map(a => [a.getAttribute('href'), a]));
   if (sections.length) {

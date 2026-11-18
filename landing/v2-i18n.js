@@ -11,7 +11,6 @@ window.IBUILD_V2_I18N = {
 
     skip: 'К содержанию',
     navProcess: 'Как работает',
-    navControl: 'Контроль',
     navRoles: 'Для кого',
     login: 'Войти',
     apply: 'Подать заявку',
@@ -28,14 +27,6 @@ window.IBUILD_V2_I18N = {
     frameBank: 'Кабинет банка',
     frameDeveloper: 'Кабинет застройщика',
     sample: 'Пример данных',
-
-    numbersKicker: 'Один транш · ЖК Навои',
-    numbersTitle: 'Запрошено одно. Подтверждено другое. Платится третье.',
-    numRequested: 'Запрошено',
-    numConfirmed: 'Подтвердил эксперт',
-    numPayout: 'К выплате',
-    numUnit: 'млн UZS',
-    numbersNote: 'Эксперт подтвердил меньше запрошенного, на одну строку не было сертификата. Банк оплатил остальное, не останавливая транш целиком.',
 
     problemKicker: 'Как сейчас',
     problemTitle: 'Ответ на вопрос «что построено» собирают вручную',
@@ -58,18 +49,6 @@ window.IBUILD_V2_I18N = {
     textReview: 'Специалист сверяет суммы, разбирает замечания и готовит решение по каждой строке.',
     stepApproval: 'Согласование',
     textApproval: 'Решение уходит второму согласующему. Тот, кто готовил, согласовать его не может.',
-
-    controlKicker: 'Контроль',
-    controlTitle: 'Правила банка живут в системе',
-    controlLead: 'У каждого банка свой порядок. iBuild хранит его, применяет к каждому траншу и помнит все версии.',
-    control1: 'Проверки на каждом транше',
-    control1Text: 'Нет сертификата, запрошено больше подтверждённого, подрядчик не в реестре. Банк сам решает, что блокирует, а что предупреждает.',
-    control2: 'Версии правил',
-    control2Text: 'Изменили порог — сохранилась новая версия. Транши, которые уже идут, остаются на своей.',
-    control3: 'Согласование с кворумом',
-    control3Text: 'Решение уходит второму человеку. Свой транш согласовать нельзя.',
-    control4: 'Решение по каждой строке',
-    control4Text: 'Оплатить, задержать или вернуть можно одну работу. Больше подтверждённого система не пропустит.',
 
     rolesKicker: 'Для кого',
     rolesTitle: 'У каждого своя часть работы',
@@ -103,7 +82,6 @@ window.IBUILD_V2_I18N = {
 
     skip: 'Asosiy mazmunga o\u2018tish',                 // v1
     navProcess: 'Qanday ishlaydi',                   // v1
-    navControl: 'Nazorat',
     navRoles: 'Kimlar uchun',                        // v1
     login: 'Kirish',                                 // v1
     apply: 'Ariza yuborish',                         // v1
@@ -120,14 +98,6 @@ window.IBUILD_V2_I18N = {
     frameBank: 'Bank kabineti',                      // v1
     frameDeveloper: 'Quruvchi kabineti',             // v1
     sample: 'Namunaviy ma\u2019lumotlar',               // v1
-
-    numbersKicker: 'Bitta transh \u00b7 Navoiy turar joy majmuasi',
-    numbersTitle: 'Bir summa so\u2018raladi. Boshqasi tasdiqlanadi. Uchinchisi to\u2018lanadi.',
-    numRequested: 'So\u2018ralgan',
-    numConfirmed: 'Ekspert tasdiqlagan',
-    numPayout: 'To\u2018lash uchun',
-    numUnit: 'mln UZS',
-    numbersNote: 'Ekspert so\u2018ralganidan kamrohini tasdiqladi, bitta band bo\u2018yicha sertifikat yo\u2018q edi. Bank qolganini to\u2018ladi va transhni butunlay to\u2018xtatmadi.',
 
     problemKicker: 'Hozir qanday',
     problemTitle: '\u00abNima qurildi\u00bb degan savolga javob qo\u2018lda yig\u2018iladi',
@@ -150,18 +120,6 @@ window.IBUILD_V2_I18N = {
     textReview: 'Mutaxassis summalarni solishtiradi, izohlarni ko\u2018rib chiqadi va har bir band bo\u2018yicha qaror qabul qiladi.',
     stepApproval: 'Kelishuv',                        // v1
     textApproval: 'Qaror ikkinchi kelishuvchiga boradi. Qarorni tayyorlagan odam uni kelisha olmaydi.',
-
-    controlKicker: 'Nazorat',
-    controlTitle: 'Bank qoidalari tizim ichida yashaydi',
-    controlLead: 'Har bir bankning o\u2018z tartibi bor. iBuild uni saqlaydi, har bir transhga qo\u2018llaydi va barcha versiyalarni eslab qoladi.',
-    control1: 'Har bir transhda tekshiruv',
-    control1Text: 'Sertifikat yo\u2018q, tasdiqlangandan ko\u2018proq so\u2018ralgan, pudratchi reyestrda yo\u2018q. Nimani bloklash, nimani ogohlantirish sifatida qoldirishni bank o\u2018zi hal qiladi.',
-    control2: 'Qoidalar versiyalari',
-    control2Text: 'Chegara o\u2018zgartirildi \u2014 yangi versiya saqlanadi. Yo\u2018ldagi transhlar o\u2018z versiyasida qoladi.',
-    control3: 'Kvorum bilan kelishuv',
-    control3Text: 'Qaror ikkinchi odamga boradi. O\u2018z transhini kelishib bo\u2018lmaydi.',
-    control4: 'Har bir band bo\u2018yicha qaror',
-    control4Text: 'Bitta ishni to\u2018lash, to\u2018xtatib turish yoki qaytarish mumkin. Tizim tasdiqlangandan ko\u2018pini o\u2018tkazmaydi.',
 
     rolesKicker: 'Kimlar uchun',                     // v1
     rolesTitle: 'Har bir ishtirokchining o\u2018z vazifasi bor',
@@ -191,7 +149,6 @@ window.IBUILD_V2_I18N = {
 
     skip: 'Skip to content',
     navProcess: 'How it works',
-    navControl: 'Control',
     navRoles: "Who it's for",
     login: 'Sign in',
     apply: 'Apply for access',
@@ -208,14 +165,6 @@ window.IBUILD_V2_I18N = {
     frameBank: 'Bank workspace',
     frameDeveloper: 'Developer workspace',
     sample: 'Sample data',
-
-    numbersKicker: 'One tranche · Navoi Residences',
-    numbersTitle: 'One amount requested. Another confirmed. A third one paid.',
-    numRequested: 'Requested',
-    numConfirmed: 'Confirmed by the expert',
-    numPayout: 'To pay out',
-    numUnit: 'mln UZS',
-    numbersNote: 'The expert confirmed less than was requested, and one line had no certificate. The bank funded the rest instead of stopping the whole tranche.',
 
     problemKicker: 'Today',
     problemTitle: 'The answer to "what has been built" is assembled by hand',
@@ -238,18 +187,6 @@ window.IBUILD_V2_I18N = {
     textReview: 'The specialist checks the amounts, works through the findings and decides line by line.',
     stepApproval: 'Sign-off',
     textApproval: 'The decision goes to a second approver. Whoever prepared it cannot sign it off.',
-
-    controlKicker: 'Control',
-    controlTitle: "The bank's rules live in the system",
-    controlLead: 'Every bank has its own order of things. iBuild stores it, applies it to each tranche and remembers every version.',
-    control1: 'Checks on every tranche',
-    control1Text: 'Missing certificate, more requested than confirmed, contractor not on the approved list. The bank decides what blocks and what only warns.',
-    control2: 'Versioned rules',
-    control2Text: 'Change a threshold and it saves as a new version. Tranches already in flight stay on the one they started under.',
-    control3: 'Sign-off with a quorum',
-    control3Text: 'The decision goes to a second person. Nobody signs off their own tranche.',
-    control4: 'A decision per line',
-    control4Text: 'Pay, hold or return a single work item. The system will not let more than the confirmed amount through.',
 
     rolesKicker: "Who it's for",
     rolesTitle: 'Each side has its own part of the work',
