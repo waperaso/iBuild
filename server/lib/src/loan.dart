@@ -309,6 +309,7 @@ Future<Response> _loan(Request request, AppDatabase db, String id) async {
              COALESCE((
                SELECT to_char(SUM(inspector_recommend), 'FM999999999999990.00')
                FROM draw_lines WHERE request_id = funding_requests.id
+                 AND requested - retainage_withheld + retainage_released + stored_materials > 0
              ), '') AS recommended
       FROM funding_requests
       WHERE project_id = @id::uuid AND draw_name <> ''
