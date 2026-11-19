@@ -58,10 +58,10 @@ void main() {
 
     final budget = await mason.client.send('GET', '/api/projects/$projectId/budget');
     final lines = (budget.body!['items'] as List).cast<Map<String, dynamic>>();
-    final foundation = lines.firstWhere((item) => item['title'] == 'Foundation');
+    final foundation = lines.firstWhere((item) => item['title'] == 'Фундамент');
     final directorBudget = await director.client.send('GET', '/api/projects/$projectId/budget');
     final engineering = ((directorBudget.body!['items'] as List).cast<Map<String, dynamic>>())
-        .firstWhere((item) => item['title'] == 'Building services');
+        .firstWhere((item) => item['title'] == 'Инженерия');
 
     final missing = await mason.client.send('POST', '/api/requests', json: {
       'projectId': projectId,
@@ -236,7 +236,7 @@ Future<Session> _session(String login) async {
   expect(signed.status, 200, reason: login);
   final projects = await client.send('GET', '/api/projects');
   final list = (projects.body!['projects'] as List).cast<Map<String, dynamic>>();
-  final project = list.firstWhere((item) => item['name'] == 'Navoi Residences');
+  final project = list.firstWhere((item) => item['name'] == 'ЖК Навои');
   return Session(client, project);
 }
 

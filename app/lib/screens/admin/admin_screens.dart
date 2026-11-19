@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -243,6 +245,13 @@ class AdminUsersScreen extends StatefulWidget {
 
 class _AdminUsersScreenState extends State<AdminUsersScreen> {
   String _query = '';
+  Timer? _searchTimer;
+
+  @override
+  void dispose() {
+    _searchTimer?.cancel();
+    super.dispose();
+  }
 
   Future<void> _toggle(Map<String, dynamic> user, Future<void> Function() reload) async {
     final t = Tx.of(context);
@@ -534,6 +543,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               child: TextField(
                 key: const Key('users-search'),
                 onSubmitted: (value) => setState(() => _query = value.trim()),
+                // Search as you type, after a short pause.
+                onChanged: (value) {
+                  _searchTimer?.cancel();
+                  _searchTimer = Timer(const Duration(milliseconds: 400), () {
+                    if (mounted) setState(() => _query = value.trim());
+                  });
+                },
                 decoration: InputDecoration(hintText: t('Имя, логин или организация', 'Name, username or organisation', 'Ism, login yoki tashkilot'), prefixIcon: const Icon(Icons.search), isDense: true),
               ),
             ),
@@ -726,6 +742,18 @@ class AdminSystemScreen extends StatelessWidget {
               subtitle: t('Состояние сервера, базы данных и резервных копий.', 'Server, database and backup status.', 'Server, ma’lumotlar bazasi va zaxira nusxalar holati.'),
               trailing: OutlinedButton.icon(key: const Key('system-refresh'), onPressed: reload, icon: const Icon(Icons.refresh, size: 18), label: Text(t('Обновить', 'Refresh', 'Yangilash'))),
             ),
+            if (server.s('environment') == 'demo') ...[
+              IBuildCard(
+                key: const Key('system-demo-note'),
+                child: Text(
+                  t('Учебный мир: реальные размеры базы, миграции и резервные копии сервера здесь не показываются. Их видит администратор боевой компании.',
+                      'Demo world: the real database size, migrations and backups of the server are not shown here. The administrator of the live company sees them.',
+                      'O‘quv dunyosi: serverning haqiqiy baza hajmi, migratsiyalar va zaxira nusxalari bu yerda ko‘rsatilmaydi. Ularni jangovar kompaniya administratori ko‘radi.'),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
             KpiRow(children: [
               Kpi(label: t('База данных', 'Database', 'Ma’lumotlar bazasi'), value: db.b('ok') ? t('Работает', 'Running', 'Ishlayapti') : t('Не отвечает', 'Down', 'Javob bermayapti'), tone: db.b('ok') ? colors.success : colors.danger, hint: '${db.i('latencyMs')} ms · ${db.s('version')}'),
               Kpi(label: t('Размер базы', 'Database size', 'Baza hajmi'), value: _bytes(db.i('sizeBytes'))),
@@ -735,7 +763,12 @@ class AdminSystemScreen extends StatelessWidget {
             SectionTitle(t('Резервная копия', 'Backup', 'Zaxira nusxa')),
             IBuildCard(
               key: const Key('system-backup'),
-              child: backup.isEmpty
+              child: backup.isEmpty && server.s('environment') == 'demo'
+                  ? Text(
+                      t('В учебном мире копии не показываются.', 'Backups are not shown in the demo world.', 'O‘quv dunyosida nusxalar ko‘rsatilmaydi.'),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
+                    )
+                  : backup.isEmpty
                   ? Text(
                       t('Сервер не видит папку с копиями. Проверьте, что она подключена (переменная BACKUP_DIR) и что расписание копий установлено.',
                           'The server cannot see the backup folder. Check that it is mounted (BACKUP_DIR) and that the backup schedule is installed.',
@@ -833,7 +866,7 @@ class _AdminMailScreenState extends State<AdminMailScreen> {
                       key: const Key('mail-state'),
                       connected
                           ? t('Почта подключена: отправитель ${data.s('from')}', 'Mail is connected: sender ${data.s('from')}', 'Pochta ulangan: yuboruvchi ${data.s('from')}')
-                          : t('Почта не подключена: письма ждут в очереди. Задайте SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM и перезапустите сервер.', 'Mail is not connected: letters wait in the queue. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM and restart the server.', 'Pochta ulanmagan: xatlar navbatda. SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM ni sozlab, serverni qayta ishga tushiring.'),
+                          : t('Работает внутренняя почта iBuild: напоминания, решения банка и отчёты пользователям платформы приходят в раздел «Почта». Внешний SMTP не подключён — здесь ждут только письма на внешние адреса.', 'iBuild in-app mail is on: reminders, bank decisions and reports reach platform users in Mail. External SMTP is not connected — only letters to outside addresses wait here.', 'iBuild ichki pochtasi ishlaydi: eslatmalar, bank qarorlari va hisobotlar foydalanuvchilarga «Pochta» bo‘limiga keladi. Tashqi SMTP ulanmagan — bu yerda faqat tashqi manzillarga xatlar kutadi.'),
                     ),
                   ),
                 ]),

@@ -2,9 +2,11 @@ import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import 'bank_bridge.dart';
 import 'bank_common.dart';
 import 'db.dart';
 import 'http_util.dart';
+import 'mailbox.dart';
 
 const _fmt = bankMoneyFormat;
 const _votes = {'approve', 'return', 'reject'};
@@ -276,6 +278,13 @@ Future<Response> _act(Request request, AppDatabase db, String id) async {
   } on BankFailure catch (failure) {
     return failure.toResponse();
   }
+  // The end of the bank's approval goes back to the developer: status, sum, history and a letter.
+  final notice = await bankOutcomeWriteBack(db, id, actor.userId);
+  if (notice != null && notice.recipients.isNotEmpty) {
+    try {
+      await deliverInternal(db, senderId: actor.userId, recipientIds: notice.recipients, subject: notice.subject, body: notice.body);
+    } catch (_) {}
+  }
   final payload = await bankApprovalPayload(db, id, actor);
   return jsonResponse(200, {'approval': payload});
 }
@@ -448,7 +457,7 @@ Future<void> _vote(
   if (remaining.isNotEmpty) {
     await tx.execute(
       Sql.named('''
-        UPDATE bank_tranches SET holder_label = 'Credit committee', stage_label = 'Согласование'
+        UPDATE bank_tranches SET holder_label = 'Кредитный комитет', stage_label = 'Согласование'
         WHERE id = @id::uuid
       '''),
       parameters: {'id': id},
@@ -461,7 +470,7 @@ Future<void> _vote(
     Sql.named('''
       UPDATE bank_tranches
       SET stage = 'payout', stage_label = 'В разработке: ЭЦП и платёж',
-          holder_user_id = NULL, holder_label = 'Signature and payment (integration in development)',
+          holder_user_id = NULL, holder_label = 'ЭЦП и платёж (интеграция в разработке)',
           elapsed_days = 0, elapsed_hours = 0
       WHERE id = @id::uuid
     '''),

@@ -214,7 +214,7 @@ Future<void> _sync(Session tx, String requestId) async {
     Sql.named('''
       UPDATE bank_tranches
       SET signal = CASE WHEN signal = 'none' THEN 'inspection' ELSE signal END,
-          problems_label = CASE WHEN problems_label = '' THEN 'Awaiting inspection' ELSE problems_label END
+          problems_label = CASE WHEN problems_label = '' THEN 'Ждёт осмотра' ELSE problems_label END
       WHERE id = @id::uuid AND stage = 'inspection'
     '''),
     parameters: {'id': trancheId},
@@ -225,7 +225,7 @@ Future<void> _sync(Session tx, String requestId) async {
       tx,
       bankId: bankId,
       trancheId: trancheId,
-      actorLabel: 'System',
+      actorLabel: 'Система',
       action: 'tranche_created',
       detail: {'source': 'developer_draw', 'checks': results.where((r) => !r.passed).length},
     );
@@ -308,7 +308,7 @@ Future<String> _create(Session tx, Map<String, Object?> head, String bankId) asy
   final label = inspected ? 'Решение специалиста' : 'Осмотр эксперта';
   final holderLabel = holderName.isEmpty
       ? ''
-      : (inspected ? '$holderName, credit specialist' : '$holderName, expert');
+      : (inspected ? '$holderName, кредитный специалист' : '$holderName, эксперт');
   final rows = await tx.execute(
     Sql.named('''
       INSERT INTO bank_tranches (
@@ -408,8 +408,19 @@ Future<List<RuleLine>> _syncLines(Session tx, String trancheId, String requestId
         FROM draw_lines WHERE request_id = @id::uuid
         UNION ALL
         -- A draw of the first kind has one line and no list of lines.
-        SELECT fr.id, fr.budget_item_id, fr.amount, 0, 0, 0, NULL::numeric, NULL::numeric, '', ''
+        -- Its readiness comes from the latest site inspection report on the same
+        -- work item filed after the request was made.
+        SELECT fr.id, fr.budget_item_id, fr.amount, 0, 0, 0, ir.percent, ir.recommend,
+               COALESCE(ir.risk, ''), COALESCE(ir.comment, '')
         FROM funding_requests fr
+        LEFT JOIN LATERAL (
+          SELECT il.percent, il.recommend, il.risk, il.comment
+          FROM inspection_lines il JOIN inspections i ON i.id = il.inspection_id
+          WHERE i.project_id = fr.project_id AND il.budget_item_id = fr.budget_item_id
+            AND i.status = 'reported' AND i.created_at >= fr.created_at
+            AND (il.percent > 0 OR il.recommend > 0)
+          ORDER BY i.created_at DESC LIMIT 1
+        ) ir ON true
         WHERE fr.id = @id::uuid
           AND NOT EXISTS (SELECT 1 FROM draw_lines WHERE request_id = fr.id)
       ) dl
@@ -441,7 +452,7 @@ Future<List<RuleLine>> _syncLines(Session tx, String trancheId, String requestId
     final percentValue = inspected ? double.parse(percent.toString()) : null;
     final previous = map['previous_percent'];
     final note = inspected && previous != null
-        ? '${_delta(percentValue!, double.parse(previous.toString()))} since the last inspection'
+        ? '${_delta(percentValue!, double.parse(previous.toString()))} с прошлого осмотра'
         : '';
     final plan = map['plan'] as String?;
     String? remaining;
@@ -541,7 +552,7 @@ Future<void> _syncLineDetails(Session tx, String trancheId, String requestId) as
     Sql.named('''
       INSERT INTO bank_line_documents (line_id, title, state, sort_order)
       SELECT l.id,
-             'Waiver of claims, invoice ' || p.number,
+             'Отказ от претензий, счёт ' || p.number,
              CASE WHEN p.waiver = 'signed' THEN 'ok' ELSE 'missing' END,
              row_number() OVER (PARTITION BY l.id ORDER BY p.created_at)
       FROM payables p
@@ -555,7 +566,7 @@ Future<void> _syncLineDetails(Session tx, String trancheId, String requestId) as
     Sql.named('''
       INSERT INTO bank_line_documents (line_id, title, state, sort_order)
       SELECT l.id,
-             'Statement of materials on site',
+             'Ведомость материалов на площадке',
              CASE WHEN COALESCE((
                SELECT r.status FROM draw_requirements r
                JOIN checklist_items c ON c.id = r.item_id
@@ -579,7 +590,7 @@ Future<void> _syncLineDetails(Session tx, String trancheId, String requestId) as
     Sql.named('''
       INSERT INTO bank_line_payments (line_id, label, paid_on, amount)
       SELECT l.id,
-             'Tranche No. ' || COALESCE(f.tranche_no::text, '?'),
+             'Транш №' || COALESCE(f.tranche_no::text, '?'),
              COALESCE(f.paid_on, f.updated_at::date),
              COALESCE(o.approved_amount, o.requested - o.retainage_withheld + o.retainage_released)
       FROM bank_tranche_lines l
@@ -675,11 +686,11 @@ Future<void> bankWriteBack(AppDatabase db, String trancheId) async {
       for (final row in decisions) {
         final kind = row[1]! as String;
         final note = (row[3] as String? ?? '').trim();
-        final returned = bankMillionsEn(bankCentsOf(_money(row[5])));
-        final issued = bankMillionsEn(bankCentsOf(_money(row[6])));
+        final returned = bankMillions(bankCentsOf(_money(row[5])));
+        final issued = bankMillions(bankCentsOf(_money(row[6])));
         final summary = kind == 'return_all'
-            ? 'The bank returned the whole tranche.'
-            : 'The bank approved $issued M and returned $returned M for rework.';
+            ? 'Банк вернул транш целиком.'
+            : 'Специалист банка предложил к выплате $issued млн, на доработку — $returned млн. Решение ушло на согласование.';
         await tx.execute(
           Sql.named('''
             INSERT INTO draw_comments (request_id, author_user_id, body)
@@ -709,7 +720,7 @@ Future<void> bankWriteBack(AppDatabase db, String trancheId) async {
                 'request': requestId,
                 'user': row[2],
                 'line': lineId,
-                'body': reason.isEmpty ? 'The bank returned this line item for rework.' : 'Bank: $reason',
+                'body': reason.isEmpty ? 'Банк вернул эту статью на доработку.' : 'Банк: $reason',
               },
             );
           }
@@ -723,4 +734,145 @@ Future<void> bankWriteBack(AppDatabase db, String trancheId) async {
   } catch (error, stack) {
     stderr.writeln('bank write-back failed for tranche $trancheId: $error\n$stack');
   }
+}
+
+
+/// The end of the bank's own work on a tranche goes back to the draw: when every
+/// internal approval is in, the draw becomes approved for the sum the bank set
+/// line by line; when the bank rejects it, the draw is rejected and its reserve
+/// is freed. Signature and payment stay outside iBuild. Idempotent: a draw that
+/// already left `submitted`/`tech_approved` is not touched. Returns the people
+/// to tell and the letter, or null when nothing changed.
+Future<BankOutcomeNotice?> bankOutcomeWriteBack(AppDatabase db, String trancheId, String actorId) async {
+  try {
+    return await db.owner.runTx((tx) async {
+      final head = await tx.execute(
+        Sql.named('''
+          SELECT t.request_id::text, t.project_id::text, t.stage, t.outcome, t.tranche_no,
+                 p.name, fr.status, fr.version, fr.contractor_user_id::text
+          FROM bank_tranches t
+          JOIN projects p ON p.id = t.project_id
+          JOIN funding_requests fr ON fr.id = t.request_id
+          WHERE t.id = @id::uuid
+        '''),
+        parameters: {'id': trancheId},
+      );
+      if (head.isEmpty) return null;
+      final h = head.first;
+      final requestId = h[0]! as String;
+      final projectId = h[1]! as String;
+      final stage = h[2] as String?;
+      final outcome = h[3] as String?;
+      final trancheNo = h[4];
+      final projectName = h[5] as String? ?? '';
+      final status = h[6]! as String;
+      final contractorId = h[8] as String?;
+      if (status != 'submitted' && status != 'tech_approved') return null;
+
+      final String newStatus;
+      final String body;
+      final String subject;
+      if (outcome == 'rejected') {
+        newStatus = 'rejected';
+        subject = 'Банк отклонил транш №$trancheNo · $projectName';
+        body = 'Банк отклонил транш №$trancheNo по объекту $projectName. Резерв по бюджету освобождён.';
+      } else if (stage == 'payout') {
+        final sums = await tx.execute(
+          Sql.named('''
+            SELECT COALESCE(SUM(to_issue), 0)::text, COALESCE(SUM(requested), 0)::text
+            FROM bank_tranche_lines WHERE tranche_id = @id::uuid
+          '''),
+          parameters: {'id': trancheId},
+        );
+        final issue = sums.first[0]! as String;
+        final requested = sums.first[1]! as String;
+        // Each line of the draw gets the sum the bank approved for it.
+        await tx.execute(
+          Sql.named('''
+            UPDATE draw_lines dl
+            SET approved_amount = l.to_issue
+            FROM bank_tranche_lines l
+            WHERE l.tranche_id = @tranche::uuid AND dl.request_id = @request::uuid
+              AND dl.budget_item_id = l.budget_item_id
+          '''),
+          parameters: {'tranche': trancheId, 'request': requestId},
+        );
+        await tx.execute(
+          Sql.named('''
+            UPDATE funding_requests
+            SET confirmed_amount = @issue::numeric
+            WHERE id = @request::uuid
+          '''),
+          parameters: {'issue': issue, 'request': requestId},
+        );
+        final issued = bankMillions(bankCentsOf(issue));
+        final back = bankCentsOf(requested) - bankCentsOf(issue);
+        newStatus = 'approved';
+        subject = 'Банк согласовал транш №$trancheNo · $projectName';
+        body = 'Банк согласовал к выплате $issued млн по траншу №$trancheNo (объект $projectName)'
+            '${back > BigInt.zero ? ', ${bankMillions(back)} млн возвращено на доработку' : ''}. '
+            'Выплата пройдёт после подписи ЭЦП и платежа банка — эта интеграция в разработке.';
+      } else {
+        return null;
+      }
+
+      final moved = await tx.execute(
+        Sql.named('''
+          UPDATE funding_requests
+          SET status = @to,
+              version = version + 1,
+              updated_at = now(),
+              decision = CASE WHEN @to = 'approved' THEN
+                CASE WHEN confirmed_amount < amount THEN 'partial' ELSE 'full' END ELSE decision END,
+              amount = CASE WHEN @to = 'approved' THEN confirmed_amount ELSE amount END
+          WHERE id = @request::uuid AND status = @from
+          RETURNING amount::text
+        '''),
+        parameters: {'to': newStatus, 'request': requestId, 'from': status},
+      );
+      if (moved.isEmpty) return null;
+      await tx.execute(
+        Sql.named('''
+          INSERT INTO audit_events (project_id, request_id, action, old_status, new_status, author_user_id, reason, amount)
+          VALUES (@project::uuid, @request::uuid, @action, @old, @new, @user::uuid, @reason, @amount::numeric)
+        '''),
+        parameters: {
+          'project': projectId,
+          'request': requestId,
+          'action': newStatus == 'approved' ? 'approved' : 'director_rejected',
+          'old': status,
+          'new': newStatus,
+          'user': actorId,
+          'reason': body,
+          'amount': moved.first[0],
+        },
+      );
+      await tx.execute(
+        Sql.named('''
+          INSERT INTO draw_comments (request_id, author_user_id, body)
+          VALUES (@request::uuid, @user::uuid, @body)
+        '''),
+        parameters: {'request': requestId, 'user': actorId, 'body': body},
+      );
+      final people = await tx.execute(
+        Sql.named('''
+          SELECT DISTINCT user_id::text FROM project_members
+          WHERE project_id = @project::uuid AND role IN ('director', 'developer', 'tech')
+        '''),
+        parameters: {'project': projectId},
+      );
+      final recipients = {for (final row in people) row[0]! as String, if (contractorId != null) contractorId};
+      return BankOutcomeNotice(recipients.toList(), subject, body);
+    });
+  } catch (error, stack) {
+    stderr.writeln('bank outcome write-back failed for tranche $trancheId: $error\n$stack');
+    return null;
+  }
+}
+
+class BankOutcomeNotice {
+  BankOutcomeNotice(this.recipients, this.subject, this.body);
+  final List<String> recipients;
+  final String subject;
+  final String body;
 }

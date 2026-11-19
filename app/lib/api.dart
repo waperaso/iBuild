@@ -320,3 +320,6 @@ abstract class Api {
   Future<Map<String, dynamic>> getJson(String path);
   Future<Map<String, dynamic>> postJson(String path, Map<String, Object?> body);
 }
+
+/// Called when the server answers 401 to a signed-in request.
+void Function()? apiSessionLost;

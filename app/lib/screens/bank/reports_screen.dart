@@ -399,13 +399,11 @@ class _ScheduleCardState extends State<_ScheduleCard> {
             key: const Key('schedule-recipients'),
             controller: _recipients,
             enabled: widget.canSchedule,
-            decoration: InputDecoration(labelText: t('Получатели (через запятую)', 'Recipients (comma separated)', 'Qabul qiluvchilar (vergul bilan)')),
+            decoration: InputDecoration(labelText: t('Получатели: логины iBuild или адреса почты', 'Recipients: iBuild logins or e-mail addresses', 'Qabul qiluvchilar: iBuild loginlari yoki pochta manzillari')),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            t('По понедельникам с 9:00 получатели получают отчёт за прошлую неделю файлом Excel. Если почта ещё не подключена, письма ждут в очереди у администратора платформы.',
-                'On Mondays from 9:00 the recipients get last week’s report as an Excel file. If mail is not connected yet, letters wait in the platform admin’s queue.',
-                'Dushanba kunlari 9:00 dan qabul qiluvchilar o‘tgan hafta hisobotini Excel fayl sifatida oladi. Pochta ulanmagan bo‘lsa, xatlar platforma administratori navbatida kutadi.'),
+            t('По понедельникам с 9:00 получатели получают отчёт за прошлую неделю. Пользователям iBuild он приходит во внутреннюю «Почту», на внешние адреса — файлом Excel, когда подключат SMTP. Без получателей «Отправить сейчас» присылает отчёт вам.', 'On Mondays from 9:00 the recipients get last week’s report. iBuild users get it in the in-app Mail; outside addresses get an Excel file once SMTP is connected. With no recipients, Send now delivers it to you.', 'Dushanba kunlari 9:00 dan qabul qiluvchilar o‘tgan hafta hisobotini oladi. iBuild foydalanuvchilariga ichki «Pochta»ga keladi, tashqi manzillarga SMTP ulangach Excel fayl yuboriladi. Qabul qiluvchi bo‘lmasa, «Hozir yuborish» hisobotni sizga yuboradi.'),
             style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted),
           ),
           if (widget.canSchedule) ...[

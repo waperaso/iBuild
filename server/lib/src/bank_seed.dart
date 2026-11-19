@@ -25,48 +25,48 @@ Future<void> ensureBankCabinet(AppDatabase db, String password) async {
     throw StateError('SEED_PASSWORD is required to create the bank cabinet');
   }
   final navoi = await db.companyIdByInn('300000001');
-  final navoiProject = navoi == null ? null : await db.projectIdByName(navoi, 'Navoi Residences');
+  final navoiProject = navoi == null ? null : await db.projectIdByName(navoi, 'ЖК Навои');
   final specialist = await db.userIdByLogin('a.observer');
   final other = await db.userIdByLogin('b.observer');
   if (navoiProject == null || specialist == null || other == null) return;
 
   final hash = hashPassword(password);
   final bank = await db.insertCompany(
-    name: 'Navoi Bank',
+    name: 'Банк Навои',
     inn: _navoiBankInn,
     contact: 'pf@navoi-bank.uz',
   );
   final otherBank = await db.insertCompany(
-    name: 'Chilanzar Bank',
+    name: 'Банк Чиланзара',
     inn: _chilonzorBankInn,
     contact: 'credit@chilonzor-bank.uz',
   );
   final portfolio = await db.insertCompany(
-    name: 'Bank Portfolio',
+    name: 'Портфель банка',
     inn: _portfolioInn,
     contact: 'portfolio@ibuild.uz',
   );
-  await _profile(db, bank, 'project finance department');
-  await _profile(db, otherBank, 'credit department');
+  await _profile(db, bank, 'отдел проектного финансирования');
+  await _profile(db, otherBank, 'кредитный отдел');
 
-  final expert = await _person(db, bank, hash, 'a.expert', 'A. Karimov', 'expert', 'Technical expert', 'Tashkent');
+  final expert = await _person(db, bank, hash, 'a.expert', 'А. Каримов', 'expert', 'Технический эксперт', 'Ташкент');
   final heads = [
-    await _person(db, bank, hash, 'a.head1', 'A. Usmanov', 'head', 'Head of department', 'Tashkent, head office'),
-    await _person(db, bank, hash, 'a.head2', 'N. Li', 'head', 'Head of department', 'Tashkent, Yunusabad'),
-    await _person(db, bank, hash, 'a.head3', 'R. Akhmedov', 'head', 'Head of department', 'Tashkent, Chilanzar'),
+    await _person(db, bank, hash, 'a.head1', 'А. Усманов', 'head', 'Начальник отдела', 'Ташкент, главный офис'),
+    await _person(db, bank, hash, 'a.head2', 'Н. Ли', 'head', 'Начальник отдела', 'Ташкент, Юнусабад'),
+    await _person(db, bank, hash, 'a.head3', 'Р. Ахмедов', 'head', 'Начальник отдела', 'Ташкент, Чиланзар'),
   ];
   final committee = [
-    await _person(db, bank, hash, 'a.committee1', 'Committee Chair', 'committee', 'Committee chair', 'Tashkent'),
-    await _person(db, bank, hash, 'a.committee2', 'Deputy Chair', 'committee', 'Deputy chair', 'Tashkent'),
-    await _person(db, bank, hash, 'a.committee3', 'Chief Risk Officer', 'committee', 'Chief risk officer', 'Tashkent'),
-    await _person(db, bank, hash, 'a.committee4', 'Lending Director', 'committee', 'Lending director', 'Tashkent', leaveUntil: _inAWeek()),
-    await _person(db, bank, hash, 'a.committee5', 'Bank Lawyer', 'committee', 'Bank lawyer', 'Tashkent'),
+    await _person(db, bank, hash, 'a.committee1', 'Председатель комитета', 'committee', 'Председатель комитета', 'Ташкент'),
+    await _person(db, bank, hash, 'a.committee2', 'Заместитель председателя', 'committee', 'Заместитель председателя', 'Ташкент'),
+    await _person(db, bank, hash, 'a.committee3', 'Директор по рискам', 'committee', 'Директор по рискам', 'Ташкент'),
+    await _person(db, bank, hash, 'a.committee4', 'Директор по кредитованию', 'committee', 'Директор по кредитованию', 'Ташкент', leaveUntil: _inAWeek()),
+    await _person(db, bank, hash, 'a.committee5', 'Юрист банка', 'committee', 'Юрист банка', 'Ташкент'),
   ];
-  await _staff(db, bankId: bank, userId: specialist, role: 'specialist', title: 'Credit specialist', branch: 'Tashkent, head office');
-  await _staff(db, bankId: otherBank, userId: other, role: 'specialist', title: 'Credit specialist', branch: 'Tashkent');
+  await _staff(db, bankId: bank, userId: specialist, role: 'specialist', title: 'Кредитный специалист', branch: 'Ташкент, главный офис');
+  await _staff(db, bankId: otherBank, userId: other, role: 'specialist', title: 'Кредитный специалист', branch: 'Ташкент');
 
-  final headGroup = await _group(db, bank, 'heads', 'Heads of project finance departments', 1);
-  final committeeGroup = await _group(db, bank, 'committee', 'Credit committee', 3);
+  final headGroup = await _group(db, bank, 'heads', 'Начальники отделов проектного финансирования', 1);
+  final committeeGroup = await _group(db, bank, 'committee', 'Кредитный комитет', 3);
   for (var i = 0; i < heads.length; i++) {
     await _member(db, headGroup, heads[i].id, heads[i].title, heads[i].branch);
   }
@@ -80,7 +80,7 @@ Future<void> ensureBankCabinet(AppDatabase db, String password) async {
     db,
     projectId: navoiProject,
     bankId: bank,
-    developer: 'Navoi Development',
+    developer: 'Навои Девелопмент',
     limit: '17500000000.00',
     issued: '1240100000.00',
     until: '2027-06-30',
@@ -99,11 +99,11 @@ Future<void> ensureBankCabinet(AppDatabase db, String password) async {
     stageLabel: 'Решение специалиста',
     sort: 1,
     holder: specialist,
-    holderLabel: 'D. Rakhimov',
+    holderLabel: 'Д. Рахимов',
     days: 1,
     hours: 4,
     sla: 2,
-    problems: '1 block · 3 warnings',
+    problems: '1 блок · 3 предупреждения',
     signal: 'block',
     techConfirmed: '2026-10-24',
   ));
@@ -112,21 +112,18 @@ Future<void> ensureBankCabinet(AppDatabase db, String password) async {
   await _navoiSteps(db, tranche);
   await _decisionData(db);
 
-  // Stage labels such as 'Согласование' stay as the server writes them: the app
-  // translates them by that text (`trancheStageLabel`). Everything else is
-  // demo data and is in English.
   const others = <_Site>[
-    _Site('Sergeli Nur', 'Nur Invest Build', 'Sergeli, Tashkent', 3, '980000000.00', 'approval', 'Credit committee', 2, 'Committee', 4, 0, 3, false, 'Accepted with a reason: 1', 'warning'),
-    _Site('Yunusabad Garden', 'YG Development', 'Yunusabad, Tashkent', 5, '1450000000.00', 'docs', 'Проверка документов', 3, 'D. Rakhimov', 0, 3, 1, false, '2 documents missing', 'warning'),
-    _Site('Chilanzar Bahor', 'Bahor Qurilish', 'Chilanzar, Tashkent', 4, '3100000000.00', 'inspection', 'Inspection 27.10', 4, 'A. Karimov, expert', 2, 0, 5, false, 'Awaiting inspection', 'inspection'),
-    _Site('Mirzo-Ulugbek Residences', 'MU Group', 'Mirzo-Ulugbek, Tashkent', 6, '2700000000.00', 'specialist', 'Возвращена застройщику', 5, 'Developer', 6, 0, 2, true, '2 lines to rework', 'developer'),
-    _Site('Yangiabad Residences', 'Yangiobod Qurilish', 'Yangiabad, Tashkent', 1, '1000000000.00', 'approval', 'Согласование', 6, 'Head of department', 1, 0, 2, false, '', 'none'),
-    _Site('Sergeli Residences 2', 'Nur Invest Build', 'Sergeli, Tashkent', 2, '1100000000.00', 'docs', 'Проверка документов', 7, 'Colleague', 0, 4, 1, false, '', 'none'),
-    _Site('Almazar Residences', 'Almazar Stroy', 'Almazar, Tashkent', 1, '1200000000.00', 'inspection', 'Осмотр эксперта', 8, 'A. Karimov, expert', 1, 0, 5, false, 'Awaiting inspection', 'inspection'),
-    _Site('Uchtepa Residences', 'Uchtepa House', 'Uchtepa, Tashkent', 1, '1300000000.00', 'payout', 'Выплата', 9, 'Payments department', 0, 6, 1, false, '', 'none'),
-    _Site('Bektemir Residences', 'Bektemir Development', 'Bektemir, Tashkent', 1, '1400000000.00', 'specialist', 'Возвращена застройщику', 10, 'Developer', 2, 0, 2, true, '1 line to rework', 'developer'),
-    _Site('Yakkasaray Residences', 'Yakkasaroy Build', 'Yakkasaray, Tashkent', 1, '1150000000.00', 'submitted', 'Submitted', 11, 'Developer', 1, 0, 1, true, 'Awaiting the document set', 'developer'),
-    _Site('Shaykhantakhur Residences', 'Shaykhantahur Group', 'Shaykhantakhur, Tashkent', 1, '1100000000.00', 'approval', 'Согласование', 12, 'Head of department', 1, 2, 2, false, '', 'none'),
+    _Site('ЖК Сергели Нур', 'Nur Invest Build', 'Ташкент, Сергели', 3, '980000000.00', 'approval', 'Кредитный комитет', 2, 'Комитет', 4, 0, 3, false, 'Принято с обоснованием: 1', 'warning'),
+    _Site('ЖК Юнусабад Гарден', 'YG Development', 'Ташкент, Юнусабад', 5, '1450000000.00', 'docs', 'Проверка документов', 3, 'Д. Рахимов', 0, 3, 1, false, 'Нет 2 документов', 'warning'),
+    _Site('ЖК Чиланзар Бахор', 'Bahor Qurilish', 'Ташкент, Чиланзар', 4, '3100000000.00', 'inspection', 'Осмотр 27.10', 4, 'А. Каримов, эксперт', 2, 0, 5, false, 'Ждёт осмотра', 'inspection'),
+    _Site('ЖК Мирзо-Улугбек', 'MU Group', 'Ташкент, Мирзо-Улугбек', 6, '2700000000.00', 'specialist', 'Возвращена застройщику', 5, 'Застройщик', 6, 0, 2, true, '2 строки на доработку', 'developer'),
+    _Site('ЖК Янгиабад', 'Yangiobod Qurilish', 'Ташкент, Янгиабад', 1, '1000000000.00', 'approval', 'Согласование', 6, 'Начальник отдела', 1, 0, 2, false, '', 'none'),
+    _Site('ЖК Сергели 2', 'Nur Invest Build', 'Ташкент, Сергели', 2, '1100000000.00', 'docs', 'Проверка документов', 7, 'Коллега', 0, 4, 1, false, '', 'none'),
+    _Site('ЖК Алмазар', 'Almazar Stroy', 'Ташкент, Алмазар', 1, '1200000000.00', 'inspection', 'Осмотр эксперта', 8, 'А. Каримов, эксперт', 1, 0, 5, false, 'Ждёт осмотра', 'inspection'),
+    _Site('ЖК Учтепа', 'Uchtepa House', 'Ташкент, Учтепа', 1, '1300000000.00', 'payout', 'Выплата', 9, 'Платёжный отдел', 0, 6, 1, false, '', 'none'),
+    _Site('ЖК Бектемир', 'Bektemir Development', 'Ташкент, Бектемир', 1, '1400000000.00', 'specialist', 'Возвращена застройщику', 10, 'Застройщик', 2, 0, 2, true, '1 строка на доработку', 'developer'),
+    _Site('ЖК Яккасарай', 'Yakkasaroy Build', 'Ташкент, Яккасарай', 1, '1150000000.00', 'submitted', 'Подана', 11, 'Застройщик', 1, 0, 1, true, 'Ждёт комплект', 'developer'),
+    _Site('ЖК Шайхантахур', 'Shaykhantahur Group', 'Ташкент, Шайхантахур', 1, '1100000000.00', 'approval', 'Согласование', 12, 'Начальник отдела', 1, 2, 2, false, '', 'none'),
   ];
   for (final site in others) {
     final projectId = await db.insertProject(companyId: portfolio, name: site.name, address: site.address);
@@ -139,9 +136,9 @@ Future<void> ensureBankCabinet(AppDatabase db, String password) async {
       issued: '0.00',
       until: '2027-12-31',
     );
-    final String? holder = site.name == 'Yunusabad Garden'
+    final String? holder = site.name == 'ЖК Юнусабад Гарден'
         ? specialist
-        : site.name == 'Almazar Residences'
+        : site.name == 'ЖК Алмазар'
             ? expert.id
             : null;
     await _tranche(db, _Tranche(
@@ -334,10 +331,10 @@ Future<void> _moreStaff(AppDatabase db, String bank, String password) async {
   if (password.isEmpty) return;
   final hash = hashPassword(password);
   if (await db.userIdByLogin('a.bankadmin') == null) {
-    await _person(db, bank, hash, 'a.bankadmin', 'E. Kim', 'admin', 'Bank administrator', 'Tashkent, head office');
+    await _person(db, bank, hash, 'a.bankadmin', 'Е. Ким', 'admin', 'Администратор банка', 'Ташкент, главный офис');
   }
   if (await db.userIdByLogin('a.risk') == null) {
-    await _person(db, bank, hash, 'a.risk', 'S. Aliev', 'risk', 'Risk manager', 'Tashkent, head office');
+    await _person(db, bank, hash, 'a.risk', 'С. Алиев', 'risk', 'Риск-менеджер', 'Ташкент, главный офис');
   }
 }
 
@@ -448,10 +445,10 @@ Future<String> _tranche(AppDatabase db, _Tranche tranche) async {
 
 Future<void> _navoiLines(AppDatabase db, String trancheId) async {
   const lines = <(int, String, String, String, String, String, String, String)>[
-    (1, 'Excavation and earthworks', '620000000.00', '280000000.00', '100.00', '+31% since last', '280000000.00', '280000000.00'),
-    (2, 'Foundation slab', '620100000.00', '980000000.00', '62.00', '+36% since last', '867900000.00', '867900000.00'),
-    (3, 'Frame works, floors 1–4', '0.00', '640000000.00', '12.00', '+12% since last', '576000000.00', '576000000.00'),
-    (4, 'Rebar A500C and concrete on site', '0.00', '360000000.00', '', 'in storage', '360000000.00', '0.00'),
+    (1, 'Котлован и земляные работы', '620000000.00', '280000000.00', '100.00', '+31% с прошлого', '280000000.00', '280000000.00'),
+    (2, 'Фундаментная плита', '620100000.00', '980000000.00', '62.00', '+36% с прошлого', '867900000.00', '867900000.00'),
+    (3, 'Каркас, 1–4 этажи', '0.00', '640000000.00', '12.00', '+12% с прошлого', '576000000.00', '576000000.00'),
+    (4, 'Арматура A500C и бетон на площадке', '0.00', '360000000.00', '', 'склад', '360000000.00', '0.00'),
   ];
   for (final line in lines) {
     await db.pool.execute(
@@ -482,27 +479,27 @@ Future<void> _navoiLines(AppDatabase db, String trancheId) async {
 
 Future<void> _navoiChecks(AppDatabase db, String trancheId) async {
   const open = <(String, String, String, String, String, int)>[
-    ('certificate', 'block', 'Rule 3.5', 'No certificate of conformity for the rebar',
-        'Line item “Rebar A500C and concrete on site”. Without the certificate the payment is not accepted. A request was sent to the developer on 25.10 at 09:12.', 1),
-    ('above_confirmed', 'warning', 'Rule 3.6', 'Requested more than the expert confirmed',
-        'Foundation slab: 980.0 vs 867.9. Frame works: 640.0 vs 576.0. By default the confirmed amount is set for payout.', 2),
-    ('subcontractor', 'warning', 'Rule 3.4', 'Subcontractor is not on the approved register',
-        'Monolit Stroy Servis LLC, frame works. Payment is allowed only for completed work — the expert confirmed 12% readiness.', 3),
-    ('forecast', 'warning', 'Decree UP-11', 'Completion forecast is 46 days past the design deadline',
-        'Design deadline — 30.06.2028, expert forecast — 15.08.2028. About 4.5 months remain before the six-month threshold after which buyers may terminate their contracts.', 4),
+    ('certificate', 'block', 'ГС п. 3.5', 'Нет сертификата соответствия на арматуру',
+        'Статья «Арматура A500C и бетон на площадке». Без сертификата платёж не принимается. Застройщику отправлен запрос 25.10 в 09:12.', 1),
+    ('above_confirmed', 'warning', 'ГС п. 3.6', 'Запрошено больше, чем подтвердил эксперт',
+        'Фундаментная плита: 980,0 против 867,9. Каркас: 640,0 против 576,0. По умолчанию к выдаче стоит подтверждённая сумма.', 2),
+    ('subcontractor', 'warning', 'ГС п. 3.4', 'Субподрядчик не в согласованном реестре',
+        'ООО «Монолит Строй Сервис», каркас. Оплата допускается только за выполненные работы — эксперт подтвердил 12% готовности.', 3),
+    ('forecast', 'warning', 'УП-11', 'Прогноз сдачи позже срока ПСД на 46 дней',
+        'Срок по ПСД — 30.06.2028, прогноз эксперта — 15.08.2028. До шестимесячного порога, после которого дольщики могут расторгнуть договор, остаётся около 4,5 месяца.', 4),
   ];
   for (final check in open) {
     await _check(db, trancheId, check.$1, check.$2, check.$3, check.$4, check.$5, check.$6, false);
   }
   const passed = <(String, String)>[
-    ('Certificate of completed work attached', 'Rule 3.5'),
-    ('Form 3 statement of work cost', 'Rule 4.12'),
-    ('E-invoice or invoice for each payment', 'Rule 3.5'),
-    ('Developer’s site supervision report submitted', 'Rule 4.2'),
-    ('Contract with the contractor attached', 'Rule 3.5'),
-    ('Contractor’s license is valid', 'Rule 3.5'),
-    ('Remaining limit covers the tranche', 'Rule 3.7'),
-    ('Project financing is not suspended', 'Rule 4.10'),
+    ('Акт выполненных работ приложен', 'ГС п. 3.5'),
+    ('Справка ф.3 о стоимости работ', 'ГС п. 4.12'),
+    ('ЭСФ или счёт-фактура на каждый платёж', 'ГС п. 3.5'),
+    ('Отчёт технадзора застройщика сдан', 'ГС п. 4.2'),
+    ('Договор с подрядчиком приложен', 'ГС п. 3.5'),
+    ('Лицензия подрядчика действует', 'ГС п. 3.5'),
+    ('Остаток лимита покрывает транш', 'ГС п. 3.7'),
+    ('Финансирование объекта не приостановлено', 'ГС п. 4.10'),
   ];
   for (var n = 1; n <= passed.length; n++) {
     final check = passed[n - 1];
@@ -560,8 +557,8 @@ Future<void> ensureBankInspections(AppDatabase db) async {
       'expert_user_id, expert_label, created_by, note) '
       "SELECT t.id, t.project_id, t.bank_id, 'control', 'planned', "
       "(now() AT TIME ZONE 'Asia/Tashkent')::date + 2, "
-      "@expert::uuid, 'A. Karimov', @author::uuid, "
-      "'Check the volume of completed work and the materials on site.' "
+      "@expert::uuid, 'А. Каримов', @author::uuid, "
+      "'Проверить объём выполненных работ и материалы на площадке.' "
       "FROM bank_tranches t WHERE t.stage = 'inspection'",
     ),
     parameters: {'expert': expert, 'author': author},
@@ -574,8 +571,8 @@ Future<void> ensureBankInspections(AppDatabase db) async {
       'expert_user_id, expert_label, created_by, note, completed_on, risk, recommendation) '
       "SELECT t.id, t.project_id, t.bank_id, 'control', 'done', "
       "(now() AT TIME ZONE 'Asia/Tashkent')::date - 17, "
-      "@expert::uuid, 'A. Karimov', @author::uuid, "
-      "'Foundation work volume partly confirmed.', "
+      "@expert::uuid, 'А. Каримов', @author::uuid, "
+      "'Объём работ по фундаменту подтверждён частично.', "
       "(now() AT TIME ZONE 'Asia/Tashkent')::date - 17, 'watch', 'issue' "
       "FROM bank_tranches t WHERE t.stage = 'specialist' LIMIT 1",
     ),
@@ -600,10 +597,10 @@ Future<void> ensureApprovalRoutes(AppDatabase db) async {
   const steps = <(String, int, int, String)>[
     ('expert', 1, 1, ''),
     ('specialist', 2, 1, ''),
-    ('head', 3, 1, 'Group of 3, 1 approval needed'),
+    ('head', 3, 1, 'Группа из 3 человек, нужно 1 согласие'),
     ('committee', 4, 3, ''),
-    ('sign', 5, 1, 'Digital signature (integration in development)'),
-    ('payment', 6, 1, 'Payment (integration in development)'),
+    ('sign', 5, 1, 'ЭЦП (интеграция в разработке)'),
+    ('payment', 6, 1, 'Платёж (интеграция в разработке)'),
   ];
   for (final row in rows) {
     final map = row.toColumnMap();
@@ -639,10 +636,10 @@ Future<void> _navoiSteps(AppDatabase db, String trancheId) async {
   const steps = <(String, int, String, int, String)>[
     ('expert', 1, 'pending', 1, ''),
     ('specialist', 2, 'pending', 1, ''),
-    ('head', 3, 'pending', 1, 'Group of 3, 1 approval needed'),
-    ('committee', 4, 'skipped', 3, 'Amount below the threshold, no blocks accepted with a reason'),
-    ('sign', 5, 'pending', 1, 'Digital signature (integration in development)'),
-    ('payment', 6, 'pending', 1, 'Payment (integration in development)'),
+    ('head', 3, 'pending', 1, 'Группа из 3 человек, нужно 1 согласие'),
+    ('committee', 4, 'skipped', 3, 'Сумма ниже порога, блоков с обоснованием нет'),
+    ('sign', 5, 'pending', 1, 'ЭЦП (интеграция в разработке)'),
+    ('payment', 6, 'pending', 1, 'Платёж (интеграция в разработке)'),
   ];
   for (final step in steps) {
     await db.pool.execute(
@@ -678,7 +675,7 @@ const _decisionSql = r'''
 UPDATE bank_tranche_lines AS l
 SET plan_amount = v.plan_amount,
     previous_percent = v.previous_percent,
-    expert_name = 'A. Karimov',
+    expert_name = 'А. Каримов',
     expert_signed_on = DATE '2026-10-23',
     expert_note = v.note,
     remaining_to_build = v.remaining,
@@ -686,18 +683,18 @@ SET plan_amount = v.plan_amount,
     risk_flag = v.risk
 FROM (
   VALUES
-    ('Excavation and earthworks', 900000000.00, 69.00,
-     'Excavation is down to the design level. The hidden works certificate is signed.', 0.00, false),
-    ('Foundation slab', 2400000000.00, 26.00,
-     'Sections A and B are concreted. In section B, pour 3 is not concreted — reinforcement is 80% done.',
+    ('Котлован и земляные работы', 900000000.00, 69.00,
+     'Котлован выработан до проектной отметки, акт скрытых работ подписан.', 0.00, false),
+    ('Фундаментная плита', 2400000000.00, 26.00,
+     'Секции А и Б забетонированы. В секции Б захватка 3 не забетонирована — армирование выполнено на 80%.',
      912000000.00, true),
-    ('Frame works, floors 1–4', 4800000000.00, 0.00,
-     'Frame for floors 1–2 is erected, floors 3–4 are in progress.', 4224000000.00, false),
-    ('Rebar A500C and concrete on site', NULL, NULL,
-     'Rebar is in the site storage. The batch certificate has not been provided.', NULL, false)
+    ('Каркас, 1–4 этажи', 4800000000.00, 0.00,
+     'Каркас 1–2 этажей смонтирован, 3–4 этажи в работе.', 4224000000.00, false),
+    ('Арматура A500C и бетон на площадке', NULL, NULL,
+     'Арматура на складе площадки. Сертификат партии не предъявлен.', NULL, false)
 ) AS v (title, plan_amount, previous_percent, note, remaining, risk)
 WHERE l.title = v.title
-  AND l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 block · 3 warnings');
+  AND l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 блок · 3 предупреждения');
 
 UPDATE bank_tranche_lines AS l
 SET block_check_id = c.id,
@@ -705,68 +702,68 @@ SET block_check_id = c.id,
 FROM bank_checks AS c
 WHERE c.tranche_id = l.tranche_id
   AND c.code = 'certificate'
-  AND l.title = 'Rebar A500C and concrete on site'
-  AND l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 block · 3 warnings');
+  AND l.title = 'Арматура A500C и бетон на площадке'
+  AND l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 блок · 3 предупреждения');
 
 INSERT INTO bank_line_photos (line_id, caption, meta, sort_order)
 SELECT l.id, v.caption, v.meta, v.sort_order
 FROM bank_tranche_lines AS l
 JOIN (
   VALUES
-    ('Foundation slab', 'Section A, slab', '23.10 10:42 · 41.3022, 69.2403', 1),
-    ('Foundation slab', 'Section B, pour 3', '23.10 10:55 · 41.3018, 69.2409', 2),
-    ('Foundation slab', 'Same angle, previous inspection', '26.09 11:03', 3),
-    ('Excavation and earthworks', 'Excavation, general view', '23.10 10:20 · 41.3025, 69.2401', 1)
+    ('Фундаментная плита', 'Секция А, плита', '23.10 10:42 · 41.3022, 69.2403', 1),
+    ('Фундаментная плита', 'Секция Б, захватка 3', '23.10 10:55 · 41.3018, 69.2409', 2),
+    ('Фундаментная плита', 'Тот же ракурс, прошлый осмотр', '26.09 11:03', 3),
+    ('Котлован и земляные работы', 'Котлован, общий вид', '23.10 10:20 · 41.3025, 69.2401', 1)
 ) AS v (line_title, caption, meta, sort_order) ON v.line_title = l.title
-WHERE l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 block · 3 warnings');
+WHERE l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 блок · 3 предупреждения');
 
 INSERT INTO bank_line_documents (line_id, title, state, sort_order)
 SELECT l.id, v.title, v.state, v.sort_order
 FROM bank_tranche_lines AS l
 JOIN (
   VALUES
-    ('Foundation slab', 'Certificate of completed work No. 14, lines 2.1–2.6', 'ok', 1),
-    ('Foundation slab', 'Form 3 statement No. 14', 'ok', 2),
-    ('Foundation slab', 'E-invoice from Monolit Servis LLC', 'ok', 3),
-    ('Foundation slab', 'Concrete works log, hidden works certificate', 'ok', 4),
-    ('Excavation and earthworks', 'Certificate of completed work No. 14, line 1.1', 'ok', 1),
-    ('Excavation and earthworks', 'E-invoice from Monolit Servis LLC', 'ok', 2),
-    ('Frame works, floors 1–4', 'Certificate of completed work No. 14, lines 3.1–3.4', 'ok', 1),
-    ('Frame works, floors 1–4', 'E-invoice from Monolit Stroy Servis LLC', 'ok', 2),
-    ('Rebar A500C and concrete on site', 'Certificate of conformity for the rebar', 'missing', 1),
-    ('Rebar A500C and concrete on site', 'Delivery note', 'ok', 2)
+    ('Фундаментная плита', 'Акт выполненных работ №14, строки 2.1–2.6', 'ok', 1),
+    ('Фундаментная плита', 'Справка ф.3 №14', 'ok', 2),
+    ('Фундаментная плита', 'ЭСФ от ООО «Монолит Сервис»', 'ok', 3),
+    ('Фундаментная плита', 'Журнал бетонных работ, акт скрытых работ', 'ok', 4),
+    ('Котлован и земляные работы', 'Акт выполненных работ №14, строка 1.1', 'ok', 1),
+    ('Котлован и земляные работы', 'ЭСФ от ООО «Монолит Сервис»', 'ok', 2),
+    ('Каркас, 1–4 этажи', 'Акт выполненных работ №14, строки 3.1–3.4', 'ok', 1),
+    ('Каркас, 1–4 этажи', 'ЭСФ от ООО «Монолит Строй Сервис»', 'ok', 2),
+    ('Арматура A500C и бетон на площадке', 'Сертификат соответствия на арматуру', 'missing', 1),
+    ('Арматура A500C и бетон на площадке', 'Накладная на поставку', 'ok', 2)
 ) AS v (line_title, title, state, sort_order) ON v.line_title = l.title
-WHERE l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 block · 3 warnings');
+WHERE l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 блок · 3 предупреждения');
 
 INSERT INTO bank_line_payments (line_id, label, paid_on, amount)
-SELECT l.id, 'Tranche No. 1 (advance)', DATE '2026-09-02', l.issued_before
+SELECT l.id, 'Транш №1 (аванс)', DATE '2026-09-02', l.issued_before
 FROM bank_tranche_lines AS l
 WHERE l.issued_before > 0
-  AND l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 block · 3 warnings');
+  AND l.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 блок · 3 предупреждения');
 
 UPDATE bank_approval_steps AS s
 SET status = 'done',
-    actor_label = 'A. Karimov',
+    actor_label = 'А. Каримов',
     decided_at = TIMESTAMPTZ '2026-10-23 17:30:00+05'
 WHERE s.code = 'expert'
-  AND s.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 block · 3 warnings');
+  AND s.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 блок · 3 предупреждения');
 
 UPDATE bank_approval_steps AS s
 SET status = 'waiting',
     note = ''
 WHERE s.code IN ('sign', 'payment')
-  AND s.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 block · 3 warnings');
+  AND s.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 блок · 3 предупреждения');
 
 UPDATE bank_approval_steps AS s
 SET reason = 'below_threshold',
     note = ''
 WHERE s.code = 'committee'
-  AND s.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 block · 3 warnings');
+  AND s.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 блок · 3 предупреждения');
 
 UPDATE bank_approval_steps AS s
 SET note = ''
 WHERE s.code IN ('head', 'expert', 'specialist')
-  AND s.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 block · 3 warnings');
+  AND s.tranche_id IN (SELECT id FROM bank_tranches WHERE problems_label = '1 блок · 3 предупреждения');
 ''';
 
 /// The demo director is always on leave for another week, whatever the date.

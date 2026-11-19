@@ -66,6 +66,8 @@ bool _adminPath(String path) {
 }
 
 GoRouter buildRouter(SessionController session) {
+  // Where the person was before a reload or a lost session; they return there.
+  String? resumeTo;
   final router = GoRouter(
     initialLocation: '/login',
     refreshListenable: session,
@@ -74,15 +76,24 @@ GoRouter buildRouter(SessionController session) {
       // Sign-up pages are open to everyone and must survive a page reload,
       // because the status link in the applicant's hands points straight at one.
       final signUp = path == '/register' || path.startsWith('/register/');
-      if (!session.ready) return path == '/boot' || signUp ? null : '/boot';
+      final here = state.uri.toString();
+      final remember = path != '/boot' && path != '/login' && path != '/password' && !signUp && path != '/';
+      if (!session.ready) {
+        if (remember) resumeTo = here;
+        return path == '/boot' || signUp ? null : '/boot';
+      }
       final signedIn = session.user != null;
       if (!signedIn) {
+        if (remember) resumeTo = here;
         return path == '/login' || signUp ? null : '/login';
       }
       final bank = session.user!.isBank;
       final admin = session.user!.platformAdmin && !bank;
       if (session.user!.mustChangePassword) return path == '/password' ? null : '/password';
       if (path == '/login' || path == '/boot') {
+        final back = resumeTo;
+        resumeTo = null;
+        if (back != null) return back;
         return bank ? '/bank/queue' : (admin ? '/admin' : '/home');
       }
       if (path == '/password' || path == '/mail') return null;

@@ -44,7 +44,7 @@ void main() {
   Future<Map<String, dynamic>> card(Client client) async {
     final queue = await client.send('GET', '/api/bank/queue?tab=all');
     final items = (queue.body!['items'] as List).cast<Map<String, dynamic>>();
-    final navoi = items.firstWhere((item) => item['projectName'] == 'Navoi Residences');
+    final navoi = items.firstWhere((item) => item['projectName'] == 'ЖК Навои');
     final call = await client.send('GET', '/api/bank/tranches/${navoi['id']}');
     expect(call.status, 200);
     return call.body!;
@@ -58,8 +58,8 @@ void main() {
           .cast<Map<String, dynamic>>()
           .firstWhere((c) => c['code'] == code);
 
-  const plateTitle = 'Foundation slab';
-  const rebarTitle = 'Rebar A500C and concrete on site';
+  const plateTitle = 'Фундаментная плита';
+  const rebarTitle = 'Арматура A500C и бетон на площадке';
   var keyCounter = 0;
   String nextKey() => 'test-key-${++keyCounter}-aaaaaaaa';
 
@@ -104,7 +104,7 @@ void main() {
       final current = await card(specialist);
       final plate = line(current, plateTitle);
       final expert = plate['expert'] as Map<String, dynamic>;
-      expect(expert['name'], 'A. Karimov');
+      expect(expert['name'], 'А. Каримов');
       expect(expert['signedOn'], '23.10.2026');
       expect(expert['riskFlag'], true);
       expect(expert['previousPercent'], '26');
@@ -191,7 +191,7 @@ void main() {
       final waived = ((after['checks'] as Map)['open'] as List)
           .cast<Map<String, dynamic>>()
           .firstWhere((c) => c['code'] == 'above_confirmed');
-      expect((waived['waiver'] as Map)['by'], 'D. Rakhimov');
+      expect((waived['waiver'] as Map)['by'], 'Д. Рахимов');
       expect(waived['actions'], isEmpty);
       expect(after['waivedCount'], 1);
       expect((await post(specialist, path, {'reason': 'other', 'comment': 'ещё раз'})).status, 409);
@@ -235,7 +235,7 @@ void main() {
       expect(decision['returnedAmount'], '536100000.00');
       final lines = (decision['returnLines'] as List).cast<Map<String, dynamic>>();
       expect(lines.map((l) => l['amount']).toList(), ['112100000.00', '64000000.00', '360000000.00']);
-      expect(lines.last['reason'], 'No certificate of conformity for the rebar (Rule 3.5)');
+      expect(lines.last['reason'], 'Нет сертификата соответствия на арматуру (ГС п. 3.5)');
       expect((moved['permissions'] as Map)['canDecide'], false);
 
       final again = await decide(specialist, id, 'partial', key: 'same-key-0001');
@@ -290,7 +290,7 @@ void main() {
         parameters: {'id': id},
       );
       expect(rows.single[0], 'planned');
-      expect(rows.single[1], 'A. Karimov, expert');
+      expect(rows.single[1], 'А. Каримов, эксперт');
     });
   });
 

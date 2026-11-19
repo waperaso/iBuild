@@ -464,7 +464,7 @@ Future<void> _partial(Session tx, String id, BankActor actor, _State state, Stri
     Sql.named("SELECT basis FROM bank_checks WHERE tranche_id = @id::uuid AND code = 'above_confirmed'"),
     parameters: {'id': id},
   );
-  final aboveBasis = basisRows.isEmpty ? 'Rule 3.6' : basisRows.first[0]! as String;
+  final aboveBasis = basisRows.isEmpty ? 'ГС п. 3.6' : basisRows.first[0]! as String;
   final lineRows = await tx.execute(
     Sql.named('''
       SELECT l.id::text AS id, l.title,
@@ -488,8 +488,8 @@ Future<void> _partial(Session tx, String id, BankActor actor, _State state, Stri
     final reason = bankBool(line['blocked'])
         ? '${line['block_title']} (${line['block_basis']})'
         : line['choice'] == 'withhold'
-            ? 'The expert did not confirm payout for this line item'
-            : 'The volume in the certificate exceeds the confirmed one ($aboveBasis)';
+            ? 'Эксперт не подтвердил выдачу по этой статье'
+            : 'Объём в акте больше подтверждённого ($aboveBasis)';
     returned.add({
       'lineId': line['id'],
       'title': line['title'],
@@ -526,7 +526,7 @@ Future<void> _partial(Session tx, String id, BankActor actor, _State state, Stri
     Sql.named('''
       UPDATE bank_tranches
       SET stage = 'approval', stage_label = 'Согласование',
-          holder_user_id = NULL, holder_label = 'Head of department',
+          holder_user_id = NULL, holder_label = 'Начальник отдела',
           elapsed_days = 0, elapsed_hours = 0,
           sla_days = bank_stage_days(rules_version_id, 'approval', sla_days)
       WHERE id = @id::uuid
@@ -573,7 +573,7 @@ Future<void> _toDeveloper(Session tx, String id, String label) async {
     Sql.named('''
       UPDATE bank_tranches
       SET waiting_developer = true, stage_label = @label,
-          holder_user_id = NULL, holder_label = 'Developer'
+          holder_user_id = NULL, holder_label = 'Застройщик'
       WHERE id = @id::uuid
     '''),
     parameters: {'id': id, 'label': label},
@@ -612,7 +612,7 @@ Future<void> _controlMeasure(Session tx, String id, BankActor actor, _State stat
       'project': tranche.first[0],
       'bank': actor.bankId,
       'expert': expertMap?['user_id'],
-      'label': expertMap == null ? '' : '${expertMap['name']}, expert',
+      'label': expertMap == null ? '' : '${expertMap['name']}, эксперт',
       'user': actor.userId,
     },
   );
@@ -627,7 +627,7 @@ Future<void> _controlMeasure(Session tx, String id, BankActor actor, _State stat
     parameters: {
       'id': id,
       'expert': expertMap?['user_id'],
-      'label': expertMap == null ? 'Expert' : '${expertMap['name']}, expert',
+      'label': expertMap == null ? 'Эксперт' : '${expertMap['name']}, эксперт',
     },
   );
   await bankMoveClock(tx, id, 'inspection');

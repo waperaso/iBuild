@@ -93,15 +93,15 @@ void main() {
       expect(budget.body!['plan'], person.plan, reason: person.login);
       final titles = [for (final item in items) (item as Map)['title']];
       if (person.login == 'a.contractor') {
-        expect(titles, isNot(contains('Building services')));
-        expect(titles, contains('Foundation'));
+        expect(titles, isNot(contains('Инженерия')));
+        expect(titles, contains('Фундамент'));
       }
       if (person.login == 'a.contractor2') {
-        expect(titles, contains('Building services'));
-        expect(titles, isNot(contains('Foundation')));
+        expect(titles, contains('Инженерия'));
+        expect(titles, isNot(contains('Фундамент')));
       }
       if (person.role != 'contractor') {
-        expect(titles, contains('Foundation'));
+        expect(titles, contains('Фундамент'));
       }
 
       final members = await client.send('GET', '/api/projects/${row['id']}/members');
@@ -285,16 +285,16 @@ void main() {
 }
 
 const people = <({String login, String name, String role, String project, String plan, int lines, int members})>[
-  (login: 'a.director', name: 'Navoi Developer', role: 'director', project: 'Navoi Residences', plan: navoiPlan, lines: 5, members: 6),
-  (login: 'a.developer', name: 'Tester (full access)', role: 'developer', project: 'Navoi Residences', plan: navoiPlan, lines: 5, members: 6),
-  (login: 'a.contractor', name: 'Navoi Contractor', role: 'contractor', project: 'Navoi Residences', plan: navoiMasonryPlan, lines: 3, members: 6),
-  (login: 'a.contractor2', name: 'Engineering Contractor', role: 'contractor', project: 'Navoi Residences', plan: navoiEngineeringPlan, lines: 2, members: 6),
-  (login: 'a.tech', name: 'Navoi Site Inspector', role: 'tech', project: 'Navoi Residences', plan: navoiPlan, lines: 5, members: 6),
-  (login: 'a.observer', name: 'D. Rakhimov', role: 'observer', project: 'Navoi Residences', plan: navoiPlan, lines: 5, members: 6),
-  (login: 'b.director', name: 'Chilanzar Developer', role: 'director', project: 'Chilanzar Residences', plan: chilonzorPlan, lines: 2, members: 4),
-  (login: 'b.contractor', name: 'Chilanzar Contractor', role: 'contractor', project: 'Chilanzar Residences', plan: chilonzorPlan, lines: 2, members: 4),
-  (login: 'b.tech', name: 'Chilanzar Site Inspector', role: 'tech', project: 'Chilanzar Residences', plan: chilonzorPlan, lines: 2, members: 4),
-  (login: 'b.observer', name: 'S. Yusupova', role: 'observer', project: 'Chilanzar Residences', plan: chilonzorPlan, lines: 2, members: 4),
+  (login: 'a.director', name: 'Застройщик Навои', role: 'director', project: 'ЖК Навои', plan: navoiPlan, lines: 5, members: 6),
+  (login: 'a.developer', name: 'Разработчик (тест)', role: 'developer', project: 'ЖК Навои', plan: navoiPlan, lines: 5, members: 6),
+  (login: 'a.contractor', name: 'Подрядчик Навои', role: 'contractor', project: 'ЖК Навои', plan: navoiMasonryPlan, lines: 3, members: 6),
+  (login: 'a.contractor2', name: 'Подрядчик инженерии', role: 'contractor', project: 'ЖК Навои', plan: navoiEngineeringPlan, lines: 2, members: 6),
+  (login: 'a.tech', name: 'Технадзор Навои', role: 'tech', project: 'ЖК Навои', plan: navoiPlan, lines: 5, members: 6),
+  (login: 'a.observer', name: 'Д. Рахимов', role: 'observer', project: 'ЖК Навои', plan: navoiPlan, lines: 5, members: 6),
+  (login: 'b.director', name: 'Застройщик Чиланзара', role: 'director', project: 'ЖК Чиланзар', plan: chilonzorPlan, lines: 2, members: 4),
+  (login: 'b.contractor', name: 'Подрядчик Чиланзара', role: 'contractor', project: 'ЖК Чиланзар', plan: chilonzorPlan, lines: 2, members: 4),
+  (login: 'b.tech', name: 'Технадзор Чиланзара', role: 'tech', project: 'ЖК Чиланзар', plan: chilonzorPlan, lines: 2, members: 4),
+  (login: 'b.observer', name: 'С. Юсупова', role: 'observer', project: 'ЖК Чиланзар', plan: chilonzorPlan, lines: 2, members: 4),
 ];
 
 AppEnv _env() {

@@ -1373,7 +1373,7 @@ class AppDatabase {
     final rows = await pool.execute(
       Sql.named('''
         SELECT p.name AS project_name,
-               bi.title AS line_title,
+               COALESCE(NULLIF(fr.draw_name, ''), (SELECT b2.title FROM draw_lines dl2 JOIN budget_items b2 ON b2.id = dl2.budget_item_id WHERE dl2.request_id = fr.id AND dl2.requested > 0 ORDER BY b2.title LIMIT 1), bi.title) AS line_title,
                f.name AS firm_name,
                fr.id::text AS id,
                to_char(fr.amount, 'FM999999999999990.00') AS amount,
@@ -2047,7 +2047,7 @@ const _requestColumns = '''
   fr.project_id::text AS project_id,
   p.name AS project_name,
   fr.budget_item_id::text AS budget_item_id,
-  bi.title AS line_title,
+  COALESCE(NULLIF(fr.draw_name, ''), (SELECT b2.title FROM draw_lines dl2 JOIN budget_items b2 ON b2.id = dl2.budget_item_id WHERE dl2.request_id = fr.id AND dl2.requested > 0 ORDER BY b2.title LIMIT 1), bi.title) AS line_title,
   to_char(fr.amount, 'FM999999999999990.00') AS amount,
   fr.description AS description,
   fr.status AS status,

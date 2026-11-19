@@ -6,7 +6,15 @@ import 'api.dart';
 import 'models.dart';
 
 class SessionController extends ChangeNotifier {
-  SessionController(this.api);
+  SessionController(this.api) {
+    apiSessionLost = () {
+      if (user == null) return;
+      user = null;
+      projects = const [];
+      error = 'Сессия закончилась. Войдите снова.';
+      notifyListeners();
+    };
+  }
 
   final Api api;
 

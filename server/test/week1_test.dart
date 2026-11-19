@@ -102,7 +102,7 @@ void main() {
 
     final me = await ok.client.send('GET', '/api/auth/me');
     expect(me.status, 200);
-    expect(me.body!['companyName'], 'Navoi Development');
+    expect(me.body!['companyName'], 'Навои Девелопмент');
 
     final loggedOut = await ok.client.send('POST', '/api/auth/logout', json: {}, csrf: true);
     expect(loggedOut.status, 204);
@@ -223,7 +223,7 @@ void main() {
       expect(project['reserved'], '0.00');
       expect(project['paid'], '0.00');
       expect(project['available'], project['plan']);
-      expect(project['name'], login.startsWith('a.') ? 'Navoi Residences' : 'Chilanzar Residences');
+      expect(project['name'], login.startsWith('a.') ? 'ЖК Навои' : 'ЖК Чиланзар');
       final card = await client.send('GET', '/api/projects/${ownIds[login]}');
       expect(card.status, 200, reason: login);
       expect(card.body!['myRole'], _roleOf(login));

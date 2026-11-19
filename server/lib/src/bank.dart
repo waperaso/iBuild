@@ -177,6 +177,19 @@ String _mineSql(String t) => '''
       AND NOT $t.waiting_developer
       AND $t.stage = 'inspection'
       AND $t.holder_user_id = @userId::uuid THEN true
+    WHEN $t.stage = 'approval' AND $t.outcome IS NULL AND EXISTS (
+      SELECT 1 FROM bank_approval_steps s
+      JOIN bank_groups g ON g.bank_id = $t.bank_id
+        AND g.code = CASE s.code WHEN 'head' THEN 'heads' ELSE 'committee' END
+      JOIN bank_group_members gm ON gm.group_id = g.id AND gm.user_id = @userId::uuid
+      WHERE s.tranche_id = $t.id AND s.status = 'pending' AND s.code IN ('head', 'committee')
+        AND s.position = (
+          SELECT min(s2.position) FROM bank_approval_steps s2
+          WHERE s2.tranche_id = $t.id AND s2.status = 'pending' AND s2.code IN ('head', 'committee'))
+        AND NOT EXISTS (
+          SELECT 1 FROM bank_approval_votes v
+          WHERE v.step_id = s.id AND v.user_id = @userId::uuid AND v.round = $t.approval_round)
+    ) THEN true
     ELSE false
   END
 ''';
@@ -223,13 +236,13 @@ String _elapsedLabel({
   required int hours,
   required int sla,
 }) {
-  if (waiting) return '$days d with the developer';
+  if (waiting) return '$days д у застройщика';
   final spent = hours == 0
-      ? '$days d'
+      ? '$days д'
       : days == 0
-          ? '$hours h'
-          : '$days d $hours h';
-  return '$spent of $sla d';
+          ? '$hours ч'
+          : '$days д $hours ч';
+  return '$spent из $sla д';
 }
 
 /// Who, what, when for one tranche, newest first. The bank reads only its own

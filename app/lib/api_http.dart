@@ -1156,6 +1156,11 @@ class HttpApiClient implements Api {
         json = decoded.map((key, value) => MapEntry(key.toString(), value));
       }
     }
+    if (response.statusCode == 401) {
+      // The session ended on the server: the app goes back to sign-in instead
+      // of showing empty screens.
+      apiSessionLost?.call();
+    }
     if (response.statusCode >= 400) {
       throw ApiException(
         response.statusCode,

@@ -460,6 +460,16 @@ class BudgetSection extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: TextButton(
+              key: const Key('add-source'),
+              style: backLinkStyle,
+              onPressed: () => _addSource(context),
+              child: Text(LocaleScope.copy(context).pick('Добавить источник финансирования', 'Add a funding source', 'Moliyalashtirish manbasini qo‘shish')),
+            ),
+          ),
+        if (director)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
               key: const Key('add-firm'),
               style: backLinkStyle,
               onPressed: () async {
@@ -582,6 +592,85 @@ class BudgetSection extends StatelessWidget {
       },
     );
     inn.dispose();
+  }
+
+  Future<void> _addSource(BuildContext context) async {
+    final name = TextEditingController();
+    final amount = TextEditingController();
+    var kind = 'loan';
+    String? error;
+    await showPlainDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final copy = LocaleScope.copy(context);
+            return AlertDialog(
+              title: Text(copy.pick('Источник финансирования', 'Funding source', 'Moliyalashtirish manbasi')),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    key: const Key('source-name'),
+                    controller: name,
+                    decoration: InputDecoration(labelText: copy.pick('Название, например «Кредит банка»', 'Name, e.g. “Bank loan”', 'Nomi, masalan «Bank krediti»')),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  DropdownButtonFormField<String>(
+                    key: const Key('source-kind'),
+                    initialValue: kind,
+                    decoration: InputDecoration(labelText: copy.pick('Вид', 'Kind', 'Turi')),
+                    items: [
+                      DropdownMenuItem(value: 'loan', child: Text(copy.pick('Кредит', 'Loan', 'Kredit'))),
+                      DropdownMenuItem(value: 'equity', child: Text(copy.pick('Собственные средства', 'Equity', 'O‘z mablag‘i'))),
+                      DropdownMenuItem(value: 'escrow', child: Text(copy.pick('Эскроу', 'Escrow', 'Eskrou'))),
+                    ],
+                    onChanged: (value) => setState(() => kind = value ?? 'loan'),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  TextField(
+                    key: const Key('source-amount'),
+                    controller: amount,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: copy.pick('Сумма, сум', 'Amount, UZS', 'Summa, so‘m')),
+                  ),
+                  if (error != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    Text(copy.known(error!), style: TextStyle(color: context.colors.danger)),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(copy.cancel),
+                ),
+                PrimaryButton(
+                  key: const Key('source-save'),
+                  label: copy.save,
+                  onPressed: () async {
+                    try {
+                      await SessionScope.of(context).api.addSource(
+                        projectId: project.id,
+                        name: name.text.trim(),
+                        kind: kind,
+                        amount: amount.text.replaceAll(' ', '').trim(),
+                      );
+                      if (dialogContext.mounted) Navigator.of(dialogContext).pop();
+                      await onChanged();
+                    } on ApiException catch (failure) {
+                      setState(() => error = failure.message);
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    name.dispose();
+    amount.dispose();
   }
 
   Future<bool> _addFirm(BuildContext context) async {

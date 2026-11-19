@@ -74,13 +74,13 @@ const _registryStatuses = {
 };
 
 const _registryStatusName = {
-  'draft': 'Draft',
-  'submitted': 'Waiting for the bank',
-  'tech_approved': 'Work checked, waiting for the bank',
-  'approved': 'Approved, waiting for payout',
-  'paid': 'Paid out',
-  'rejected': 'Rejected',
-  'cancelled': 'Withdrawn',
+  'draft': 'Черновик',
+  'submitted': 'Ждёт решения банка',
+  'tech_approved': 'Работу проверили, ждёт банк',
+  'approved': 'Одобрен, ждёт выплаты',
+  'paid': 'Выплачен',
+  'rejected': 'Отклонён',
+  'cancelled': 'Отозван',
 };
 
 Future<Response> _registry(Request request, AppDatabase db) async {
@@ -102,15 +102,15 @@ Future<Response> _registry(Request request, AppDatabase db) async {
   );
   final lines = <String>[
     [
-      'Project',
-      'Work item',
-      'Contractor',
-      'Tranche ID',
-      'Amount, UZS',
-      'Status',
-      'Submitted on',
-      'Paid on',
-      'Payment order No.',
+      'Объект',
+      'Вид работ',
+      'Подрядчик',
+      'ID транша',
+      'Сумма, сум',
+      'Статус',
+      'Дата подачи',
+      'Дата оплаты',
+      'Номер платёжки',
     ].map(_csvCell).join(';'),
     for (final row in rows)
       [

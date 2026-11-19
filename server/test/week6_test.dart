@@ -59,7 +59,7 @@ void main() {
 
     final projectId = ((await mason.send('GET', '/api/projects')).body!['projects'] as List)
         .cast<Map<String, dynamic>>()
-        .firstWhere((item) => item['name'] == 'Navoi Residences')['id'] as String;
+        .firstWhere((item) => item['name'] == 'ЖК Навои')['id'] as String;
     final members = ((await mason.send('GET', '/api/projects/$projectId/members')).body!['members']
             as List)
         .cast<Map<String, dynamic>>();
@@ -71,7 +71,7 @@ void main() {
 
     final budget = await mason.send('GET', '/api/projects/$projectId/budget');
     final itemId = ((budget.body!['items'] as List).cast<Map<String, dynamic>>())
-        .firstWhere((item) => item['title'] == 'Foundation')['id'] as String;
+        .firstWhere((item) => item['title'] == 'Фундамент')['id'] as String;
 
     final draft = await _draft(mason, projectId, itemId, '100.00', 'Фундамент, секция В');
     final tooSoon = await mason.send('POST', '/api/requests/${draft.id}/submit', json: {

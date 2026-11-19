@@ -350,11 +350,11 @@ Future<Response> _loan(Request request, AppDatabase db, String id) async {
 
 Future<void> _ensureChecklist(AppDatabase db, String projectId) async {
   const items = [
-    ('act', 'Certificate of completed work', true),
-    ('invoice', 'Invoice', true),
-    ('retainage_log', 'Retainage statement', false),
-    ('stored_log', 'Materials on site', false),
-    ('waiver', 'Waiver of claims', true),
+    ('act', 'Акт выполненных работ', true),
+    ('invoice', 'Счёт', true),
+    ('retainage_log', 'Ведомость удержания', false),
+    ('stored_log', 'Материалы на площадке', false),
+    ('waiver', 'Отказ от претензий', true),
   ];
   for (final item in items) {
     await db.pool.execute(
@@ -785,6 +785,22 @@ Future<Response> _patchDraw(Request request, AppDatabase db, String id) async {
         );
       }
     }
+    // The draw is filed under the work item it actually asks money for, so the
+    // developer and the site inspector see the right title and remaining sum.
+    await session.execute(
+      Sql.named('''
+        UPDATE funding_requests fr
+        SET budget_item_id = sub.budget_item_id
+        FROM (
+          SELECT dl.budget_item_id FROM draw_lines dl
+          JOIN budget_items bi ON bi.id = dl.budget_item_id
+          WHERE dl.request_id = @request::uuid AND dl.requested > 0
+          ORDER BY dl.requested DESC, bi.title LIMIT 1
+        ) sub
+        WHERE fr.id = @request::uuid AND fr.status = 'draft'
+      '''),
+      parameters: {'request': id},
+    );
     final requirements = json['requirements'];
     if (requirements is List) {
       for (final raw in requirements) {
@@ -1128,24 +1144,24 @@ Future<Response> _package(Request request, AppDatabase db, String id) async {
   if (card.statusCode != 200) return card;
   final body = jsonDecode(await card.readAsString()) as Map<String, dynamic>;
   final buffer = StringBuffer()
-    ..writeln('Tranche “${body['draw_name']}”')
-    ..writeln('Status: ${body['status']}')
-    ..writeln('Requested, UZS: ${body['requested']}')
-    ..writeln('To pay out, UZS: ${body['amount']}')
-    ..writeln('Approved by the bank, UZS: ${body['confirmed']}')
-    ..writeln('Signed by: ${body['signed_name']}')
-    ..writeln('--- Work items by line ---');
+    ..writeln('Транш «${body['draw_name']}»')
+    ..writeln('Статус: ${body['status']}')
+    ..writeln('Запрошено, сум: ${body['requested']}')
+    ..writeln('К выплате, сум: ${body['amount']}')
+    ..writeln('Одобрено банком, сум: ${body['confirmed']}')
+    ..writeln('Подписал: ${body['signed_name']}')
+    ..writeln('--- Вид работ по строкам ---');
   for (final line in body['lines'] as List) {
     final row = line as Map<String, dynamic>;
     buffer.writeln(
-      '${row['budget_item_id']}: requested ${row['requested']}, '
-      'retained ${row['retainage_withheld']}, released ${row['retainage_released']}, '
-      'materials in storage ${row['stored_materials']}, '
-      'inspector recommendation ${row['inspector_recommend']}, '
-      'bank decision ${row['approved_amount']}',
+      '${row['budget_item_id']}: запрошено ${row['requested']}, '
+      'удержано ${row['retainage_withheld']}, возвращено ${row['retainage_released']}, '
+      'материалы на складе ${row['stored_materials']}, '
+      'рекомендация проверяющего ${row['inspector_recommend']}, '
+      'решение банка ${row['approved_amount']}',
     );
   }
-  buffer.writeln('--- Comments ---');
+  buffer.writeln('--- Комментарии ---');
   for (final comment in body['comments'] as List) {
     buffer.writeln((comment as Map<String, dynamic>)['body']);
   }
@@ -1264,13 +1280,14 @@ String _risk(Object? raw) {
 }
 
 String _nonNegative(Object? raw) {
-  final text = (raw as String? ?? '').trim();
+  // A number sent as a JSON number is read like the same number in a string.
+  final text = (raw is num ? raw.toString() : raw is String ? raw : '').trim();
   if (text.isEmpty || text == '0' || text == '0.00') return moneyZero;
   return normalizeMoney(text) ?? moneyZero;
 }
 
 String _signed(Object? raw) {
-  final text = (raw as String? ?? '').trim();
+  final text = (raw is num ? raw.toString() : raw is String ? raw : '').trim();
   if (text.isEmpty || text == '0' || text == '0.00') return moneyZero;
   if (text.startsWith('-')) {
     final value = normalizeMoney(text.substring(1));

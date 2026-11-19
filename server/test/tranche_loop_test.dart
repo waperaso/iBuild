@@ -47,13 +47,13 @@ void main() {
     await director.login('a.director', password);
     final projects = await director.send('GET', '/api/projects');
     final project = (projects.body!['projects'] as List).cast<Map<String, dynamic>>().singleWhere(
-      (item) => item['name'] == 'Navoi Residences',
+      (item) => item['name'] == 'ЖК Навои',
     );
     final projectId = project['id'] as String;
     final plan = project['plan'];
     final budget = await director.send('GET', '/api/projects/$projectId/budget');
     final foundation = (budget.body!['items'] as List).cast<Map<String, dynamic>>().singleWhere(
-      (item) => item['title'] == 'Foundation',
+      (item) => item['title'] == 'Фундамент',
     );
 
     final custom = await director.send('POST', '/api/requests', json: {

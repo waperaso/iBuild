@@ -160,7 +160,8 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
         );
       }
       if (!mounted) return;
-      context.go('/requests/${created.id}', extra: created);
+      // Without extra the draft page loads itself and already shows the uploaded photo.
+      context.go('/requests/${created.id}');
     } on ApiException catch (error) {
       if (!mounted) return;
       setState(() {

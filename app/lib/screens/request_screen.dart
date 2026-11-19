@@ -531,6 +531,32 @@ class _RequestScreenState extends State<RequestScreen> {
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
         ),
         const SizedBox(height: AppSpacing.lg),
+        if (_bankDecision(request) case final decision?) ...[
+          IBuildCard(
+            key: const Key('bank-decision'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  decision.action == 'approved'
+                      ? copy.pick('Решение банка: согласовано', 'Bank decision: approved', 'Bank qarori: ma’qullandi')
+                      : copy.pick('Решение банка: отклонено', 'Bank decision: rejected', 'Bank qarori: rad etildi'),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: decision.action == 'approved' ? colors.success : colors.danger,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(decision.reason),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  '${_tashkent(decision.at)} · ${decision.authorName}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ],
         IBuildCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -703,7 +729,11 @@ class _RequestScreenState extends State<RequestScreen> {
               const SizedBox(height: AppSpacing.md),
               if (request.files.where((file) => !file.isPayment).isEmpty)
                 Text(
-                  copy.photoNote,
+                  request.status == 'draft'
+                      ? copy.photoNote
+                      : copy.pick('Фото к этому траншу не приложены. Документы транша — на странице объекта, во вкладке «Транши».',
+                          'No photos on this tranche. The tranche documents are on the project page, in Tranches.',
+                          'Bu transhga surat ilova qilinmagan. Transh hujjatlari obyekt sahifasida, «Transhlar» bo‘limida.'),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colors.inkMuted,
                   ),
@@ -1226,4 +1256,15 @@ class _ContactCardState extends State<_ContactCard> {
       ),
     );
   }
+}
+
+
+/// The last word of the bank on this tranche, written back by the server.
+RequestEvent? _bankDecision(FundingRequest request) {
+  for (final event in request.events.reversed) {
+    if ((event.action == 'approved' || event.action == 'director_rejected') && event.reason.isNotEmpty) {
+      return event;
+    }
+  }
+  return null;
 }

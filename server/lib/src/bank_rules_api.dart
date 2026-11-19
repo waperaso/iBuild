@@ -21,16 +21,16 @@ const _stageCodes = ['docs', 'inspection', 'specialist', 'approval', 'payout'];
 const _owners = {'specialist', 'expert', 'head', 'committee', 'payment'};
 
 const _defaultDocuments = [
-  {'code': 'act', 'title': 'Certificate of completed work', 'when': 'every tranche', 'obligation': 'Required', 'effect': 'block', 'basis': 'Rule 3.5, contract cl. 2.12'},
-  {'code': 'form3', 'title': 'Form 3 statement of work cost', 'when': 'every tranche for construction works', 'obligation': 'Required', 'effect': 'block', 'basis': 'Rule 4.12'},
-  {'code': 'invoice', 'title': 'E-invoice or invoice', 'when': 'every payment', 'obligation': 'Required', 'effect': 'block', 'basis': 'Rule 3.5'},
-  {'code': 'supervision', 'title': 'Developer’s site supervision report', 'when': 'at least twice a month and with each tranche', 'obligation': 'Required', 'effect': 'warning', 'basis': 'Rule 4.2, 4.7'},
-  {'code': 'contract', 'title': 'Copy of the contract with the contractor or supplier', 'when': 'first payment under the contract', 'obligation': 'Required', 'effect': 'block', 'basis': 'Rule 3.5'},
-  {'code': 'license', 'title': 'License of the contractor or supplier', 'when': 'first payment under the contract', 'obligation': 'If the activity is licensed', 'effect': 'block', 'basis': 'Rule 3.5'},
-  {'code': 'waybill', 'title': 'Delivery note', 'when': 'delivery of materials', 'obligation': 'For materials', 'effect': 'block', 'basis': 'Rule 3.5'},
-  {'code': 'certificate', 'title': 'Certificate of conformity', 'when': 'materials, equipment, works', 'obligation': 'Required', 'effect': 'block', 'basis': 'Rule 3.5'},
-  {'code': 'customs', 'title': 'Customs declaration', 'when': 'imported goods', 'obligation': 'If imported', 'effect': 'block', 'basis': 'Rule 3.5'},
-  {'code': 'concrete_log', 'title': 'Concrete works log, hidden works certificates', 'when': 'for the relevant types of work', 'obligation': 'For these types of work', 'effect': 'warning', 'basis': 'Rule 4.5'},
+  {'code': 'act', 'title': 'Акт выполненных работ', 'when': 'каждый транш', 'obligation': 'Обязателен', 'effect': 'block', 'basis': 'ГС п. 3.5, договор п. 2.12'},
+  {'code': 'form3', 'title': 'Справка ф.3 о стоимости работ', 'when': 'каждый транш по строительным работам', 'obligation': 'Обязательна', 'effect': 'block', 'basis': 'ГС п. 4.12'},
+  {'code': 'invoice', 'title': 'ЭСФ или счёт-фактура', 'when': 'каждый платёж', 'obligation': 'Обязательна', 'effect': 'block', 'basis': 'ГС п. 3.5'},
+  {'code': 'supervision', 'title': 'Отчёт технадзора застройщика', 'when': 'не реже двух раз в месяц и к траншу', 'obligation': 'Обязателен', 'effect': 'warning', 'basis': 'ГС п. 4.2, 4.7'},
+  {'code': 'contract', 'title': 'Копия договора с подрядчиком или поставщиком', 'when': 'первый платёж по договору', 'obligation': 'Обязательна', 'effect': 'block', 'basis': 'ГС п. 3.5'},
+  {'code': 'license', 'title': 'Лицензия подрядчика или поставщика', 'when': 'первый платёж по договору', 'obligation': 'Если вид деятельности лицензируется', 'effect': 'block', 'basis': 'ГС п. 3.5'},
+  {'code': 'waybill', 'title': 'Накладная', 'when': 'поставка материалов', 'obligation': 'Для материалов', 'effect': 'block', 'basis': 'ГС п. 3.5'},
+  {'code': 'certificate', 'title': 'Сертификат соответствия', 'when': 'материалы, оборудование, работы', 'obligation': 'Обязателен', 'effect': 'block', 'basis': 'ГС п. 3.5'},
+  {'code': 'customs', 'title': 'Таможенная декларация', 'when': 'импортные товары', 'obligation': 'Если импорт', 'effect': 'block', 'basis': 'ГС п. 3.5'},
+  {'code': 'concrete_log', 'title': 'Журнал бетонных работ, акты скрытых работ', 'when': 'по соответствующим видам работ', 'obligation': 'Для этих видов работ', 'effect': 'warning', 'basis': 'ГС п. 4.5'},
 ];
 
 void mountBankRules(Router router, AppDatabase db) {
@@ -403,15 +403,15 @@ Future<void> ensureBankDefaults(Session tx, String bankId) async {
         INSERT INTO bank_rule_versions (bank_id, version, effective_from, snapshot, note)
         VALUES (
           @bank::uuid, 1, (now() AT TIME ZONE 'Asia/Tashkent')::date, @snapshot::jsonb,
-          'Initial rules'
+          'Начальные правила'
         )
       '''),
       parameters: {'bank': bankId, 'snapshot': jsonEncode(bankNormalizedRules(const {}))},
     );
   }
   for (final group in const [
-    ('heads', 'Heads of department', 1),
-    ('committee', 'Credit committee', 1),
+    ('heads', 'Начальники отдела', 1),
+    ('committee', 'Кредитный комитет', 1),
   ]) {
     await tx.execute(
       Sql.named('''

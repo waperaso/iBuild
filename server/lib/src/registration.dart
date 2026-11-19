@@ -879,7 +879,7 @@ Future<Response> _approve(Request request, AppDatabase db, String id) async {
         await session.execute(
           Sql.named('''
             INSERT INTO bank_staff (bank_id, user_id, role, title, branch)
-            VALUES (@bank::uuid, @user::uuid, 'admin', 'Bank administrator', '')
+            VALUES (@bank::uuid, @user::uuid, 'admin', 'Администратор банка', '')
           '''),
           parameters: {'bank': companyId, 'user': user.first[0]},
         );
@@ -970,20 +970,20 @@ Future<void> seedDemoApplications(AppDatabase db, {bool demo = false}) async {
     {
       'kind': 'developer',
       'status': 'new',
-      'org': 'Yangi Ufq Development LLC',
+      'org': 'ООО «Янги Уфқ Девелопмент»',
       'inn': '307412558',
-      'contact': 'Aziz Karimov',
+      'contact': 'Азиз Каримов',
       'phone': '+998901112233',
       'email': 'aziz@yangi-ufq.example',
       'region': 'tashkent_city',
       'data': {
-        'org_full_name': 'Yangi Ufq Development LLC',
+        'org_full_name': 'ООО «Янги Уфқ Девелопмент»',
         'legal_form': 'llc',
         'inn': '307412558',
-        'object_name': 'Yangi Ufq Residences',
-        'object_address': 'Yashnabad District, Tashkent',
+        'object_name': 'ЖК «Янги Уфқ»',
+        'object_address': 'г. Ташкент, Яшнабадский район',
         'owners': [
-          {'kind': 'person', 'name': 'Aziz Karimov', 'tax_id': '31205880120045', 'share': '100'},
+          {'kind': 'person', 'name': 'Азиз Каримов', 'tax_id': '31205880120045', 'share': '100'},
         ],
         'licenses': <Object?>[],
       },
@@ -991,21 +991,21 @@ Future<void> seedDemoApplications(AppDatabase db, {bool demo = false}) async {
     {
       'kind': 'developer',
       'status': 'calling',
-      'org': 'Samarqand Qurilish Invest LLC',
+      'org': 'ООО «Самарқанд Қурилиш Инвест»',
       'inn': '305998114',
-      'contact': 'Shakhzod Rakhimov',
+      'contact': 'Шахзод Рахимов',
       'phone': '+998935554433',
       'email': 'shakhzod@sqi.example',
       'region': 'samarkand',
       'data': {
-        'org_full_name': 'Samarqand Qurilish Invest LLC',
+        'org_full_name': 'ООО «Самарқанд Қурилиш Инвест»',
         'legal_form': 'llc',
         'inn': '305998114',
-        'object_name': 'Registon Park',
-        'object_address': 'University Boulevard, Samarkand',
+        'object_name': 'ЖК «Регистон Парк»',
+        'object_address': 'г. Самарканд, ул. Университетский бульвар',
         'owners': [
-          {'kind': 'person', 'name': 'Shakhzod Rakhimov', 'tax_id': '30908900120031', 'share': '60'},
-          {'kind': 'company', 'name': 'Registon Holding LLC', 'tax_id': '304112233', 'share': '40'},
+          {'kind': 'person', 'name': 'Шахзод Рахимов', 'tax_id': '30908900120031', 'share': '60'},
+          {'kind': 'company', 'name': 'ООО «Регистон Холдинг»', 'tax_id': '304112233', 'share': '40'},
         ],
         'licenses': <Object?>[],
       },
@@ -1013,14 +1013,14 @@ Future<void> seedDemoApplications(AppDatabase db, {bool demo = false}) async {
     {
       'kind': 'bank',
       'status': 'new',
-      'org': 'Primer Bank JSCB',
+      'org': 'АКБ «Пример Банк»',
       'inn': '200950123',
-      'contact': 'Dinara Yusupova',
+      'contact': 'Динара Юсупова',
       'phone': '+998712223344',
       'email': 'd.yusupova@primerbank.example',
       'region': 'tashkent_city',
       'data': {
-        'org_full_name': 'Primer Bank JSCB',
+        'org_full_name': 'АКБ «Пример Банк»',
         'inn': '200950123',
         'interests': ['project_finance', 'tranche_control'],
       },

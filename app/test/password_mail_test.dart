@@ -86,7 +86,7 @@ void main() {
     await tester.tap(find.byKey(const Key('nav-admin-mail')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('admin-mail-frame')), findsOneWidget);
-    expect(find.textContaining('Почта не подключена'), findsOneWidget);
+    expect(find.textContaining('Работает внутренняя почта iBuild'), findsOneWidget);
     expect(find.text('Отчёт: сроки'), findsOneWidget);
     expect(find.text('В очереди'), findsWidgets);
 

@@ -5,6 +5,7 @@ import 'package:shelf_router/shelf_router.dart';
 import 'bank_card.dart' show bankCents;
 import 'bank_common.dart';
 import 'mail.dart';
+import 'mailbox.dart' show deliverInternal;
 import 'bank_data.dart';
 import 'bank_export.dart';
 import 'bank_portfolio.dart';
@@ -241,7 +242,7 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
         }
       }
       if (rest > 0) {
-        shown.add({'object': 'Other $rest projects', 'developer': 'below the threshold', 'percent': '< $threshold'});
+        shown.add({'object': 'Остальные $rest объектов', 'developer': 'ниже порога', 'percent': '< $threshold'});
       }
       return _Report(
         code,
@@ -259,7 +260,7 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
         shown,
         summary: [
           stat('Сверх подтверждённого, млн UZS', bankMillions(over), tone: over > BigInt.zero ? 'bad' : ''),
-          stat('Объектов выше порога', '${shown.length - (rest > 0 ? 1 : 0)} of ${rows.length}'),
+          stat('Объектов выше порога', '${shown.length - (rest > 0 ? 1 : 0)} из ${rows.length}'),
           stat('Порог показа, % от выданного', '$threshold%'),
         ],
         note: 'Порог задаётся в «Правилах». Банк не даёт выдать больше подтверждённого, поэтому отчёт показывает исключения, снятые вручную, и старые данные.',
@@ -325,7 +326,7 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
         db,
         '''
           SELECT p.name AS object, t.tranche_no AS tranche, t.stage AS stage, t.holder_label AS holder,
-                 (t.elapsed_days || ' d ' || t.elapsed_hours || ' h') AS elapsed, t.sla_days AS sla
+                 (t.elapsed_days || ' д ' || t.elapsed_hours || ' ч') AS elapsed, t.sla_days AS sla
           FROM bank_tranches t JOIN projects p ON p.id = t.project_id
           JOIN project_facilities f ON f.project_id = t.project_id AND f.bank_id = t.bank_id
           WHERE t.outcome IS NULL AND NOT t.waiting_developer
@@ -430,9 +431,9 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
         rows.add({
           'developer': dev['name'],
           'objects': dev['objects'],
-          'sales': '${sales['filed']} of ${sales['of']}',
-          'quarterly': '${quarterly['filed']} of ${quarterly['of']}',
-          'supervision': '${supervision['regular']} of ${supervision['of']}',
+          'sales': '${sales['filed']} из ${sales['of']}',
+          'quarterly': '${quarterly['filed']} из ${quarterly['of']}',
+          'supervision': '${supervision['regular']} из ${supervision['of']}',
         });
       }
       return _Report(
@@ -453,7 +454,7 @@ Future<_Report?> _build(AppDatabase db, BankCtx ctx, String code, _Filter filter
       final rows = await bankRows(
         db,
         '''
-          SELECT COALESCE(NULLIF(i.expert_label, ''), 'Not assigned') AS expert,
+          SELECT COALESCE(NULLIF(i.expert_label, ''), 'Не назначен') AS expert,
                  count(*) FILTER (WHERE i.status = 'done') AS done,
                  count(*) FILTER (WHERE i.status = 'planned' AND i.scheduled_on >= $bankToday) AS planned,
                  count(*) FILTER (WHERE i.status = 'planned' AND i.scheduled_on < $bankToday) AS overdue
@@ -630,8 +631,9 @@ Future<Response> _schedule(Request request, AppDatabase db, String code) async {
   final recipients = (body['recipients'] as String? ?? '').trim();
   final list = recipients.isEmpty ? <String>[] : recipients.split(RegExp(r'[,;\s]+')).where((part) => part.isNotEmpty).toList();
   final valid = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-  if (list.length > 20 || list.any((mail) => !valid.hasMatch(mail))) {
-    return jsonError(400, 'validation', 'Проверьте адреса почты');
+  final known = await _knownLogins(db, list);
+  if (list.length > 20 || list.any((mail) => !valid.hasMatch(mail) && !known.containsKey(mail.toLowerCase()))) {
+    return jsonError(400, 'validation', 'Укажите логины iBuild или адреса почты');
   }
   if (enabled && list.isEmpty) return jsonError(400, 'validation', 'Укажите, кому отправлять');
   await db.owner.execute(
@@ -654,7 +656,34 @@ Future<String> _mailReport(AppDatabase db, BankCtx ctx, _Report report, _Filter 
   final bytes = reportXlsx(report.title, report.columns, rows);
   final name = '${report.code}_${filter.from}_${filter.to}.xlsx';
   var worst = 'sent';
+  final known = await _knownLogins(db, recipients);
+  final inside = <String>{};
+  final outside = <String>[];
   for (final to in recipients) {
+    final id = known[to.toLowerCase()];
+    if (id != null) {
+      inside.add(id);
+    } else {
+      outside.add(to);
+    }
+  }
+  if (inside.isNotEmpty) {
+    // People of iBuild get the report in the in-app mail, without SMTP.
+    final preview = StringBuffer();
+    for (final row in rows.take(15)) {
+      preview.writeln([for (final c in report.columns) '${row[c.key] ?? ''}'].join(' · '));
+    }
+    await deliverInternal(
+      db,
+      senderId: ctx.actor.userId,
+      recipientIds: inside.toList(),
+      subject: '${report.title}: ${filter.from} — ${filter.to}',
+      body: 'Отчёт «${report.title}» за период ${filter.from} — ${filter.to}.\n$kind\n\n'
+          '${preview.toString().trim()}${rows.length > 15 ? '\n… ещё ${rows.length - 15} строк' : ''}\n\n'
+          'Полный отчёт с выгрузкой в XLSX, PDF и CSV — в разделе «Отчёты».',
+    );
+  }
+  for (final to in outside) {
     final status = await sendMail(
       db,
       to: to,
@@ -669,8 +698,18 @@ Future<String> _mailReport(AppDatabase db, BankCtx ctx, _Report report, _Filter 
   return worst;
 }
 
-List<String> _addresses(Object? recipients) =>
-    '${recipients ?? ''}'.split(RegExp(r'[,;\s]+')).where(isMailAddress).toList();
+List<String> _recipients(Object? recipients) =>
+    '${recipients ?? ''}'.split(RegExp(r'[,;\s]+')).where((part) => part.isNotEmpty).toList();
+
+/// Active iBuild users among [names], by login (lower case) → user id.
+Future<Map<String, String>> _knownLogins(AppDatabase db, List<String> names) async {
+  if (names.isEmpty) return {};
+  final rows = await db.owner.execute(
+    Sql.named('SELECT lower(login), id::text FROM users WHERE active AND lower(login) = ANY(@names)'),
+    parameters: {'names': [for (final n in names) n.toLowerCase()]},
+  );
+  return {for (final row in rows) row[0]! as String: row[1]! as String};
+}
 
 /// Sends the report to the people of the schedule now, as an Excel file.
 Future<Response> _sendNow(Request request, AppDatabase db, String code) async {
@@ -686,8 +725,12 @@ Future<Response> _sendNow(Request request, AppDatabase db, String code) async {
     'SELECT recipients FROM bank_report_schedules WHERE bank_id = @bank::uuid AND code = @code',
     {'bank': ctx.bankId, 'code': code},
   );
-  final recipients = schedule.isEmpty ? <String>[] : _addresses(schedule.first['recipients']);
-  if (recipients.isEmpty) return jsonError(400, 'validation', 'Сначала укажите, кому отправлять');
+  var recipients = schedule.isEmpty ? <String>[] : _recipients(schedule.first['recipients']);
+  if (recipients.isEmpty) {
+    // No one chosen yet: the report goes to the sender's own in-app mail.
+    final me = await bankRows(db, 'SELECT login FROM users WHERE id = @id::uuid', {'id': ctx.actor.userId});
+    recipients = [for (final row in me) row['login']! as String];
+  }
   final worst = await _mailReport(db, ctx, report, filter, recipients, 'Сформировал: ${ctx.actor.name}.');
   await bankEvent(db, ctx, 'report_sent', detail: {'code': code, 'recipients': recipients, 'mail': worst});
   return bankOk({'ok': true, 'mail': worst, 'count': recipients.length});
@@ -722,7 +765,7 @@ Future<int> runReportSchedules(AppDatabase db, {DateTime? now, bool force = fals
       BankActor(userId: owner.first['id']! as String, name: owner.first['name']! as String, bankId: bankId, role: 'admin'),
     );
     final report = await _build(db, ctx, row['code']! as String, filter);
-    final recipients = _addresses(row['recipients']);
+    final recipients = _recipients(row['recipients']);
     await db.owner.execute(
       Sql.named('UPDATE bank_report_schedules SET last_sent_on = @today::date WHERE bank_id = @bank::uuid AND code = @code'),
       parameters: {'today': bankDay(today), 'bank': bankId, 'code': row['code']},

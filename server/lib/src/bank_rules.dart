@@ -105,11 +105,7 @@ String bankMillions(BigInt cents) {
   return '$groups,$fraction';
 }
 
-/// The same millions written the English way, for the texts of the checks:
-/// 1 240,1 → "1,240.1".
-String bankMillionsEn(BigInt cents) => bankMillions(cents).replaceAll(',', '.').replaceAll(' ', ',');
-
-String _millionsOf(String amount) => bankMillionsEn(bankCents(amount));
+String _millionsOf(String amount) => bankMillions(bankCents(amount));
 
 String _day(DateTime value) {
   final day = value.day.toString().padLeft(2, '0');
@@ -141,14 +137,14 @@ List<RuleResult> evaluateBankRules(RuleInput input) {
       code: 'doc_$code',
       level: effectOf(code),
       basis: (rule['basis'] ?? '').toString(),
-      title: 'Missing document: ${rule['title']}',
-      detail: 'Required: ${rule['when']}.',
+      title: 'Нет документа: ${rule['title']}',
+      detail: 'Нужен: ${rule['when']}.',
       passed: false,
       sort: documentSort++,
     ));
   }
 
-  // Stored materials without their documents stop the line. Rule 3.5.
+  // Stored materials without their documents stop the line. ГС п. 3.5.
   final storedMissing = input.requirements['stored_log'] == null ||
       input.requirements['stored_log'] == 'missing';
   final stored = [
@@ -159,17 +155,17 @@ List<RuleResult> evaluateBankRules(RuleInput input) {
     results.add(RuleResult(
       code: 'certificate',
       level: effectOf('certificate'),
-      basis: 'Rule 3.5',
-      title: 'No documents for the materials on site',
-      detail: 'Line items: ${stored.map((line) => '“${line.title}”').join(', ')}. '
-          'Without the statement and certificates the bank does not accept payment for them.',
+      basis: 'ГС п. 3.5',
+      title: 'Нет документов на материалы на площадке',
+      detail: 'Статьи: ${stored.map((line) => '«${line.title}»').join(', ')}. '
+          'Без ведомости и сертификатов платёж по ним не принимается.',
       passed: false,
       sort: 1,
       lineIds: [for (final line in stored) line.itemId],
     ));
   }
 
-  // Asked more than the expert confirmed. Rule 3.6.
+  // Asked more than the expert confirmed. ГС п. 3.6.
   final above = <String>[];
   for (final line in input.lines) {
     final confirmed = line.confirmed;
@@ -178,29 +174,29 @@ List<RuleResult> evaluateBankRules(RuleInput input) {
     final allowed = bankCents(confirmed);
     final limit = allowed + allowed * BigInt.from(tolerance) ~/ BigInt.from(100);
     if (asked > limit) {
-      above.add('${line.title}: ${_millionsOf(line.requested)} vs ${_millionsOf(confirmed)}');
+      above.add('${line.title}: ${_millionsOf(line.requested)} против ${_millionsOf(confirmed)}');
     }
   }
   if (above.isNotEmpty) {
     results.add(RuleResult(
       code: 'above_confirmed',
       level: 'warning',
-      basis: 'Rule 3.6',
-      title: 'Requested more than the expert confirmed',
-      detail: '${above.join('. ')}. By default the confirmed amount is set for payout.',
+      basis: 'ГС п. 3.6',
+      title: 'Запрошено больше, чем подтвердил эксперт',
+      detail: '${above.join('. ')}. По умолчанию к выдаче стоит подтверждённая сумма.',
       passed: false,
       sort: 2,
     ));
   }
 
-  // The contractor has no valid license or insurance. Rule 3.4.
+  // The contractor has no valid license or insurance. ГС п. 3.4.
   final lapsed = <String>[];
   for (final line in input.lines) {
     final name = line.firmName;
     if (name == null) continue;
     final problems = <String>[
-      if (_expired(line.firmLicenseUntil, input.today)) 'license until ${_day(line.firmLicenseUntil!)}',
-      if (_expired(line.firmInsuranceUntil, input.today)) 'insurance until ${_day(line.firmInsuranceUntil!)}',
+      if (_expired(line.firmLicenseUntil, input.today)) 'лицензия до ${_day(line.firmLicenseUntil!)}',
+      if (_expired(line.firmInsuranceUntil, input.today)) 'страховка до ${_day(line.firmInsuranceUntil!)}',
     ];
     if (problems.isNotEmpty) lapsed.add('$name, ${line.title}: ${problems.join(', ')}');
   }
@@ -208,15 +204,15 @@ List<RuleResult> evaluateBankRules(RuleInput input) {
     results.add(RuleResult(
       code: 'subcontractor',
       level: 'warning',
-      basis: 'Rule 3.4',
-      title: 'The contractor’s permits have expired',
-      detail: '${lapsed.join('. ')}. Payment is allowed only for completed work.',
+      basis: 'ГС п. 3.4',
+      title: 'У подрядчика истекли разрешительные документы',
+      detail: '${lapsed.join('. ')}. Оплата допускается только за выполненные работы.',
       passed: false,
       sort: 3,
     ));
   }
 
-  // An invoice without the waiver of claims. Rule 4.12.
+  // An invoice without the waiver of claims. ГС п. 4.12.
   final unsigned = [
     for (final payable in input.payables)
       if (!payable.signed) payable.number,
@@ -225,23 +221,23 @@ List<RuleResult> evaluateBankRules(RuleInput input) {
     results.add(RuleResult(
       code: 'payable_waiver',
       level: 'warning',
-      basis: 'Rule 4.12',
-      title: 'No waiver of claims for the invoices',
-      detail: 'Invoices: ${unsigned.join(', ')}.',
+      basis: 'ГС п. 4.12',
+      title: 'Нет отказа от претензий по счетам',
+      detail: 'Счета: ${unsigned.join(', ')}.',
       passed: false,
       sort: 4,
     ));
   }
 
-  // The limit has to cover the tranche. Rule 3.7.
+  // The limit has to cover the tranche. ГС п. 3.7.
   final over = bankCents(input.issue) > bankCents(input.limitLeft);
   if (over) {
     results.add(RuleResult(
       code: 'limit',
       level: 'block',
-      basis: 'Rule 3.7',
-      title: 'The tranche is larger than the remaining limit',
-      detail: 'To pay out: ${_millionsOf(input.issue)}, left in the limit: ${_millionsOf(input.limitLeft)}.',
+      basis: 'ГС п. 3.7',
+      title: 'Сумма транша больше остатка лимита',
+      detail: 'К выдаче ${_millionsOf(input.issue)}, в лимите осталось ${_millionsOf(input.limitLeft)}.',
       passed: false,
       sort: 5,
     ));
@@ -251,8 +247,8 @@ List<RuleResult> evaluateBankRules(RuleInput input) {
     results.add(const RuleResult(
       code: 'paused',
       level: 'block',
-      basis: 'Rule 4.10',
-      title: 'Project financing is suspended',
+      basis: 'ГС п. 4.10',
+      title: 'Финансирование объекта приостановлено',
       detail: '',
       passed: false,
       sort: 6,
@@ -278,16 +274,16 @@ List<RuleResult> evaluateBankRules(RuleInput input) {
     return status == 'attached' || status == 'resolved' || status == 'na';
   }
 
-  if (attached('act')) passed('passed_act', 'Rule 3.5', 'Certificate of completed work attached', 11);
-  if (attached('invoice')) passed('passed_invoice', 'Rule 3.5', 'Invoice attached', 12);
-  if (input.inspected) passed('passed_inspection', 'Rule 4.2', 'Expert inspection done', 13);
+  if (attached('act')) passed('passed_act', 'ГС п. 3.5', 'Акт выполненных работ приложен', 11);
+  if (attached('invoice')) passed('passed_invoice', 'ГС п. 3.5', 'Счёт приложен', 12);
+  if (input.inspected) passed('passed_inspection', 'ГС п. 4.2', 'Осмотр эксперта проведён', 13);
   if (stored.isEmpty || !storedMissing) {
-    passed('passed_stored', 'Rule 3.5', 'Materials on site are backed by documents', 14);
+    passed('passed_stored', 'ГС п. 3.5', 'Материалы на площадке подтверждены документами', 14);
   }
-  if (lapsed.isEmpty) passed('passed_contractor', 'Rule 3.4', 'Contractor’s license and insurance are valid', 15);
-  if (unsigned.isEmpty) passed('passed_waiver', 'Rule 4.12', 'Every invoice has a waiver of claims', 16);
-  if (!over) passed('passed_limit', 'Rule 3.7', 'Remaining limit covers the tranche', 17);
-  if (!input.fundingPaused) passed('passed_paused', 'Rule 4.10', 'Project financing is not suspended', 18);
+  if (lapsed.isEmpty) passed('passed_contractor', 'ГС п. 3.4', 'Лицензия и страховка подрядчика действуют', 15);
+  if (unsigned.isEmpty) passed('passed_waiver', 'ГС п. 4.12', 'Отказ от претензий есть по каждому счёту', 16);
+  if (!over) passed('passed_limit', 'ГС п. 3.7', 'Остаток лимита покрывает транш', 17);
+  if (!input.fundingPaused) passed('passed_paused', 'ГС п. 4.10', 'Финансирование объекта не приостановлено', 18);
   return results;
 }
 

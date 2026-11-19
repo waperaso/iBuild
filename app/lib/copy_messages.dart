@@ -524,6 +524,16 @@ const _knownMessages = <_Row>[
     'Qaydnoma va sertifikatlarsiz ular bo‘yicha to‘lov qabul qilinmaydi.',
   ),
   (
+    'Выплата пройдёт после подписи ЭЦП и платежа банка — эта интеграция в разработке.',
+    'The payout follows the bank’s e-signature and payment — that integration is in development.',
+    'To‘lov bankning ERI imzosi va to‘lovidan keyin amalga oshadi — bu integratsiya ishlab chiqilmoqda.',
+  ),
+  (
+    'Полный отчёт с выгрузкой в XLSX, PDF и CSV — в разделе «Отчёты».',
+    'The full report with XLSX, PDF and CSV export is in Reports.',
+    'XLSX, PDF va CSV yuklab olinadigan to‘liq hisobot «Hisobotlar» bo‘limida.',
+  ),
+  (
     'Банк вернул транш целиком.',
     'The bank returned the whole tranche.',
     'Bank transhni to‘liq qaytardi.',

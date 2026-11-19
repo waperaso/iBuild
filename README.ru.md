@@ -36,7 +36,7 @@ curl localhost:8080/api/ready
 
 ### Сторона застройщика
 
-`a.*` — Navoi Development, `b.*` — Chilanzar Stroy.
+`a.*` — Навои Девелопмент, `b.*` — Чиланзар Строй.
 
 | Логин | Роль |
 | --- | --- |

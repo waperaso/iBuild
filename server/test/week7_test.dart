@@ -59,10 +59,10 @@ void main() {
 
     final projectId = ((await mason.send('GET', '/api/projects')).body!['projects'] as List)
         .cast<Map<String, dynamic>>()
-        .firstWhere((item) => item['name'] == 'Navoi Residences')['id'] as String;
+        .firstWhere((item) => item['name'] == 'ЖК Навои')['id'] as String;
     final budget = await mason.send('GET', '/api/projects/$projectId/budget');
     final line = ((budget.body!['items'] as List).cast<Map<String, dynamic>>())
-        .firstWhere((item) => item['title'] == 'Foundation');
+        .firstWhere((item) => item['title'] == 'Фундамент');
     final itemId = line['id'] as String;
     expect(line['available'], matches(RegExp(r'^\d+\.\d{2}$')));
 
@@ -118,10 +118,10 @@ void main() {
 
     final projectId = ((await director.send('GET', '/api/projects')).body!['projects'] as List)
         .cast<Map<String, dynamic>>()
-        .firstWhere((item) => item['name'] == 'Navoi Residences')['id'] as String;
+        .firstWhere((item) => item['name'] == 'ЖК Навои')['id'] as String;
     final line = ((await director.send('GET', '/api/projects/$projectId/budget')).body!['items'] as List)
         .cast<Map<String, dynamic>>()
-        .firstWhere((item) => item['title'] == 'Foundation');
+        .firstWhere((item) => item['title'] == 'Фундамент');
     final before = await _money(director, projectId);
     final created = await director.send('POST', '/api/requests', json: {
       'projectId': projectId,
@@ -166,10 +166,10 @@ void main() {
 
     final projectId = ((await director.send('GET', '/api/projects')).body!['projects'] as List)
         .cast<Map<String, dynamic>>()
-        .firstWhere((item) => item['name'] == 'Navoi Residences')['id'] as String;
+        .firstWhere((item) => item['name'] == 'ЖК Навои')['id'] as String;
     final itemId = ((await mason.send('GET', '/api/projects/$projectId/budget')).body!['items'] as List)
         .cast<Map<String, dynamic>>()
-        .firstWhere((item) => item['title'] == 'Roofing and facade')['id'] as String;
+        .firstWhere((item) => item['title'] == 'Кровля и фасад')['id'] as String;
 
     Future<Map<String, dynamic>> money() async {
       final project = await director.send('GET', '/api/projects/$projectId');

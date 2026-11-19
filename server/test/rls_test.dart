@@ -56,7 +56,7 @@ void main() {
 
     final foreign = await db.asUser(director, () async {
       final rows = await db.pool.execute(
-        "SELECT count(*) FROM projects WHERE name = 'Chilanzar Residences'",
+        "SELECT count(*) FROM projects WHERE name = 'ЖК Чиланзар'",
       );
       return rows.first[0];
     });

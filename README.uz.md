@@ -37,7 +37,7 @@ Barcha sid loginlarining paroli — `.env` dagi `SEED_PASSWORD`, sukut boʻyicha
 
 ### Quruvchi tomoni
 
-`a.*` — Navoi Development, `b.*` — Chilanzar Stroy.
+`a.*` — Навои Девелопмент, `b.*` — Чиланзар Строй.
 
 | Login | Rol |
 | --- | --- |

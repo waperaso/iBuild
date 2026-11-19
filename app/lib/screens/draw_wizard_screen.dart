@@ -286,6 +286,17 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
               children: [
                 Text(copy.afterSending, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.md),
+                if (_draw!.comments.where((c) => c.isNotEmpty).isNotEmpty) ...[
+                  Text(copy.pick('Комментарии и решения', 'Comments and decisions', 'Izohlar va qarorlar'),
+                      key: const Key('draw-comments'),
+                      style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: AppSpacing.sm),
+                  for (final c in _draw!.comments.where((c) => c.isNotEmpty)) ...[
+                    Text('• $c'),
+                    const SizedBox(height: AppSpacing.xs),
+                  ],
+                  const SizedBox(height: AppSpacing.md),
+                ],
                 TextField(controller: _comment, decoration: InputDecoration(labelText: copy.commentLabel)),
                 const SizedBox(height: AppSpacing.md),
                 PrimaryButton(key: const Key('send-comment'), label: copy.sendComment, onPressed: () { _sendComment(); }),

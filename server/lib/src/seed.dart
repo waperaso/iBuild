@@ -3,17 +3,17 @@ import 'passwords.dart';
 
 /// Local pilot accounts. The password is hashed before it is stored.
 const seedAccounts = <({String login, String name, String role, bool active})>[
-  (login: 'a.director', name: 'Navoi Developer', role: 'director', active: true),
-  (login: 'a.developer', name: 'Tester (full access)', role: 'developer', active: true),
-  (login: 'a.contractor', name: 'Navoi Contractor', role: 'contractor', active: true),
-  (login: 'a.contractor2', name: 'Engineering Contractor', role: 'contractor', active: true),
-  (login: 'a.tech', name: 'Navoi Site Inspector', role: 'tech', active: true),
-  (login: 'a.observer', name: 'D. Rakhimov', role: 'observer', active: true),
-  (login: 'a.disabled', name: 'Disabled Employee', role: 'observer', active: false),
-  (login: 'b.director', name: 'Chilanzar Developer', role: 'director', active: true),
-  (login: 'b.contractor', name: 'Chilanzar Contractor', role: 'contractor', active: true),
-  (login: 'b.tech', name: 'Chilanzar Site Inspector', role: 'tech', active: true),
-  (login: 'b.observer', name: 'S. Yusupova', role: 'observer', active: true),
+  (login: 'a.director', name: 'Застройщик Навои', role: 'director', active: true),
+  (login: 'a.developer', name: 'Разработчик (тест)', role: 'developer', active: true),
+  (login: 'a.contractor', name: 'Подрядчик Навои', role: 'contractor', active: true),
+  (login: 'a.contractor2', name: 'Подрядчик инженерии', role: 'contractor', active: true),
+  (login: 'a.tech', name: 'Технадзор Навои', role: 'tech', active: true),
+  (login: 'a.observer', name: 'Д. Рахимов', role: 'observer', active: true),
+  (login: 'a.disabled', name: 'Отключённый сотрудник', role: 'observer', active: false),
+  (login: 'b.director', name: 'Застройщик Чиланзара', role: 'director', active: true),
+  (login: 'b.contractor', name: 'Подрядчик Чиланзара', role: 'contractor', active: true),
+  (login: 'b.tech', name: 'Технадзор Чиланзара', role: 'tech', active: true),
+  (login: 'b.observer', name: 'С. Юсупова', role: 'observer', active: true),
 ];
 
 const navoiPlan = '17500000000.00';
@@ -41,7 +41,7 @@ Future<void> ensurePlatformAdmin(AppDatabase db, String password) async {
       );
   await db.insertUser(
     companyId: company,
-    name: 'iBuild Administrator',
+    name: 'Администратор iBuild',
     login: 'a.admin',
     passwordHash: hash,
   );
@@ -64,13 +64,13 @@ Future<void> seedIfEmpty(AppDatabase db, String password) async {
 const pilotProjects = <({String inn, String name, String address})>[
   (
     inn: '300000001',
-    name: 'Navoi Residences',
-    address: '12 Babur Street, Yakkasaray District, Tashkent',
+    name: 'ЖК Навои',
+    address: 'Ташкент, Яккасарайский район, улица Бабура, 12',
   ),
   (
     inn: '300000002',
-    name: 'Chilanzar Residences',
-    address: 'Building 4, Block 9, Chilanzar District, Tashkent',
+    name: 'ЖК Чиланзар',
+    address: 'Ташкент, Чиланзарский район, квартал 9, дом 4',
   ),
 ];
 
@@ -114,11 +114,11 @@ Future<void> seedPilotBudgetIfMissing(AppDatabase db, String password) async {
   final navoi = await db.companyIdByInn('300000001');
   final chilonzor = await db.companyIdByInn('300000002');
   if (navoi != null) {
-    final navoiProject = await db.projectIdByName(navoi, 'Navoi Residences');
+    final navoiProject = await db.projectIdByName(navoi, 'ЖК Навои');
     final dev = await db.userIdByLogin('a.developer') ??
         await db.insertUser(
           companyId: navoi,
-          name: 'Tester (full access)',
+          name: 'Разработчик (тест)',
           login: 'a.developer',
           passwordHash: hash,
         );
@@ -128,14 +128,14 @@ Future<void> seedPilotBudgetIfMissing(AppDatabase db, String password) async {
   }
   if (await db.countOf('budget_items') > 0) return;
   if (navoi == null || chilonzor == null) return;
-  final navoiProject = await db.projectIdByName(navoi, 'Navoi Residences');
-  final chilonzorProject = await db.projectIdByName(chilonzor, 'Chilanzar Residences');
+  final navoiProject = await db.projectIdByName(navoi, 'ЖК Навои');
+  final chilonzorProject = await db.projectIdByName(chilonzor, 'ЖК Чиланзар');
   if (navoiProject == null || chilonzorProject == null) return;
   final engineer = await db.userIdByLogin('a.contractor2');
   final engineerId = engineer ??
       await db.insertUser(
         companyId: navoi,
-        name: 'Engineering Contractor',
+        name: 'Подрядчик инженерии',
         login: 'a.contractor2',
         passwordHash: hash,
       );
@@ -155,24 +155,24 @@ Future<void> seedPilotBudgetIfMissing(AppDatabase db, String password) async {
 Future<void> seedDemo(AppDatabase db, String password) async {
   final hash = hashPassword(password);
   final navoi = await db.insertCompany(
-    name: 'Navoi Development',
+    name: 'Навои Девелопмент',
     inn: '300000001',
     contact: '+998 71 200 00 01',
   );
   final chilonzor = await db.insertCompany(
-    name: 'Chilanzar Stroy',
+    name: 'Чиланзар Строй',
     inn: '300000002',
     contact: '+998 71 200 00 02',
   );
   final navoiProject = await db.insertProject(
     companyId: navoi,
-    name: 'Navoi Residences',
-    address: '12 Babur Street, Yakkasaray District, Tashkent',
+    name: 'ЖК Навои',
+    address: 'Ташкент, Яккасарайский район, улица Бабура, 12',
   );
   final chilonzorProject = await db.insertProject(
     companyId: chilonzor,
-    name: 'Chilanzar Residences',
-    address: 'Building 4, Block 9, Chilanzar District, Tashkent',
+    name: 'ЖК Чиланзар',
+    address: 'Ташкент, Чиланзарский район, квартал 9, дом 4',
   );
 
   for (final account in seedAccounts) {
@@ -222,19 +222,19 @@ Future<void> _writePilotBudget(
 }) async {
   final masonry = await db.insertFirm(
     companyId: navoiCompanyId,
-    name: 'Navoi Stroy Montazh',
+    name: 'Навои Строй Монтаж',
     inn: '301000001',
     contact: '+998 90 100 00 01',
   );
   final engineering = await db.insertFirm(
     companyId: navoiCompanyId,
-    name: 'Navoi Engineering Networks',
+    name: 'Навои Инженерные Сети',
     inn: '301000002',
     contact: '+998 90 100 00 02',
   );
   final chilonzorFirm = await db.insertFirm(
     companyId: chilonzorCompanyId,
-    name: 'Chilanzar Podryad',
+    name: 'Чиланзар Подряд',
     inn: '302000001',
     contact: '+998 90 200 00 01',
   );
@@ -267,11 +267,11 @@ Future<void> _writePilotBudget(
   }
 
   const navoiLines = <({String title, String amount, String firm})>[
-    (title: 'Foundation', amount: '4800000000.00', firm: 'masonry'),
-    (title: 'Masonry and cast-in-place concrete', amount: '6200000000.00', firm: 'masonry'),
-    (title: 'Roofing and facade', amount: '2400000000.00', firm: 'masonry'),
-    (title: 'Building services', amount: '3150000000.00', firm: 'engineering'),
-    (title: 'Landscaping', amount: '950000000.00', firm: 'engineering'),
+    (title: 'Фундамент', amount: '4800000000.00', firm: 'masonry'),
+    (title: 'Кладка и монолит', amount: '6200000000.00', firm: 'masonry'),
+    (title: 'Кровля и фасад', amount: '2400000000.00', firm: 'masonry'),
+    (title: 'Инженерия', amount: '3150000000.00', firm: 'engineering'),
+    (title: 'Благоустройство', amount: '950000000.00', firm: 'engineering'),
   ];
   for (final line in navoiLines) {
     await db.insertBudgetLine(
@@ -283,13 +283,13 @@ Future<void> _writePilotBudget(
   }
   await db.insertBudgetLine(
     projectId: chilonzorProjectId,
-    title: 'Foundation',
+    title: 'Фундамент',
     amount: '1000000000.00',
     contractorFirmId: chilonzorFirm,
   );
   await db.insertBudgetLine(
     projectId: chilonzorProjectId,
-    title: 'Building services',
+    title: 'Инженерия',
     amount: '500000000.00',
     contractorFirmId: chilonzorFirm,
   );

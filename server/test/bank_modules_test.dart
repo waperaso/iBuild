@@ -181,7 +181,16 @@ void main() {
     final catalog = ((await head.send('GET', '/api/bank/reports')).body!['catalog'] as List).cast<Map>();
     final code = catalog.first['code'];
     await db.owner.execute('DELETE FROM bank_report_schedules');
-    expect((await post(head, '/api/bank/reports/$code/send', {})).status, 400);
+    // Nobody chosen yet: the report goes to the sender's own in-app mail.
+    final mine = await post(head, '/api/bank/reports/$code/send', {});
+    expect(mine.status, 200);
+    expect(mine.body!['count'], 1);
+    final inbox = await db.owner.execute(
+      "SELECT count(*) FROM message_recipients r JOIN users u ON u.id = r.user_id WHERE u.login = 'a.head1'");
+    expect((inbox.first[0]! as int) > 0, isTrue);
+    // An iBuild login is a valid recipient too.
+    expect((await post(head, '/api/bank/reports/$code/schedule', {'enabled': false, 'recipients': 'a.risk'})).status, 200);
+    expect((await post(head, '/api/bank/reports/$code/schedule', {'enabled': false, 'recipients': 'no such person'})).status, 400);
     expect((await post(head, '/api/bank/reports/$code/schedule', {'enabled': true, 'recipients': 'risk@bank.uz'})).status, 200);
     final sent = await post(head, '/api/bank/reports/$code/send', {});
     expect(sent.status, 200);

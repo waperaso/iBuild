@@ -230,7 +230,7 @@ Future<Session> _session(String login) async {
   final projects = await client.send('GET', '/api/projects');
   final list = (projects.body!['projects'] as List).cast<Map<String, dynamic>>();
   final project = list.firstWhere(
-    (item) => item['name'] == (login.startsWith('a.') ? 'Navoi Residences' : 'Chilanzar Residences'),
+    (item) => item['name'] == (login.startsWith('a.') ? 'ЖК Навои' : 'ЖК Чиланзар'),
   );
   return Session(client, project);
 }
