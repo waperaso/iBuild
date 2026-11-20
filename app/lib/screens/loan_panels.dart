@@ -515,15 +515,19 @@ class _DocumentsPanelState extends State<DocumentsPanel> {
           ),
         ),
         const SizedBox(height: AppSpacing.md),
-        for (final firm in widget.desk.firms) ...[
+        if (widget.desk.firms.isNotEmpty) ...[
           IBuildCard(
+            key: const Key('firms-card'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(firm.name, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.sm),
-                Text(copy.insuranceUntilIs(firm.insuranceUntil.isEmpty ? '—' : fmtDay(firm.insuranceUntil))),
-                Text(copy.licenseUntilIs(firm.licenseUntil.isEmpty ? '—' : fmtDay(firm.licenseUntil))),
+                Text(copy.pick('Подрядчики', 'Contractors', 'Pudratchilar'), style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.md),
+                for (final firm in widget.desk.firms) ...[
+                  _FirmRow(name: firm.name, insurance: firm.insuranceUntil, license: firm.licenseUntil),
+                  if (firm != widget.desk.firms.last)
+                    Divider(height: AppSpacing.lg, color: context.colors.outline),
+                ],
               ],
             ),
           ),
@@ -696,6 +700,64 @@ class _Figure extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+
+/// One contractor with the dates its insurance and licence run to. A missing
+/// date is said in words and marked, instead of a bare dash.
+class _FirmRow extends StatelessWidget {
+  const _FirmRow({required this.name, required this.insurance, required this.license});
+
+  final String name;
+  final String insurance;
+  final String license;
+
+  @override
+  Widget build(BuildContext context) {
+    final copy = LocaleScope.copy(context);
+    final theme = Theme.of(context);
+    Widget status(String label, String day) {
+      final parsed = DateTime.tryParse(day);
+      final missing = day.isEmpty || parsed == null;
+      final expired = !missing && parsed.isBefore(DateTime.now());
+      final color = missing
+          ? context.colors.inkMuted
+          : expired
+              ? context.colors.danger
+              : context.colors.success;
+      final value = missing
+          ? copy.pick('не указана', 'not set', 'ko‘rsatilmagan')
+          : expired
+              ? copy.pick('истекла ${fmtDay(day)}', 'expired ${fmtDay(day)}', 'muddati o‘tgan ${fmtDay(day)}')
+              : copy.pick('до ${fmtDay(day)}', 'until ${fmtDay(day)}', '${fmtDay(day)} gacha');
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(missing ? Icons.remove_circle_outline : (expired ? Icons.error_outline : Icons.check_circle_outline), size: 16, color: color),
+          const SizedBox(width: AppSpacing.xs),
+          Text('$label $value', style: theme.textTheme.bodyMedium?.copyWith(color: missing ? context.colors.inkMuted : null)),
+        ],
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final title = Text(name, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600));
+        final dates = Wrap(
+          spacing: AppSpacing.lg,
+          runSpacing: AppSpacing.xs,
+          children: [
+            status(copy.pick('Страховка', 'Insurance', 'Sug‘urta'), insurance),
+            status(copy.pick('Лицензия', 'Licence', 'Litsenziya'), license),
+          ],
+        );
+        if (constraints.maxWidth < 640) {
+          return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [title, const SizedBox(height: AppSpacing.xs), dates]);
+        }
+        return Row(children: [Expanded(child: title), dates]);
+      },
     );
   }
 }

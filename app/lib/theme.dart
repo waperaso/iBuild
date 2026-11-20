@@ -233,6 +233,18 @@ ThemeData buildIBuildTheme(IBuildColors colors) {
     filledButtonTheme: FilledButtonThemeData(
       style: _still(FilledButton.styleFrom()),
     ),
+    // Secondary buttons share the shape and height of the primary one, so a row of
+    // actions reads as one set instead of a block next to pills.
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: _still(OutlinedButton.styleFrom(
+        foregroundColor: colors.ink,
+        minimumSize: const Size(64, 44),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        side: BorderSide(color: colors.outline),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.input)),
+        textStyle: text.labelLarge,
+      )),
+    ),
     textButtonTheme: TextButtonThemeData(style: _still(TextButton.styleFrom())),
     iconButtonTheme: IconButtonThemeData(style: _still(IconButton.styleFrom())),
     inputDecorationTheme: InputDecorationTheme(

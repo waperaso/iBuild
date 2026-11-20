@@ -961,7 +961,7 @@ class _LineHeader extends StatelessWidget {
           Expanded(flex: 3, child: Text(copy.work, style: style)),
           Expanded(flex: 3, child: Text(copy.contractor, style: style)),
           Expanded(
-            flex: 2,
+            flex: 4,
             child: Text(copy.plan, style: style, textAlign: TextAlign.right),
           ),
         ],
@@ -1004,7 +1004,7 @@ class _LineRow extends StatelessWidget {
           ),
           Expanded(flex: 3, child: Text(line.contractorFirmName, maxLines: 2, overflow: TextOverflow.ellipsis)),
           Expanded(
-            flex: 2,
+            flex: 4,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -1123,24 +1123,32 @@ class _LineActions extends StatelessWidget {
   Widget build(BuildContext context) {
     if (onEdit == null && onRemove == null) return const SizedBox.shrink();
     final copy = LocaleScope.copy(context);
-    return Wrap(
-      alignment: WrapAlignment.end,
-      children: [
-        if (onEdit != null)
-          TextButton(
-            key: Key('edit-line-${line.id}'),
-            style: backLinkStyle,
-            onPressed: onEdit,
-            child: Text(copy.edit),
-          ),
-        if (onRemove != null)
-          TextButton(
-            key: Key('remove-line-${line.id}'),
-            style: backLinkStyle,
-            onPressed: onRemove,
-            child: Text(copy.remove),
-          ),
-      ],
+    final colors = context.colors;
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
+      child: Wrap(
+        alignment: WrapAlignment.end,
+        spacing: AppSpacing.sm,
+        runSpacing: AppSpacing.xs,
+        children: [
+          if (onEdit != null)
+            TextButton.icon(
+              key: Key('edit-line-${line.id}'),
+              style: backLinkStyle,
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit_outlined, size: 16),
+              label: Text(copy.edit),
+            ),
+          if (onRemove != null)
+            TextButton.icon(
+              key: Key('remove-line-${line.id}'),
+              style: backLinkStyle.copyWith(foregroundColor: WidgetStatePropertyAll(colors.danger)),
+              onPressed: onRemove,
+              icon: const Icon(Icons.delete_outline, size: 16),
+              label: Text(copy.remove),
+            ),
+        ],
+      ),
     );
   }
 }

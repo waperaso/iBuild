@@ -267,11 +267,30 @@ class KpiRow extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final columns = constraints.maxWidth >= 760 ? children.length.clamp(1, 4) : 2;
-        final width = (constraints.maxWidth - (columns - 1) * AppSpacing.md) / columns;
-        return Wrap(
-          spacing: AppSpacing.md,
-          runSpacing: AppSpacing.md,
-          children: [for (final child in children) SizedBox(width: width, child: child)],
+        // Cards in one row share one height, even when only some have a hint line.
+        final rows = <Widget>[];
+        for (var start = 0; start < children.length; start += columns) {
+          final part = children.sublist(start, (start + columns).clamp(0, children.length));
+          rows.add(IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < columns; i++) ...[
+                  if (i > 0) const SizedBox(width: AppSpacing.md),
+                  Expanded(child: i < part.length ? part[i] : const SizedBox.shrink()),
+                ],
+              ],
+            ),
+          ));
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < rows.length; i++) ...[
+              if (i > 0) const SizedBox(height: AppSpacing.md),
+              rows[i],
+            ],
+          ],
         );
       },
     );
