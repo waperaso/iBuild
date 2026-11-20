@@ -235,7 +235,15 @@ class _QueueList extends StatelessWidget {
   }
 }
 
-const _columnFlex = [30, 8, 12, 17, 15, 20, 15, 11];
+const _columnFlex = [26, 7, 10, 16, 14, 17, 13];
+// The last column (the open button) has a fixed width so its label never breaks.
+const _openWidth = 116.0;
+const _cellGap = 14.0;
+
+Widget _cell(int flex, Widget child) => Expanded(
+      flex: flex,
+      child: Padding(padding: const EdgeInsets.only(right: _cellGap), child: child),
+    );
 
 class _TableHeader extends StatelessWidget {
   const _TableHeader();
@@ -255,14 +263,13 @@ class _TableHeader extends StatelessWidget {
       strings.colTime,
       strings.colProblems,
       strings.colHolder,
-      '',
     ];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       child: Row(
         children: [
-          for (var i = 0; i < labels.length; i++)
-            Expanded(flex: _columnFlex[i], child: Text(labels[i], style: style)),
+          for (var i = 0; i < labels.length; i++) _cell(_columnFlex[i], Text(labels[i], style: style)),
+          const SizedBox(width: _openWidth),
         ],
       ),
     );
@@ -292,9 +299,9 @@ class _TableRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
-              flex: _columnFlex[0],
-              child: Row(
+            _cell(
+              _columnFlex[0],
+              Row(
                 children: [
                   BankDot(key: Key('bank-dot-${item.id}'), color: dot),
                   const SizedBox(width: AppSpacing.md),
@@ -304,10 +311,14 @@ class _TableRow extends StatelessWidget {
                       children: [
                         Text(
                           item.projectName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
                         ),
                         Text(
                           item.developerName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted),
                         ),
                       ],
@@ -316,47 +327,71 @@ class _TableRow extends StatelessWidget {
                 ],
               ),
             ),
-            Expanded(flex: _columnFlex[1], child: Text(strings.trancheNo(item.trancheNo))),
-            Expanded(
-              flex: _columnFlex[2],
-              child: Text(
+            _cell(_columnFlex[1], Text(strings.trancheNo(item.trancheNo), maxLines: 1)),
+            _cell(
+              _columnFlex[2],
+              Text(
                 bankAmount(context, item.requestedAmount),
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.fade,
                 style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
-            Expanded(
-              flex: _columnFlex[3],
-              child: Align(alignment: Alignment.centerLeft, child: BankPill(label: strings.trancheStageLabel(item.stageLabel))),
+            _cell(
+              _columnFlex[3],
+              Align(alignment: Alignment.centerLeft, child: BankPill(label: strings.trancheStageLabel(item.stageLabel))),
             ),
-            Expanded(
-              flex: _columnFlex[4],
-              child: Text(
-                strings.elapsed(item),
-                key: Key('bank-elapsed-${item.id}'),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: item.overdue ? colors.danger : (item.waitingDeveloper ? colors.inkMuted : colors.ink),
-                  fontWeight: item.overdue ? FontWeight.w700 : FontWeight.w400,
-                ),
-              ),
+            _cell(
+              _columnFlex[4],
+              Builder(builder: (context) {
+                final (spent, deadline) = strings.elapsedLines(item);
+                return Text.rich(
+                  key: Key('bank-elapsed-${item.id}'),
+                  TextSpan(children: [
+                    TextSpan(
+                      text: spent,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: item.overdue ? colors.danger : (item.waitingDeveloper ? colors.inkMuted : colors.ink),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const TextSpan(text: '\n'),
+                    TextSpan(
+                      text: deadline,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: item.overdue ? colors.danger : colors.inkMuted,
+                      ),
+                    ),
+                  ]),
+                );
+              }),
             ),
-            Expanded(
-              flex: _columnFlex[5],
-              child: Text(
+            _cell(
+              _columnFlex[5],
+              Text(
                 item.problemsLabel.isEmpty ? '—' : item.problemsLabel,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: item.problemsLabel.isEmpty ? colors.inkMuted : colors.ink,
                 ),
               ),
             ),
-            Expanded(flex: _columnFlex[6], child: Text(item.holderLabel)),
-            Expanded(
-              flex: _columnFlex[7],
+            _cell(
+              _columnFlex[6],
+              Text(item.holderLabel, maxLines: 2, overflow: TextOverflow.ellipsis),
+            ),
+            SizedBox(
+              width: _openWidth,
               child: Align(
                 alignment: Alignment.centerRight,
-                child: TextButton(
+                child: TextButton.icon(
                   key: Key('bank-open-${item.id}'),
                   onPressed: () => _openTranche(context, item),
-                  child: Text(strings.open),
+                  iconAlignment: IconAlignment.end,
+                  icon: const Icon(Icons.chevron_right, size: 18),
+                  label: Text(strings.open, maxLines: 1, softWrap: false),
                 ),
               ),
             ),

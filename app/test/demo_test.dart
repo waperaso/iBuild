@@ -13,14 +13,18 @@ void main() {
   testWidgets('demo buttons enter as a role and a strip says it is a demo', (tester) async {
     final api = FakeApi(demoOn: true);
     await pumpIBuildWith(tester, api);
-    for (final role in ['developer', 'contractor', 'tech', 'bank', 'admin']) {
+    for (final role in ['developer', 'bank', 'admin']) {
       expect(find.byKey(Key('demo-$role')), findsOneWidget, reason: role);
+    }
+    // The contractor and site inspector demos are kept in the code but hidden for now.
+    for (final role in ['contractor', 'tech']) {
+      expect(find.byKey(Key('demo-$role')), findsNothing, reason: role);
     }
     expect(find.byKey(const Key('demo-strip')), findsNothing);
 
-    await tester.tap(find.byKey(const Key('demo-contractor')));
+    await tester.tap(find.byKey(const Key('demo-developer')));
     await tester.pumpAndSettle();
-    expect(api.demoRoles, ['contractor']);
+    expect(api.demoRoles, ['developer']);
     expect(find.byKey(const Key('demo-strip')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('demo-exit')));

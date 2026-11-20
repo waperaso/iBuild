@@ -258,6 +258,23 @@ class BankStrings {
     return _t('Прошло $spent · срок банка $sla $d', '$spent passed · bank deadline $sla $d', '$spent o‘tdi · bank muddati $sla $d');
   }
 
+  /// The same in two short lines for the queue table: what passed, then the deadline.
+  (String, String) elapsedLines(BankQueueItem item) {
+    final d = _t('дн.', 'd', 'kun');
+    final h = _t('ч', 'h', 'soat');
+    final days = item.elapsedDays;
+    final hours = item.elapsedHours;
+    if (item.waitingDeveloper) {
+      return ('$days $d', _t('у застройщика', 'with the developer', 'quruvchida'));
+    }
+    final spent = hours == 0
+        ? '$days $d'
+        : days == 0
+            ? '$hours $h'
+            : '$days $d $hours $h';
+    return (spent, _t('срок банка ${item.slaDays} $d', 'bank deadline ${item.slaDays} $d', 'bank muddati ${item.slaDays} $d'));
+  }
+
   // Tranche card.
   String get backToQueue => _t('К очереди', 'Back to the queue', 'Navbatga qaytish');
   String tranche(int no) => _t('Транш №$no', 'Tranche #$no', 'Transh №$no');

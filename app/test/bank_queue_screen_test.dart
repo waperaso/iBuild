@@ -92,15 +92,17 @@ void main() {
     await tester.tap(find.byKey(const Key('bank-tab-all')));
     await tester.pumpAndSettle();
 
-    String elapsed(String id) => tester.widget<Text>(find.byKey(Key('bank-elapsed-$id'))).data!;
-    expect(elapsed('t-navoi'), 'Прошло 1 дн. 4 ч · срок банка 2 дн.');
-    expect(elapsed('t-sergeli'), 'Прошло 4 дн. · срок банка 3 дн.');
-    expect(elapsed('t-yunusabad'), 'Прошло 3 ч · срок банка 1 дн.');
-    expect(elapsed('t-mirzo'), '6 дн. у застройщика');
+    String elapsed(String id) => tester.widget<Text>(find.byKey(Key('bank-elapsed-$id'))).textSpan!.toPlainText();
+    expect(elapsed('t-navoi'), '1 дн. 4 ч\nсрок банка 2 дн.');
+    expect(elapsed('t-sergeli'), '4 дн.\nсрок банка 3 дн.');
+    expect(elapsed('t-yunusabad'), '3 ч\nсрок банка 1 дн.');
+    expect(elapsed('t-mirzo'), '6 дн.\nу застройщика');
 
     final colors = _colors(tester);
-    expect(tester.widget<Text>(find.byKey(const Key('bank-elapsed-t-sergeli'))).style?.color, colors.danger);
-    expect(tester.widget<Text>(find.byKey(const Key('bank-elapsed-t-navoi'))).style?.color, isNot(colors.danger));
+    Color? spentColor(String id) =>
+        (tester.widget<Text>(find.byKey(Key('bank-elapsed-$id'))).textSpan! as TextSpan).children!.first.style?.color;
+    expect(spentColor('t-sergeli'), colors.danger);
+    expect(spentColor('t-navoi'), isNot(colors.danger));
   });
 
   testWidgets('the dot: red only when late, yellow for a block, blue for inspection, grey at the developer',

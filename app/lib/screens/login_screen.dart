@@ -7,6 +7,12 @@ import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
 
+/// Roles offered as read-only demo buttons. The contractor and the site inspector
+/// demos still work on the server and in the code; they are only hidden for now.
+const demoRolesAll = ['developer', 'contractor', 'tech', 'bank', 'admin'];
+const demoRolesHidden = {'contractor', 'tech'};
+final demoRolesShown = [for (final role in demoRolesAll) if (!demoRolesHidden.contains(role)) role];
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -165,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             spacing: AppSpacing.sm,
                             runSpacing: AppSpacing.sm,
                             children: [
-                              for (final role in const ['developer', 'contractor', 'tech', 'bank', 'admin'])
+                              for (final role in demoRolesShown)
                                 OutlinedButton(
                                   key: Key('demo-$role'),
                                   onPressed: session.busy ? null : () => session.demoLogin(role),
