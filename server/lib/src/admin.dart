@@ -545,22 +545,29 @@ Future<Response> _system(Request request, AppDatabase db) async {
 }
 
 /// The newest backup file that is visible to the server, when a folder is mounted.
+///
+/// A folder the process cannot read must not take down the rest of the page:
+/// the database, migrations and uptime are still worth showing.
 Map<String, Object?>? _latestBackup() {
   final path = Platform.environment['BACKUP_DIR'];
   if (path == null || path.isEmpty) return null;
   final directory = Directory(path);
-  if (!directory.existsSync()) return null;
-  File? newest;
-  for (final entity in directory.listSync(recursive: true).whereType<File>()) {
-    if (!entity.path.endsWith('.dump')) continue;
-    if (newest == null || entity.lastModifiedSync().isAfter(newest.lastModifiedSync())) newest = entity;
+  try {
+    if (!directory.existsSync()) return null;
+    File? newest;
+    for (final entity in directory.listSync(recursive: true).whereType<File>()) {
+      if (!entity.path.endsWith('.dump')) continue;
+      if (newest == null || entity.lastModifiedSync().isAfter(newest.lastModifiedSync())) newest = entity;
+    }
+    if (newest == null) return null;
+    return {
+      'file': newest.uri.pathSegments.last,
+      'at': newest.lastModifiedSync().toUtc().toIso8601String(),
+      'sizeBytes': newest.lengthSync(),
+    };
+  } on FileSystemException {
+    return null;
   }
-  if (newest == null) return null;
-  return {
-    'file': newest.uri.pathSegments.last,
-    'at': newest.lastModifiedSync().toUtc().toIso8601String(),
-    'sizeBytes': newest.lengthSync(),
-  };
 }
 
 Future<Response> _mail(Request request, AppDatabase db) async {

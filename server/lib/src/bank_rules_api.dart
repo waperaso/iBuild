@@ -75,16 +75,26 @@ Future<Response> _show(Request request, AppDatabase db) async {
   final opened = await bankContext(request, db, roles: _admin);
   if (opened is Response) return opened;
   final ctx = opened as BankCtx;
-  final versions = await bankRows(
-    db,
-    '''
-      SELECT v.version AS version, v.effective_from AS effective_from, v.snapshot AS snapshot,
-             v.note AS note, COALESCE(u.name, '') AS author, v.created_at AS created_at
-      FROM bank_rule_versions v LEFT JOIN users u ON u.id = v.author_id
-      WHERE v.bank_id = @bank::uuid ORDER BY v.version DESC
-    ''',
-    {'bank': ctx.bankId},
-  );
+  Future<List<Map<String, Object?>>> versionsOf() {
+    return bankRows(
+      db,
+      '''
+        SELECT v.version AS version, v.effective_from AS effective_from, v.snapshot AS snapshot,
+               v.note AS note, COALESCE(u.name, '') AS author, v.created_at AS created_at
+        FROM bank_rule_versions v LEFT JOIN users u ON u.id = v.author_id
+        WHERE v.bank_id = @bank::uuid ORDER BY v.version DESC
+      ''',
+      {'bank': ctx.bankId},
+    );
+  }
+
+  var versions = await versionsOf();
+  // A bank created before the defaults existed, or outside the approval flow,
+  // would otherwise open this page as "nothing found".
+  if (versions.isEmpty) {
+    await db.owner.runTx((tx) => ensureBankDefaults(tx, ctx.bankId));
+    versions = await versionsOf();
+  }
   if (versions.isEmpty) return jsonError(404, 'not_found', 'Правила банка не заданы');
   final snapshots = [
     for (final row in versions) bankNormalizedRules(Map<String, Object?>.from(row['snapshot']! as Map)),
