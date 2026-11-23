@@ -62,6 +62,8 @@ void main() {
       size: const Size(560, 900),
     );
     expect(find.byKey(const Key('bottom-nav')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('bottom-nav')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('nav-projects')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('project-cards')), findsOneWidget);
@@ -78,6 +80,8 @@ void main() {
     expect(find.byKey(const Key('bottom-nav')), findsOneWidget);
     expect(find.byKey(const Key('side-nav')), findsNothing);
     expect(find.byKey(const Key('project-rail')), findsNothing);
+    await tester.tap(find.byKey(const Key('bottom-nav')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('nav-projects')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('project-cards')), findsOneWidget);

@@ -160,13 +160,18 @@ class _PhoneShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: const _NavList(compact: true),
       body: SafeArea(
         child: Column(
           children: [
             const _PhoneBar(),
             const _TopBar(compact: true),
-            Expanded(child: child),
-            const _NavList(compact: true),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 72),
+                child: child,
+              ),
+            ),
           ],
         ),
       ),
@@ -548,46 +553,7 @@ class _NavList extends StatelessWidget {
         ),
       );
     }
-    final colors = context.colors;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        0,
-        AppSpacing.md,
-        AppSpacing.md,
-      ),
-      child: DecoratedBox(
-        key: const Key('bottom-nav'),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(AppRadii.pill),
-          border: Border.all(color: colors.outline.withValues(alpha: 0.7)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Captions do not fit on a phone, so each item is an icon.
-              // They share the bar when they fit, and scroll when a role has more.
-              const slot = 52.0;
-              final buttons = [
-                for (final item in items) _NavButton(spec: item, pill: true),
-              ];
-              if (items.length * slot <= constraints.maxWidth) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: buttons,
-                );
-              }
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(children: buttons),
-              );
-            },
-          ),
-        ),
-      ),
-    );
+    return _PhoneMenu(items: items);
   }
 }
 
@@ -1284,16 +1250,95 @@ class _NavSpec {
   final Key badgeKey;
 }
 
+/// One button on a phone. It opens every section, so nothing is clipped off the edge.
+class _PhoneMenu extends StatelessWidget {
+  const _PhoneMenu({required this.items});
+
+  final List<_NavSpec> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final t = Tx.of(context);
+    final waiting = [for (final item in items) if (item.badge != null) item.badge!];
+    return FloatingActionButton(
+      key: const Key('bottom-nav'),
+      tooltip: t('Меню', 'Menu', 'Menyu'),
+      backgroundColor: colors.accent,
+      foregroundColor: colors.onAccent,
+      onPressed: () => _open(context),
+      child: Badge(
+        isLabelVisible: waiting.isNotEmpty,
+        label: Text(waiting.length == 1 ? waiting.first : '${waiting.length}'),
+        child: const Icon(Icons.menu),
+      ),
+    );
+  }
+
+  void _open(BuildContext context) {
+    final router = GoRouter.of(context);
+    final t = Tx.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        final colors = sheetContext.colors;
+        return SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.sm),
+                child: Text(t('Меню', 'Menu', 'Menyu'), style: Theme.of(sheetContext).textTheme.titleMedium),
+              ),
+              for (final item in items)
+                ListTile(
+                  key: item.key,
+                  leading: Icon(item.icon, color: item.selected ? colors.accent : colors.ink),
+                  title: Text(
+                    item.label,
+                    style: TextStyle(
+                      color: item.selected ? colors.accent : colors.ink,
+                      fontWeight: item.selected ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                  trailing: item.badge == null
+                      ? null
+                      : DecoratedBox(
+                          key: item.badgeKey,
+                          decoration: BoxDecoration(
+                            color: colors.accent,
+                            borderRadius: BorderRadius.circular(AppRadii.pill),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            child: Text(
+                              item.badge!,
+                              style: Theme.of(sheetContext).textTheme.labelMedium?.copyWith(color: colors.onAccent),
+                            ),
+                          ),
+                        ),
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    router.go(item.location);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _NavButton extends StatelessWidget {
   const _NavButton({
     required this.spec,
-    this.pill = false,
     this.onDark = false,
     this.iconsOnly = false,
   });
 
   final _NavSpec spec;
-  final bool pill;
   final bool onDark;
   final bool iconsOnly;
 
@@ -1319,26 +1364,17 @@ class _NavButton extends StatelessWidget {
         : (onDark ? colors.onHeroSurface : colors.ink);
     return Material(
       color: background,
-      borderRadius: BorderRadius.circular(pill ? AppRadii.pill : 12),
+      borderRadius: BorderRadius.circular(12),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         key: spec.key,
         onTap: () => context.go(spec.location),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: pill ? 0 : (iconsOnly ? AppSpacing.sm : AppSpacing.lg),
-            vertical: pill ? 0 : 12,
+            horizontal: iconsOnly ? AppSpacing.sm : AppSpacing.lg,
+            vertical: 12,
           ),
-          child: pill
-              ? Tooltip(
-                  message: spec.label,
-                  child: SizedBox(
-                    width: 44,
-                    height: 44,
-                    child: Center(child: _navIcon(foreground)),
-                  ),
-                )
-              : iconsOnly
+          child: iconsOnly
               ? Tooltip(message: spec.label, child: _navIcon(foreground))
               : Row(
                   children: [

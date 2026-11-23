@@ -5,6 +5,10 @@ import 'package:ibuild/models.dart';
 import 'support.dart';
 
 Future<void> openDemoProject(WidgetTester tester) async {
+  if (find.byKey(const Key('nav-projects')).evaluate().isEmpty) {
+    await tester.tap(find.byKey(const Key('bottom-nav')));
+    await tester.pumpAndSettle();
+  }
   await tester.tap(find.byKey(const Key('nav-projects')));
   await tester.pumpAndSettle();
   final table = find.byKey(const Key('project-table'));
