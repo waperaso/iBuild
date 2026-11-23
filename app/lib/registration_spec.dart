@@ -70,10 +70,6 @@ class RegDoc {
   final bool required;
 }
 
-const _yes = RegChoice('yes', ('Да', 'Yes', 'Ha'));
-const _no = RegChoice('no', ('Нет', 'No', 'Yo‘q'));
-const yesNoChoices = [_yes, _no];
-
 const _regions = [
   RegChoice('karakalpakstan', ('Республика Каракалпакстан', 'Republic of Karakalpakstan', 'Qoraqalpog‘iston Respublikasi')),
   RegChoice('andijan', ('Андижанская область', 'Andijan region', 'Andijon viloyati')),
@@ -168,8 +164,6 @@ const developerSections = <RegSection>[
     [
       RegField('beneficial_name', RegKind.text, ('Конечный владелец, ФИО', 'Final owner, full name', 'Oxirgi benefitsiar egasi, F.I.Sh.'), wide: true),
       RegField('beneficial_id', RegKind.text, ('ПИНФЛ или номер документа', 'PINFL or document number', 'JShShIR yoki hujjat raqami'), max: 40),
-      RegField('pdl', RegKind.yesNo, ('Есть ли среди владельцев или руководителей высокопоставленные чиновники?', 'Is any owner or manager a senior public official?', 'Egalar yoki rahbarlar orasida yuqori lavozimli amaldor bormi?'), choices: yesNoChoices, wide: true),
-      RegField('pdl_note', RegKind.long, ('Кто это и на какой должности', 'Who it is and the position', 'Kim va qaysi lavozimda'), required: false, max: 500, wide: true),
     ],
     extra: RegExtra.owners,
   ),

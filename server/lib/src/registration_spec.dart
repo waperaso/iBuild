@@ -64,7 +64,6 @@ const regions = [
 
 const _callTimes = ['morning', 'day', 'evening', 'any'];
 const _languages = ['ru', 'uz', 'en'];
-const _yesNo = ['yes', 'no'];
 
 const developerFields = <FieldRule>[
   // Organisation
@@ -94,11 +93,9 @@ const developerFields = <FieldRule>[
   FieldRule('dir_phone', FieldType.phone),
   FieldRule('dir_email', FieldType.email),
   FieldRule('dir_basis', FieldType.choice, choices: ['charter', 'poa']),
-  // Beneficial owner and public officials
+  // Beneficial owner
   FieldRule('beneficial_name', FieldType.text),
   FieldRule('beneficial_id', FieldType.text, max: 40),
-  FieldRule('pdl', FieldType.yesNo, choices: _yesNo),
-  FieldRule('pdl_note', FieldType.long, required: false, max: 500),
   // First object
   FieldRule('object_name', FieldType.text),
   FieldRule('object_address', FieldType.text, max: 500),
@@ -333,7 +330,6 @@ FormResult readForm(String kind, Object? raw, {DateTime? now}) {
       if (value != null) data[rule.key] = value;
     }
     if (kind == 'developer') {
-      if (data['pdl'] == 'yes' && data['pdl_note'] == null) throw FormProblem('pdl_note');
       data['owners'] = _readOwners(raw['owners']);
       data['licenses'] = _readLicenses(raw['licenses'], today);
     } else {

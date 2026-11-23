@@ -41,7 +41,6 @@ Map<String, Object?> developerForm({String inn = '301234567', String email = 'ne
   ],
   'beneficial_name': 'Иван Директоров',
   'beneficial_id': '31205880120045',
-  'pdl': 'no',
   'object_name': 'ЖК «Тестовый»',
   'object_address': 'г. Ташкент, Чиланзар',
   'object_cadastre': '10:01:02:03:04:0005',

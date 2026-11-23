@@ -304,7 +304,7 @@ class _RegisterFormState extends State<RegisterForm> {
   String? _problem(RegField field, AppCopy copy) {
     final value = _value(field);
     if (value.isEmpty) {
-      final needed = field.required || (field.key == 'pdl_note' && _choice['pdl'] == 'yes');
+      final needed = field.required;
       return needed ? copy.fieldRequired : null;
     }
     switch (field.kind) {
