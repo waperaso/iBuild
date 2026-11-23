@@ -564,14 +564,26 @@ class _NavList extends StatelessWidget {
           border: Border.all(color: colors.outline.withValues(alpha: 0.7)),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Captions do not fit on a phone, so each item is an icon.
+              // They share the bar when they fit, and scroll when a role has more.
+              const slot = 52.0;
+              final buttons = [
                 for (final item in items) _NavButton(spec: item, pill: true),
-              ],
-            ),
+              ];
+              if (items.length * slot <= constraints.maxWidth) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: buttons,
+                );
+              }
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(children: buttons),
+              );
+            },
           ),
         ),
       ),
@@ -1314,25 +1326,16 @@ class _NavButton extends StatelessWidget {
         onTap: () => context.go(spec.location),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: pill ? 2 : (iconsOnly ? AppSpacing.sm : AppSpacing.lg),
-            vertical: pill ? AppSpacing.sm : 12,
+            horizontal: pill ? 0 : (iconsOnly ? AppSpacing.sm : AppSpacing.lg),
+            vertical: pill ? 0 : 12,
           ),
           child: pill
-              ? SizedBox(
-                  width: 72,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _navIcon(foreground),
-                      const SizedBox(height: 2),
-                      Text(
-                        spec.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: foreground),
-                      ),
-                    ],
+              ? Tooltip(
+                  message: spec.label,
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Center(child: _navIcon(foreground)),
                   ),
                 )
               : iconsOnly
