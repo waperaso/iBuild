@@ -406,6 +406,27 @@ class FakeApi implements Api {
     );
   }
 
+  final drawDocuments = <String>[];
+
+  @override
+  Future<void> uploadDrawDocument({
+    required String drawId,
+    required String itemId,
+    required String name,
+    required Uint8List bytes,
+  }) async {
+    drawDocuments.add('$drawId/$itemId/$name');
+  }
+
+  @override
+  Future<void> deleteDrawDocument({
+    required String drawId,
+    required String itemId,
+    required String fileId,
+  }) async {
+    drawDocuments.removeWhere((key) => key.startsWith('$drawId/$itemId/'));
+  }
+
   @override
   Future<RequestFile> uploadRequestFile({
     required String requestId,

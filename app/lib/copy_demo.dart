@@ -23,8 +23,19 @@ extension DemoCopy on AppCopy {
     'developer' => _t(('Застройщик', 'Developer', 'Quruvchi')),
     'contractor' => _t(('Подрядчик', 'Contractor', 'Pudratchi')),
     'tech' => _t(('Технадзор', 'Technical supervisor', 'Texnik nazorat')),
-    'bank' => _t(('Банк', 'Bank', 'Bank')),
+    'bank' => _t(('Кредитный специалист', 'Credit specialist', 'Kredit mutaxassisi')),
+    'bank_expert' => _t(('Технический эксперт', 'Technical expert', 'Texnik ekspert')),
+    'bank_head' => _t(('Начальник отдела', 'Head of department', 'Bo‘lim boshlig‘i')),
+    'bank_committee' => _t(('Кредитный комитет', 'Credit committee', 'Kredit qo‘mitasi')),
+    'bank_risk' => _t(('Риск-менеджер', 'Risk manager', 'Risk-menejer')),
+    'bank_admin' => _t(('Администратор банка', 'Bank administrator', 'Bank administratori')),
     'admin' => _t(('Админ платформы', 'Platform admin', 'Platforma admini')),
     _ => role,
+  };
+
+  String demoGroup(String group) => switch (group) {
+    'developer' => _t(('Сторона застройщика', 'Developer side', 'Quruvchi tomoni')),
+    'bank' => _t(('Банк', 'Bank', 'Bank')),
+    _ => _t(('Платформа', 'Platform', 'Platforma')),
   };
 }

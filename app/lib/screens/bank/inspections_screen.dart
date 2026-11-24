@@ -319,9 +319,50 @@ class _CompleteDialogState extends State<_CompleteDialog> {
   String? _error;
   bool _busy = false;
 
+  /// The lines of the tranche the expert measures: readiness and the sum to pay.
+  List<({String item, String title, String requested})> _lines = const [];
+  final _percent = <String, TextEditingController>{};
+  final _recommend = <String, TextEditingController>{};
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadLines());
+  }
+
+  Future<void> _loadLines() async {
+    final tranche = widget.item.s('tranche_id');
+    if (tranche.isEmpty) return;
+    try {
+      final card = await SessionScope.of(context).api.getJson('/api/bank/tranches/$tranche');
+      final lines = [
+        for (final raw in card['lines'] as List<dynamic>? ?? const [])
+          if (raw is Map && '${raw['budgetItemId'] ?? ''}'.isNotEmpty)
+            (
+              item: '${raw['budgetItemId']}',
+              title: '${raw['title'] ?? ''}',
+              requested: '${raw['requestedPlain'] ?? '0.00'}',
+            ),
+      ];
+      if (!mounted) return;
+      setState(() {
+        _lines = lines;
+        for (final line in lines) {
+          _percent.putIfAbsent(line.item, TextEditingController.new);
+          _recommend.putIfAbsent(line.item, () => TextEditingController(text: line.requested));
+        }
+      });
+    } catch (_) {
+      // Without the lines the visit still closes; the figures then come from the site inspector.
+    }
+  }
+
   @override
   void dispose() {
     _note.dispose();
+    for (final c in [..._percent.values, ..._recommend.values]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -330,6 +371,22 @@ class _CompleteDialogState extends State<_CompleteDialog> {
     if (_risk.isEmpty || _recommendation.isEmpty) {
       setState(() => _error = t('Укажите риск и рекомендацию', 'Give the risk and the recommendation', 'Xavf va tavsiyani kiriting'));
       return;
+    }
+    final measured = <Map<String, String>>[];
+    for (final line in _lines) {
+      final percent = _percent[line.item]!.text.trim().replaceAll(',', '.');
+      if (percent.isEmpty) continue;
+      final value = double.tryParse(percent);
+      if (value == null || value < 0 || value > 100) {
+        setState(() => _error = t('Готовность — от 0 до 100%', 'Readiness is 0 to 100%', 'Tayyorlik 0 dan 100% gacha'));
+        return;
+      }
+      final sum = _recommend[line.item]!.text.trim().replaceAll(' ', '').replaceAll(',', '.');
+      measured.add({
+        'budgetItemId': line.item,
+        'percent': percent,
+        'recommend': _recommendation == 'withhold' ? '0' : (sum.isEmpty ? '0' : sum),
+      });
     }
     setState(() {
       _busy = true;
@@ -344,6 +401,7 @@ class _CompleteDialogState extends State<_CompleteDialog> {
         'recommendation': _recommendation,
         'note': _note.text.trim(),
         if (_finish.isNotEmpty) 'expectedFinish': _finish,
+        if (measured.isNotEmpty) 'lines': measured,
       }),
     );
     if (!mounted) return;
@@ -383,6 +441,48 @@ class _CompleteDialogState extends State<_CompleteDialog> {
                 onChanged: (value) => setState(() => _recommendation = value),
                 options: [('issue', inspectionRecommendation(t, 'issue')), ('withhold', inspectionRecommendation(t, 'withhold'))],
               ),
+              if (_lines.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Text(t('Замеры по видам работ', 'Measurements by work item', 'Ish turlari bo‘yicha o‘lchovlar')),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  t(
+                    'Банк выдаёт по этим цифрам: готовность на объекте и сумма, которую вы рекомендуете выдать.',
+                    'The bank pays against these figures: readiness on site and the sum you recommend.',
+                    'Bank shu raqamlar bo‘yicha to‘laydi: obyektdagi tayyorlik va siz tavsiya qilgan summa.',
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                for (final line in _lines) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(line.title, style: Theme.of(context).textTheme.bodyMedium),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 110,
+                        child: TextField(
+                          key: Key('measure-percent-${line.item}'),
+                          controller: _percent[line.item],
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          decoration: InputDecoration(labelText: t('Готовность, %', 'Ready, %', 'Tayyor, %')),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: TextField(
+                          key: Key('measure-sum-${line.item}'),
+                          controller: _recommend[line.item],
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          decoration: InputDecoration(
+                            labelText: t('К выдаче, UZS', 'To pay, UZS', 'To‘lovga, UZS'),
+                            helperText: '${t('запрошено', 'requested', 'so‘ralgan')} ${line.requested}',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 key: const Key('complete-note'),

@@ -152,6 +152,7 @@ void main() {
       final requirements =
           ((await dev(director, 'GET', '/api/draws/$drawId')).body!['requirements'] as List)
               .cast<Map<String, dynamic>>();
+      expect(await director.attachPapers(drawId, requirements), 201);
       expect(
           (await dev(director, 'PATCH', '/api/draws/$drawId', {
             'signedName': 'Директор',
@@ -360,6 +361,7 @@ void main() {
         final loan = await dev(director, 'GET', '/api/projects/$projectId/loan');
         final line = (loan.body!['lines'] as List).cast<Map<String, dynamic>>().firstWhere((row) => row['title'] == title);
         final requirements = ((await dev(director, 'GET', '/api/draws/$drawId')).body!['requirements'] as List).cast<Map<String, dynamic>>();
+        expect(await director.attachPapers(drawId, requirements), 201);
         final saved = await dev(director, 'PATCH', '/api/draws/$drawId', {
           'signedName': 'Директор',
           'lines': [
@@ -742,6 +744,244 @@ void main() {
       expect((await step(waiting))[0], 'pending');
       expect((await rows('SELECT payment_number FROM funding_requests WHERE id = @t::uuid', {'t': paidRequest})).single.first, 'PP-KEEP');
     });
+
+    test('a sent draw cannot be rewritten, only the developer opens one, and a cancel closes the tranche', () async {
+      final director = await signIn('a.director');
+      final tech = await signIn('a.tech');
+      final contractor = await signIn('a.contractor');
+
+      final created = await dev(director, 'POST', '/api/projects', {'name': 'Аудит Тест', 'address': 'Ташкент'});
+      final projectId = created.body!['id'] as String;
+      final users = (await dev(director, 'GET', '/api/company/users')).body!['users'] as List;
+      String userId(String login) =>
+          users.cast<Map<String, dynamic>>().firstWhere((u) => u['login'] == login)['id'] as String;
+      await dev(director, 'POST', '/api/projects/$projectId/members', {'userId': userId('a.tech'), 'role': 'tech'});
+      final firms = (await dev(director, 'GET', '/api/contractor-firms')).body!['firms'] as List;
+      final firmId = (firms.first as Map)['id'] as String;
+      await dev(director, 'POST', '/api/projects/$projectId/members',
+          {'userId': userId('a.contractor'), 'role': 'contractor', 'contractorFirmId': firmId});
+      await dev(director, 'POST', '/api/projects/$projectId/budget/import', {
+        'contractorFirmId': firmId,
+        'csv': '03,Бетон,hard,use,1000.00',
+      });
+      // Only the developer side lead adds money sources.
+      expect((await dev(tech, 'POST', '/api/projects/$projectId/sources',
+              {'name': 'Чужой', 'kind': 'loan', 'amount': '1.00'})).status,
+          403);
+      final source = await dev(director, 'POST', '/api/projects/$projectId/sources',
+          {'name': 'Кредит', 'kind': 'loan', 'amount': '1000.00'});
+      final loan = await dev(director, 'GET', '/api/projects/$projectId/loan');
+      final concrete = (loan.body!['lines'] as List).cast<Map<String, dynamic>>().single;
+      final bank = await rows('SELECT bank_id::text FROM project_facilities LIMIT 1');
+      await rows('''
+        INSERT INTO project_facilities (project_id, bank_id, developer_name, credit_limit, issued_amount)
+        VALUES (@p::uuid, @b::uuid, 'Тест', 5000.00, 0)
+      ''', {'p': projectId, 'b': bank.first.first});
+
+      // Technical supervision cannot open a draw: a refusal, not a server error.
+      expect((await dev(tech, 'POST', '/api/draws', {'projectId': projectId, 'name': 'Нельзя'})).status, 403);
+
+      final draw = await dev(director, 'POST', '/api/draws', {'projectId': projectId, 'name': 'Транш аудит'});
+      final drawId = draw.body!['id'] as String;
+      // Someone else's draft is not theirs to fill.
+      expect((await dev(tech, 'PATCH', '/api/draws/$drawId', {'signedName': 'x'})).status, 403);
+      final requirements = ((await dev(director, 'GET', '/api/draws/$drawId')).body!['requirements'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(await director.attachPapers(drawId, requirements), 201);
+      await dev(director, 'PATCH', '/api/draws/$drawId', {
+        'signedName': 'Директор',
+        'lines': [
+          {'budgetItemId': concrete['id'], 'requested': '300.00'},
+        ],
+        'sources': [
+          {'sourceId': source.body!['id'], 'amount': '300.00'},
+        ],
+        'requirements': [
+          for (final item in requirements)
+            if (item['required'] == true) {'itemId': item['item_id'], 'status': 'attached'},
+        ],
+      });
+      expect((await dev(director, 'POST', '/api/draws/$drawId/submit')).status, 200);
+
+      // After sending, nobody changes the money the bank is looking at.
+      final rewrite = {
+        'lines': [
+          {'budgetItemId': concrete['id'], 'requested': '999.00'},
+        ],
+      };
+      expect((await dev(director, 'PATCH', '/api/draws/$drawId', rewrite)).status, 409);
+      expect((await dev(tech, 'PATCH', '/api/draws/$drawId', rewrite)).status, 403);
+      expect((await dev(contractor, 'PATCH', '/api/draws/$drawId', rewrite)).status, 409);
+      expect((await dev(tech, 'POST', '/api/draws/$drawId/decide', {
+        'lines': [
+          {'budgetItemId': concrete['id'], 'approved': '1.00'},
+        ],
+      })).status, 403);
+      final kept = await rows(
+        "SELECT requested_amount::text FROM bank_tranches WHERE request_id = @r::uuid",
+        {'r': drawId},
+      );
+      expect(kept.single.first, '300.00');
+      expect(
+        (await rows('SELECT requested::text FROM draw_lines WHERE request_id = @r::uuid', {'r': drawId})).single.first,
+        '300.00',
+      );
+
+      // The developer takes the draw back: the bank can no longer approve it.
+      final version = (await dev(director, 'GET', '/api/draws/$drawId')).body!['version'];
+      final cancelled = await dev(director, 'POST', '/api/requests/$drawId/cancel', {'version': version}, 'audit-cancel-01');
+      expect(cancelled.status, 200, reason: cancelled.body.toString());
+      final closed = await rows(
+        'SELECT outcome, stage_label FROM bank_tranches WHERE request_id = @r::uuid',
+        {'r': drawId},
+      );
+      expect(closed.single, ['withdrawn', 'Отозван застройщиком']);
+    });
+
+    test('papers are files: required ones block the send, the bank opens them, its expert can confirm the money', () async {
+      final director = await signIn('a.director');
+      final tech = await signIn('a.tech');
+      final specialist = await signIn('a.observer');
+      final expert = await signIn('a.expert');
+      final bank = await rows('''
+        SELECT s.bank_id::text FROM bank_staff s JOIN users u ON u.id = s.user_id WHERE u.login = 'a.expert'
+      ''');
+      final created = await dev(director, 'POST', '/api/projects', {'name': 'Документы Тест', 'address': 'Ташкент'});
+      final projectId = created.body!['id'] as String;
+      final users = (await dev(director, 'GET', '/api/company/users')).body!['users'] as List;
+      String userId(String login) =>
+          users.cast<Map<String, dynamic>>().firstWhere((u) => u['login'] == login)['id'] as String;
+      await dev(director, 'POST', '/api/projects/$projectId/members', {'userId': userId('a.tech'), 'role': 'tech'});
+      final firms = (await dev(director, 'GET', '/api/contractor-firms')).body!['firms'] as List;
+      final firmId = (firms.first as Map)['id'] as String;
+      await dev(director, 'POST', '/api/projects/$projectId/budget/import', {
+        'contractorFirmId': firmId,
+        'csv': '01,Каркас,hard,use,1000.00',
+      });
+      final source = await dev(director, 'POST', '/api/projects/$projectId/sources',
+          {'name': 'Кредит', 'kind': 'loan', 'amount': '1000.00'});
+      final line = ((await dev(director, 'GET', '/api/projects/$projectId/loan')).body!['lines'] as List)
+          .cast<Map<String, dynamic>>()
+          .single;
+      await rows('''
+        INSERT INTO project_facilities (project_id, bank_id, developer_name, credit_limit, issued_amount)
+        VALUES (@p::uuid, @b::uuid, 'Тест', 5000.00, 0)
+      ''', {'p': projectId, 'b': bank.first.first});
+
+      final drawId = (await dev(director, 'POST', '/api/draws', {'projectId': projectId, 'name': 'Транш документы'}))
+          .body!['id'] as String;
+      var requirements = ((await dev(director, 'GET', '/api/draws/$drawId')).body!['requirements'] as List)
+          .cast<Map<String, dynamic>>();
+      final act = requirements.firstWhere((item) => item['code'] == 'act');
+      final optional = requirements.firstWhere((item) => item['required'] != true);
+      await dev(director, 'PATCH', '/api/draws/$drawId', {
+        'signedName': 'Директор',
+        'lines': [
+          {'budgetItemId': line['id'], 'requested': '400.00'},
+        ],
+        'sources': [
+          {'sourceId': source.body!['id'], 'amount': '400.00'},
+        ],
+        // A mark without a file, and "not needed" on a required paper, do not count.
+        'requirements': [
+          for (final item in requirements) {'itemId': item['item_id'], 'status': item['required'] == true ? 'attached' : 'na'},
+          {'itemId': act['item_id'], 'status': 'na'},
+        ],
+      });
+      requirements = ((await dev(director, 'GET', '/api/draws/$drawId')).body!['requirements'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(requirements.where((item) => item['required'] == true).every((item) => item['status'] == 'missing'), isTrue);
+      expect(requirements.firstWhere((item) => item['item_id'] == optional['item_id'])['status'], 'na');
+      final blocked = await dev(director, 'POST', '/api/draws/$drawId/submit');
+      expect(blocked.status, 400);
+      expect(blocked.body!['message'], 'Приложите файлы обязательных документов.');
+
+      // Not a document, and not the developer's to attach.
+      final notPaper = await director.handler(Request(
+        'POST',
+        Uri.parse('http://localhost/api/draws/$drawId/documents/${act['item_id']}?name=x.txt'),
+        headers: {
+          'cookie': director.cookies.entries.map((e) => '${e.key}=${e.value}').join('; '),
+          'content-type': 'application/octet-stream',
+          'x-csrf-token': director.csrf!,
+        },
+        body: utf8.encode('just text'),
+      ));
+      expect(notPaper.statusCode, 400);
+      expect(await tech.attachPapers(drawId, [act]), anyOf(403, 404));
+
+      expect(await director.attachPapers(drawId, requirements), 201);
+      requirements = ((await dev(director, 'GET', '/api/draws/$drawId')).body!['requirements'] as List)
+          .cast<Map<String, dynamic>>();
+      final actFiles = requirements.firstWhere((item) => item['code'] == 'act')['files'] as List;
+      expect(actFiles, hasLength(1));
+      final actFileId = (actFiles.single as Map)['id'] as String;
+      expect((await director.send('GET', '/api/draws/$drawId/documents/${act['item_id']}/$actFileId')).status, 200);
+      expect((await dev(director, 'POST', '/api/draws/$drawId/submit')).status, 200);
+      // Sent: the papers are fixed.
+      expect(await director.attachPapers(drawId, [act]), 409);
+
+      // The bank sees the papers and opens the file; another bank cannot.
+      final tranche = (await rows('SELECT id::text FROM bank_tranches WHERE request_id = @r::uuid', {'r': drawId}))
+          .single
+          .first! as String;
+      final card = await specialist.send('GET', '/api/bank/tranches/$tranche');
+      final papers = (card.body!['papers'] as List).cast<Map<String, dynamic>>();
+      final bankAct = papers.firstWhere((paper) => paper['code'] == 'act');
+      expect(bankAct['present'], isTrue);
+      final url = ((bankAct['files'] as List).single as Map)['url'] as String;
+      expect((await specialist.send('GET', url)).status, 200);
+      final stranger = await signIn('b.observer');
+      expect((await stranger.send('GET', url)).status, 404);
+      final checks = card.body!['checks'] as Map;
+      expect(
+        (checks['open'] as List).cast<Map>().where((check) => '${check['code']}'.startsWith('doc_')),
+        isEmpty,
+      );
+
+      // Without the site inspector, the bank's own expert measures the line and the bank can pay.
+      final planned = await dev(specialist, 'POST', '/api/bank/inspections',
+          {'projectId': projectId, 'scheduledOn': '2026-11-10', 'kind': 'control', 'trancheId': tranche});
+      expect(planned.status, anyOf(200, 201), reason: jsonEncode(planned.body));
+      final visit = await rows(
+        'SELECT id::text, expert_user_id::text FROM bank_inspections WHERE tranche_id = @t::uuid',
+        {'t': tranche},
+      );
+      final expertId = (await rows("SELECT id::text FROM users WHERE login = 'a.expert'")).single.first;
+      await rows('UPDATE bank_inspections SET expert_user_id = @e::uuid WHERE id = @i::uuid',
+          {'e': expertId, 'i': visit.single.first});
+      final wrong = await dev(expert, 'POST', '/api/bank/inspections/${visit.single.first}/complete', {
+        'risk': 'ok',
+        'recommendation': 'issue',
+        'lines': [
+          {'budgetItemId': line['id'], 'percent': '140', 'recommend': '300.00'},
+        ],
+      });
+      expect(wrong.status, 400);
+      final closed = await dev(expert, 'POST', '/api/bank/inspections/${visit.single.first}/complete', {
+        'risk': 'ok',
+        'recommendation': 'issue',
+        'note': 'Каркас на 30%',
+        'lines': [
+          {'budgetItemId': line['id'], 'percent': '30', 'recommend': '900.00'},
+        ],
+      });
+      expect(closed.status, 200, reason: jsonEncode(closed.body));
+      final after = await specialist.send('GET', '/api/bank/tranches/$tranche');
+      expect(after.body!['stage'], 'specialist');
+      final bankLine = (after.body!['lines'] as List).cast<Map<String, dynamic>>().single;
+      // Never more than the developer asked for.
+      expect(
+        (await rows('SELECT confirmed::text FROM bank_tranche_lines WHERE tranche_id = @t::uuid', {'t': tranche}))
+            .single
+            .first,
+        '400.00',
+      );
+      expect(bankLine['expert'], isNotNull);
+      final decided = await dev(specialist, 'POST', '/api/bank/tranches/$tranche/decision',
+          {'kind': 'partial', 'note': ''}, 'papers-expert-0001');
+      expect(decided.status, 200, reason: jsonEncode(decided.body));
+    });
   });
 }
 
@@ -786,6 +1026,27 @@ class Call {
 
 class Client {
   Client(this.handler);
+
+  /// Uploads a small PDF to every required paper of a draw.
+  Future<int> attachPapers(String drawId, List<Map<String, dynamic>> requirements) async {
+    for (final item in requirements) {
+      if (item['required'] != true) continue;
+      final response = await handler(
+        Request(
+          'POST',
+          Uri.parse('http://localhost/api/draws/$drawId/documents/${item['item_id']}?name=paper.pdf'),
+          headers: {
+            'cookie': cookies.entries.map((entry) => '${entry.key}=${entry.value}').join('; '),
+            'content-type': 'application/octet-stream',
+            if (csrf != null) 'x-csrf-token': csrf!,
+          },
+          body: utf8.encode('%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n'),
+        ),
+      );
+      if (response.statusCode != 201) return response.statusCode;
+    }
+    return 201;
+  }
 
   final Handler handler;
   final cookies = <String, String>{};

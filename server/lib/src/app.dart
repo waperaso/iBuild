@@ -7,6 +7,7 @@ import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_static/shelf_static.dart';
 
 import 'db.dart';
+import 'draw_documents.dart';
 import 'env.dart';
 import 'http_util.dart';
 import 'money.dart';
@@ -57,6 +58,7 @@ Handler buildHandler({required AppDatabase db, required AppEnv env}) {
     ..get('/api/company/users', (Request request) => _companyUsers(request, db));
   mountRequests(router, db, env);
   mountLoan(router, db);
+  mountDrawDocuments(router, db, env);
   mountModeration(router, db, env);
   mountBank(router, db);
   mountAdmin(router, db);
@@ -708,6 +710,17 @@ Middleware _safety(AppEnv env) {
         return _withHeaders(response, env);
       } on BodyTooLarge {
         return _withHeaders(jsonError(413, 'too_large', 'Файл слишком большой.'), env);
+      } on ServerException catch (error, stack) {
+        // Row security said no, or an id in the address is not an id at all:
+        // a refusal for the person, never a server failure.
+        if (error.code == '42501') {
+          return _withHeaders(jsonError(403, 'forbidden', 'Недостаточно прав для этого действия.'), env);
+        }
+        if (error.code == '22P02') {
+          return _withHeaders(jsonError(404, 'not_found', 'Ничего не найдено.'), env);
+        }
+        stderr.writeln('[ERROR] ${request.method} ${request.requestedUri.path}: $error\n$stack');
+        return _withHeaders(jsonError(500, 'internal', 'Что-то пошло не так. Попробуйте ещё раз.'), env);
       } catch (error, stack) {
         if (error is HijackException) rethrow;
         stderr.writeln('[ERROR] ${request.method} ${request.requestedUri.path}: $error\n$stack');

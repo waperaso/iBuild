@@ -338,6 +338,34 @@ class HttpApiClient implements Api {
   }
 
   @override
+  Future<void> uploadDrawDocument({
+    required String drawId,
+    required String itemId,
+    required String name,
+    required Uint8List bytes,
+  }) async {
+    final response = await _client.post(
+      _uri('/api/draws/$drawId/documents/$itemId?name=${Uri.encodeQueryComponent(name)}'),
+      headers: {
+        'content-type': 'application/octet-stream',
+        'x-csrf-token': ?_csrf,
+      },
+      body: bytes,
+    );
+    _ok(response);
+  }
+
+  @override
+  Future<void> deleteDrawDocument({
+    required String drawId,
+    required String itemId,
+    required String fileId,
+  }) async {
+    final response = await _send('DELETE', '/api/draws/$drawId/documents/$itemId/$fileId', csrf: true);
+    if (response.statusCode >= 400) _ok(response);
+  }
+
+  @override
   Future<RequestFile> uploadRequestFile({
     required String requestId,
     required Uint8List bytes,

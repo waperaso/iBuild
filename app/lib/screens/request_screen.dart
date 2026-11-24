@@ -562,8 +562,8 @@ class _RequestScreenState extends State<RequestScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               StatusText(
-                label: waitingText(context, request.status),
-                tone: _tone(request.status),
+                label: waitingText(context, request.status, bankHold: request.bankHold),
+                tone: request.bankHold.isNotEmpty ? StatusTone.bad : _tone(request.status),
               ),
               const SizedBox(height: AppSpacing.md),
               Text(request.lineTitle, style: Theme.of(context).textTheme.titleMedium),

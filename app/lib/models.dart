@@ -494,6 +494,7 @@ class FundingRequest {
     this.linePaid,
     this.lineAvailable,
     this.planSet = true,
+    this.bankHold = '',
   });
 
   final String id;
@@ -504,6 +505,8 @@ class FundingRequest {
   final String amount;
   final String description;
   final String status;
+  /// What stops the money at the bank: 'returned', 'paused', 'control' or ''.
+  final String bankHold;
   final bool mine;
   final int version;
   final List<RequestFile> files;
@@ -547,6 +550,7 @@ class FundingRequest {
       linePaid: json['linePaid'] as String?,
       lineAvailable: json['lineAvailable'] as String?,
       planSet: json['planSet'] as bool? ?? true,
+      bankHold: json['bankHold'] as String? ?? '',
       files: [
         for (final item in raw) RequestFile.fromJson(item as Map<String, dynamic>),
       ],
@@ -948,6 +952,9 @@ class DrawRequirementView {
     required this.required,
     required this.status,
     required this.note,
+    this.present = false,
+    this.beforeFiles = false,
+    this.files = const [],
   });
 
   final String itemId;
@@ -956,8 +963,13 @@ class DrawRequirementView {
   final bool required;
   final String status;
   final String note;
+  /// A file is attached, or the mark was made before files existed.
+  final bool present;
+  final bool beforeFiles;
+  final List<DrawDocumentFile> files;
 
   factory DrawRequirementView.fromJson(Map<String, dynamic> json) {
+    final raw = json['files'] as List<dynamic>? ?? const [];
     return DrawRequirementView(
       itemId: json['item_id'] as String? ?? '',
       code: json['code'] as String? ?? '',
@@ -965,8 +977,27 @@ class DrawRequirementView {
       required: json['required'] == true,
       status: json['status'] as String? ?? 'missing',
       note: json['note'] as String? ?? '',
+      present: json['present'] == true,
+      beforeFiles: json['beforeFiles'] == true,
+      files: [for (final item in raw) DrawDocumentFile.fromJson(item as Map<String, dynamic>)],
     );
   }
+}
+
+class DrawDocumentFile {
+  const DrawDocumentFile({required this.id, required this.name, required this.contentType, required this.sizeBytes});
+
+  final String id;
+  final String name;
+  final String contentType;
+  final int sizeBytes;
+
+  factory DrawDocumentFile.fromJson(Map<String, dynamic> json) => DrawDocumentFile(
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        contentType: json['contentType'] as String? ?? '',
+        sizeBytes: (json['sizeBytes'] as num?)?.toInt() ?? 0,
+      );
 }
 
 class DrawDetail {

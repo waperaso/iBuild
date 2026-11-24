@@ -6,6 +6,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import 'db.dart';
+import 'draw_documents.dart' show drawPaperPresent, drawPapers;
 import 'http_util.dart';
 import 'money.dart';
 import 'passwords.dart';
@@ -438,6 +439,12 @@ Future<Response> _addSource(Request request, AppDatabase db, String id) async {
   if (name.isEmpty || !const {'loan', 'equity', 'escrow'}.contains(kind) || amount == null) {
     return jsonError(400, 'validation', 'Укажите источник, вид и сумму.');
   }
+  if (!RegExp(_uuid).hasMatch(id)) return jsonError(404, 'not_found', 'Объект не найден.');
+  final role = await _memberRole(db, id, opened as String);
+  if (role == null) return jsonError(404, 'not_found', 'Объект не найден.');
+  if (!const {'director', 'developer'}.contains(role)) {
+    return jsonError(403, 'forbidden', 'Источники денег задаёт застройщик объекта.');
+  }
   final rows = await db.pool.execute(
     Sql.named('''
       INSERT INTO funding_sources (project_id, name, kind, amount)
@@ -597,6 +604,11 @@ Future<Response> _createDraw(Request request, AppDatabase db) async {
   if (!RegExp(_uuid).hasMatch(projectId) || name.isEmpty) {
     return jsonError(400, 'validation', 'Напишите название и адрес.');
   }
+  final role = await _memberRole(db, projectId, userId);
+  if (role == null) return jsonError(404, 'not_found', 'Объект не найден.');
+  if (!const {'director', 'developer', 'contractor'}.contains(role)) {
+    return jsonError(403, 'forbidden', 'Транш открывает застройщик объекта.');
+  }
   await _ensureChecklist(db, projectId);
   final id = await db.pool.runTx((session) async {
     final line = await session.execute(
@@ -681,16 +693,7 @@ Future<Response> _drawJson(AppDatabase db, String id) async {
     '''),
     parameters: {'id': id},
   );
-  final requirements = await db.pool.execute(
-    Sql.named('''
-      SELECT r.item_id::text, c.code, c.title, c.required, r.status, r.note
-      FROM draw_requirements r
-      JOIN checklist_items c ON c.id = r.item_id
-      WHERE r.request_id = @id::uuid
-      ORDER BY c.code
-    '''),
-    parameters: {'id': id},
-  );
+  final requirements = await drawPapers(db, id);
   final comments = await db.pool.execute(
     Sql.named('''
       SELECT body, created_at::text AS at FROM draw_comments
@@ -702,7 +705,7 @@ Future<Response> _drawJson(AppDatabase db, String id) async {
     ...head.first.toColumnMap(),
     'lines': [for (final row in lines) row.toColumnMap()],
     'sources': [for (final row in sources) row.toColumnMap()],
-    'requirements': [for (final row in requirements) row.toColumnMap()],
+    'requirements': requirements,
     'comments': [for (final row in comments) row.toColumnMap()],
   });
 }
@@ -716,8 +719,18 @@ Future<Response> _patchDraw(Request request, AppDatabase db, String id) async {
   final name = (json['name'] as String? ?? '').trim();
   final signed = (json['signedName'] as String? ?? '').trim();
   final finalDraw = json['finalDraw'] == true;
-  await db.pool.runTx((session) async {
-    await session.execute(
+  if (!RegExp(_uuid).hasMatch(id)) return jsonError(404, 'not_found', 'Транш не найден.');
+  final userId = opened as String;
+  final projectId = await _drawProject(db, id);
+  final role = projectId == null ? null : await _memberRole(db, projectId, userId);
+  if (role == null) return jsonError(404, 'not_found', 'Транш не найден.');
+  if (!const {'director', 'developer', 'contractor'}.contains(role)) {
+    return jsonError(403, 'forbidden', 'Транш заполняет застройщик объекта.');
+  }
+  final edited = await db.pool.runTx((session) async {
+    // Only a draft the person may edit changes. Once the draw is sent its lines
+    // feed the bank tranche, so nothing below may run for it.
+    final draft = await session.execute(
       Sql.named('''
         UPDATE funding_requests
         SET draw_name = CASE WHEN @name = '' THEN draw_name ELSE @name END,
@@ -727,9 +740,11 @@ Future<Response> _patchDraw(Request request, AppDatabase db, String id) async {
             version = version + 1,
             updated_at = now()
         WHERE id = @id::uuid AND status = 'draft'
+        RETURNING id
       '''),
       parameters: {'id': id, 'name': name, 'finalDraw': finalDraw, 'signed': signed},
     );
+    if (draft.isEmpty) return false;
     final lines = json['lines'];
     if (lines is List) {
       for (final raw in lines) {
@@ -811,10 +826,16 @@ Future<Response> _patchDraw(Request request, AppDatabase db, String id) async {
         if (!RegExp(_uuid).hasMatch(itemId)) continue;
         if (!const {'missing', 'attached', 'na', 'resolved'}.contains(status)) continue;
         await session.execute(
+          // A paper is attached by uploading its file, not by a mark; a
+          // required paper cannot be declared unnecessary; a paper with a file
+          // cannot be marked missing.
           Sql.named('''
-            UPDATE draw_requirements
+            UPDATE draw_requirements r
             SET status = @status, note = @note
-            WHERE request_id = @request::uuid AND item_id = @item::uuid
+            WHERE r.request_id = @request::uuid AND r.item_id = @item::uuid
+              AND (@status <> 'attached' OR ${drawPaperPresent('r')})
+              AND (@status <> 'missing' OR NOT ${drawPaperPresent('r')})
+              AND (@status <> 'na' OR NOT (SELECT c.required FROM checklist_items c WHERE c.id = r.item_id))
           '''),
           parameters: {
             'request': id,
@@ -825,7 +846,18 @@ Future<Response> _patchDraw(Request request, AppDatabase db, String id) async {
         );
       }
     }
+    return true;
   });
+  if (!edited) {
+    final current = await db.owner.execute(
+      Sql.named('SELECT status FROM funding_requests WHERE id = @id::uuid'),
+      parameters: {'id': id},
+    );
+    if (current.isNotEmpty && current.first[0] == 'draft') {
+      return jsonError(403, 'forbidden', 'Черновик транша меняет тот, кто его начал.');
+    }
+    return jsonError(409, 'conflict', 'Транш уже отправлен в банк, изменить его нельзя.');
+  }
   return _drawJson(db, id);
 }
 
@@ -851,7 +883,7 @@ Future<Response> _submitDraw(Request request, AppDatabase db, String id) async {
         NOT EXISTS (
           SELECT 1 FROM draw_requirements r
           JOIN checklist_items c ON c.id = r.item_id
-          WHERE r.request_id = @id::uuid AND c.required AND r.status = 'missing'
+          WHERE r.request_id = @id::uuid AND c.required AND NOT ${drawPaperPresent('r')}
         ) AS ready
     '''),
     parameters: {'id': id},
@@ -859,7 +891,9 @@ Future<Response> _submitDraw(Request request, AppDatabase db, String id) async {
   if (balanced.isEmpty) return jsonError(404, 'not_found', 'Транш не найден.');
   final map = balanced.first.toColumnMap();
   if (map['signed'] != true) return jsonError(400, 'validation', 'Подпишите транш перед отправкой.');
-  if (map['ready'] != true) return jsonError(400, 'validation', 'Добавьте обязательные документы.');
+  if (map['ready'] != true) {
+    return jsonError(400, 'validation', 'Приложите файлы обязательных документов.');
+  }
   if (map['positive'] != true || map['fits'] != true) {
     if (map['positive'] == true && map['fits'] != true) {
       final sources = await db.pool.execute(
@@ -965,11 +999,46 @@ Future<Response> _decide(Request request, AppDatabase db, String id) async {
   final json = parsed as Map<String, dynamic>;
   final lines = json['lines'];
   if (lines is! List) return jsonError(400, 'validation', 'Не получилось обработать запрос. Проверьте данные и попробуйте снова.');
-  await db.pool.runTx((session) async {
+  if (!RegExp(_uuid).hasMatch(id)) return jsonError(404, 'not_found', 'Транш не найден.');
+  final projectId = await _drawProject(db, id);
+  final role = projectId == null ? null : await _memberRole(db, projectId, opened as String);
+  if (role == null) return jsonError(404, 'not_found', 'Транш не найден.');
+  if (!const {'director', 'developer', 'observer'}.contains(role)) {
+    return jsonError(403, 'forbidden', 'Сумму к выдаче утверждает банк или руководитель застройщика.');
+  }
+  final banked = await db.owner.execute(
+    Sql.named('SELECT 1 FROM bank_tranches WHERE request_id = @id::uuid LIMIT 1'),
+    parameters: {'id': id},
+  );
+  if (banked.isNotEmpty) {
+    return jsonError(409, 'conflict', 'Сумму к выдаче по этому траншу решает банк.');
+  }
+  final outcome = await db.pool.runTx((session) async {
+    final current = await session.execute(
+      Sql.named('SELECT status FROM funding_requests WHERE id = @id::uuid FOR UPDATE'),
+      parameters: {'id': id},
+    );
+    if (current.isEmpty) return 'missing';
+    if (current.first[0] != 'tech_approved') return 'state';
     for (final raw in lines) {
-      final line = raw as Map<String, dynamic>;
-      final item = (line['budgetItemId'] as String? ?? '').trim();
-      final approved = normalizeMoney(line['approved'] as String? ?? '');
+      if (raw is! Map) continue;
+      final item = ('${raw['budgetItemId'] ?? ''}').trim();
+      final approved = normalizeMoney('${raw['approved'] ?? ''}');
+      if (!RegExp(_uuid).hasMatch(item) || approved == null) continue;
+      final over = await session.execute(
+        Sql.named('''
+          SELECT 1 FROM draw_lines
+          WHERE request_id = @request::uuid AND budget_item_id = @item::uuid
+            AND @approved::numeric > requested - retainage_withheld + retainage_released
+        '''),
+        parameters: {'request': id, 'item': item, 'approved': approved},
+      );
+      if (over.isNotEmpty) return 'over';
+    }
+    for (final raw in lines) {
+      if (raw is! Map) continue;
+      final item = ('${raw['budgetItemId'] ?? ''}').trim();
+      final approved = normalizeMoney('${raw['approved'] ?? ''}');
       if (!RegExp(_uuid).hasMatch(item) || approved == null) continue;
       await session.execute(
         Sql.named('''
@@ -992,7 +1061,13 @@ Future<Response> _decide(Request request, AppDatabase db, String id) async {
       '''),
       parameters: {'id': id},
     );
+    return 'ok';
   });
+  if (outcome == 'missing') return jsonError(404, 'not_found', 'Транш не найден.');
+  if (outcome == 'state') {
+    return jsonError(409, 'conflict', 'Сумму к выдаче утверждают после проверки технадзора.');
+  }
+  if (outcome == 'over') return jsonError(400, 'validation', 'К выдаче нельзя больше, чем запрошено по статье.');
   return _drawJson(db, id);
 }
 
@@ -1118,6 +1193,13 @@ Future<Response> _payable(Request request, AppDatabase db, String id) async {
   }
   if (!const {'missing', 'signed'}.contains(waiver)) {
     return jsonError(400, 'validation', 'Не получилось обработать запрос. Проверьте данные и попробуйте снова.');
+  }
+  if (!RegExp(_uuid).hasMatch(id)) return jsonError(404, 'not_found', 'Транш не найден.');
+  final projectId = await _drawProject(db, id);
+  final role = projectId == null ? null : await _memberRole(db, projectId, opened as String);
+  if (role == null) return jsonError(404, 'not_found', 'Транш не найден.');
+  if (!const {'director', 'developer', 'contractor'}.contains(role)) {
+    return jsonError(403, 'forbidden', 'Счета к траншу прикладывает застройщик.');
   }
   final rows = await db.pool.execute(
     Sql.named('''
@@ -1254,6 +1336,28 @@ Future<Response> _notices(Request request, AppDatabase db) async {
     'queue': [for (final row in waiting) row.toColumnMap()],
     'compliance': [for (final row in expiring) row.toColumnMap()],
   });
+}
+
+/// The role of [userId] on [projectId], read past row security; null when the
+/// person is not on the project.
+Future<String?> _memberRole(AppDatabase db, String projectId, String userId) async {
+  final rows = await db.owner.execute(
+    Sql.named('''
+      SELECT role FROM project_members
+      WHERE project_id = @project::uuid AND user_id = @user::uuid
+    '''),
+    parameters: {'project': projectId, 'user': userId},
+  );
+  return rows.isEmpty ? null : rows.first[0] as String?;
+}
+
+/// The project of a draw, read past row security; null when there is no such draw.
+Future<String?> _drawProject(AppDatabase db, String id) async {
+  final rows = await db.owner.execute(
+    Sql.named("SELECT project_id::text FROM funding_requests WHERE id = @id::uuid AND draw_name <> ''"),
+    parameters: {'id': id},
+  );
+  return rows.isEmpty ? null : rows.first[0] as String?;
 }
 
 Future<bool> _locked(AppDatabase db, String projectId) async {

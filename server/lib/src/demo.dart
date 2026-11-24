@@ -21,6 +21,11 @@ const demoLogins = <String, String>{
   'contractor': 'a.contractor',
   'tech': 'a.tech',
   'bank': 'a.observer',
+  'bank_expert': 'a.expert',
+  'bank_head': 'a.head1',
+  'bank_committee': 'a.committee1',
+  'bank_risk': 'a.risk',
+  'bank_admin': 'a.bankadmin',
   'admin': 'a.admin',
 };
 
@@ -67,10 +72,18 @@ Future<Response?> demoGuard(Request request, AppDatabase db) async {
   final method = request.method;
   if (method == 'GET' || method == 'HEAD' || method == 'OPTIONS') return null;
   final path = request.url.path;
-  if (path == 'api/auth/logout' || path == 'api/demo/login') return null;
+  if (path == 'api/auth/logout' || path == 'api/demo/login' || path == 'api/auth/login') return null;
   final token = readCookies(request)[sessionCookieName];
   if (token == null || token.isEmpty) return null;
   final lookup = await db.lookupSession(sha256Hex(token));
+  // A temporary password was seen by whoever handed it out. Until the owner
+  // replaces it, the account may read but not change anything.
+  if (lookup.state == SessionState.ok &&
+      lookup.user?.mustChangePassword == true &&
+      !lookup.demoSession &&
+      path != 'api/auth/password') {
+    return jsonError(403, 'password_change_required', 'Сначала смените временный пароль.');
+  }
   // Only a session started from the demo buttons is read-only. A pilot account
   // that signed in with its password works normally, even though the seeded
   // company it belongs to is also the one the demo shows.

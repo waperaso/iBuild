@@ -2,6 +2,7 @@ import 'package:postgres/postgres.dart';
 
 import 'bank_common.dart';
 import 'db.dart';
+import 'draw_documents.dart' show drawPapers;
 
 const _fmt = bankMoneyFormat;
 const _moment = "'DD.MM.YYYY HH24:MI'";
@@ -64,6 +65,12 @@ Future<Map<String, Object?>?> bankTrancheCard(
   final checks = await _checks(db, id);
   final lines = await _lines(db, id);
   final decision = await _latestDecision(db, id);
+  final request = await db.owner.execute(
+    Sql.named('SELECT request_id::text FROM bank_tranches WHERE id = @id::uuid'),
+    parameters: {'id': id},
+  );
+  final requestId = request.isEmpty ? null : request.first[0] as String?;
+  final papers = requestId == null ? const <Map<String, Object?>>[] : await drawPapers(db, requestId);
   final days = bankInt(map['elapsed_days']);
   final hours = bankInt(map['elapsed_hours']);
   final sla = bankInt(map['sla_days']);
@@ -125,6 +132,24 @@ Future<Map<String, Object?>?> bankTrancheCard(
       'passed': [for (final check in checks) if (check['passed'] == true) check],
     },
     'lines': lines,
+    // The papers the developer attached to the draw, each with its files.
+    'papers': [
+      for (final paper in papers)
+        {
+          'code': paper['code'],
+          'title': paper['title'],
+          'required': paper['required'],
+          'present': paper['present'],
+          'beforeFiles': paper['beforeFiles'],
+          'files': [
+            for (final file in (paper['files'] as List? ?? const []))
+              {
+                ...(file as Map).cast<String, Object?>(),
+                'url': '/api/bank/tranches/$id/documents/${file['id']}',
+              },
+          ],
+        },
+    ],
     'decision': decision,
   };
 }
@@ -193,6 +218,8 @@ Future<List<Map<String, Object?>>> _lines(AppDatabase db, String trancheId) asyn
     Sql.named('''
       SELECT l.id::text AS id,
              l.title,
+             l.budget_item_id::text AS budget_item_id,
+             to_char(l.requested, 'FM999999999999990.00') AS requested_plain,
              to_char(l.issued_before, $_fmt) AS issued_before,
              to_char(l.requested, $_fmt) AS requested,
              to_char(l.readiness_percent, 'FM990.00') AS readiness_percent,
@@ -252,6 +279,8 @@ Future<List<Map<String, Object?>>> _lines(AppDatabase db, String trancheId) asyn
         final expertName = map['expert_name'] as String;
         return <String, Object?>{
           'id': lineId,
+          'budgetItemId': map['budget_item_id'],
+          'requestedPlain': map['requested_plain'],
           'title': map['title'],
           'issuedBefore': map['issued_before'],
           'requested': requested,

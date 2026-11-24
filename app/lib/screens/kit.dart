@@ -307,8 +307,10 @@ bool viewerIsInspector(BuildContext context) {
 
 /// What a tranche waits for, said from where this person stands: the engineer
 /// who checks the site is told it waits for them, not for the bank.
-String waitingText(BuildContext context, String status) {
+String waitingText(BuildContext context, String status, {String bankHold = ''}) {
   final copy = LocaleScope.copy(context);
+  final open = status == 'submitted' || status == 'tech_approved';
+  if (open && bankHold.isNotEmpty) return copy.bankHold(bankHold);
   if (status == 'submitted' && viewerIsInspector(context)) return copy.awaitingYourCheck;
   return copy.requestStatus(status);
 }

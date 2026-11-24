@@ -410,6 +410,11 @@ void main() {
     expect(created.status, 200, reason: created.json.toString());
     final director = _Client(handler);
     expect((await director.login('qa.zero.director', created.json['password'] as String)).status, 200);
+    // A temporary password only reads until it is replaced.
+    expect((await director.post('/api/projects', {'name': 'Рано', 'address': 'Ташкент'})).status, 403);
+    expect((await director.post('/api/auth/password', {
+      'current': created.json['password'], 'next': 'Qa-Director-Pass-1',
+    })).status, 200);
     final projectId = ((await director.get('/api/projects')).json['projects'] as List).cast<Map>().single['id'] as String;
     expect((await director.post('/api/projects', {'name': 'Второй', 'address': 'Ташкент'})).status, 201);
 
@@ -437,8 +442,14 @@ void main() {
     expect(reset.status, 200, reason: reset.json.toString());
     final bankAdmin = _Client(handler);
     expect((await bankAdmin.login('dilnoza@example.uz', reset.json['password'] as String)).status, 200);
+    expect((await bankAdmin.post('/api/auth/password', {
+      'current': reset.json['password'], 'next': 'Qa-BankAdmin-Pass-1',
+    })).status, 200);
     final headClient = _Client(handler);
     expect((await headClient.login('qa.zero.head', head.json['password'] as String)).status, 200);
+    expect((await headClient.post('/api/auth/password', {
+      'current': head.json['password'], 'next': 'Qa-Head-Pass-001',
+    })).status, 200);
     expect((await headClient.post('/api/bank/objects/$projectId/limit', {'creditLimit': '1000.00'})).status, 403);
     expect((await bankAdmin.post('/api/bank/objects/$projectId/limit', {'creditLimit': '0'})).status, 400);
     expect((await bankAdmin.post('/api/bank/objects/$projectId/limit', {'creditLimit': '500000000.00', 'utilizeUntil': 'soon'})).status, 400);
@@ -468,47 +479,61 @@ void main() {
     final strict = buildHandler(db: db, env: _env(files.path, 2));
     final visitor = _Client(strict);
     await visitor.csrf();
-    var last = 0;
-    for (var i = 0; i < 3; i++) {
-      final response = await visitor.post('/api/applications', {
+    // A form sent back for corrections never counts: a person fixing typos is
+    // not locked out.
+    for (var i = 0; i < 4; i++) {
+      final wrong = await visitor.post('/api/applications', {
         'kind': 'bank',
         'data': {'inn': 'bad'},
         'consents': ['personal_data', 'truth'],
       });
-      last = response.status;
+      expect(wrong.status, 400);
     }
-    expect(last, 429);
+    final statuses = <int>[];
+    for (var i = 0; i < 3; i++) {
+      final response = await visitor.post('/api/applications', {
+        'kind': 'developer',
+        'data': developerForm(inn: '30777000$i', email: 'limit$i@example.uz'),
+        'consents': ['personal_data', 'truth'],
+      });
+      statuses.add(response.status);
+    }
+    expect(statuses, [201, 201, 429]);
   });
 
   test('a spoofed X-Forwarded-For does not open a new registration bucket', () async {
+    var serial = 0;
+    Map<String, Object?> body() {
+      serial++;
+      return {
+        'kind': 'developer',
+        'data': developerForm(inn: '30888000$serial', email: 'spoof$serial@example.uz'),
+        'consents': ['personal_data', 'truth'],
+      };
+    }
+
     final trusted = buildHandler(db: db, env: _env(files.path, 2, trustProxy: true));
     final visitor = _Client(trusted);
     await visitor.csrf();
     Future<int> send(String forwarded) async {
-      final response = await visitor.post('/api/applications', {
-        'kind': 'bank',
-        'data': {'inn': 'bad'},
-      }, headers: {'x-forwarded-for': forwarded});
+      final response = await visitor.post('/api/applications', body(), headers: {'x-forwarded-for': forwarded});
       return response.status;
     }
 
-    expect(await send('1.1.1.1, 10.0.0.8'), isNot(429));
-    expect(await send('2.2.2.2, 10.0.0.8'), isNot(429));
+    expect(await send('1.1.1.1, 10.0.0.8'), 201);
+    expect(await send('2.2.2.2, 10.0.0.8'), 201);
     expect(await send('3.3.3.3, 10.0.0.8'), 429);
 
     final fresh = buildHandler(db: db, env: _env(files.path, 2));
     final direct = _Client(fresh);
     await direct.csrf();
     Future<int> sendDirect(String forwarded) async {
-      final response = await direct.post('/api/applications', {
-        'kind': 'bank',
-        'data': {'inn': 'bad'},
-      }, headers: {'x-forwarded-for': forwarded});
+      final response = await direct.post('/api/applications', body(), headers: {'x-forwarded-for': forwarded});
       return response.status;
     }
 
-    expect(await sendDirect('1.1.1.1'), isNot(429));
-    expect(await sendDirect('2.2.2.2'), isNot(429));
+    expect(await sendDirect('1.1.1.1'), 201);
+    expect(await sendDirect('2.2.2.2'), 201);
     expect(await sendDirect('3.3.3.3'), 429);
   });
 }

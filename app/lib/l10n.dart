@@ -544,6 +544,16 @@ class AppCopy {
     };
   }
 
+  /// The bank stopped the money on a sent tranche and the developer has to act.
+  String bankHold(String code) {
+    return switch (code) {
+      'returned' => _t(('Банк вернул на доработку', 'Returned by the bank', 'Bank qayta ishlashga qaytardi')),
+      'paused' => _t(('Финансирование приостановлено', 'Financing suspended', 'Moliyalashtirish to‘xtatildi')),
+      'control' => _t(('Контрольный осмотр банка', 'Bank control inspection', 'Bank nazorat ko‘rigi')),
+      _ => code,
+    };
+  }
+
   String eventAction(String action) {
     return switch (action) {
       'draft_saved' => _t(('Черновик сохранён', 'Draft saved', 'Qoralama saqlandi')),

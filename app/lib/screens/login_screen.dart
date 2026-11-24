@@ -7,11 +7,14 @@ import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
 
-/// Roles offered as read-only demo buttons. The contractor and the site inspector
-/// demos still work on the server and in the code; they are only hidden for now.
-const demoRolesAll = ['developer', 'contractor', 'tech', 'bank', 'admin'];
-const demoRolesHidden = {'contractor', 'tech'};
-final demoRolesShown = [for (final role in demoRolesAll) if (!demoRolesHidden.contains(role)) role];
+/// Roles offered as read-only demo buttons, by side: the developer's people, the
+/// bank's cabinet role by role, and the platform administrator.
+const demoRoleGroups = <(String, List<String>)>[
+  ('developer', ['developer', 'contractor', 'tech']),
+  ('bank', ['bank', 'bank_expert', 'bank_head', 'bank_committee', 'bank_risk', 'bank_admin']),
+  ('platform', ['admin']),
+];
+final demoRolesShown = [for (final group in demoRoleGroups) ...group.$2];
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -166,19 +169,26 @@ class _LoginScreenState extends State<LoginScreen> {
                             copy.demoHint,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
                           ),
-                          const SizedBox(height: AppSpacing.md),
-                          Wrap(
-                            spacing: AppSpacing.sm,
-                            runSpacing: AppSpacing.sm,
-                            children: [
-                              for (final role in demoRolesShown)
-                                OutlinedButton(
-                                  key: Key('demo-$role'),
-                                  onPressed: session.busy ? null : () => session.demoLogin(role),
-                                  child: Text(copy.demoRole(role)),
-                                ),
-                            ],
-                          ),
+                          for (final group in demoRoleGroups) ...[
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              copy.demoGroup(group.$1),
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colors.inkMuted),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Wrap(
+                              spacing: AppSpacing.sm,
+                              runSpacing: AppSpacing.sm,
+                              children: [
+                                for (final role in group.$2)
+                                  OutlinedButton(
+                                    key: Key('demo-$role'),
+                                    onPressed: session.busy ? null : () => session.demoLogin(role),
+                                    child: Text(copy.demoRole(role)),
+                                  ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),

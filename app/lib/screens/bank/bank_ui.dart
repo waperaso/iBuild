@@ -564,6 +564,20 @@ class BankStrings {
   );
   String get pausedBanner => _t('Финансирование объекта приостановлено.', 'Financing of the project is paused.', 'Obyektni moliyalashtirish to‘xtatilgan.');
   String get rejectedBanner => _t('Транш отклонён банком.', 'The tranche was rejected by the bank.', 'Transh bank tomonidan rad etildi.');
+  String get papersTitle => _t('Документы транша', 'Papers of the tranche', 'Transh hujjatlari');
+  String get paperRequired => _t('обязательный', 'required', 'majburiy');
+  String get paperMissing => _t('Файла нет', 'No file', 'Fayl yo‘q');
+  String get paperBeforeFiles => _t(
+        'Отмечен застройщиком до того, как в iBuild появились файлы',
+        'Marked by the developer before iBuild kept files',
+        'Quruvchi iBuild’da fayllar paydo bo‘lishidan oldin belgilagan',
+      );
+  String get paperOpen => _t('Открыть', 'Open', 'Ochish');
+  String get withdrawnBanner => _t(
+        'Застройщик отозвал транш. Решать по нему больше нечего.',
+        'The developer withdrew the tranche. There is nothing left to decide.',
+        'Quruvchi transhni qaytarib oldi. U bo‘yicha qaror talab qilinmaydi.',
+      );
   String get resume => _t('Вернуть в работу', 'Put back to work', 'Ishga qaytarish');
   String get partialConfirmTitle => _t('Отправить решение на согласование', 'Send the decision for sign-off', 'Qarorni kelishuvga yuborish');
   String partialConfirmBody(String issue, String returned) => _t(

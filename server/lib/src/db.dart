@@ -1920,6 +1920,7 @@ class RequestRecord {
     this.confirmedAmount,
     this.decision,
     this.fundingPaused = false,
+    this.bankHold = '',
     this.linePlan = moneyZero,
     this.lineReserved = moneyZero,
     this.linePaid = moneyZero,
@@ -1953,6 +1954,7 @@ class RequestRecord {
   final String? confirmedAmount;
   final String? decision;
   final bool fundingPaused;
+  final String bankHold;
   final String linePlan;
   final String lineReserved;
   final String linePaid;
@@ -1985,6 +1987,7 @@ class RequestRecord {
     'confirmedAmount': confirmedAmount,
     'decision': decision,
     'fundingPaused': fundingPaused,
+    'bankHold': bankHold,
     'linePlan': linePlan,
     'lineReserved': lineReserved,
     'linePaid': linePaid,
@@ -2048,7 +2051,13 @@ const _requestColumns = '''
   p.name AS project_name,
   fr.budget_item_id::text AS budget_item_id,
   COALESCE(NULLIF(fr.draw_name, ''), (SELECT b2.title FROM draw_lines dl2 JOIN budget_items b2 ON b2.id = dl2.budget_item_id WHERE dl2.request_id = fr.id AND dl2.requested > 0 ORDER BY b2.title LIMIT 1), bi.title) AS line_title,
-  to_char(fr.amount, 'FM999999999999990.00') AS amount,
+  to_char(
+    CASE WHEN fr.status = 'draft' AND fr.draw_name <> '' THEN (
+      SELECT COALESCE(SUM(dl.requested - dl.retainage_withheld + dl.retainage_released), 0)
+      FROM draw_lines dl WHERE dl.request_id = fr.id
+    ) ELSE fr.amount END,
+    'FM999999999999990.00'
+  ) AS amount,
   fr.description AS description,
   fr.status AS status,
   fr.version AS version,
@@ -2071,6 +2080,7 @@ const requestTrancheColumns = '''
   to_char(fr.confirmed_amount, 'FM999999999999990.00') AS confirmed_amount,
   COALESCE(fr.decision, '') AS decision,
   p.funding_paused AS funding_paused,
+  draw_bank_hold(fr.id) AS bank_hold,
   to_char(CASE WHEN bi.plan_set THEN bi.planned_amount ELSE 0 END, 'FM999999999999990.00') AS line_plan,
   to_char(CASE WHEN bi.plan_set THEN line_hold(fr.budget_item_id, ARRAY['submitted', 'tech_approved', 'approved']) ELSE 0 END, 'FM999999999999990.00') AS line_reserved,
   to_char(CASE WHEN bi.plan_set THEN line_hold(fr.budget_item_id, ARRAY['paid']) ELSE 0 END, 'FM999999999999990.00') AS line_paid,
@@ -2166,6 +2176,7 @@ RequestRecord _requestFromMap(Map<String, dynamic> map, String userId) {
     confirmedAmount: map['confirmed_amount'] as String?,
     decision: (map['decision'] as String?)?.isEmpty == true ? null : map['decision'] as String?,
     fundingPaused: _asBool(map['funding_paused']),
+    bankHold: map['bank_hold'] as String? ?? '',
     linePlan: map['line_plan'] as String? ?? moneyZero,
     lineReserved: map['line_reserved'] as String? ?? moneyZero,
     linePaid: map['line_paid'] as String? ?? moneyZero,

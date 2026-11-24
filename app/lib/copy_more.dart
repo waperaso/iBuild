@@ -292,6 +292,25 @@ extension MoreCopy on AppCopy {
   String get docMissing => _t(('Не хватает', 'Missing', 'Yetishmaydi'));
   String get docAttached => _t(('Приложен', 'Attached', 'Qo‘shilgan'));
   String get docNotNeeded => _t(('Не нужен', 'Not needed', 'Kerak emas'));
+  String get docRequiredMark => _t(('обязательный', 'required', 'majburiy'));
+  String get docAttachFile => _t(('Приложить файл', 'Attach a file', 'Fayl biriktirish'));
+  String get docOpen => _t(('Открыть', 'Open', 'Ochish'));
+  String get docRemove => _t(('Убрать', 'Remove', 'Olib tashlash'));
+  String get docMarkedBeforeFiles => _t((
+    'Отмечен до того, как в iBuild появились файлы',
+    'Marked before iBuild kept files',
+    'iBuild’da fayllar paydo bo‘lishidan oldin belgilangan',
+  ));
+  String get docSaveFirst => _t((
+    'Сохраните черновик — после этого можно приложить акт, счёт и другие документы файлами.',
+    'Save the draft first, then attach the act, the invoice and the other papers as files.',
+    'Avval qoralamani saqlang, so‘ng dalolatnoma, hisob-faktura va boshqa hujjatlarni fayl sifatida biriktiring.',
+  ));
+  String get docFilesHint => _t((
+    'Фото (JPEG, PNG, WebP) до 5 МБ или PDF до 10 МБ. Обязательные документы без файла не дадут отправить транш.',
+    'A photo (JPEG, PNG, WebP) up to 5 MB or a PDF up to 10 MB. The tranche cannot be sent while a required paper has no file.',
+    'Foto (JPEG, PNG, WebP) 5 MB gacha yoki PDF 10 MB gacha. Majburiy hujjat fayli bo‘lmasa, transh yuborilmaydi.',
+  ));
   String get signature => _t((
     'ФИО ответственного',
     'Name of the person submitting',

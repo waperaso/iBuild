@@ -208,6 +208,18 @@ abstract class Api {
     required List<Map<String, String>> requirements,
   });
   Future<DrawDetail> submitDraw(String id);
+  /// Attaches a file to one paper of a draft tranche (the act, the invoice...).
+  Future<void> uploadDrawDocument({
+    required String drawId,
+    required String itemId,
+    required String name,
+    required Uint8List bytes,
+  });
+  Future<void> deleteDrawDocument({
+    required String drawId,
+    required String itemId,
+    required String fileId,
+  });
   Future<DrawDetail> decideDraw({
     required String id,
     required List<Map<String, String>> lines,

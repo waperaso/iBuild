@@ -2,6 +2,7 @@ import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import 'bank_bridge.dart' show bankSyncRequest;
 import 'bank_card.dart' show bankCents;
 import 'money.dart';
 import 'bank_common.dart';
@@ -876,6 +877,33 @@ Future<Response> _completeInspection(Request request, AppDatabase db, String id)
     return jsonError(400, 'validation', 'Дата завершения указана неверно');
   }
   if (note.length > 2000) return jsonError(400, 'validation', 'Комментарий слишком длинный');
+  // What the expert measured on each line: readiness in percent and the sum he
+  // recommends to pay. The bank pays against these figures.
+  final measured = <({String item, String percent, String recommend, String comment})>[];
+  final rawLines = body['lines'];
+  if (rawLines != null) {
+    if (rawLines is! List || rawLines.length > 200) {
+      return jsonError(400, 'validation', 'Проверьте строки осмотра');
+    }
+    for (final raw in rawLines) {
+      if (raw is! Map) return jsonError(400, 'validation', 'Проверьте строки осмотра');
+      final item = '${raw['budgetItemId'] ?? ''}'.trim();
+      final percentText = '${raw['percent'] ?? ''}'.trim().replaceAll(',', '.');
+      final percent = double.tryParse(percentText);
+      final recommend = normalizeMoney('${raw['recommend'] ?? ''}'.trim()) ??
+          ('${raw['recommend'] ?? ''}'.trim() == '0' ? '0.00' : null);
+      if (!bankIsUuid(item) || percent == null || percent < 0 || percent > 100 || recommend == null) {
+        return jsonError(400, 'validation', 'Укажите готовность от 0 до 100% и сумму к выдаче по каждой строке');
+      }
+      final comment = '${raw['comment'] ?? ''}'.trim();
+      measured.add((
+        item: item,
+        percent: percent.toStringAsFixed(2),
+        recommend: recommend,
+        comment: comment.length > 500 ? comment.substring(0, 500) : comment,
+      ));
+    }
+  }
   final rows = await bankRows(
     db,
     '''
@@ -899,9 +927,41 @@ Future<Response> _completeInspection(Request request, AppDatabase db, String id)
   );
   if (rows.isEmpty) return jsonError(409, 'not_open', 'Этот осмотр уже закрыт или назначен другому эксперту');
   final trancheId = rows.first['tranche_id'] as String?;
+  if (trancheId != null && measured.isNotEmpty) {
+    for (final line in measured) {
+      // Only lines of this tranche, and never more than the developer asked for.
+      await db.owner.execute(
+        Sql.named('''
+          INSERT INTO bank_inspection_lines (inspection_id, budget_item_id, percent, recommend, comment)
+          SELECT @inspection::uuid, l.budget_item_id, @percent::numeric,
+                 LEAST(@recommend::numeric, l.requested), @comment
+          FROM bank_tranche_lines l
+          WHERE l.tranche_id = @tranche::uuid AND l.budget_item_id = @item::uuid
+          ON CONFLICT (inspection_id, budget_item_id) DO UPDATE
+            SET percent = EXCLUDED.percent, recommend = EXCLUDED.recommend, comment = EXCLUDED.comment
+        '''),
+        parameters: {
+          'inspection': id,
+          'tranche': trancheId,
+          'item': line.item,
+          'percent': line.percent,
+          'recommend': line.recommend,
+          'comment': line.comment,
+        },
+      );
+    }
+  }
   final advanced = trancheId == null
       ? false
       : await db.owner.runTx((tx) => bankReleaseExpertVisit(tx, trancheId, ctx.bankId));
+  if (trancheId != null && measured.isNotEmpty) {
+    final request = await db.owner.execute(
+      Sql.named('SELECT request_id::text FROM bank_tranches WHERE id = @id::uuid'),
+      parameters: {'id': trancheId},
+    );
+    final requestId = request.isEmpty ? null : request.first[0] as String?;
+    if (requestId != null) await bankSyncRequest(db, requestId);
+  }
   await bankEvent(
     db,
     ctx,

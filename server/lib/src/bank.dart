@@ -119,7 +119,7 @@ Future<({int mine, int all, String waitingAmount})> _counts(
              count(*) FILTER (WHERE ${_mineSql('bank_tranches')}) AS mine_count,
              to_char(COALESCE(sum(requested_amount), 0), 'FM999999999999990.00') AS waiting_amount
       FROM bank_tranches
-      WHERE bank_id = @bankId::uuid
+      WHERE bank_id = @bankId::uuid AND outcome IS NULL
     '''),
     parameters: {'bankId': bankId, 'userId': userId, 'role': role},
   );
@@ -157,7 +157,7 @@ Future<List<Map<String, Object?>>> _items(
       FROM bank_tranches t
       JOIN projects p ON p.id = t.project_id
       JOIN project_facilities f ON f.project_id = p.id AND f.bank_id = t.bank_id
-      WHERE t.bank_id = @bankId::uuid
+      WHERE t.bank_id = @bankId::uuid AND t.outcome IS NULL
       ORDER BY t.sort_order, t.tranche_no
     '''),
     parameters: {'bankId': bankId, 'userId': userId, 'role': role},

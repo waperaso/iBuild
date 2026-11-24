@@ -203,8 +203,8 @@ class _RequestsScreenState extends State<RequestsScreen> {
                   children: [
                     Expanded(child: Text(moneyUzs(item.amount))),
                     StatusText(
-                      label: waitingText(context, item.status),
-                      tone: switch (item.status) {
+                      label: waitingText(context, item.status, bankHold: item.bankHold),
+                      tone: item.bankHold.isNotEmpty ? StatusTone.bad : switch (item.status) {
                         'paid' || 'approved' || 'tech_approved' => StatusTone.good,
                         'rejected' || 'cancelled' => StatusTone.bad,
                         _ => StatusTone.wait,

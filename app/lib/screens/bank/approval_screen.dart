@@ -473,6 +473,8 @@ class _Side extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
+        if (approval.outcome == 'withdrawn')
+          Text(strings.withdrawnBanner, key: const Key('bank-approval-withdrawn')),
         if (approval.outcome == 'rejected')
           Text(
             strings.rejectedBanner,

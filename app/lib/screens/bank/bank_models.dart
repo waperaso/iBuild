@@ -565,12 +565,16 @@ class BankTranche {
     this.waivedCount = 0,
     this.permissions = const BankPermissions(),
     this.decision,
+    this.papers = const [],
   });
 
   final String id;
   final String projectId;
   final String projectName;
   final String projectAddress;
+
+  /// The papers the developer attached to the draw, with their files.
+  final List<BankPaper> papers;
   final String developerName;
   final int trancheNo;
   final String stage;
@@ -644,8 +648,40 @@ class BankTranche {
       waivedCount: json['waivedCount'] as int? ?? 0,
       permissions: BankPermissions.fromJson(map(json['permissions'])),
       decision: json['decision'] is Map ? BankDecision.fromJson(map(json['decision'])) : null,
+      papers: list(json['papers'], BankPaper.fromJson),
     );
   }
+}
+
+class BankPaper {
+  const BankPaper({
+    required this.code,
+    required this.title,
+    required this.required,
+    required this.present,
+    required this.beforeFiles,
+    required this.files,
+  });
+
+  final String code;
+  final String title;
+  final bool required;
+  final bool present;
+  final bool beforeFiles;
+  final List<({String id, String name, String url})> files;
+
+  factory BankPaper.fromJson(Map<String, dynamic> json) => BankPaper(
+        code: json['code'] as String? ?? '',
+        title: json['title'] as String? ?? '',
+        required: json['required'] == true,
+        present: json['present'] == true,
+        beforeFiles: json['beforeFiles'] == true,
+        files: [
+          for (final item in json['files'] as List<dynamic>? ?? const [])
+            if (item is Map)
+              (id: '${item['id'] ?? ''}', name: '${item['name'] ?? ''}', url: '${item['url'] ?? ''}'),
+        ],
+      );
 }
 
 class BankVote {

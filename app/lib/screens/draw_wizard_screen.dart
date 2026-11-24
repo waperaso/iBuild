@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../api.dart';
+import '../download.dart';
+import '../file_pick.dart';
 import '../l10n.dart';
 import '../models.dart';
 import '../session_scope.dart';
@@ -27,6 +29,7 @@ class DrawWizardScreen extends StatefulWidget {
 class _DrawWizardScreenState extends State<DrawWizardScreen> {
   LoanDesk? _desk;
   DrawDetail? _draw;
+  bool _busyPaper = false;
   final _name = TextEditingController();
   final _signature = TextEditingController();
   final _comment = TextEditingController();
@@ -226,6 +229,19 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
             child: Text(_noSourcesText(context, copy, widget.projectId)),
           ),
         ],
+        if (_draw == null && draft) ...[
+          const SizedBox(height: AppSpacing.md),
+          IBuildCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(copy.documents, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.sm),
+                Text(copy.docSaveFirst, key: const Key('documents-save-first')),
+              ],
+            ),
+          ),
+        ],
         if ((_draw?.requirements ?? const <DrawRequirementView>[]).isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
           IBuildCard(
@@ -233,22 +249,13 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(copy.documents, style: Theme.of(context).textTheme.titleMedium),
+                if (draft) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(copy.docFilesHint, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.inkMuted)),
+                ],
                 for (final item in _draw!.requirements) ...[
                   const SizedBox(height: AppSpacing.md),
-                  Text(copy.documentTitle(item.code, item.title)),
-                  DropdownButton<String>(
-                    key: Key('requirement-${item.code}'),
-                    isExpanded: true,
-                    value: _requirementStatus[item.itemId] ?? item.status,
-                    items: [
-                      DropdownMenuItem(value: 'missing', child: Text(copy.docMissing)),
-                      DropdownMenuItem(value: 'attached', child: Text(copy.docAttached)),
-                      DropdownMenuItem(value: 'na', child: Text(copy.docNotNeeded)),
-                    ],
-                    onChanged: draft
-                        ? (value) => setState(() => _requirementStatus[item.itemId] = value ?? 'missing')
-                        : null,
-                  ),
+                  _paper(context, copy, item, draft),
                 ],
               ],
             ),
@@ -357,6 +364,125 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
           storedMaterials: _field(_stored, line.id).text.trim(),
         ),
     ];
+  }
+
+  Widget _paper(BuildContext context, AppCopy copy, DrawRequirementView item, bool draft) {
+    final colors = context.colors;
+    final theme = Theme.of(context);
+    final notNeeded = !item.present && (_requirementStatus[item.itemId] ?? item.status) == 'na';
+    final state = item.present ? copy.docAttached : (notNeeded ? copy.docNotNeeded : copy.docMissing);
+    final tone = item.present ? colors.success : (notNeeded ? colors.inkMuted : (item.required ? colors.warning : colors.inkMuted));
+    final drawId = _draw!.id;
+    return Column(
+      key: Key('requirement-${item.code}'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                item.required
+                    ? '${copy.documentTitle(item.code, item.title)} · ${copy.docRequiredMark}'
+                    : copy.documentTitle(item.code, item.title),
+              ),
+            ),
+            Text(state, key: Key('requirement-state-${item.code}'), style: theme.textTheme.bodySmall?.copyWith(color: tone)),
+          ],
+        ),
+        if (item.beforeFiles && item.files.isEmpty)
+          Text(copy.docMarkedBeforeFiles, style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted)),
+        for (final file in item.files)
+          Row(
+            children: [
+              const Icon(Icons.description_outlined, size: 18),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(child: Text(file.name, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall)),
+              TextButton(
+                key: Key('open-paper-${file.id}'),
+                onPressed: () => openBankFile('/api/draws/$drawId/documents/${item.itemId}/${file.id}'),
+                child: Text(copy.docOpen),
+              ),
+              if (draft)
+                TextButton(
+                  key: Key('remove-paper-${file.id}'),
+                  onPressed: _busyPaper ? null : () { _removePaper(item, file); },
+                  child: Text(copy.docRemove),
+                ),
+            ],
+          ),
+        if (draft)
+          Wrap(
+            spacing: AppSpacing.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              OutlinedButton.icon(
+                key: Key('attach-${item.code}'),
+                onPressed: _busyPaper ? null : () { _attachPaper(item); },
+                icon: const Icon(Icons.attach_file, size: 18),
+                label: Text(copy.docAttachFile),
+              ),
+              if (!item.required && !item.present)
+                FilterChip(
+                  key: Key('not-needed-${item.code}'),
+                  label: Text(copy.docNotNeeded),
+                  selected: notNeeded,
+                  onSelected: (value) => setState(() => _requirementStatus[item.itemId] = value ? 'na' : 'missing'),
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Future<void> _reloadDraw() async {
+    final draw = _draw;
+    if (draw == null) return;
+    final next = await SessionScope.of(context).api.draw(draw.id);
+    if (!mounted) return;
+    setState(() {
+      _draw = next;
+      for (final item in next.requirements) {
+        if (item.present) _requirementStatus[item.itemId] = 'attached';
+      }
+    });
+  }
+
+  Future<void> _attachPaper(DrawRequirementView item) async {
+    final draw = _draw;
+    if (draw == null) return;
+    final picked = await pickRequestFile();
+    if (picked == null || !mounted) return;
+    final api = SessionScope.of(context).api;
+    final copy = LocaleScope.copy(context);
+    setState(() {
+      _busyPaper = true;
+      _error = null;
+    });
+    try {
+      await api.uploadDrawDocument(drawId: draw.id, itemId: item.itemId, name: picked.name, bytes: picked.bytes);
+      await _reloadDraw();
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _error = copy.known(error.message));
+    } finally {
+      if (mounted) setState(() => _busyPaper = false);
+    }
+  }
+
+  Future<void> _removePaper(DrawRequirementView item, DrawDocumentFile file) async {
+    final draw = _draw;
+    if (draw == null) return;
+    final api = SessionScope.of(context).api;
+    final copy = LocaleScope.copy(context);
+    setState(() => _busyPaper = true);
+    try {
+      await api.deleteDrawDocument(drawId: draw.id, itemId: item.itemId, fileId: file.id);
+      _requirementStatus.remove(item.itemId);
+      await _reloadDraw();
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _error = copy.known(error.message));
+    } finally {
+      if (mounted) setState(() => _busyPaper = false);
+    }
   }
 
   Future<String> _ensureId() async {

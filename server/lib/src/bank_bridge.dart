@@ -6,6 +6,8 @@ import 'bank_common.dart';
 import 'bank_rules.dart';
 import 'bank_rules_api.dart' show ensureBankDefaults;
 import 'db.dart';
+import 'draw_documents.dart' show drawPaperPresent;
+import 'mailbox.dart' show deliverInternal;
 
 /// The bridge between the draw of the developer and the tranche of the bank.
 ///
@@ -45,9 +47,49 @@ Future<void> bankReconcile(AppDatabase db) async {
     for (final row in rows) {
       await bankSyncRequest(db, row[0]! as String);
     }
+    await _closeWithdrawn(db);
   } catch (error, stack) {
     stderr.writeln('bank reconcile failed: $error\n$stack');
   }
+}
+
+/// A draw that left the bank's way on the developer's side (cancelled by the
+/// developer, or turned down there) closes its still open tranche, so the bank
+/// cannot approve money for it any more.
+Future<void> _closeWithdrawn(AppDatabase db) async {
+  await db.owner.runTx((tx) async {
+    final closed = await tx.execute(
+      Sql.named('''
+        UPDATE bank_tranches t
+        SET outcome = 'withdrawn',
+            stage_label = CASE WHEN fr.status = 'cancelled'
+                               THEN 'Отозван застройщиком' ELSE 'Отклонён на стороне застройщика' END,
+            holder_user_id = NULL, holder_label = '', waiting_developer = false
+        FROM funding_requests fr
+        WHERE fr.id = t.request_id AND t.outcome IS NULL
+          AND fr.status IN ('cancelled', 'rejected')
+        RETURNING t.id::text, t.bank_id::text, fr.status
+      '''),
+    );
+    for (final row in closed) {
+      final id = row[0]! as String;
+      await tx.execute(
+        Sql.named('''
+          UPDATE bank_tranche_clock SET ended_at = now()
+          WHERE tranche_id = @id::uuid AND ended_at IS NULL
+        '''),
+        parameters: {'id': id},
+      );
+      await bankAudit(
+        tx,
+        bankId: row[1]! as String,
+        trancheId: id,
+        actorLabel: 'Застройщик',
+        action: 'withdrawn',
+        detail: {'drawStatus': row[2]},
+      );
+    }
+  });
 }
 
 String _money(Object? value) => (value ?? '0.00').toString();
@@ -130,7 +172,10 @@ Future<void> _sync(Session tx, String requestId) async {
   final requirements = <String, String>{};
   final requirementRows = await tx.execute(
     Sql.named('''
-      SELECT c.code, r.status
+      SELECT c.code,
+             CASE WHEN ${drawPaperPresent('r')} THEN 'attached'
+                  WHEN r.status = 'attached' THEN 'missing'
+                  ELSE r.status END
       FROM draw_requirements r JOIN checklist_items c ON c.id = r.item_id
       WHERE r.request_id = @id::uuid
     '''),
@@ -372,10 +417,10 @@ Future<List<RuleLine>> _syncLines(Session tx, String trancheId, String requestId
              bi.title AS title,
              to_char(dl.requested - dl.retainage_withheld + dl.retainage_released, $bankMoneyFormat) AS net,
              to_char(dl.stored_materials, $bankMoneyFormat) AS stored,
-             dl.inspector_percent AS percent,
-             to_char(dl.inspector_recommend, $bankMoneyFormat) AS recommend,
-             dl.inspector_risk AS risk,
-             dl.inspector_comment AS note,
+             COALESCE(be.percent, dl.inspector_percent) AS percent,
+             to_char(COALESCE(be.recommend, dl.inspector_recommend), $bankMoneyFormat) AS recommend,
+             CASE WHEN be.percent IS NOT NULL THEN '' ELSE dl.inspector_risk END AS risk,
+             COALESCE(be.comment, dl.inspector_comment) AS note,
              CASE WHEN bi.plan_set THEN to_char(bi.planned_amount, $bankMoneyFormat) END AS plan,
              cf.name AS firm,
              cf.license_until AS license_until,
@@ -393,12 +438,12 @@ Future<List<RuleLine>> _syncLines(Session tx, String trancheId, String requestId
                 AND i.status = 'reported'
                 AND i.request_id IS DISTINCT FROM dl.request_id
               ORDER BY i.created_at DESC LIMIT 1) AS previous_percent,
-             (SELECT u.name FROM inspections i JOIN users u ON u.id = i.author_user_id
+             COALESCE(be.expert, (SELECT u.name FROM inspections i JOIN users u ON u.id = i.author_user_id
               WHERE i.request_id = dl.request_id AND i.status = 'reported'
-              ORDER BY i.created_at DESC LIMIT 1) AS expert_name,
-             (SELECT i.created_at::date FROM inspections i
+              ORDER BY i.created_at DESC LIMIT 1)) AS expert_name,
+             COALESCE(be.done_on, (SELECT i.created_at::date FROM inspections i
               WHERE i.request_id = dl.request_id AND i.status = 'reported'
-              ORDER BY i.created_at DESC LIMIT 1) AS expert_date,
+              ORDER BY i.created_at DESC LIMIT 1)) AS expert_date,
              (SELECT to_char(SUM(p.amount), $bankMoneyFormat) FROM payables p
               WHERE p.request_id = dl.request_id AND p.budget_item_id = dl.budget_item_id) AS payables_sum
       FROM (
@@ -424,13 +469,27 @@ Future<List<RuleLine>> _syncLines(Session tx, String trancheId, String requestId
         WHERE fr.id = @id::uuid
           AND NOT EXISTS (SELECT 1 FROM draw_lines WHERE request_id = fr.id)
       ) dl
+      -- The bank's own expert, when he measured the line on this tranche, is
+      -- what the bank pays against.
+      LEFT JOIN LATERAL (
+        SELECT bil.percent, bil.recommend, bil.comment,
+               COALESCE(NULLIF(bis.expert_label, ''), u.name) AS expert,
+               bis.completed_on AS done_on
+        FROM bank_inspection_lines bil
+        JOIN bank_inspections bis ON bis.id = bil.inspection_id
+        LEFT JOIN users u ON u.id = bis.expert_user_id
+        WHERE bis.tranche_id = @tranche::uuid AND bis.status = 'done'
+          AND bil.budget_item_id = dl.budget_item_id
+        ORDER BY bis.completed_on DESC NULLS LAST, bis.created_at DESC
+        LIMIT 1
+      ) be ON true
       JOIN budget_items bi ON bi.id = dl.budget_item_id
       LEFT JOIN contractor_firms cf ON cf.id = bi.contractor_company_id
       WHERE dl.request_id = @id::uuid
         AND (dl.requested - dl.retainage_withheld + dl.retainage_released > 0 OR dl.stored_materials > 0)
       ORDER BY bi.title
     '''),
-    parameters: {'id': requestId},
+    parameters: {'id': requestId, 'tranche': trancheId},
   );
 
   final result = <RuleLine>[];
@@ -646,6 +705,8 @@ Future<void> _writeChecks(Session tx, String trancheId, List<RuleResult> results
 /// were returned, and the stop of financing. Only tranches that came from a real
 /// draw are touched. Never breaks the bank's own action.
 Future<void> bankWriteBack(AppDatabase db, String trancheId) async {
+  final letters = <BankOutcomeNotice>[];
+  String? sender;
   try {
     await db.owner.runTx((tx) async {
       final head = await tx.execute(
@@ -678,19 +739,58 @@ Future<void> bankWriteBack(AppDatabase db, String trancheId) async {
                  to_char(d.returned_amount, $bankMoneyFormat), to_char(d.issue_amount, $bankMoneyFormat)
           FROM bank_decisions d
           WHERE d.tranche_id = @id::uuid AND NOT d.written_back
-            AND d.kind IN ('partial', 'return_all')
+            AND d.kind IN ('partial', 'return_all', 'suspend', 'control_measure')
           ORDER BY d.created_at
         '''),
         parameters: {'id': trancheId},
       );
+      final about = await tx.execute(
+        Sql.named('''
+          SELECT t.tranche_no, p.name, fr.contractor_user_id::text
+          FROM bank_tranches t
+          JOIN projects p ON p.id = t.project_id
+          JOIN funding_requests fr ON fr.id = t.request_id
+          WHERE t.id = @id::uuid
+        '''),
+        parameters: {'id': trancheId},
+      );
+      final trancheNo = about.isEmpty ? '' : '${about.first[0]}';
+      final projectName = about.isEmpty ? '' : about.first[1] as String? ?? '';
+      final contractorId = about.isEmpty ? null : about.first[2] as String?;
+      final people = await tx.execute(
+        Sql.named('''
+          SELECT DISTINCT user_id::text FROM project_members
+          WHERE project_id = @project::uuid AND role IN ('director', 'developer', 'tech')
+        '''),
+        parameters: {'project': projectId},
+      );
+      final recipients = {for (final row in people) row[0]! as String, if (contractorId != null) contractorId}.toList();
       for (final row in decisions) {
         final kind = row[1]! as String;
         final note = (row[3] as String? ?? '').trim();
         final returned = bankMillions(bankCentsOf(_money(row[5])));
         final issued = bankMillions(bankCentsOf(_money(row[6])));
-        final summary = kind == 'return_all'
-            ? 'Банк вернул транш целиком.'
-            : 'Специалист банка предложил к выплате $issued млн, на доработку — $returned млн. Решение ушло на согласование.';
+        final summary = switch (kind) {
+          'return_all' => 'Банк вернул транш целиком.',
+          'suspend' => 'Банк приостановил финансирование объекта.',
+          'control_measure' => 'Банк назначил контрольный осмотр объекта.',
+          _ => 'Специалист банка предложил к выплате $issued млн, на доработку — $returned млн. Решение ушло на согласование.',
+        };
+        // Anything that stops the money needs the developer to act, so it is
+        // also a letter, not only a line in the draw history.
+        if (kind != 'partial' && recipients.isNotEmpty) {
+          sender = row[2] as String?;
+          final subject = switch (kind) {
+            'return_all' => 'Банк вернул транш №$trancheNo на доработку · $projectName',
+            'suspend' => 'Банк приостановил финансирование · $projectName',
+            _ => 'Банк назначил контрольный осмотр · $projectName',
+          };
+          letters.add(BankOutcomeNotice(
+            recipients,
+            subject,
+            '${note.isEmpty ? summary : '$summary $note'} Транш №$trancheNo, объект $projectName.',
+          ));
+        }
         await tx.execute(
           Sql.named('''
             INSERT INTO draw_comments (request_id, author_user_id, body)
@@ -733,6 +833,16 @@ Future<void> bankWriteBack(AppDatabase db, String trancheId) async {
     });
   } catch (error, stack) {
     stderr.writeln('bank write-back failed for tranche $trancheId: $error\n$stack');
+    return;
+  }
+  for (final letter in letters) {
+    final from = sender;
+    if (from == null) continue;
+    try {
+      await deliverInternal(db, senderId: from, recipientIds: letter.recipients, subject: letter.subject, body: letter.body);
+    } catch (error) {
+      stderr.writeln('bank letter to the developer failed for tranche $trancheId: $error');
+    }
   }
 }
 

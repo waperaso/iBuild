@@ -111,6 +111,7 @@ void main() {
     final drawId = draw.body!['id'] as String;
     final card = await director.send('GET', '/api/draws/$drawId');
     final requirements = (card.body!['requirements'] as List).cast<Map<String, dynamic>>();
+    expect(await director.attachPapers(drawId, requirements), 201);
     final patched = await director.send('PATCH', '/api/draws/$drawId', json: {
       'signedName': 'Директор Навои',
       'finalDraw': false,
@@ -268,6 +269,7 @@ void main() {
     Future<void> fill(String id, String requested, String sourceAmount) async {
       final card = await director.send('GET', '/api/draws/$id');
       final requirements = (card.body!['requirements'] as List).cast<Map<String, dynamic>>();
+      expect(await director.attachPapers(id, requirements), 201);
       final patched = await director.send('PATCH', '/api/draws/$id', json: {
         'signedName': 'Директор',
         'lines': [
@@ -345,6 +347,7 @@ void main() {
     final directorId = directorTry.body!['id'] as String;
     final directorCard = await director.send('GET', '/api/draws/$directorId');
     final requirements = (directorCard.body!['requirements'] as List).cast<Map<String, dynamic>>();
+    expect(await director.attachPapers(directorId, requirements), 201);
     expect((await director.send('PATCH', '/api/draws/$directorId', json: {
       'signedName': 'Директор',
       'lines': [
@@ -376,6 +379,7 @@ void main() {
     final contractorDraw = contractorTry.body!['id'] as String;
     final contractorCard = await contractor.send('GET', '/api/draws/$contractorDraw');
     final contractorRequirements = (contractorCard.body!['requirements'] as List).cast<Map<String, dynamic>>();
+    expect(await contractor.attachPapers(contractorDraw, contractorRequirements), 201);
     expect((await contractor.send('PATCH', '/api/draws/$contractorDraw', json: {
       'signedName': 'Подрядчик',
       'lines': [
@@ -420,6 +424,27 @@ AppEnv _env(String fileRoot) {
 
 class Client {
   Client(this.handler);
+
+  /// Uploads a small PDF to every required paper of a draw.
+  Future<int> attachPapers(String drawId, List<Map<String, dynamic>> requirements) async {
+    for (final item in requirements) {
+      if (item['required'] != true) continue;
+      final response = await handler(
+        Request(
+          'POST',
+          Uri.parse('http://localhost/api/draws/$drawId/documents/${item['item_id']}?name=paper.pdf'),
+          headers: {
+            'cookie': cookies.entries.map((entry) => '${entry.key}=${entry.value}').join('; '),
+            'content-type': 'application/octet-stream',
+            if (csrf != null) 'x-csrf-token': csrf!,
+          },
+          body: utf8.encode('%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n'),
+        ),
+      );
+      if (response.statusCode != 201) return response.statusCode;
+    }
+    return 201;
+  }
 
   final Handler handler;
   final cookies = <String, String>{};

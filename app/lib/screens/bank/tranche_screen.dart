@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../api.dart';
+import '../../download.dart';
 import '../../money.dart';
 import '../../session_scope.dart';
 import '../../theme.dart';
@@ -254,6 +255,10 @@ class _BankTrancheScreenState extends State<BankTrancheScreen> {
             }),
             onChoose: _choose,
           ),
+          if (tranche.papers.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            _Papers(tranche: tranche),
+          ],
           const SizedBox(height: AppSpacing.lg),
           _DecisionBar(
             tranche: tranche,
@@ -268,6 +273,57 @@ class _BankTrancheScreenState extends State<BankTrancheScreen> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// What the developer attached to the draw: each paper and its files, opened
+/// in a new tab straight from the bank's side.
+class _Papers extends StatelessWidget {
+  const _Papers({required this.tranche});
+
+  final BankTranche tranche;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = BankStrings.of(context);
+    final theme = Theme.of(context);
+    final colors = context.colors;
+    return IBuildCard(
+      key: const Key('bank-papers'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(strings.papersTitle, style: theme.textTheme.titleMedium),
+          for (final paper in tranche.papers) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              paper.required ? '${paper.title} · ${strings.paperRequired}' : paper.title,
+              style: theme.textTheme.bodyMedium,
+            ),
+            if (paper.files.isEmpty)
+              Text(
+                paper.beforeFiles ? strings.paperBeforeFiles : strings.paperMissing,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: paper.required && !paper.present ? colors.danger : colors.inkMuted,
+                ),
+              ),
+            for (final file in paper.files)
+              Row(
+                children: [
+                  const Icon(Icons.description_outlined, size: 18),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(child: Text(file.name, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall)),
+                  TextButton(
+                    key: Key('bank-paper-${file.id}'),
+                    onPressed: () => openBankFile(file.url),
+                    child: Text(strings.paperOpen),
+                  ),
+                ],
+              ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -1096,6 +1152,8 @@ class _DecisionBar extends StatelessWidget {
         children: [
           if (tranche.outcome == 'rejected')
             banner('bank-banner-rejected', strings.rejectedBanner, color: colors.danger)
+          else if (tranche.outcome == 'withdrawn')
+            banner('bank-banner-withdrawn', strings.withdrawnBanner, color: colors.inkMuted)
           else if (moved)
             banner(
               'bank-banner-sent',

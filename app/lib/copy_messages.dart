@@ -2,6 +2,101 @@ part of 'l10n.dart';
 
 // API messages remain stable; presentation copy can evolve independently.
 const _messageCopy = <String, _Row>{
+  'Такого документа нет в списке транша.': (
+    'Такого документа нет в списке транша.',
+    "This paper is not on the tranche's list.",
+    'Bunday hujjat transh ro‘yxatida yo‘q.',
+  ),
+  'Документы к траншу прикладывает застройщик.': (
+    'Документы к траншу прикладывает застройщик.',
+    "Only the developer attaches papers to a tranche.",
+    'Transhga hujjatlarni quruvchi biriktiradi.',
+  ),
+  'Приложите файлы обязательных документов.': (
+    'Приложите файлы обязательных документов.',
+    "Attach the files of the required papers.",
+    'Majburiy hujjatlarning fayllarini biriktiring.',
+  ),
+  'Укажите готовность от 0 до 100% и сумму к выдаче по каждой строке': (
+    'Укажите готовность от 0 до 100% и сумму к выдаче по каждой строке',
+    "Give readiness from 0 to 100% and the sum to pay on each line",
+    'Har bir qator bo‘yicha 0 dan 100% gacha tayyorlik va to‘lov summasini kiriting',
+  ),
+  'Проверьте строки осмотра': (
+    'Проверьте строки осмотра',
+    "Check the lines of the inspection",
+    'Ko‘rik qatorlarini tekshiring',
+  ),
+  'Источники денег задаёт застройщик объекта.': (
+    'Источники денег задаёт застройщик объекта.',
+    'Only the developer of the project adds funding sources.',
+    'Moliyalashtirish manbalarini faqat obyekt quruvchisi qo‘shadi.',
+  ),
+  'Транш открывает застройщик объекта.': (
+    'Транш открывает застройщик объекта.',
+    'Only the developer of the project opens a tranche.',
+    'Transhni faqat obyekt quruvchisi ochadi.',
+  ),
+  'Транш заполняет застройщик объекта.': (
+    'Транш заполняет застройщик объекта.',
+    'Only the developer of the project fills in a tranche.',
+    'Transhni faqat obyekt quruvchisi to‘ldiradi.',
+  ),
+  'Черновик транша меняет тот, кто его начал.': (
+    'Черновик транша меняет тот, кто его начал.',
+    'Only the person who started the draft can change it.',
+    'Qoralamani faqat uni boshlagan kishi o‘zgartiradi.',
+  ),
+  'Транш уже отправлен в банк, изменить его нельзя.': (
+    'Транш уже отправлен в банк, изменить его нельзя.',
+    'The tranche has already been sent to the bank and cannot be changed.',
+    'Transh bankka yuborilgan, uni o‘zgartirib bo‘lmaydi.',
+  ),
+  'Сумму к выдаче утверждает банк или руководитель застройщика.': (
+    'Сумму к выдаче утверждает банк или руководитель застройщика.',
+    'The amount to pay out is set by the bank or the developer’s head.',
+    'To‘lanadigan summani bank yoki quruvchi rahbari tasdiqlaydi.',
+  ),
+  'Сумму к выдаче по этому траншу решает банк.': (
+    'Сумму к выдаче по этому траншу решает банк.',
+    'The bank decides the amount to pay out for this tranche.',
+    'Bu transh bo‘yicha to‘lov summasini bank hal qiladi.',
+  ),
+  'Сумму к выдаче утверждают после проверки технадзора.': (
+    'Сумму к выдаче утверждают после проверки технадзора.',
+    'The amount to pay out is set after the site inspector’s check.',
+    'To‘lov summasi texnik nazorat tekshiruvidan keyin tasdiqlanadi.',
+  ),
+  'К выдаче нельзя больше, чем запрошено по статье.': (
+    'К выдаче нельзя больше, чем запрошено по статье.',
+    'You cannot pay out more than was requested for the line.',
+    'Modda bo‘yicha so‘ralgandan ko‘proq to‘lab bo‘lmaydi.',
+  ),
+  'Счета к траншу прикладывает застройщик.': (
+    'Счета к траншу прикладывает застройщик.',
+    'Only the developer attaches invoices to a tranche.',
+    'Transhga hisob-fakturalarni quruvchi biriktiradi.',
+  ),
+  'Недостаточно прав для этого действия.': (
+    'Недостаточно прав для этого действия.',
+    'You do not have permission for this action.',
+    'Bu amal uchun huquqingiz yetarli emas.',
+  ),
+  'Банк приостановил финансирование объекта.': (
+    'Банк приостановил финансирование объекта.',
+    'The bank suspended the financing of the project.',
+    'Bank obyektni moliyalashtirishni to‘xtatdi.',
+  ),
+  'Банк назначил контрольный осмотр объекта.': (
+    'Банк назначил контрольный осмотр объекта.',
+    'The bank scheduled a control inspection of the project.',
+    'Bank obyektni nazorat ko‘rigini tayinladi.',
+  ),
+  'Сначала смените временный пароль.': (
+    'Сначала смените временный пароль.',
+    'Change your temporary password first.',
+    'Avval vaqtinchalik parolni almashtiring.',
+  ),
   'Укажите имя человека': (
     'Укажите имя сотрудника.',
     'Enter the staff member’s name.',

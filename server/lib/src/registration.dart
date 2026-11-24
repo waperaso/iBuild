@@ -51,19 +51,23 @@ class _Limiter {
   final int perHour;
   final _hits = <String, List<DateTime>>{};
 
-  bool allow(String key) {
+  List<DateTime> _recent(String key) {
     final now = DateTime.now();
     final recent = (_hits[key] ?? const <DateTime>[])
         .where((time) => now.difference(time) < const Duration(hours: 1))
         .toList();
-    if (recent.length >= perHour) {
-      _hits[key] = recent;
-      return false;
-    }
-    recent.add(now);
     _hits[key] = recent;
+    return recent;
+  }
+
+  /// True while the address may still file an application this hour.
+  bool allow(String key) => _recent(key).length < perHour;
+
+  /// Counts one accepted application. A form sent back for corrections is not
+  /// counted, so fixing a typo never locks a person out.
+  void record(String key) {
+    _recent(key).add(DateTime.now());
     if (_hits.length > 5000) _hits.removeWhere((_, value) => value.isEmpty);
-    return true;
   }
 }
 
@@ -186,6 +190,7 @@ Future<Response> _submit(Request request, AppDatabase db, AppEnv env, _Limiter l
       );
       return rows.first;
     });
+    limiter.record(_clientKey(request, env));
     return jsonResponse(201, {
       'id': inserted[0]! as String,
       'code': _code(inserted[1]! as int),
