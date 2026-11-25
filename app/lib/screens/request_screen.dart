@@ -767,16 +767,16 @@ class _RequestScreenState extends State<RequestScreen> {
                     runSpacing: AppSpacing.sm,
                     children: [
                       FilledButton.tonalIcon(
-                        key: const Key('take-photo'),
-                        onPressed: _uploading ? null : () => _addFile(camera: true),
-                        icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                        label: Text(copy.pick('Сделать фото', 'Take photo', 'Suratga olish')),
-                      ),
-                      OutlinedButton.icon(
                         key: const Key('upload-photo'),
                         onPressed: _uploading ? null : () => _addFile(camera: false),
                         icon: const Icon(Icons.upload_file_outlined, size: 18),
                         label: Text(copy.pick('Загрузить фото', 'Upload photo', 'Foto yuklash')),
+                      ),
+                      OutlinedButton.icon(
+                        key: const Key('take-photo'),
+                        onPressed: _uploading ? null : () => _addFile(camera: true),
+                        icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                        label: Text(copy.pick('Сделать фото', 'Take photo', 'Suratga olish')),
                       ),
                       TextButton(
                         key: const Key('add-file'),

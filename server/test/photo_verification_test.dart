@@ -232,6 +232,7 @@ void main() {
         projectLat: 41.311081,
         projectLon: 69.240562,
         now: now,
+        enforce: true,
       );
 
       expect(v.sha256, hasLength(64));
@@ -263,6 +264,7 @@ void main() {
         projectLon: 69.240562,
         duplicateOfFileId: 'prev-file-1',
         now: now,
+        enforce: true,
       );
 
       expect(v.verifyStatus, 'alert');
@@ -283,6 +285,7 @@ void main() {
         client: const ClientPhotoMeta(captureSource: 'upload'),
         projectLat: 41.311081,
         projectLon: 69.240562,
+        enforce: true,
       );
 
       expect(v.verifyStatus, 'warning');
@@ -528,31 +531,31 @@ void main() {
       expect(checks.any((c) => c['code'] == 'passed_photos' && c['passed'] == true), isTrue);
       expect(checks.any((c) => c['code'] == 'own_funds_30' && c['level'] == 'warning'), isTrue);
 
-      // 4. Second draw with the EXACT SAME photo -> duplicate SHA-256 block!
+      // 4. The same file uploaded again is accepted during the test period:
+      // checksum is stored, and it does not block the bank.
       final draw2Id = await prepareDraftDraw('Транш Фото 2 (дубликат)', '50.00');
       final dupUpload = await dev.upload(
         '/api/requests/$draw2Id/files',
         verifiedJpeg,
         headers: {
           'x-capture-source': 'upload',
-          'x-geo-lat': '41.31110',
-          'x-geo-lon': '69.24058',
         },
       );
       expect(dupUpload.status, 201);
       final dupFile = dupUpload.body!;
-      expect(dupFile['verifyStatus'], 'alert');
-      expect((dupFile['verifyFlags'] as List), contains('duplicate_checksum'));
-      expect(dupFile['duplicateOfFileId'], fileJson['id']);
+      expect(dupFile['sha256'], expectedHash);
+      expect(dupFile['verifyStatus'], 'verified');
+      expect(dupFile['verifyFlags'], isEmpty);
 
       expect((await dev.send('POST', '/api/draws/$draw2Id/submit', csrf: true)).status, 200);
       final tranche2Id = await trancheIdFor(draw2Id);
       final card2Res = await bank.send('GET', '/api/bank/tranches/$tranche2Id');
       expect(card2Res.status, 200);
       final checks2 = allChecks(card2Res.body!);
-      expect(checks2.any((c) => c['code'] == 'photo_duplicate' && c['level'] == 'block'), isTrue);
+      expect(checks2.any((c) => c['code'] == 'passed_photos' && c['passed'] == true), isTrue);
+      expect(checks2.any((c) => c['code'] == 'photo_duplicate'), isFalse);
 
-      // 5. Third draw with a photo taken ~15 km away -> photo_geo warning on bank card.
+      // 5. A photo taken far from the site is also accepted during the test period.
       final draw3Id = await prepareDraftDraw('Транш Фото 3 (далеко)', '50.00');
       final farJpeg = buildJpegWithExif(
         make: 'Samsung',
@@ -566,19 +569,19 @@ void main() {
         '/api/requests/$draw3Id/files',
         farJpeg,
         headers: {
-          'x-capture-source': 'camera',
-          'x-geo-lat': '41.4500',
-          'x-geo-lon': '69.4000',
+          'x-capture-source': 'upload',
         },
       );
       expect(farUpload.status, 201);
-      expect((farUpload.body!['verifyFlags'] as List), contains('far_from_site'));
+      expect(farUpload.body!['verifyStatus'], 'verified');
+      expect(farUpload.body!['verifyFlags'], isEmpty);
 
       expect((await dev.send('POST', '/api/draws/$draw3Id/submit', csrf: true)).status, 200);
       final tranche3Id = await trancheIdFor(draw3Id);
       final card3Res = await bank.send('GET', '/api/bank/tranches/$tranche3Id');
       final checks3 = allChecks(card3Res.body!);
-      expect(checks3.any((c) => c['code'] == 'photo_geo' && c['level'] == 'warning'), isTrue);
+      expect(checks3.any((c) => c['code'] == 'passed_photos' && c['passed'] == true), isTrue);
+      expect(checks3.any((c) => c['code'] == 'photo_geo'), isFalse);
     });
   });
 }

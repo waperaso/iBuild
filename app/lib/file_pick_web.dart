@@ -92,8 +92,13 @@ Future<PickedFile?> _pickFromInput({
   required bool captureCamera,
 }) async {
   final source = captureCamera ? 'camera' : 'upload';
-  // Start acquiring GPS immediately so it resolves while the user picks/shoots the photo.
-  final geoFuture = _captureGeo(source);
+  // A plain file upload must not wait on a location prompt. GPS is requested
+  // only when the photo is taken with the camera.
+  final geoFuture = captureCamera
+      ? _captureGeo(source)
+      : Future<PhotoCaptureMeta>.value(
+          PhotoCaptureMeta(captureSource: source, capturedAt: DateTime.now().toUtc()),
+        );
 
   final input = HTMLInputElement()
     ..type = 'file'

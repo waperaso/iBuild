@@ -486,9 +486,9 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
           const SizedBox(height: AppSpacing.xs),
           Text(
             copy.pick(
-              'Сделайте фото на месте или загрузите файл. Автоматически сохраняются EXIF, геолокация, геотеги и SHA-256.',
-              'Take a photo on site or upload a file. EXIF, geolocation, geotags and SHA-256 checksum are captured automatically.',
-              'Joyida suratga oling yoki fayl yuklang. EXIF, geolokatsiya, geoteglar va SHA-256 avtomatik saqlanadi.',
+              'На время теста достаточно загрузить фото файлом. Если в файле есть EXIF и геометки, они сохраняются.',
+              'For the test, uploading a photo file is enough. EXIF and geotags are kept when the file has them.',
+              'Test davrida foto faylini yuklash yetarli. Faylda EXIF va geoteglar bo‘lsa, ular saqlanadi.',
             ),
             style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted),
           ),
@@ -530,16 +530,16 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
               runSpacing: AppSpacing.sm,
               children: [
                 FilledButton.tonalIcon(
-                  key: const Key('draw-photo-camera'),
-                  onPressed: _busyPaper ? null : () => _addSitePhoto(camera: true),
-                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                  label: Text(copy.pick('Сделать фото', 'Take photo', 'Suratga olish')),
-                ),
-                OutlinedButton.icon(
                   key: const Key('draw-photo-upload'),
                   onPressed: _busyPaper ? null : () => _addSitePhoto(camera: false),
                   icon: const Icon(Icons.upload_file_outlined, size: 18),
                   label: Text(copy.pick('Загрузить фото', 'Upload photo', 'Foto yuklash')),
+                ),
+                OutlinedButton.icon(
+                  key: const Key('draw-photo-camera'),
+                  onPressed: _busyPaper ? null : () => _addSitePhoto(camera: true),
+                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                  label: Text(copy.pick('Сделать фото', 'Take photo', 'Suratga olish')),
                 ),
               ],
             ),

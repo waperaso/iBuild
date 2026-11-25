@@ -166,6 +166,12 @@ const photoMaxGeoMismatchM = 500;
 /// Maximum photo age (days) before flagging as potentially stale/old.
 const photoMaxAgeDays = 14;
 
+/// Temporary pilot switch. While this is false, attaching any photo file is
+/// enough: SHA-256 and EXIF are still stored when present, but a gallery
+/// upload without geotags, a repeated file and a far location do not warn or
+/// block. Set this back to true after the test period.
+const photoForensicsEnforced = false;
+
 /// Runs full forensic verification on an uploaded image file.
 PhotoVerification verifyPhotoBytes({
   required Uint8List bytes,
@@ -175,6 +181,7 @@ PhotoVerification verifyPhotoBytes({
   double? projectLon,
   String? duplicateOfFileId,
   DateTime? now,
+  bool? enforce,
 }) {
   final hash = sha256Bytes(bytes);
   if (!isPhoto) {
@@ -262,6 +269,7 @@ PhotoVerification verifyPhotoBytes({
           ? 'warning'
           : 'verified';
 
+  final strict = enforce ?? photoForensicsEnforced;
   return PhotoVerification(
     sha256: hash,
     captureSource: client.captureSource,
@@ -284,9 +292,9 @@ PhotoVerification verifyPhotoBytes({
     cameraModel: exif.cameraModel,
     exifJson: exif.toJson(),
     distanceM: distanceM,
-    verifyStatus: status,
-    verifyFlags: flags,
-    duplicateOfFileId: duplicateOfFileId,
+    verifyStatus: strict ? status : 'verified',
+    verifyFlags: strict ? flags : const [],
+    duplicateOfFileId: strict ? duplicateOfFileId : null,
   );
 }
 

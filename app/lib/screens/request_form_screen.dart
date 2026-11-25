@@ -144,9 +144,9 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
     if (photo == null) {
       setState(() {
         _error = copy.pick(
-          'Сделайте фото на месте или загрузите фото с объекта — без фото заявку создать нельзя.',
-          'Take a photo on site or upload a site photo — a photo is required.',
-          'Joyida suratga oling yoki obyekt fotosini yuklang — fotosiz ariza yaratib bo‘lmaydi.',
+          'На время теста достаточно загрузить фото файлом — без фото заявку создать нельзя.',
+          'For the test, uploading a photo file is enough — a photo is still required.',
+          'Test davrida foto faylini yuklash yetarli — fotosiz ariza yaratib bo‘lmaydi.',
         );
       });
       return;
@@ -335,9 +335,9 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   copy.pick(
-                    'Сделайте фото на месте или загрузите файл. Автоматически сохраняются EXIF, геолокация, геотеги и контрольная сумма SHA-256.',
-                    'Capture a photo on site or upload a file. EXIF, geolocation, geotags and SHA-256 checksum are recorded automatically.',
-                    'Joyida suratga oling yoki fayl yuklang. EXIF, geolokatsiya, geoteglar va SHA-256 nazorat summasi avtomatik saqlanadi.',
+                    'На время теста достаточно загрузить фото файлом. Если в файле есть EXIF и геометки, они сохраняются.',
+                    'For the test, uploading a photo file is enough. EXIF and geotags are kept when the file has them.',
+                    'Test davrida foto faylini yuklash yetarli. Faylda EXIF va geoteglar bo‘lsa, ular saqlanadi.',
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.inkMuted),
                 ),
@@ -347,15 +347,6 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                   runSpacing: AppSpacing.sm,
                   children: [
                     FilledButton.tonalIcon(
-                      key: const Key('request-photo-camera'),
-                      onPressed: () async {
-                        final file = await pickTranchePhoto(camera: true);
-                        if (file != null && mounted) setState(() => _photo = file);
-                      },
-                      icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                      label: Text(copy.pick('Сделать фото', 'Take photo', 'Suratga olish')),
-                    ),
-                    OutlinedButton.icon(
                       key: const Key('request-photo'),
                       onPressed: () async {
                         final file = await pickTranchePhoto(camera: false);
@@ -363,6 +354,15 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                       },
                       icon: const Icon(Icons.upload_file_outlined, size: 18),
                       label: Text(copy.pick('Загрузить фото', 'Upload photo', 'Foto yuklash')),
+                    ),
+                    OutlinedButton.icon(
+                      key: const Key('request-photo-camera'),
+                      onPressed: () async {
+                        final file = await pickTranchePhoto(camera: true);
+                        if (file != null && mounted) setState(() => _photo = file);
+                      },
+                      icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                      label: Text(copy.pick('Сделать фото', 'Take photo', 'Suratga olish')),
                     ),
                   ],
                 ),
