@@ -112,6 +112,7 @@ void main() {
     final card = await director.send('GET', '/api/draws/$drawId');
     final requirements = (card.body!['requirements'] as List).cast<Map<String, dynamic>>();
     expect(await director.attachPapers(drawId, requirements), 201);
+    expect(await director.attachSitePhoto(drawId), 201);
     final patched = await director.send('PATCH', '/api/draws/$drawId', json: {
       'signedName': 'Директор Навои',
       'finalDraw': false,
@@ -270,6 +271,7 @@ void main() {
       final card = await director.send('GET', '/api/draws/$id');
       final requirements = (card.body!['requirements'] as List).cast<Map<String, dynamic>>();
       expect(await director.attachPapers(id, requirements), 201);
+      expect(await director.attachSitePhoto(id), 201);
       final patched = await director.send('PATCH', '/api/draws/$id', json: {
         'signedName': 'Директор',
         'lines': [
@@ -348,6 +350,7 @@ void main() {
     final directorCard = await director.send('GET', '/api/draws/$directorId');
     final requirements = (directorCard.body!['requirements'] as List).cast<Map<String, dynamic>>();
     expect(await director.attachPapers(directorId, requirements), 201);
+    expect(await director.attachSitePhoto(directorId), 201);
     expect((await director.send('PATCH', '/api/draws/$directorId', json: {
       'signedName': 'Директор',
       'lines': [
@@ -380,6 +383,7 @@ void main() {
     final contractorCard = await contractor.send('GET', '/api/draws/$contractorDraw');
     final contractorRequirements = (contractorCard.body!['requirements'] as List).cast<Map<String, dynamic>>();
     expect(await contractor.attachPapers(contractorDraw, contractorRequirements), 201);
+    expect(await contractor.attachSitePhoto(contractorDraw), 201);
     expect((await contractor.send('PATCH', '/api/draws/$contractorDraw', json: {
       'signedName': 'Подрядчик',
       'lines': [
@@ -444,6 +448,28 @@ class Client {
       if (response.statusCode != 201) return response.statusCode;
     }
     return 201;
+  }
+
+  /// Uploads a unique minimal JPEG site photo for a draw.
+  Future<int> attachSitePhoto(String drawId) async {
+    final tag = utf8.encode(drawId);
+    final bytes = <int>[0xFF, 0xD8, 0xFF, 0xFE, 0x00, tag.length + 2, ...tag, 0xFF, 0xD9];
+    final response = await handler(
+      Request(
+        'POST',
+        Uri.parse('http://localhost/api/requests/$drawId/files'),
+        headers: {
+          'cookie': cookies.entries.map((entry) => '${entry.key}=${entry.value}').join('; '),
+          'content-type': 'application/octet-stream',
+          'x-capture-source': 'camera',
+          'x-geo-lat': '41.311081',
+          'x-geo-lon': '69.240562',
+          if (csrf != null) 'x-csrf-token': csrf!,
+        },
+        body: bytes,
+      ),
+    );
+    return response.statusCode;
   }
 
   final Handler handler;

@@ -446,6 +446,25 @@ class RequestFile {
     required this.sizeBytes,
     required this.kind,
     this.purpose = 'material',
+    this.sha256 = '',
+    this.captureSource = 'upload',
+    this.capturedAt,
+    this.gpsLat,
+    this.gpsLon,
+    this.gpsAccuracy,
+    this.gpsHeading,
+    this.exifLat,
+    this.exifLon,
+    this.exifTakenAt,
+    this.exifHeading,
+    this.cameraMake = '',
+    this.cameraModel = '',
+    this.exif = const {},
+    this.distanceM,
+    this.verifyStatus = 'unverified',
+    this.verifyFlags = const [],
+    this.duplicateOfFileId,
+    this.url,
   });
 
   final String id;
@@ -453,17 +472,70 @@ class RequestFile {
   final int sizeBytes;
   final String kind;
   final String purpose;
+  final String sha256;
+  final String captureSource;
+  final String? capturedAt;
+  final double? gpsLat;
+  final double? gpsLon;
+  final double? gpsAccuracy;
+  final double? gpsHeading;
+  final double? exifLat;
+  final double? exifLon;
+  final String? exifTakenAt;
+  final double? exifHeading;
+  final String cameraMake;
+  final String cameraModel;
+  final Map<String, Object?> exif;
+  final int? distanceM;
+  final String verifyStatus;
+  final List<String> verifyFlags;
+  final String? duplicateOfFileId;
+  final String? url;
 
   bool get isPhoto => kind == 'photo';
   bool get isPayment => purpose == 'payment';
+  bool get hasExifGeo => exifLat != null && exifLon != null;
+  bool get hasDeviceGeo => gpsLat != null && gpsLon != null;
+  bool get hasAnyGeo => hasExifGeo || hasDeviceGeo;
+  double? get effectiveLat => hasExifGeo ? exifLat : gpsLat;
+  double? get effectiveLon => hasExifGeo ? exifLon : gpsLon;
+  double? get effectiveHeading => exifHeading ?? gpsHeading;
+  String get cameraLabel => [cameraMake, cameraModel].where((s) => s.isNotEmpty).join(' ').trim();
+
+  static double? _dbl(Object? v) => v is num ? v.toDouble() : double.tryParse('${v ?? ''}');
 
   factory RequestFile.fromJson(Map<String, dynamic> json) {
+    final rawExif = json['exif'];
+    final exifMap = rawExif is Map
+        ? rawExif.map((k, v) => MapEntry(k.toString(), v))
+        : const <String, Object?>{};
+    final rawFlags = json['verifyFlags'];
+    final flags = rawFlags is List ? [for (final f in rawFlags) f.toString()] : const <String>[];
     return RequestFile(
-      id: json['id'] as String,
+      id: json['id'] as String? ?? '',
       contentType: json['contentType'] as String? ?? '',
-      sizeBytes: json['sizeBytes'] as int? ?? 0,
+      sizeBytes: (json['sizeBytes'] as num?)?.toInt() ?? 0,
       kind: json['kind'] as String? ?? 'photo',
       purpose: json['purpose'] as String? ?? 'material',
+      sha256: json['sha256'] as String? ?? '',
+      captureSource: json['captureSource'] as String? ?? 'upload',
+      capturedAt: json['capturedAt'] as String?,
+      gpsLat: _dbl(json['gpsLat']),
+      gpsLon: _dbl(json['gpsLon']),
+      gpsAccuracy: _dbl(json['gpsAccuracy']),
+      gpsHeading: _dbl(json['gpsHeading']),
+      exifLat: _dbl(json['exifLat']),
+      exifLon: _dbl(json['exifLon']),
+      exifTakenAt: json['exifTakenAt'] as String?,
+      exifHeading: _dbl(json['exifHeading']),
+      cameraMake: json['cameraMake'] as String? ?? '',
+      cameraModel: json['cameraModel'] as String? ?? '',
+      exif: exifMap,
+      distanceM: (json['distanceM'] as num?)?.toInt(),
+      verifyStatus: json['verifyStatus'] as String? ?? 'unverified',
+      verifyFlags: flags,
+      duplicateOfFileId: json['duplicateOfFileId'] as String?,
+      url: json['url'] as String?,
     );
   }
 }
@@ -1016,6 +1088,7 @@ class DrawDetail {
     required this.sources,
     required this.requirements,
     required this.comments,
+    this.photos = const [],
   });
 
   final String id;
@@ -1032,6 +1105,7 @@ class DrawDetail {
   final List<LoanSource> sources;
   final List<DrawRequirementView> requirements;
   final List<String> comments;
+  final List<RequestFile> photos;
 
   factory DrawDetail.fromJson(Map<String, dynamic> json) {
     List<T> read<T>(String key, T Function(Map<String, dynamic>) parse) {
@@ -1056,6 +1130,7 @@ class DrawDetail {
       lines: read('lines', DrawLineInput.fromJson),
       sources: read('sources', LoanSource.fromJson),
       requirements: read('requirements', DrawRequirementView.fromJson),
+      photos: read('photos', RequestFile.fromJson),
       comments: [
         for (final item in json['comments'] as List? ?? const [])
           if (item is Map) item['body'] as String? ?? '',

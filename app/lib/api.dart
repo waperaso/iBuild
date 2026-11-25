@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'fx.dart';
 import 'models.dart';
+import 'picked_file.dart';
 import 'registration_models.dart';
 import 'screens/bank/bank_models.dart';
 
@@ -87,6 +88,7 @@ abstract class Api {
   Future<RequestFile> uploadRequestFile({
     required String requestId,
     required Uint8List bytes,
+    PhotoCaptureMeta? meta,
   });
   Future<Uint8List> requestFile({
     required String requestId,
@@ -214,6 +216,7 @@ abstract class Api {
     required String itemId,
     required String name,
     required Uint8List bytes,
+    PhotoCaptureMeta? meta,
   });
   Future<void> deleteDrawDocument({
     required String drawId,

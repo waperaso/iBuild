@@ -6,7 +6,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import 'db.dart';
-import 'draw_documents.dart' show drawPaperPresent, drawPapers;
+import 'draw_documents.dart' show drawPaperPresent, drawPapers, drawSitePhotos;
 import 'http_util.dart';
 import 'money.dart';
 import 'passwords.dart';
@@ -694,6 +694,7 @@ Future<Response> _drawJson(AppDatabase db, String id) async {
     parameters: {'id': id},
   );
   final requirements = await drawPapers(db, id);
+  final photos = await drawSitePhotos(db, id);
   final comments = await db.pool.execute(
     Sql.named('''
       SELECT body, created_at::text AS at FROM draw_comments
@@ -706,6 +707,7 @@ Future<Response> _drawJson(AppDatabase db, String id) async {
     'lines': [for (final row in lines) row.toColumnMap()],
     'sources': [for (final row in sources) row.toColumnMap()],
     'requirements': requirements,
+    'photos': photos,
     'comments': [for (final row in comments) row.toColumnMap()],
   });
 }
@@ -884,7 +886,13 @@ Future<Response> _submitDraw(Request request, AppDatabase db, String id) async {
           SELECT 1 FROM draw_requirements r
           JOIN checklist_items c ON c.id = r.item_id
           WHERE r.request_id = @id::uuid AND c.required AND NOT ${drawPaperPresent('r')}
-        ) AS ready
+        ) AS ready,
+        EXISTS (
+          SELECT 1 FROM request_files rf
+          WHERE rf.request_id = @id::uuid
+            AND rf.purpose = 'material'
+            AND rf.content_type LIKE 'image/%'
+        ) AS has_photo
     '''),
     parameters: {'id': id},
   );
@@ -893,6 +901,9 @@ Future<Response> _submitDraw(Request request, AppDatabase db, String id) async {
   if (map['signed'] != true) return jsonError(400, 'validation', 'Подпишите транш перед отправкой.');
   if (map['ready'] != true) {
     return jsonError(400, 'validation', 'Приложите файлы обязательных документов.');
+  }
+  if (map['has_photo'] != true) {
+    return jsonError(400, 'validation', 'Добавьте хотя бы одно фото с объекта.');
   }
   if (map['positive'] != true || map['fits'] != true) {
     if (map['positive'] == true && map['fits'] != true) {

@@ -750,7 +750,7 @@ Response _withHeaders(Response response, AppEnv env) {
     'x-content-type-options': 'nosniff',
     'x-frame-options': 'DENY',
     'referrer-policy': 'same-origin',
-    'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+    'permissions-policy': 'camera=(self), microphone=(), geolocation=(self)',
     'content-security-policy': _csp,
     if (env.cookieSecure) 'strict-transport-security': 'max-age=31536000; includeSubDomains',
   });

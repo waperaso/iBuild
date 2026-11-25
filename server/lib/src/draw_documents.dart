@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:postgres/postgres.dart';
@@ -9,6 +10,7 @@ import 'db.dart';
 import 'env.dart';
 import 'http_util.dart';
 import 'passwords.dart';
+import 'photo_meta.dart';
 import 'requests.dart' show sniff, photoMaxBytes, pdfMaxBytes;
 
 /// The papers of a tranche: the act of work done, the invoice, the waiver and the
@@ -38,7 +40,9 @@ void mountDrawDocuments(Router router, AppDatabase db, AppEnv env) {
     ..get('/api/draws/<id>/documents/<itemId>/<fileId>',
         (Request r, String id, String itemId, String fileId) => _open(r, db, id, itemId, fileId))
     ..get('/api/bank/tranches/<id>/documents/<fileId>',
-        (Request r, String id, String fileId) => _bankOpen(r, db, id, fileId));
+        (Request r, String id, String fileId) => _bankOpen(r, db, id, fileId))
+    ..get('/api/bank/tranches/<id>/photos/<fileId>',
+        (Request r, String id, String fileId) => _bankOpenPhoto(r, db, id, fileId));
 }
 
 bool _isUuid(String value) => RegExp(_uuid).hasMatch(value);
@@ -123,6 +127,19 @@ Future<Response> _upload(Request request, AppDatabase db, AppEnv env, String id,
   }
 
   final name = _cleanName(request.url.queryParameters['name'] ?? '');
+  final hash = sha256Bytes(body.bytes);
+  final duplicateOf = detected.kind == 'photo' ? await db.findDuplicatePhotoHash(hash) : null;
+  final coords = detected.kind == 'photo'
+      ? await db.projectCoordinatesForRequest(id)
+      : (lat: null, lon: null);
+  final v = verifyPhotoBytes(
+    bytes: body.bytes,
+    isPhoto: detected.kind == 'photo',
+    client: ClientPhotoMeta.fromHeaders(request.headers),
+    projectLat: coords.lat,
+    projectLon: coords.lon,
+    duplicateOfFileId: duplicateOf,
+  );
   final root = env.fileRoot.replaceAll(RegExp(r'/+$'), '');
   final fileId = (await db.owner.execute('SELECT gen_random_uuid()::text')).first[0]! as String;
   final path = '$root/draws/$id/$fileId';
@@ -138,8 +155,20 @@ Future<Response> _upload(Request request, AppDatabase db, AppEnv env, String id,
       await tx.execute(
         Sql.named('''
           INSERT INTO draw_requirement_files (
-            id, request_id, item_id, storage_path, file_name, content_type, size_bytes, author_user_id
-          ) VALUES (@file::uuid, @id::uuid, @item::uuid, @path, @name, @type, @size, @user::uuid)
+            id, request_id, item_id, storage_path, file_name, content_type, size_bytes, author_user_id,
+            sha256, capture_source, captured_at,
+            gps_lat, gps_lon, gps_accuracy, gps_heading,
+            exif_lat, exif_lon, exif_taken_at, exif_heading,
+            camera_make, camera_model, exif_json,
+            distance_m, verify_status, verify_flags, duplicate_of_file_id
+          ) VALUES (
+            @file::uuid, @id::uuid, @item::uuid, @path, @name, @type, @size, @user::uuid,
+            @sha256, @captureSource, @capturedAt,
+            @gpsLat, @gpsLon, @gpsAccuracy, @gpsHeading,
+            @exifLat, @exifLon, @exifTakenAt, @exifHeading,
+            @cameraMake, @cameraModel, @exifJson::jsonb,
+            @distanceM, @verifyStatus, @verifyFlags::jsonb, NULLIF(@duplicateOf, '')::uuid
+          )
         '''),
         parameters: {
           'file': fileId,
@@ -150,6 +179,24 @@ Future<Response> _upload(Request request, AppDatabase db, AppEnv env, String id,
           'type': detected.type,
           'size': body.bytes.length,
           'user': userId,
+          'sha256': v.sha256,
+          'captureSource': v.captureSource,
+          'capturedAt': v.capturedAt,
+          'gpsLat': v.gpsLat,
+          'gpsLon': v.gpsLon,
+          'gpsAccuracy': v.gpsAccuracy,
+          'gpsHeading': v.gpsHeading,
+          'exifLat': v.exifLat,
+          'exifLon': v.exifLon,
+          'exifTakenAt': v.exifTakenAt,
+          'exifHeading': v.exifHeading,
+          'cameraMake': v.cameraMake,
+          'cameraModel': v.cameraModel,
+          'exifJson': jsonEncode(v.exifJson),
+          'distanceM': v.distanceM,
+          'verifyStatus': v.verifyStatus,
+          'verifyFlags': jsonEncode(v.verifyFlags),
+          'duplicateOf': v.duplicateOfFileId ?? '',
         },
       );
       await tx.execute(
@@ -171,6 +218,24 @@ Future<Response> _upload(Request request, AppDatabase db, AppEnv env, String id,
     'name': name,
     'contentType': detected.type,
     'sizeBytes': body.bytes.length,
+    'sha256': v.sha256,
+    'captureSource': v.captureSource,
+    if (v.capturedAt != null) 'capturedAt': v.capturedAt!.toIso8601String(),
+    if (v.gpsLat != null) 'gpsLat': v.gpsLat,
+    if (v.gpsLon != null) 'gpsLon': v.gpsLon,
+    if (v.gpsAccuracy != null) 'gpsAccuracy': v.gpsAccuracy,
+    if (v.gpsHeading != null) 'gpsHeading': v.gpsHeading,
+    if (v.exifLat != null) 'exifLat': v.exifLat,
+    if (v.exifLon != null) 'exifLon': v.exifLon,
+    if (v.exifTakenAt != null) 'exifTakenAt': v.exifTakenAt!.toIso8601String(),
+    if (v.exifHeading != null) 'exifHeading': v.exifHeading,
+    if (v.cameraMake.isNotEmpty) 'cameraMake': v.cameraMake,
+    if (v.cameraModel.isNotEmpty) 'cameraModel': v.cameraModel,
+    if (v.exifJson.isNotEmpty) 'exif': v.exifJson,
+    if (v.distanceM != null) 'distanceM': v.distanceM,
+    'verifyStatus': v.verifyStatus,
+    'verifyFlags': v.verifyFlags,
+    if (v.duplicateOfFileId != null) 'duplicateOfFileId': v.duplicateOfFileId,
   });
 }
 
@@ -268,6 +333,103 @@ Future<Response> _bankOpen(Request request, AppDatabase db, String id, String fi
   return _send(rows.first.toColumnMap());
 }
 
+/// A bank opens a site photo attached to a tranche request.
+Future<Response> _bankOpenPhoto(Request request, AppDatabase db, String id, String fileId) async {
+  final opened = await bankContext(request, db);
+  if (opened is Response) return opened;
+  final ctx = opened as BankCtx;
+  if (!_isUuid(id) || !_isUuid(fileId)) return jsonError(404, 'not_found', 'Файл не найден.');
+  final rows = await db.owner.execute(
+    Sql.named('''
+      SELECT f.storage_path,
+             CASE f.content_type
+               WHEN 'image/png' THEN 'photo.png'
+               WHEN 'image/webp' THEN 'photo.webp'
+               ELSE 'photo.jpg'
+             END AS file_name,
+             f.content_type,
+             f.size_bytes
+      FROM request_files f
+      JOIN bank_tranches t ON t.request_id = f.request_id
+      WHERE f.id = @file::uuid AND t.id = @id::uuid AND t.bank_id = @bank::uuid
+        AND f.purpose = 'material' AND f.content_type LIKE 'image/%'
+    '''),
+    parameters: {'file': fileId, 'id': id, 'bank': ctx.bankId},
+  );
+  if (rows.isEmpty || !await File(rows.first[0]! as String).exists()) {
+    return jsonError(404, 'not_found', 'Файл не найден.');
+  }
+  return _send(rows.first.toColumnMap());
+}
+
+/// Site photos attached to a draw (from request_files) with forensic metadata.
+Future<List<Map<String, Object?>>> drawSitePhotos(AppDatabase db, String requestId) async {
+  final rows = await db.owner.execute(
+    Sql.named('''
+      SELECT id::text AS id,
+             content_type,
+             size_bytes,
+             sha256,
+             capture_source,
+             captured_at,
+             gps_lat::text AS gps_lat,
+             gps_lon::text AS gps_lon,
+             gps_accuracy::text AS gps_accuracy,
+             gps_heading::text AS gps_heading,
+             exif_lat::text AS exif_lat,
+             exif_lon::text AS exif_lon,
+             exif_taken_at,
+             exif_heading::text AS exif_heading,
+             camera_make,
+             camera_model,
+             exif_json,
+             distance_m,
+             verify_status,
+             verify_flags,
+             duplicate_of_file_id::text AS duplicate_of_file_id
+      FROM request_files
+      WHERE request_id = @id::uuid AND purpose = 'material' AND content_type LIKE 'image/%'
+      ORDER BY created_at
+    '''),
+    parameters: {'id': requestId},
+  );
+  double? numOf(Object? v) => v == null ? null : double.tryParse(v.toString());
+  String? isoOf(Object? v) => v is DateTime ? v.toUtc().toIso8601String() : (v?.toString().isEmpty ?? true ? null : v.toString());
+  return [
+    for (final row in rows)
+      () {
+        final m = row.toColumnMap();
+        final rawExif = m['exif_json'];
+        final rawFlags = m['verify_flags'];
+        return <String, Object?>{
+          'id': m['id'],
+          'contentType': m['content_type'],
+          'sizeBytes': m['size_bytes'],
+          'kind': 'photo',
+          'purpose': 'material',
+          'sha256': m['sha256'] ?? '',
+          'captureSource': m['capture_source'] ?? 'upload',
+          if (isoOf(m['captured_at']) != null) 'capturedAt': isoOf(m['captured_at']),
+          if (numOf(m['gps_lat']) != null) 'gpsLat': numOf(m['gps_lat']),
+          if (numOf(m['gps_lon']) != null) 'gpsLon': numOf(m['gps_lon']),
+          if (numOf(m['gps_accuracy']) != null) 'gpsAccuracy': numOf(m['gps_accuracy']),
+          if (numOf(m['gps_heading']) != null) 'gpsHeading': numOf(m['gps_heading']),
+          if (numOf(m['exif_lat']) != null) 'exifLat': numOf(m['exif_lat']),
+          if (numOf(m['exif_lon']) != null) 'exifLon': numOf(m['exif_lon']),
+          if (isoOf(m['exif_taken_at']) != null) 'exifTakenAt': isoOf(m['exif_taken_at']),
+          if (numOf(m['exif_heading']) != null) 'exifHeading': numOf(m['exif_heading']),
+          if ((m['camera_make'] as String? ?? '').isNotEmpty) 'cameraMake': m['camera_make'],
+          if ((m['camera_model'] as String? ?? '').isNotEmpty) 'cameraModel': m['camera_model'],
+          if (rawExif is Map && rawExif.isNotEmpty) 'exif': rawExif,
+          if (m['distance_m'] != null) 'distanceM': m['distance_m'],
+          'verifyStatus': m['verify_status'] ?? 'unverified',
+          'verifyFlags': rawFlags is List ? [for (final f in rawFlags) f.toString()] : const <String>[],
+          if (m['duplicate_of_file_id'] != null) 'duplicateOfFileId': m['duplicate_of_file_id'],
+        };
+      }(),
+  ];
+}
+
 /// The papers of a draw with their files, for the developer's draw and the bank card.
 Future<List<Map<String, Object?>>> drawPapers(AppDatabase db, String requestId) async {
   final rows = await db.owner.execute(
@@ -278,7 +440,17 @@ Future<List<Map<String, Object?>>> drawPapers(AppDatabase db, String requestId) 
              COALESCE((
                SELECT json_agg(json_build_object(
                         'id', f.id::text, 'name', f.file_name,
-                        'contentType', f.content_type, 'sizeBytes', f.size_bytes)
+                        'contentType', f.content_type, 'sizeBytes', f.size_bytes,
+                        'sha256', f.sha256, 'captureSource', f.capture_source,
+                        'capturedAt', f.captured_at,
+                        'gpsLat', f.gps_lat, 'gpsLon', f.gps_lon,
+                        'gpsAccuracy', f.gps_accuracy, 'gpsHeading', f.gps_heading,
+                        'exifLat', f.exif_lat, 'exifLon', f.exif_lon,
+                        'exifTakenAt', f.exif_taken_at, 'exifHeading', f.exif_heading,
+                        'cameraMake', f.camera_make, 'cameraModel', f.camera_model,
+                        'exif', f.exif_json, 'distanceM', f.distance_m,
+                        'verifyStatus', f.verify_status, 'verifyFlags', f.verify_flags,
+                        'duplicateOfFileId', f.duplicate_of_file_id::text)
                       ORDER BY f.created_at)
                FROM draw_requirement_files f
                WHERE f.request_id = r.request_id AND f.item_id = r.item_id

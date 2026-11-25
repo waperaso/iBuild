@@ -38,6 +38,20 @@ class RulePayable {
   final bool signed;
 }
 
+class RulePhoto {
+  const RulePhoto({
+    required this.verifyStatus,
+    required this.verifyFlags,
+    this.distanceM,
+    this.captureSource = 'upload',
+  });
+
+  final String verifyStatus;
+  final List<String> verifyFlags;
+  final int? distanceM;
+  final String captureSource;
+}
+
 class RuleInput {
   const RuleInput({
     required this.today,
@@ -49,6 +63,8 @@ class RuleInput {
     required this.issue,
     required this.fundingPaused,
     required this.inspected,
+    this.photos = const [],
+    this.equityPercent,
   });
 
   final DateTime today;
@@ -66,6 +82,12 @@ class RuleInput {
   final String issue;
   final bool fundingPaused;
   final bool inspected;
+
+  /// Site photos attached to the tranche with forensic verification results.
+  final List<RulePhoto> photos;
+
+  /// Developer own-funds (equity) share in percent (0..100), if equity+loan sources exist.
+  final double? equityPercent;
 }
 
 class RuleResult {
@@ -255,6 +277,75 @@ List<RuleResult> evaluateBankRules(RuleInput input) {
     ));
   }
 
+  // Forensic verification of site photos attached to the tranche:
+  // duplicate SHA-256 checksum, distance from object / EXIF-GPS mismatch, missing EXIF/geo/stale.
+  if (input.photos.isNotEmpty) {
+    final hasDuplicate = input.photos.any((p) => p.verifyFlags.contains('duplicate_checksum'));
+    if (hasDuplicate) {
+      results.add(const RuleResult(
+        code: 'photo_duplicate',
+        level: 'block',
+        basis: 'Фотоконтроль',
+        title: 'Обнаружен дубликат фотографии (совпадение SHA-256)',
+        detail: 'Файл с такой же контрольной суммой SHA-256 уже загружался ранее. Требуется новое фото с объекта.',
+        passed: false,
+        sort: 8,
+      ));
+    }
+    final farPhotos = [
+      for (final p in input.photos)
+        if (p.verifyFlags.contains('far_from_site') || p.verifyFlags.contains('geo_mismatch')) p,
+    ];
+    if (farPhotos.isNotEmpty) {
+      final maxDist = farPhotos
+          .map((p) => p.distanceM)
+          .whereType<int>()
+          .fold<int?>(null, (a, b) => a == null || b > a ? b : a);
+      final distText = maxDist == null
+          ? 'Координаты EXIF и устройства расходятся.'
+          : 'Отклонение от координат объекта: ${maxDist >= 1000 ? '${(maxDist / 1000).toStringAsFixed(1)} км' : '$maxDist м'}.';
+      results.add(RuleResult(
+        code: 'photo_geo',
+        level: 'warning',
+        basis: 'Фотоконтроль',
+        title: 'Геолокация фото не совпадает с объектом',
+        detail: '$distText Проверьте точку съёмки и назначьте осмотр.',
+        passed: false,
+        sort: 9,
+      ));
+    }
+    final metaIssues = <String>[
+      if (input.photos.any((p) => p.verifyFlags.contains('no_exif'))) 'нет EXIF',
+      if (input.photos.any((p) => p.verifyFlags.contains('no_geo'))) 'нет геолокации',
+      if (input.photos.any((p) => p.verifyFlags.contains('stale_photo'))) 'устаревшая дата съёмки',
+    ];
+    if (metaIssues.isNotEmpty) {
+      results.add(RuleResult(
+        code: 'photo_meta',
+        level: 'warning',
+        basis: 'Фотоконтроль',
+        title: 'Неполные метаданные фотофиксации',
+        detail: 'Замечания: ${metaIssues.join(', ')}. Рекомендуется съёмка на месте через камеру с геолокацией.',
+        passed: false,
+        sort: 10,
+      ));
+    }
+  }
+
+  // UP-11: at least 30% of construction funded by developer's own funds (equity).
+  final equity = input.equityPercent;
+  if (equity != null && equity < 30.0) {
+    results.add(RuleResult(
+      code: 'own_funds_30',
+      level: 'warning',
+      basis: 'УП-11',
+      title: 'Доля собственных средств застройщика ниже 30%',
+      detail: 'Указано ${equity.toStringAsFixed(1)}% собственных средств (требование УП-11 — не менее 30%).',
+      passed: false,
+      sort: 10,
+    ));
+  }
+
   // What is fine is shown on request. The same codes, always the same order.
   void passed(String code, String basis, String title, int sort) {
     if (results.any((result) => result.code == code)) return;
@@ -284,6 +375,13 @@ List<RuleResult> evaluateBankRules(RuleInput input) {
   if (unsigned.isEmpty) passed('passed_waiver', 'ГС п. 4.12', 'Отказ от претензий есть по каждому счёту', 16);
   if (!over) passed('passed_limit', 'ГС п. 3.7', 'Остаток лимита покрывает транш', 17);
   if (!input.fundingPaused) passed('passed_paused', 'ГС п. 4.10', 'Финансирование объекта не приостановлено', 18);
+  if (input.photos.isNotEmpty &&
+      !results.any((r) => r.code == 'photo_duplicate' || r.code == 'photo_geo' || r.code == 'photo_meta')) {
+    passed('passed_photos', 'Фотоконтроль', 'Фотофиксация подтверждена: EXIF, геотеги и SHA-256 проверены', 19);
+  }
+  if (equity != null && equity >= 30.0) {
+    passed('passed_own_funds', 'УП-11', 'Собственные средства застройщика ≥ 30%', 20);
+  }
   return results;
 }
 

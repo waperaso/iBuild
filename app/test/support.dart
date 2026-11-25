@@ -6,6 +6,7 @@ import 'package:ibuild/api.dart';
 import 'package:ibuild/app.dart';
 import 'package:ibuild/fx.dart';
 import 'package:ibuild/models.dart';
+import 'package:ibuild/picked_file.dart';
 import 'package:ibuild/registration_models.dart';
 import 'package:ibuild/screens/bank/bank_models.dart';
 import 'package:ibuild/session.dart';
@@ -414,6 +415,7 @@ class FakeApi implements Api {
     required String itemId,
     required String name,
     required Uint8List bytes,
+    PhotoCaptureMeta? meta,
   }) async {
     drawDocuments.add('$drawId/$itemId/$name');
   }
@@ -431,12 +433,18 @@ class FakeApi implements Api {
   Future<RequestFile> uploadRequestFile({
     required String requestId,
     required Uint8List bytes,
+    PhotoCaptureMeta? meta,
   }) async {
     return RequestFile(
       id: 'file-1',
       contentType: 'image/jpeg',
       sizeBytes: bytes.length,
       kind: 'photo',
+      captureSource: meta?.captureSource ?? 'upload',
+      gpsLat: meta?.gpsLat,
+      gpsLon: meta?.gpsLon,
+      gpsAccuracy: meta?.gpsAccuracy,
+      gpsHeading: meta?.gpsHeading,
     );
   }
 

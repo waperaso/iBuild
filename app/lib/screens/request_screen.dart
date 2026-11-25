@@ -10,6 +10,8 @@ import '../file_pick.dart';
 import '../l10n.dart';
 import '../models.dart';
 import '../money.dart';
+import '../photo_meta_card.dart';
+import '../picked_file.dart';
 import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -134,10 +136,12 @@ class _RequestScreenState extends State<RequestScreen> {
     }
   }
 
-  Future<void> _addFile() async {
+  Future<void> _addFile({bool? camera}) async {
     final request = _request;
     if (request == null || _uploading) return;
-    final picked = await pickRequestFile();
+    final PickedFile? picked = camera == null
+        ? await pickRequestFile()
+        : await pickTranchePhoto(camera: camera);
     if (picked == null || !mounted) return;
     final copy = LocaleScope.copy(context);
     setState(() {
@@ -148,6 +152,7 @@ class _RequestScreenState extends State<RequestScreen> {
       await SessionScope.of(context).api.uploadRequestFile(
         requestId: request.id,
         bytes: picked.bytes,
+        meta: picked.meta,
       );
       if (!mounted) return;
       setState(() => _uploading = false);
@@ -758,8 +763,21 @@ class _RequestScreenState extends State<RequestScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Wrap(
-                    spacing: AppSpacing.md,
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
                     children: [
+                      FilledButton.tonalIcon(
+                        key: const Key('take-photo'),
+                        onPressed: _uploading ? null : () => _addFile(camera: true),
+                        icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                        label: Text(copy.pick('Сделать фото', 'Take photo', 'Suratga olish')),
+                      ),
+                      OutlinedButton.icon(
+                        key: const Key('upload-photo'),
+                        onPressed: _uploading ? null : () => _addFile(camera: false),
+                        icon: const Icon(Icons.upload_file_outlined, size: 18),
+                        label: Text(copy.pick('Загрузить фото', 'Upload photo', 'Foto yuklash')),
+                      ),
                       TextButton(
                         key: const Key('add-file'),
                         onPressed: _uploading ? null : () => _addFile(),
@@ -1127,8 +1145,9 @@ class _FileTileState extends State<_FileTile> {
   @override
   Widget build(BuildContext context) {
     final bytes = widget.bytes;
+    final tileWidth = widget.file.isPhoto ? 280.0 : 180.0;
     return SizedBox(
-      width: 180,
+      width: tileWidth,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1138,14 +1157,19 @@ class _FileTileState extends State<_FileTile> {
               child: Image.memory(
                 bytes,
                 key: Key('request-photo-${widget.file.id}'),
-                height: 120,
-                width: 180,
+                height: 150,
+                width: tileWidth,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => _frame(context, widget.file.isPhoto),
               ),
             )
           else
             _frame(context, widget.file.isPhoto),
+          if (widget.file.isPhoto &&
+              (widget.file.sha256.isNotEmpty || widget.file.verifyStatus != 'unverified')) ...[
+            const SizedBox(height: AppSpacing.xs),
+            PhotoMetaPanel(file: widget.file),
+          ],
           if (widget.canRemove)
             TextButton(
               key: Key('remove-file-${widget.file.id}'),

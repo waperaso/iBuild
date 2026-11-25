@@ -4,6 +4,7 @@ export 'src/app.dart' show buildHandler, serveApi;
 export 'src/db.dart' show AppDatabase, ProjectRecord, UserRecord;
 export 'src/env.dart' show AppEnv;
 export 'src/passwords.dart' show hashPassword, sha256Hex;
+export 'src/photo_meta.dart';
 export 'src/money.dart' show normalizeMoney;
 export 'src/bank_bridge.dart' show bankReconcile, bankSyncRequest;
 export 'src/bank_seed.dart' show ensureBankCabinet;

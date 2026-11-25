@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../api.dart';
 import '../../download.dart';
+import '../../l10n.dart';
 import '../../money.dart';
+import '../../photo_meta_card.dart';
 import '../../session_scope.dart';
 import '../../theme.dart';
 import '../../widgets.dart';
@@ -259,6 +261,10 @@ class _BankTrancheScreenState extends State<BankTrancheScreen> {
             const SizedBox(height: AppSpacing.lg),
             _Papers(tranche: tranche),
           ],
+          if (tranche.sitePhotos.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            _SitePhotos(tranche: tranche),
+          ],
           const SizedBox(height: AppSpacing.lg),
           _DecisionBar(
             tranche: tranche,
@@ -321,6 +327,59 @@ class _Papers extends StatelessWidget {
                   ),
                 ],
               ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Site photos attached by the developer to the tranche request, with EXIF,
+/// SHA-256 checksum, geolocation/geotags and integrity verification flags.
+class _SitePhotos extends StatelessWidget {
+  const _SitePhotos({required this.tranche});
+
+  final BankTranche tranche;
+
+  @override
+  Widget build(BuildContext context) {
+    final copy = LocaleScope.copy(context);
+    final theme = Theme.of(context);
+    return IBuildCard(
+      key: const Key('bank-site-photos'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            copy.pick(
+              'Фотофиксация с объекта (${tranche.sitePhotos.length})',
+              'Site photos (${tranche.sitePhotos.length})',
+              'Obyektdan fotofiksatsiya (${tranche.sitePhotos.length})',
+            ),
+            style: theme.textTheme.titleMedium,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          for (final photo in tranche.sitePhotos) ...[
+            Row(
+              children: [
+                const Icon(Icons.photo_outlined, size: 18),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    '${copy.photoTile} · ${(photo.sizeBytes / 1024).toStringAsFixed(0)} KB',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+                if (photo.url != null && photo.url!.isNotEmpty)
+                  TextButton(
+                    key: Key('bank-site-photo-${photo.id}'),
+                    onPressed: () => openBankFile(photo.url!),
+                    child: Text(copy.docOpen),
+                  ),
+              ],
+            ),
+            PhotoMetaPanel(file: photo),
+            const SizedBox(height: AppSpacing.md),
           ],
         ],
       ),

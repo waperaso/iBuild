@@ -11,6 +11,7 @@ import 'http_util.dart';
 import 'lifecycle.dart';
 import 'money.dart';
 import 'passwords.dart';
+import 'photo_meta.dart';
 
 const _uuidPattern =
     r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$';
@@ -310,6 +311,19 @@ Future<Response> _upload(Request request, AppDatabase db, AppEnv env, String id)
   if (purpose != 'material') {
     return jsonError(400, 'validation', 'Можно добавить фото и один PDF.');
   }
+  final hash = sha256Bytes(body.bytes);
+  final duplicateOf = detected.kind == 'photo' ? await db.findDuplicatePhotoHash(hash) : null;
+  final coords = detected.kind == 'photo'
+      ? await db.projectCoordinatesForRequest(id)
+      : (lat: null, lon: null);
+  final verification = verifyPhotoBytes(
+    bytes: body.bytes,
+    isPhoto: detected.kind == 'photo',
+    client: ClientPhotoMeta.fromHeaders(request.headers),
+    projectLat: coords.lat,
+    projectLon: coords.lon,
+    duplicateOfFileId: duplicateOf,
+  );
   final root = env.fileRoot.replaceAll(RegExp(r'/+$'), '');
   RequestFileRecord stored;
   try {
@@ -321,6 +335,7 @@ Future<Response> _upload(Request request, AppDatabase db, AppEnv env, String id)
       sizeBytes: body.bytes.length,
       fileRoot: root,
       purpose: purpose,
+      verification: verification,
     );
   } on RequestRule catch (error) {
     final missing = error.message == 'Транш не найден.';
@@ -552,6 +567,7 @@ Future<Response> _paymentFile(Request request, AppDatabase db, AppEnv env, Strin
     return jsonError(400, 'validation', 'Фото больше 5 МБ.');
   }
   final root = env.fileRoot.replaceAll(RegExp(r'/+$'), '');
+  final paymentHash = sha256Bytes(body.bytes);
   RequestFileRecord stored;
   try {
     stored = await db.addPaymentFile(
@@ -561,6 +577,7 @@ Future<Response> _paymentFile(Request request, AppDatabase db, AppEnv env, Strin
       kind: detected.kind,
       sizeBytes: body.bytes.length,
       fileRoot: root,
+      sha256: paymentHash,
     );
   } on RequestRule catch (error) {
     final missing = error.message == 'Транш не найден.';

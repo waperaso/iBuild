@@ -148,7 +148,10 @@ Future<List<Map<String, Object?>>> bankSignals(AppDatabase db, String bankId, {S
   final overBy = {for (final row in over) row['project_id']! as String: row};
   final threshold = (rules['issuedAbovePercent'] as num?)?.toInt() ?? 1;
   final warnDays = (rules['forecastWarningDays'] as num?)?.toInt() ?? 30;
-  final redDays = ((rules['forecastRedMonths'] as num?)?.toInt() ?? 6) * 30 - 30;
+  final lagMonths = (rules['scheduleLagMonths'] as num?)?.toInt() ?? 3;
+  final redMonths = (rules['forecastRedMonths'] as num?)?.toInt() ?? 6;
+  final redLimitDays = redMonths * 30;
+  final redDays = redLimitDays - 30;
   final salesDue = bankLastSalesDue(midnight, _salesDays(rules));
 
   for (final facility in facilities) {
@@ -204,6 +207,14 @@ Future<List<Map<String, Object?>>> bankSignals(AppDatabase db, String bankId, {S
     if (finish == null || until == null) continue;
     final late = finish.difference(until).inDays;
     if (late > warnDays) {
+      final daysToCancel = redLimitDays - late;
+      final thresholdNote = daysToCancel <= 0
+          ? 'Превышен $redMonths-месячный порог УП-11 (право дольщиков на расторжение эскроу).'
+          : late >= redDays
+              ? 'До $redMonths-месячного порога расторжения эскроу осталось $daysToCancel дн.'
+              : late >= lagMonths * 30
+                  ? 'Задержка > $lagMonths мес. (усиленный контроль банка). До $redMonths-месячного порога расторжения: $daysToCancel дн.'
+                  : 'До $redMonths-месячного порога расторжения: $daysToCancel дн.';
       add(
         facility,
         late >= redDays ? 'block' : 'warning',
@@ -211,8 +222,14 @@ Future<List<Map<String, Object?>>> bankSignals(AppDatabase db, String bankId, {S
         'Прогноз сдачи позже срока на $late дн.',
         'УП-11',
         'request_schedule',
-        detail: 'Срок ${bankDay(until)}, прогноз эксперта ${bankDay(finish)}.',
-        params: {'days': late, 'until': bankDay(until), 'finish': bankDay(finish)},
+        detail: 'Срок ${bankDay(until)}, прогноз эксперта ${bankDay(finish)}. $thresholdNote',
+        params: {
+          'days': late,
+          'until': bankDay(until),
+          'finish': bankDay(finish),
+          'daysToCancel': daysToCancel,
+          'redMonths': redMonths,
+        },
       );
     }
   }

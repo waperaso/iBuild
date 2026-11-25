@@ -2,7 +2,7 @@ import 'package:postgres/postgres.dart';
 
 import 'bank_common.dart';
 import 'db.dart';
-import 'draw_documents.dart' show drawPapers;
+import 'draw_documents.dart' show drawPapers, drawSitePhotos;
 
 const _fmt = bankMoneyFormat;
 const _moment = "'DD.MM.YYYY HH24:MI'";
@@ -71,6 +71,7 @@ Future<Map<String, Object?>?> bankTrancheCard(
   );
   final requestId = request.isEmpty ? null : request.first[0] as String?;
   final papers = requestId == null ? const <Map<String, Object?>>[] : await drawPapers(db, requestId);
+  final sitePhotos = requestId == null ? const <Map<String, Object?>>[] : await drawSitePhotos(db, requestId);
   final days = bankInt(map['elapsed_days']);
   final hours = bankInt(map['elapsed_hours']);
   final sla = bankInt(map['sla_days']);
@@ -148,6 +149,14 @@ Future<Map<String, Object?>?> bankTrancheCard(
                 'url': '/api/bank/tranches/$id/documents/${file['id']}',
               },
           ],
+        },
+    ],
+    // The site photos attached by the developer, with EXIF, SHA-256 and geolocation.
+    'sitePhotos': [
+      for (final photo in sitePhotos)
+        {
+          ...photo,
+          'url': '/api/bank/tranches/$id/photos/${photo['id']}',
         },
     ],
     'decision': decision,

@@ -1558,4 +1558,49 @@ const _knownMessages = <_Row>[
     'Please send the missing documents for the project.',
     'Obyekt bo‘yicha yetishmayotgan hujjatlarni yuborishingizni so‘raymiz.',
   ),
+  (
+    'Добавьте хотя бы одно фото с объекта.',
+    'Add at least one site photo.',
+    'Kamida bitta obyektdan foto qo‘shing.',
+  ),
+  (
+    'Фотоконтроль',
+    'Photo forensics',
+    'Fotonazorat',
+  ),
+  (
+    'Дубликат фото (SHA-256)',
+    'Duplicate photo (SHA-256)',
+    'Takroriy foto (SHA-256)',
+  ),
+  (
+    'Геолокация фото',
+    'Photo geolocation',
+    'Foto geolokatsiyasi',
+  ),
+  (
+    'Метаданные фото (EXIF)',
+    'Photo metadata (EXIF)',
+    'Foto metama’lumotlari (EXIF)',
+  ),
+  (
+    'Фото с объекта проверено',
+    'Site photo verified',
+    'Obyektdan foto tekshirildi',
+  ),
+  (
+    'Доля собственных средств (30%)',
+    'Developer equity share (30%)',
+    'O‘z mablag‘lari ulushi (30%)',
+  ),
+  (
+    'Файл с такой же контрольной суммой SHA-256 уже загружался ранее. Требуется новое фото с объекта.',
+    'A file with the same SHA-256 checksum was already uploaded earlier. A new site photo is required.',
+    'Xuddi shu SHA-256 nazorat summasiga ega fayl ilgari yuklangan. Obyektdan yangi foto talab qilinadi.',
+  ),
+  (
+    'Координаты EXIF и устройства расходятся.',
+    'EXIF and device coordinates do not match.',
+    'EXIF va qurilma koordinatalari mos kelmaydi.',
+  ),
 ];

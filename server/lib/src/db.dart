@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:postgres/postgres.dart';
 
 import 'money.dart';
 import 'passwords.dart' show sha256Hex;
+import 'photo_meta.dart';
 
 class UserRecord {
   const UserRecord({
@@ -1534,6 +1536,45 @@ class AppDatabase {
     return requestForUser(userId, requestId);
   }
 
+  Future<({double? lat, double? lon})> projectCoordinatesForRequest(String requestId) async {
+    final rows = await owner.execute(
+      Sql.named('''
+        SELECT p.latitude::text, p.longitude::text
+        FROM funding_requests fr
+        JOIN projects p ON p.id = fr.project_id
+        WHERE fr.id = @id::uuid
+      '''),
+      parameters: {'id': requestId},
+    );
+    if (rows.isEmpty) return (lat: null, lon: null);
+    final lat = rows.first[0] == null ? null : double.tryParse(rows.first[0].toString());
+    final lon = rows.first[1] == null ? null : double.tryParse(rows.first[1].toString());
+    return (lat: lat, lon: lon);
+  }
+
+  Future<String?> findDuplicatePhotoHash(String sha256) async {
+    if (sha256.isEmpty) return null;
+    final fromReq = await owner.execute(
+      Sql.named('''
+        SELECT id::text FROM request_files
+        WHERE sha256 = @hash AND content_type LIKE 'image/%'
+        ORDER BY created_at ASC LIMIT 1
+      '''),
+      parameters: {'hash': sha256},
+    );
+    if (fromReq.isNotEmpty) return fromReq.first[0] as String?;
+    final fromDraw = await owner.execute(
+      Sql.named('''
+        SELECT id::text FROM draw_requirement_files
+        WHERE sha256 = @hash AND content_type LIKE 'image/%'
+        ORDER BY created_at ASC LIMIT 1
+      '''),
+      parameters: {'hash': sha256},
+    );
+    if (fromDraw.isNotEmpty) return fromDraw.first[0] as String?;
+    return null;
+  }
+
   Future<RequestFileRecord> addRequestFile({
     required String userId,
     required String requestId,
@@ -1542,6 +1583,7 @@ class AppDatabase {
     required int sizeBytes,
     required String fileRoot,
     String purpose = 'material',
+    PhotoVerification? verification,
   }) {
     return pool.runTx((session) async {
       final locked = await session.execute(
@@ -1583,12 +1625,23 @@ class AppDatabase {
       if (kind == 'pdf' && _asInt(tally['pdfs']) >= 1) {
         throw RequestRule('PDF уже добавлен.');
       }
+      final v = verification;
       final inserted = await session.execute(
         Sql.named('''
           INSERT INTO request_files (
-            request_id, storage_path, content_type, size_bytes, author_user_id, purpose
-          )           VALUES (
-            @requestId::uuid, '', @contentType, @size, @userId::uuid, @purpose
+            request_id, storage_path, content_type, size_bytes, author_user_id, purpose,
+            sha256, capture_source, captured_at,
+            gps_lat, gps_lon, gps_accuracy, gps_heading,
+            exif_lat, exif_lon, exif_taken_at, exif_heading,
+            camera_make, camera_model, exif_json,
+            distance_m, verify_status, verify_flags, duplicate_of_file_id
+          ) VALUES (
+            @requestId::uuid, '', @contentType, @size, @userId::uuid, @purpose,
+            @sha256, @captureSource, @capturedAt,
+            @gpsLat, @gpsLon, @gpsAccuracy, @gpsHeading,
+            @exifLat, @exifLon, @exifTakenAt, @exifHeading,
+            @cameraMake, @cameraModel, @exifJson::jsonb,
+            @distanceM, @verifyStatus, @verifyFlags::jsonb, NULLIF(@duplicateOf, '')::uuid
           )
           RETURNING id::text
         '''),
@@ -1598,6 +1651,24 @@ class AppDatabase {
           'size': sizeBytes,
           'userId': userId,
           'purpose': purpose,
+          'sha256': v?.sha256 ?? '',
+          'captureSource': v?.captureSource ?? 'upload',
+          'capturedAt': v?.capturedAt,
+          'gpsLat': v?.gpsLat,
+          'gpsLon': v?.gpsLon,
+          'gpsAccuracy': v?.gpsAccuracy,
+          'gpsHeading': v?.gpsHeading,
+          'exifLat': v?.exifLat,
+          'exifLon': v?.exifLon,
+          'exifTakenAt': v?.exifTakenAt,
+          'exifHeading': v?.exifHeading,
+          'cameraMake': v?.cameraMake ?? '',
+          'cameraModel': v?.cameraModel ?? '',
+          'exifJson': jsonEncode(v?.exifJson ?? const <String, Object?>{}),
+          'distanceM': v?.distanceM,
+          'verifyStatus': v?.verifyStatus ?? 'unverified',
+          'verifyFlags': jsonEncode(v?.verifyFlags ?? const <String>[]),
+          'duplicateOf': v?.duplicateOfFileId ?? '',
         },
       );
       final fileId = inserted.first[0]! as String;
@@ -1632,6 +1703,24 @@ class AppDatabase {
         sizeBytes: sizeBytes,
         kind: kind,
         purpose: purpose,
+        sha256: v?.sha256 ?? '',
+        captureSource: v?.captureSource ?? 'upload',
+        capturedAt: v?.capturedAt?.toIso8601String(),
+        gpsLat: v?.gpsLat,
+        gpsLon: v?.gpsLon,
+        gpsAccuracy: v?.gpsAccuracy,
+        gpsHeading: v?.gpsHeading,
+        exifLat: v?.exifLat,
+        exifLon: v?.exifLon,
+        exifTakenAt: v?.exifTakenAt?.toIso8601String(),
+        exifHeading: v?.exifHeading,
+        cameraMake: v?.cameraMake ?? '',
+        cameraModel: v?.cameraModel ?? '',
+        exif: v?.exifJson ?? const {},
+        distanceM: v?.distanceM,
+        verifyStatus: v?.verifyStatus ?? 'unverified',
+        verifyFlags: v?.verifyFlags ?? const [],
+        duplicateOfFileId: v?.duplicateOfFileId,
       );
     });
   }
@@ -1643,6 +1732,7 @@ class AppDatabase {
     required String kind,
     required int sizeBytes,
     required String fileRoot,
+    String sha256 = '',
   }) {
     return pool.runTx((session) async {
       final locked = await session.execute(
@@ -1673,9 +1763,9 @@ class AppDatabase {
       final inserted = await session.execute(
         Sql.named('''
           INSERT INTO request_files (
-            request_id, storage_path, content_type, size_bytes, author_user_id, purpose
+            request_id, storage_path, content_type, size_bytes, author_user_id, purpose, sha256
           ) VALUES (
-            @requestId::uuid, '', @contentType, @size, @userId::uuid, 'payment'
+            @requestId::uuid, '', @contentType, @size, @userId::uuid, 'payment', @sha256
           )
           RETURNING id::text
         '''),
@@ -1684,6 +1774,7 @@ class AppDatabase {
           'contentType': contentType,
           'size': sizeBytes,
           'userId': userId,
+          'sha256': sha256,
         },
       );
       final fileId = inserted.first[0]! as String;
@@ -1715,6 +1806,7 @@ class AppDatabase {
         sizeBytes: sizeBytes,
         kind: kind,
         purpose: 'payment',
+        sha256: sha256,
       );
     });
   }
@@ -1815,7 +1907,25 @@ class AppDatabase {
                storage_path,
                content_type,
                size_bytes,
-               purpose
+               purpose,
+               sha256,
+               capture_source,
+               captured_at,
+               gps_lat::text AS gps_lat,
+               gps_lon::text AS gps_lon,
+               gps_accuracy::text AS gps_accuracy,
+               gps_heading::text AS gps_heading,
+               exif_lat::text AS exif_lat,
+               exif_lon::text AS exif_lon,
+               exif_taken_at,
+               exif_heading::text AS exif_heading,
+               camera_make,
+               camera_model,
+               exif_json,
+               distance_m,
+               verify_status,
+               verify_flags,
+               duplicate_of_file_id::text AS duplicate_of_file_id
         FROM request_files
         WHERE request_id = @requestId::uuid
         ORDER BY created_at
@@ -1865,6 +1975,24 @@ class RequestFileRecord {
     required this.sizeBytes,
     required this.kind,
     this.purpose = 'material',
+    this.sha256 = '',
+    this.captureSource = 'upload',
+    this.capturedAt,
+    this.gpsLat,
+    this.gpsLon,
+    this.gpsAccuracy,
+    this.gpsHeading,
+    this.exifLat,
+    this.exifLon,
+    this.exifTakenAt,
+    this.exifHeading,
+    this.cameraMake = '',
+    this.cameraModel = '',
+    this.exif = const {},
+    this.distanceM,
+    this.verifyStatus = 'unverified',
+    this.verifyFlags = const [],
+    this.duplicateOfFileId,
   });
 
   final String id;
@@ -1874,9 +2002,38 @@ class RequestFileRecord {
   final int sizeBytes;
   final String kind;
   final String purpose;
+  final String sha256;
+  final String captureSource;
+  final String? capturedAt;
+  final double? gpsLat;
+  final double? gpsLon;
+  final double? gpsAccuracy;
+  final double? gpsHeading;
+  final double? exifLat;
+  final double? exifLon;
+  final String? exifTakenAt;
+  final double? exifHeading;
+  final String cameraMake;
+  final String cameraModel;
+  final Map<String, Object?> exif;
+  final int? distanceM;
+  final String verifyStatus;
+  final List<String> verifyFlags;
+  final String? duplicateOfFileId;
+
+  static double? _num(Object? v) => v == null ? null : double.tryParse(v.toString());
+  static String? _iso(Object? v) => v is DateTime ? v.toUtc().toIso8601String() : _blankToNull(v);
 
   factory RequestFileRecord.fromMap(Map<String, dynamic> map) {
     final contentType = map['content_type'] as String;
+    final rawExif = map['exif_json'];
+    final exifMap = rawExif is Map
+        ? rawExif.map((k, v) => MapEntry(k.toString(), v))
+        : const <String, Object?>{};
+    final rawFlags = map['verify_flags'];
+    final flags = rawFlags is List
+        ? [for (final f in rawFlags) f.toString()]
+        : const <String>[];
     return RequestFileRecord(
       id: map['id'] as String,
       requestId: map['request_id'] as String,
@@ -1885,6 +2042,24 @@ class RequestFileRecord {
       sizeBytes: _asInt(map['size_bytes']),
       kind: contentType == 'application/pdf' ? 'pdf' : 'photo',
       purpose: map['purpose'] as String? ?? 'material',
+      sha256: map['sha256'] as String? ?? '',
+      captureSource: map['capture_source'] as String? ?? 'upload',
+      capturedAt: _iso(map['captured_at']),
+      gpsLat: _num(map['gps_lat']),
+      gpsLon: _num(map['gps_lon']),
+      gpsAccuracy: _num(map['gps_accuracy']),
+      gpsHeading: _num(map['gps_heading']),
+      exifLat: _num(map['exif_lat']),
+      exifLon: _num(map['exif_lon']),
+      exifTakenAt: _iso(map['exif_taken_at']),
+      exifHeading: _num(map['exif_heading']),
+      cameraMake: map['camera_make'] as String? ?? '',
+      cameraModel: map['camera_model'] as String? ?? '',
+      exif: exifMap,
+      distanceM: map['distance_m'] == null ? null : _asInt(map['distance_m']),
+      verifyStatus: map['verify_status'] as String? ?? 'unverified',
+      verifyFlags: flags,
+      duplicateOfFileId: _blankToNull(map['duplicate_of_file_id']),
     );
   }
 
@@ -1894,6 +2069,24 @@ class RequestFileRecord {
     'sizeBytes': sizeBytes,
     'kind': kind,
     'purpose': purpose,
+    'sha256': sha256,
+    'captureSource': captureSource,
+    if (capturedAt != null) 'capturedAt': capturedAt,
+    if (gpsLat != null) 'gpsLat': gpsLat,
+    if (gpsLon != null) 'gpsLon': gpsLon,
+    if (gpsAccuracy != null) 'gpsAccuracy': gpsAccuracy,
+    if (gpsHeading != null) 'gpsHeading': gpsHeading,
+    if (exifLat != null) 'exifLat': exifLat,
+    if (exifLon != null) 'exifLon': exifLon,
+    if (exifTakenAt != null) 'exifTakenAt': exifTakenAt,
+    if (exifHeading != null) 'exifHeading': exifHeading,
+    if (cameraMake.isNotEmpty) 'cameraMake': cameraMake,
+    if (cameraModel.isNotEmpty) 'cameraModel': cameraModel,
+    if (exif.isNotEmpty) 'exif': exif,
+    if (distanceM != null) 'distanceM': distanceM,
+    'verifyStatus': verifyStatus,
+    'verifyFlags': verifyFlags,
+    if (duplicateOfFileId != null) 'duplicateOfFileId': duplicateOfFileId,
   };
 }
 

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'api.dart';
 import 'fx.dart';
 import 'models.dart';
+import 'picked_file.dart';
 import 'registration_models.dart';
 import 'screens/bank/bank_models.dart';
 
@@ -343,12 +344,14 @@ class HttpApiClient implements Api {
     required String itemId,
     required String name,
     required Uint8List bytes,
+    PhotoCaptureMeta? meta,
   }) async {
     final response = await _client.post(
       _uri('/api/draws/$drawId/documents/$itemId?name=${Uri.encodeQueryComponent(name)}'),
       headers: {
         'content-type': 'application/octet-stream',
         'x-csrf-token': ?_csrf,
+        ...?meta?.toHeaders(),
       },
       body: bytes,
     );
@@ -369,12 +372,14 @@ class HttpApiClient implements Api {
   Future<RequestFile> uploadRequestFile({
     required String requestId,
     required Uint8List bytes,
+    PhotoCaptureMeta? meta,
   }) async {
     final response = await _client.post(
       _uri('/api/requests/$requestId/files'),
       headers: {
         'content-type': 'application/octet-stream',
         'x-csrf-token': ?_csrf,
+        ...?meta?.toHeaders(),
       },
       body: bytes,
     );

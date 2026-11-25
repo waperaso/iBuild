@@ -198,6 +198,50 @@ Future<void> _sync(Session tx, String requestId) async {
     confirmedCents += bankCentsOf(line.confirmed ?? '0.00');
   }
   final confirmedText = _centsText(confirmedCents);
+
+  // Site photos forensic results for bank rules.
+  final photoRows = await tx.execute(
+    Sql.named('''
+      SELECT verify_status, verify_flags, distance_m, capture_source
+      FROM request_files
+      WHERE request_id = @id::uuid AND purpose = 'material' AND content_type LIKE 'image/%'
+    '''),
+    parameters: {'id': requestId},
+  );
+  final photos = <RulePhoto>[
+    for (final row in photoRows)
+      RulePhoto(
+        verifyStatus: row[0] as String? ?? 'unverified',
+        verifyFlags: row[1] is List ? [for (final f in (row[1] as List)) f.toString()] : const [],
+        distanceM: row[2] as int?,
+        captureSource: row[3] as String? ?? 'upload',
+      ),
+  ];
+
+  // Developer own-funds share (UP-11 30% rule) when funding sources include equity.
+  final sourceRows = await tx.execute(
+    Sql.named('''
+      SELECT
+        COALESCE(SUM(CASE WHEN kind = 'equity' THEN amount ELSE 0 END), 0)::text AS equity,
+        COALESCE(SUM(amount), 0)::text AS total,
+        COUNT(*) FILTER (WHERE kind = 'equity') AS equity_count,
+        COUNT(*) FILTER (WHERE kind = 'loan') AS loan_count
+      FROM funding_sources
+      WHERE project_id = @project::uuid
+    '''),
+    parameters: {'project': projectId},
+  );
+  double? equityPercent;
+  if (sourceRows.isNotEmpty) {
+    final sm = sourceRows.first.toColumnMap();
+    final total = double.tryParse(sm['total'].toString()) ?? 0;
+    final equity = double.tryParse(sm['equity'].toString()) ?? 0;
+    final hasEquityOrLoan = bankInt(sm['equity_count']) > 0 && bankInt(sm['loan_count']) > 0;
+    if (total > 0 && hasEquityOrLoan) {
+      equityPercent = (equity / total) * 100.0;
+    }
+  }
+
   final results = evaluateBankRules(RuleInput(
     today: DateTime.now().toUtc(),
     rules: rules,
@@ -208,6 +252,8 @@ Future<void> _sync(Session tx, String requestId) async {
     issue: confirmedText,
     fundingPaused: facility['funding_paused'] == true,
     inspected: inspected,
+    photos: photos,
+    equityPercent: equityPercent,
   ));
   await _writeChecks(tx, trancheId, results);
 

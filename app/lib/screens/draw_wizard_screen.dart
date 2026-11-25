@@ -6,6 +6,7 @@ import '../download.dart';
 import '../file_pick.dart';
 import '../l10n.dart';
 import '../models.dart';
+import '../photo_meta_card.dart';
 import '../session_scope.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -229,6 +230,8 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
             child: Text(_noSourcesText(context, copy, widget.projectId)),
           ),
         ],
+        const SizedBox(height: AppSpacing.md),
+        _sitePhotosCard(context, copy, draft),
         if (_draw == null && draft) ...[
           const SizedBox(height: AppSpacing.md),
           IBuildCard(
@@ -447,6 +450,145 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
     });
   }
 
+  Widget _sitePhotosCard(BuildContext context, AppCopy copy, bool draft) {
+    final colors = context.colors;
+    final theme = Theme.of(context);
+    final photos = _draw?.photos ?? const <RequestFile>[];
+    final drawId = _draw?.id;
+    return IBuildCard(
+      key: const Key('draw-site-photos'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  copy.pick(
+                    'Фото с объекта · обязательно',
+                    'Site photos · required',
+                    'Obyektdan foto · majburiy',
+                  ),
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+              Text(
+                photos.isEmpty
+                    ? copy.pick('Не приложено', 'Missing', 'Yuklanmagan')
+                    : '${photos.length} ${copy.pick('фото', 'photo(s)', 'foto')}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: photos.isEmpty ? colors.warning : colors.success,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            copy.pick(
+              'Сделайте фото на месте или загрузите файл. Автоматически сохраняются EXIF, геолокация, геотеги и SHA-256.',
+              'Take a photo on site or upload a file. EXIF, geolocation, geotags and SHA-256 checksum are captured automatically.',
+              'Joyida suratga oling yoki fayl yuklang. EXIF, geolokatsiya, geoteglar va SHA-256 avtomatik saqlanadi.',
+            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: colors.inkMuted),
+          ),
+          if (photos.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            for (final photo in photos) ...[
+              Row(
+                children: [
+                  const Icon(Icons.photo_outlined, size: 18),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      '${copy.photoTile} · ${(photo.sizeBytes / 1024).toStringAsFixed(0)} KB',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
+                  if (drawId != null)
+                    TextButton(
+                      key: Key('open-draw-photo-${photo.id}'),
+                      onPressed: () => openBankFile('/api/requests/$drawId/files/${photo.id}'),
+                      child: Text(copy.docOpen),
+                    ),
+                  if (draft)
+                    TextButton(
+                      key: Key('remove-draw-photo-${photo.id}'),
+                      onPressed: _busyPaper ? null : () => _removeSitePhoto(photo.id),
+                      child: Text(copy.docRemove),
+                    ),
+                ],
+              ),
+              PhotoMetaPanel(file: photo),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+          ],
+          if (draft) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                FilledButton.tonalIcon(
+                  key: const Key('draw-photo-camera'),
+                  onPressed: _busyPaper ? null : () => _addSitePhoto(camera: true),
+                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                  label: Text(copy.pick('Сделать фото', 'Take photo', 'Suratga olish')),
+                ),
+                OutlinedButton.icon(
+                  key: const Key('draw-photo-upload'),
+                  onPressed: _busyPaper ? null : () => _addSitePhoto(camera: false),
+                  icon: const Icon(Icons.upload_file_outlined, size: 18),
+                  label: Text(copy.pick('Загрузить фото', 'Upload photo', 'Foto yuklash')),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addSitePhoto({required bool camera}) async {
+    final picked = await pickTranchePhoto(camera: camera);
+    if (picked == null || !mounted) return;
+    final api = SessionScope.of(context).api;
+    final copy = LocaleScope.copy(context);
+    setState(() {
+      _busyPaper = true;
+      _error = null;
+    });
+    try {
+      final id = await _ensureId();
+      await api.uploadRequestFile(
+        requestId: id,
+        bytes: picked.bytes,
+        meta: picked.meta,
+      );
+      await _reloadDraw();
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _error = copy.known(error.message));
+    } finally {
+      if (mounted) setState(() => _busyPaper = false);
+    }
+  }
+
+  Future<void> _removeSitePhoto(String fileId) async {
+    final draw = _draw;
+    if (draw == null) return;
+    final api = SessionScope.of(context).api;
+    final copy = LocaleScope.copy(context);
+    setState(() => _busyPaper = true);
+    try {
+      await api.deleteRequestFile(requestId: draw.id, fileId: fileId);
+      await _reloadDraw();
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _error = copy.known(error.message));
+    } finally {
+      if (mounted) setState(() => _busyPaper = false);
+    }
+  }
+
   Future<void> _attachPaper(DrawRequirementView item) async {
     final draw = _draw;
     if (draw == null) return;
@@ -459,7 +601,13 @@ class _DrawWizardScreenState extends State<DrawWizardScreen> {
       _error = null;
     });
     try {
-      await api.uploadDrawDocument(drawId: draw.id, itemId: item.itemId, name: picked.name, bytes: picked.bytes);
+      await api.uploadDrawDocument(
+        drawId: draw.id,
+        itemId: item.itemId,
+        name: picked.name,
+        bytes: picked.bytes,
+        meta: picked.meta,
+      );
       await _reloadDraw();
     } on ApiException catch (error) {
       if (mounted) setState(() => _error = copy.known(error.message));

@@ -120,8 +120,10 @@ BankTranche sampleBankTranche({
     canSuspend: true,
   ),
   bool waiting = false,
+  List<RequestFile> sitePhotos = const [],
 }) {
   return BankTranche(
+    sitePhotos: sitePhotos,
     permissions: permissions,
     id: id,
     projectId: 'project-navoi',

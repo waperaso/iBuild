@@ -2,6 +2,8 @@
 /// Amounts stay decimal strings, for example "2260000000.00".
 library;
 
+import '../../models.dart';
+
 const bankQueueTabs = ['mine', 'all', 'developer', 'overdue'];
 
 Map<String, dynamic> _map(Object? value) {
@@ -566,6 +568,7 @@ class BankTranche {
     this.permissions = const BankPermissions(),
     this.decision,
     this.papers = const [],
+    this.sitePhotos = const [],
   });
 
   final String id;
@@ -575,6 +578,9 @@ class BankTranche {
 
   /// The papers the developer attached to the draw, with their files.
   final List<BankPaper> papers;
+
+  /// Site photos attached by the developer with EXIF, SHA-256 checksum and geolocation.
+  final List<RequestFile> sitePhotos;
   final String developerName;
   final int trancheNo;
   final String stage;
@@ -649,6 +655,7 @@ class BankTranche {
       permissions: BankPermissions.fromJson(map(json['permissions'])),
       decision: json['decision'] is Map ? BankDecision.fromJson(map(json['decision'])) : null,
       papers: list(json['papers'], BankPaper.fromJson),
+      sitePhotos: list(json['sitePhotos'], RequestFile.fromJson),
     );
   }
 }

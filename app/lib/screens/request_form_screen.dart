@@ -6,6 +6,7 @@ import '../file_pick.dart';
 import '../l10n.dart';
 import '../models.dart';
 import '../money.dart';
+import '../photo_meta_card.dart';
 import '../picked_file.dart';
 import '../session_scope.dart';
 import '../theme.dart';
@@ -136,9 +137,20 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
     final projectId = _projectId;
     final lineId = _lineId;
     final custom = _type.text.trim();
+    final photo = _photo;
     if (projectId == null || _saving) return;
     if (custom.isEmpty && lineId == null) return;
     final copy = LocaleScope.copy(context);
+    if (photo == null) {
+      setState(() {
+        _error = copy.pick(
+          'Сделайте фото на месте или загрузите фото с объекта — без фото заявку создать нельзя.',
+          'Take a photo on site or upload a site photo — a photo is required.',
+          'Joyida suratga oling yoki obyekt fotosini yuklang — fotosiz ariza yaratib bo‘lmaydi.',
+        );
+      });
+      return;
+    }
     setState(() {
       _saving = true;
       _error = null;
@@ -152,13 +164,11 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
         description: _why.text.trim(),
         customTitle: custom.isEmpty ? null : custom,
       );
-      final photo = _photo;
-      if (photo != null) {
-        await api.uploadRequestFile(
-          requestId: created.id,
-          bytes: photo.bytes,
-        );
-      }
+      await api.uploadRequestFile(
+        requestId: created.id,
+        bytes: photo.bytes,
+        meta: photo.meta,
+      );
       if (!mounted) return;
       // Without extra the draft page loads itself and already shows the uploaded photo.
       context.go('/requests/${created.id}');
@@ -306,21 +316,82 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                   decoration: InputDecoration(labelText: copy.description),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                OutlinedButton(
-                  key: const Key('request-photo'),
-                  onPressed: () async {
-                    final file = await pickRequestFile();
-                    if (file != null && mounted) setState(() => _photo = file);
-                  },
-                  child: Text(_photo == null ? copy.photoEvidence : _photo!.name),
+                Row(
+                  children: [
+                    Text(
+                      copy.photoEvidence,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(
+                      copy.pick('обязательно', 'required', 'majburiy'),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: _photo == null ? colors.warning : colors.success,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
-                  copy.photoEvidenceNote,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: colors.inkMuted),
+                  copy.pick(
+                    'Сделайте фото на месте или загрузите файл. Автоматически сохраняются EXIF, геолокация, геотеги и контрольная сумма SHA-256.',
+                    'Capture a photo on site or upload a file. EXIF, geolocation, geotags and SHA-256 checksum are recorded automatically.',
+                    'Joyida suratga oling yoki fayl yuklang. EXIF, geolokatsiya, geoteglar va SHA-256 nazorat summasi avtomatik saqlanadi.',
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.inkMuted),
                 ),
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: [
+                    FilledButton.tonalIcon(
+                      key: const Key('request-photo-camera'),
+                      onPressed: () async {
+                        final file = await pickTranchePhoto(camera: true);
+                        if (file != null && mounted) setState(() => _photo = file);
+                      },
+                      icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                      label: Text(copy.pick('Сделать фото', 'Take photo', 'Suratga olish')),
+                    ),
+                    OutlinedButton.icon(
+                      key: const Key('request-photo'),
+                      onPressed: () async {
+                        final file = await pickTranchePhoto(camera: false);
+                        if (file != null && mounted) setState(() => _photo = file);
+                      },
+                      icon: const Icon(Icons.upload_file_outlined, size: 18),
+                      label: Text(copy.pick('Загрузить фото', 'Upload photo', 'Foto yuklash')),
+                    ),
+                  ],
+                ),
+                if (_photo != null) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadii.sm),
+                        child: Image.memory(
+                          _photo!.bytes,
+                          width: 92,
+                          height: 72,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Container(
+                            width: 92,
+                            height: 72,
+                            color: colors.surfaceAlt,
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.photo_outlined),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: PendingPhotoMetaStrip(picked: _photo!)),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.lg),
                 if (_error != null) ...[
                   Text(
@@ -335,7 +406,8 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                   key: const Key('save-draft'),
                   label: copy.saveDraft,
                   busy: _saving,
-                  onPressed: _amount.text.trim().isEmpty ||
+                  onPressed: _photo == null ||
+                          _amount.text.trim().isEmpty ||
                           (_type.text.trim().isEmpty && _lineId == null)
                       ? null
                       : _save,
